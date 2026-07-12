@@ -1,0 +1,89 @@
+{
+  "diseases": {
+    "yellow_fever": {
+      "risk_level": "none",
+      "details": [
+        "mandatory_transit"
+      ]
+    },
+    "hepatitis_a": {
+      "risk_level": "recommended",
+      "details": []
+    },
+    "hepatitis_b": {
+      "risk_level": "risk_based",
+      "details": []
+    },
+    "typhoid": {
+      "risk_level": "risk_based",
+      "details": []
+    },
+    "polio": {
+      "risk_level": "mandatory_all",
+      "details": []
+    },
+    "meningitis": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "tbe": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "dengue": {
+      "risk_level": "risk_based",
+      "details": []
+    },
+    "chikungunya": {
+      "risk_level": "risk_based",
+      "details": []
+    },
+    "influenza": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "hpv": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "mpox": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "pneumokokken": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "covid": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "mmr": {
+      "risk_level": "standard",
+      "details": []
+    },
+    "tdap": {
+      "risk_level": "standard",
+      "details": []
+    }
+  },
+  "YF_MANDATORY_ALL": false,
+  "YF_MANDATORY_TRANSIT": true,
+  "YF_RECOMMENDED": false,
+  "MENINGITIS_BELT": false,
+  "HAJJ_MENING": false,
+  "TYPHOID_ENDEMIC": true,
+  "TYPHOID_HIGH": false,
+  "JE_RISK": false,
+  "TBE_RISK": false,
+  "CHIKV_ELEVATED": true,
+  "CHIKV_OUTBREAK": false,
+  "DENGUE_ENDEMIC": true,
+  "HEPA_ENDEMIC": true,
+  "HEPB_ENDEMIC": true,
+  "POLIO_HIGH": true,
+  "POLIO_VULN": false,
+  "RABIES_ENDEMIC": false,
+  "CHOLERA_RISK": false,
+  "MPOX_RISK": true
+}
