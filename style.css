@@ -195,19 +195,26 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .sched-item:last-child { border-bottom: none; }
 .sched-date-input { width: 140px; }
 
-/* Info popup section improvements */
-.m-sec { margin-bottom: 16px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); }
-.m-sec h4 { margin: 0 0 6px; font-size: 13px; text-transform: none; letter-spacing: 0; }
-.m-sec p { margin: 0; font-size: 13px; line-height: 1.6; }
-.disease-sec { background: #fef9ef; border-color: #f0e0b0; }
-.epi-sec { background: #eef5fc; border-color: #bcd6f2; }
-.side-sec { background: #fef2f2; border-color: #f5c2c2; }
-.sched-sec { background: #f0faf0; border-color: #bfe0c2; }
-.avail-sec { background: #f5f0fa; border-color: #d4c2e8; }
-.map-sec { background: #f7f9fb; border-color: #cdd9e3; }
-.map-sec .dist-map { display:block; width:100%; height:auto; margin-top:4px; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:zoom-in; transition:filter .15s; }
-.map-sec .dist-map:hover { filter:brightness(0.97); }
-.map-sec .map-cap { margin-top:6px; font-size:11px; color:var(--grey); }
+/* Info-Popup: schlicht, ohne farbige Boxen */
+.modal .m-sec { margin: 0 0 14px; padding: 0 0 12px; border-bottom: 1px solid var(--line); }
+.modal .m-sec:last-of-type { border-bottom: none; padding-bottom: 0; }
+.modal .m-sec h4 { margin: 0 0 5px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--grey); font-weight: 700; }
+.modal .m-sec p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--black); }
+/* Button "Verbreitungskarte ansehen" im Info-Popup */
+.m-mapbtn { margin-top: 8px; background: var(--black); color: #fff; border: none; border-radius: 7px; padding: 9px 15px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+.m-mapbtn:hover { background: #333; }
+/* "K"-Button neben dem Info-Button */
+.map-btn { display:inline-flex; align-items:center; justify-content:center; margin-left:5px; background:#fff; border:1px solid var(--line); border-radius:50%; width:20px; height:20px; font-size:11px; font-weight:700; cursor:pointer; color:var(--blue); vertical-align:middle; }
+.map-btn:hover { border-color:var(--blue); background:var(--blue-bg); }
+/* Große Karten-Lightbox */
+.map-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.82); z-index:200; align-items:center; justify-content:center; padding:24px; }
+.map-bg.show { display:flex; }
+.map-inner { display:flex; flex-direction:column; align-items:center; max-width:98vw; max-height:96vh; }
+.map-head { color:#fff; font-size:15px; font-weight:600; margin-bottom:10px; text-align:center; }
+.map-full { max-width:98vw; max-height:84vh; width:auto; height:auto; object-fit:contain; background:#fff; border-radius:8px; box-shadow:0 8px 40px rgba(0,0,0,.5); }
+.map-foot { color:rgba(255,255,255,.72); font-size:12px; margin-top:10px; }
+.map-close { position:fixed; top:18px; right:24px; background:rgba(255,255,255,.14); border:none; color:#fff; font-size:26px; line-height:1; width:44px; height:44px; border-radius:50%; cursor:pointer; }
+.map-close:hover { background:rgba(255,255,255,.28); }
 
 /* Drag and Drop styles */
 .sched-item.dragging { opacity: 0.5; background: #f9f9f9; }

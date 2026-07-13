@@ -192,9 +192,10 @@ const APPT_COLOR={today:'#2e7d32',t2:'#1565c0',t3:'#6a1b9a',far:'#b26a00'};
 function vGaps(k){
   if(k==='rabies')return [7,14];
   if(k==='jev')return [28];
+  if(k==='dengue')return [90];  // Qdenga: 0, 3 Monate
   if(k==='hepB'||k==='hepAB')return [28,150];
   if(k==='hepA')return [180];
-  if(k==='tbe')return [7,14];
+  if(k==='tbe')return [30,240];  // Encepur Standard: 0, 1, 9 Monate
   if(k==='tdap_polio' || k==='tdap_combo' || k==='ipv_mono')return [28,150];
   if(k==='menacwy')return [28];
   return [28];
@@ -1496,7 +1497,7 @@ function renderVaxTable(){
     else if(av.flag==='caution')availBadge='<span class="badge yellow">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
     const availNote=(av.flag==='na'||av.flag==='age')?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':(av.flag==='caution'?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':'');
     const liveNote=la?'<div class="reason" style="color:'+(la.level==='block'?'var(--red)':'var(--yellow)')+';font-weight:600">'+(LANG==='de'?la.de:la.en)+'</div>':'';
-    const infoBtn='<button class="info-btn" onclick="showInfo(\''+v.k+'\')">i</button>';
+    const infoBtn='<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>'+(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">K</button>':'');
 
     if(v.tdap_polio){
       const a = tdapPolioAssess();
@@ -1762,23 +1763,32 @@ const DISEASE_MAPS = {
 const PENCIL_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z"></path></svg>';
 function showInfo(k){
   const v=VACCINES.find(x=>x.k===k);const inf=INFO[k];const a=AVAIL[k];
-  const availHtml=a?('<div class="m-sec avail-sec"><h4>'+(LANG==='de'?'Verfügbarkeit & Alter (Ambulanz)':'Availability & age (clinic)')+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
-  const mapFile=DISEASE_MAPS[k];
-  const mapHtml=mapFile?('<div class="m-sec map-sec"><h4>'+(LANG==='de'?'Geografische Verbreitung':'Geographic distribution')+'</h4>'+
-    '<img src="assets/karten/'+mapFile+'" alt="'+(LANG==='de'?'Verteilungskarte':'Distribution map')+'" class="dist-map" onclick="window.open(this.src,\'_blank\')">'+
-    '<div class="map-cap">'+(LANG==='de'?'Quelle: RKI, Epidemiologisches Bulletin 14/2025. Zum Vergrößern anklicken.':'Source: RKI, Epid. Bull. 14/2025. Click to enlarge.')+'</div></div>'):'';
+  const availHtml=a?('<div class="m-sec"><h4>'+(LANG==='de'?'Verfügbarkeit & Alter (Ambulanz)':'Availability & age (clinic)')+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
+  const mapBtn=DISEASE_MAPS[k]?'<button class="m-mapbtn" onclick="showMap(\''+k+'\')">'+(LANG==='de'?'Verbreitungskarte ansehen':'View distribution map')+'</button>':'';
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3>'+(LANG==='de'?v.de:v.en)+(v.live?' <span class="badge live">'+t('live')+'</span>':'')+'</h3>'+
     '<div class="m-sub">'+(LANG==='de'?'Vereinfachte Kurzinformation für das Patientengespräch':'Simplified summary for the patient conversation')+'</div>'+
-    '<div class="m-sec disease-sec"><h4>'+t('mDisease')+'</h4><p>'+inf.disease[LANG]+'</p></div>'+
-    '<div class="m-sec epi-sec"><h4>'+t('mEpi')+'</h4><p>'+inf.epi[LANG]+'</p></div>'+
-    mapHtml+
-    '<div class="m-sec side-sec"><h4>'+t('mSide')+'</h4><p>'+inf.side[LANG]+'</p></div>'+
-    '<div class="m-sec sched-sec"><h4>'+t('mSchedInfo')+'</h4><p>'+inf.sched[LANG]+'</p></div>'+
-    availHtml;
+    '<div class="m-sec"><h4>'+t('mDisease')+'</h4><p>'+inf.disease[LANG]+'</p></div>'+
+    '<div class="m-sec"><h4>'+t('mEpi')+'</h4><p>'+inf.epi[LANG]+'</p></div>'+
+    '<div class="m-sec"><h4>'+t('mSide')+'</h4><p>'+inf.side[LANG]+'</p></div>'+
+    '<div class="m-sec"><h4>'+t('mSchedInfo')+'</h4><p>'+inf.sched[LANG]+'</p></div>'+
+    availHtml+mapBtn;
   el('modal-bg').classList.add('show');
 }
 function closeModal(){el('modal-bg').classList.remove('show');}
+function showMap(k){
+  const f=DISEASE_MAPS[k];if(!f)return;
+  const v=VACCINES.find(x=>x.k===k);const name=v?(LANG==='de'?v.de:v.en):'';
+  el('map-bg').innerHTML='<button class="map-close" onclick="closeMap()" title="Schließen">×</button>'+
+    '<div class="map-inner">'+
+      '<div class="map-head">'+name+' — '+(LANG==='de'?'Geografische Verbreitung':'Geographic distribution')+'</div>'+
+      '<img src="assets/karten/'+f+'" alt="'+name+'" class="map-full">'+
+      '<div class="map-foot">'+(LANG==='de'?'Quelle: RKI, Epidemiologisches Bulletin 14/2025':'Source: RKI, Epidemiological Bulletin 14/2025')+'</div>'+
+    '</div>';
+  el('map-bg').classList.add('show');
+}
+function closeMap(){el('map-bg').classList.remove('show');el('map-bg').innerHTML='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeMap();closeModal();}});
 
 function savePatient(){
   const name=el('p-name').value.trim();const dob=el('p-dob').value;
