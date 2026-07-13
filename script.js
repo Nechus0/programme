@@ -24,7 +24,7 @@ const I18N={
  s4Title:{de:'Geplante Impfungen (Terminierung)',en:'Planned vaccinations (Scheduling)'},s4Desc:{de:'Automatische Terminbündelung für geplante Impfungen auf Basis der STIKO-Mindestabstände.',en:'Automated appointment bundling for planned vaccinations based on STIKO minimum intervals.'},
  noPlan:{de:'Noch keine Impfungen zur Planung markiert.',en:'No vaccinations marked for planning yet.'},
  lgRed:{de:'Dringend empfohlen',en:'Strongly recommended'},lgYellow:{de:'Erwägen',en:'Consider'},lUseful:{de:'Empfohlen (Reise)',en:'Recommended (Travel)'},
- lGeneral:{de:'Generell empfohlen (STIKO)',en:'Generally recommended (STIKO)'},lgGreen:{de:'Aktuell / geschützt',en:'Up to date / protected'},lgBlue:{de:'Generell empfohlen',en:'Generally advised'},lgGrey:{de:'Nicht relevant',en:'Not relevant'},lgPlan:{de:'Geplant (noch kein Schutz)',en:'Planned (not yet protected)'},
+ lGeneral:{de:'Generell empfohlen (STIKO)',en:'Generally recommended (STIKO)'},lgGreen:{de:'Geschützt',en:'Protected'},lgBlue:{de:'Generell empfohlen',en:'Generally advised'},lgGrey:{de:'Nicht relevant',en:'Not relevant'},lgPlan:{de:'Geplant (noch kein Schutz)',en:'Planned (not yet protected)'},
  fChronic:{de:'Chronische Erkrankung',en:'Chronic illness'},fImmunodef:{de:'Immundefizienz',en:'Immune deficiency'},travelWarn:{de:'Reisewarnung des Auswärtigen Amts – von Reisen wird abgeraten.',en:'German Foreign Office travel warning — travel is advised against.'},sourcesLbl:{de:'Datenbasis:',en:'Sources:'},
  loggedIn:{de:'Eingeloggt:',en:'Logged in:'},savedStamp:{de:'Gespeichert',en:'Saved'},physicianLbl:{de:'Behandler/in',en:'Physician'},
  serLabel:{de:'Serologie (Titer bekannt & ausreichend / immun)',en:'Serology (titre known & sufficient / immune)'},serMeasles:{de:'Masern-IgG ausreichend',en:'Measles IgG sufficient'},serVzv:{de:'Varizellen-IgG ausreichend',en:'Varicella IgG sufficient'},serHbs:{de:'Anti-HBs ausreichend',en:'Anti-HBs sufficient'},serHint:{de:'Nicht angehakt = unbekannt bzw. nicht ausreichend → ggf. impfen.',en:'Unchecked = unknown or insufficient → vaccinate if indicated.'},
@@ -66,6 +66,7 @@ const COUNTRIES=[
 ];
 const TERRITORIES=[
  ['GF','Französisch-Guayana','French Guiana','SAM'],['MQ','Martinique','Martinique','CAM'],['GP','Guadeloupe','Guadeloupe','CAM'],['RE','Réunion','Réunion','SSAF'],['YT','Mayotte','Mayotte','SSAF'],['PF','Französisch-Polynesien','French Polynesia','OCE'],['NC','Neukaledonien','New Caledonia','OCE'],['PR','Puerto Rico','Puerto Rico','CAM'],['VI','Amerik. Jungferninseln','US Virgin Islands','CAM'],['AW','Aruba','Aruba','CAM'],['CW','Curaçao','Curaçao','CAM'],['KY','Cayman Islands','Cayman Islands','CAM'],['GU','Guam','Guam','OCE'],['HK','Hongkong (SVR)','Hong Kong SAR','EAS'],['MO','Macau (SVR)','Macau SAR','EAS'],['GL','Grönland','Greenland','NAM'],['BM','Bermuda','Bermuda','NAM'],['CK','Cookinseln','Cook Islands','OCE'],
+ ['AD','Andorra','Andorra','WEUR'],['AG','Antigua und Barbuda','Antigua and Barbuda','CAM'],['AI','Anguilla (UK)','Anguilla','CAM'],['AS','Amerikanisch-Samoa (USA)','American Samoa','OCE'],['AX','Åland-Inseln (Finnland)','Åland Islands','WEUR'],['BL','St. Barthélemy (Frankreich)','Saint Barthélemy','CAM'],['BQ','Bonaire, Sint Eustatius, Saba','Bonaire, Sint Eustatius and Saba','CAM'],['CC','Kokosinseln (Australien)','Cocos (Keeling) Islands','OCE'],['CX','Weihnachtsinsel (Australien)','Christmas Island','OCE'],['EH','Westsahara','Western Sahara','NAFME'],['FK','Falklandinseln (UK)','Falkland Islands (Malvinas)','SAM'],['FO','Färöer (Dänemark)','Faroe Islands','WEUR'],['GG','Guernsey','Guernsey','WEUR'],['GI','Gibraltar (UK)','Gibraltar','WEUR'],['IM','Isle of Man','Isle of Man','WEUR'],['JE','Jersey','Jersey','WEUR'],['KN','St. Kitts und Nevis','Saint Kitts and Nevis','CAM'],['LI','Liechtenstein','Liechtenstein','WEUR'],['MC','Monaco','Monaco','WEUR'],['MF','St. Martin (Frankreich)','Saint Martin (French part)','CAM'],['MH','Marshallinseln','Marshall Islands','OCE'],['MP','Nördliche Marianen-Inseln (USA)','Northern Mariana Islands','OCE'],['MS','Montserrat (UK)','Montserrat','CAM'],['NF','Norfolkinsel (Australien)','Norfolk Island','OCE'],['NR','Nauru','Nauru','OCE'],['NU','Niue (Neuseeland)','Niue','OCE'],['PM','St. Pierre und Miquelon (Frankreich)','Saint Pierre and Miquelon','NAM'],['PN','Pitcairninseln (UK)','Pitcairn','OCE'],['PW','Palau','Palau','OCE'],['SH','St. Helena (UK)','Saint Helena, Ascension and Tristan da Cunha','SSAF'],['SJ','Svalbard und Jan Mayen (Norwegen)','Svalbard and Jan Mayen','WEUR'],['SM','San Marino','San Marino','WEUR'],['SX','Sint Maarten (Niederlande)','Sint Maarten (Dutch part)','CAM'],['TC','Turks- und Caicosinseln (UK)','Turks and Caicos Islands','CAM'],['TK','Tokelau (Neuseeland)','Tokelau','OCE'],['TV','Tuvalu','Tuvalu','OCE'],['VA','Vatikanstadt (Heiliger Stuhl)','Holy See (Vatican City State)','WEUR'],['VC','St. Vincent und die Grenadinen','Saint Vincent and the Grenadines','CAM'],['VG','Britische Jungferninseln (UK)','Virgin Islands, British','CAM'],['WF','Wallis und Futuna (Frankreich)','Wallis and Futuna','OCE'],
 ];
 const ALL_COUNTRIES=[...COUNTRIES.map(c=>({code:c[0],de:c[1],en:c[2],region:c[3],terr:false})),...TERRITORIES.map(c=>({code:c[0],de:c[1],en:c[2],region:c[3],terr:true}))];
 const CBY={}; ALL_COUNTRIES.forEach(c=>CBY[c.code]=c);
@@ -786,18 +787,20 @@ function renderApptOverview() {
         if (offset === 0 && idx === 0) {
             subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${LANG==='de'?'Heute (0 Wochen)':'Today (0 weeks)'}</div>`;
         } else {
-            // Absolute Zeit ab heute (korrekt)
-            let absW = Math.round(offset/7);
-            let absM = Math.floor(absW/4);
-            let absRem = absW % 4;
+            // Absolute Zeit ab heute – Monate als echte Kalendermonate (~30,44 Tage),
+            // damit z. B. 180 Tage = 6 Monate (nicht 6 Monate + 2 Wochen).
+            let absM = Math.floor(offset / 30.44);
+            let absRem = Math.round((offset - Math.round(absM * 30.44)) / 7);
+            if (absRem >= 4) { absM += 1; absRem -= 4; }   // fast voller Monat -> aufrunden
             let absText = '';
-            if (absW === 0) absText = LANG==='de'?'Heute':'Today';
+            if (offset === 0) absText = LANG==='de'?'Heute':'Today';
             else {
-                let amTxt = absM === 1 ? (LANG==='de'?'1 Monat':'1 month') : (absM > 1 ? (LANG==='de'?`${absM} Monate`:`${absM} months`) : '');
+                let amTxt = absM === 1 ? (LANG==='de'?'1 Monat':'1 month') : (absM > 1 ? (LANG==='de'?`${absM} Monaten`:`${absM} months`) : '');
                 let awTxt = absRem === 1 ? (LANG==='de'?'1 Woche':'1 week') : (absRem > 1 ? (LANG==='de'?`${absRem} Wochen`:`${absRem} weeks`) : '');
                 if (absM > 0 && absRem > 0) absText = `In ${amTxt} + ${awTxt}`;
                 else if (absM > 0) absText = `In ${amTxt}`;
-                else absText = `In ${awTxt}`;
+                else if (absRem > 0) absText = `In ${awTxt}`;
+                else absText = LANG==='de'?'In Kürze':'Soon';
             }
             // Bindende Ursache: Abstand zur vorherigen DOSIS derselben Impfung (nicht zum vorherigen Termin)
             let reasonHtml = '';
@@ -819,15 +822,14 @@ function renderApptOverview() {
         }
     }
     
-    let editSvg = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z"></path></svg>`;
-    let editIcon = !isEdit ? `<div style="cursor:pointer;color:var(--grey);opacity:0.6;display:flex;align-items:center;padding:4px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'" onclick="window.toggleBucketEdit(${idx})" title="${LANG==='de'?'Bearbeiten':'Edit'}">${editSvg}</div>` : '';
+    let editIcon = !isEdit ? `<span class="icon-btn" onclick="window.toggleBucketEdit(${idx})" title="${LANG==='de'?'Bearbeiten':'Edit'}">${PENCIL_SVG}</span>` : '';
     let dateAlert = (daysDep !== null && offset > daysDep) ? '<span style="color:var(--red);font-weight:bold;font-size:12px;margin-left:8px">Nach Abreise</span>' : '';
 
     let itemsHtml = b.items.map(it => {
        return `<div class="sched-item" id="${it.id}" draggable="true" ondragstart="hDragStart(event)" ondragend="hDragEnd(event)" data-name="${it.name}" data-k="${it.k}" data-stkey="${it.stKey}" data-planfield="${it.planField}" data-live="${it.live}" data-reacto="${it.isReacto}">
          <div style="cursor:grab;flex:1;"><b>${it.displayName}</b> ${it.live ? '<span class="badge live">Lebend</span>' : ''}</div>
          <div style="display:flex; gap:12px; align-items:center;">
-            <div style="color:var(--grey);font-size:14px;cursor:pointer;font-weight:bold;padding:0 4px;opacity:0.6;" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='0.6';this.style.color='var(--grey)'" onclick="hRemoveItem('${it.id}'); event.stopPropagation();" title="${LANG==='de'?'Impfung entfernen':'Remove vaccine'}">✕</div>
+            <span class="icon-btn del" onclick="hRemoveItem('${it.id}'); event.stopPropagation();" title="${LANG==='de'?'Impfung entfernen':'Remove vaccine'}">✕</span>
             <div style="color:var(--grey);font-size:14px;cursor:grab;">☰</div>
          </div>
        </div>`;
@@ -1053,7 +1055,7 @@ function baseLevel(v){
    case 'polio': {
       const pCat1 = ['AF','PK','DE','DZ','CD','DJ','IL','LA','CM','GN','TD'];
       const pCat2 = ['AO','ET','BJ','BF','CI','YE','NA','NE','NG','PS','PG','PL','SN','SO','SD','SS','TZ','GB','CF'];
-      const pCat3 = ['EG','GQ','FI','GF','GM','GH','ID','KE','LR','ML','MR','MZ','SL','CG','ZW','ES','UG'];
+      const pCat3 = ['EG','GQ','FI','GF','GM','GH','ID','KE','LR','ML','MR','MZ','SL','CG','ZW','ES','UG','HT','SY'];
       let isC1=false, isC2=false, isC3=false;
       destinations.forEach(d => { if(pCat1.includes(d)) isC1=true; else if(pCat2.includes(d)) isC2=true; else if(pCat3.includes(d)) isC3=true; });
       
@@ -1505,31 +1507,32 @@ function renderVaxTable(){
       const compBadges='<div class="comp-badges" style="margin-bottom:8px;">'+['T','D','aP','IPV'].map(cc=>'<span class="comp '+a[cc]+'">'+lbls[cc]+'</span>').join('')+'</div>'+
         (a.unvaxxed?'<div class="reason"><span class="badge red" style="margin-bottom:4px;display:inline-block">'+(LANG==='de'?'Dringend empfohlen':'Strongly recommended')+'</span><br>'+(LANG==='de'?'Bisher keine Impfung erfolgt':'No prior vaccination')+'</div>':'')+
         (a.infantOngoing?'<div class="reason">'+(LANG==='de'?'Altersgerechte, laufende Grundimmunisierung':'Age-appropriate, ongoing primary series')+'</div>':'');
-      
+
       const dOpts=[['0','0'],['1','1'],['2','2'],['3','3'],['>3','>3']];
       const dSel=dOpts.map(o=>'<option value="'+o[0]+'"'+(st.doses_hexa===o[0]?' selected':'')+'>'+o[1]+'</option>').join('');
-      
+
+      function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)">';}
+
       let col2 = '<div class="ctrl-box" style="margin-bottom:6px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_tdap?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_tdap\',this.checked)"> '+(LANG==='de'?'GI TDaP komplett':'Primary TDaP complete')+'</label></div>'+
                  '<div class="ctrl-box" style="margin-bottom:10px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_ipv?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_ipv\',this.checked)"> '+(LANG==='de'?'GI IPV komplett':'Primary IPV complete')+'</label></div>'+
                  '<div style="margin-bottom:4px;font-size:11px;color:var(--grey)">'+(LANG==='de'?'Hexavalent-Dosen (Kindheit):':'Hexavalent doses (childhood):')+'</div>'+
-                 '<select style="width:60px; padding:4px; font-size:16px; border:1px solid var(--line); border-radius:6px; background:#fff; margin-top:0;" onchange="setField(\'tdap_polio\',\'doses_hexa\',this.value)">'+
-                 '<option value="">—</option>'+dSel+'</select>';
+                 '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
+                   '<select class="hexa-sel" onchange="setField(\'tdap_polio\',\'doses_hexa\',this.value)"><option value="">—</option>'+dSel+'</select>'+
+                   '<span style="font-size:11px;color:var(--grey)">'+(LANG==='de'?'Jahr':'Year')+'</span>'+yrIn('y_hexa')+
+                 '</div>';
 
-      function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" style="width:50px;padding:4px;font-size:12px;margin-left:4px" placeholder="JJJJ" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)">';}
-      
-      let col3 = '<div style="display:flex; flex-direction:column; gap:4px; font-size:11px; align-items:flex-end;">'+
-                   '<div style="display:flex; flex-direction:column; align-items:flex-end; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--line); width:100%;">'+
+      let col3 = '<div style="display:flex; flex-direction:column; gap:6px; font-size:11px;">'+
+                   '<div style="display:flex; flex-direction:column; margin-bottom:6px; padding-bottom:8px; border-bottom:1px dashed var(--line);">'+
                      '<div style="font-size:10px; color:var(--grey); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.05em;">'+(LANG==='de'?'Kombi-Schnelleingabe':'Quick-Fill Combo')+'</div>'+
-                     '<div style="display:flex; gap:4px; align-items:center;">'+
-                       '<input type="text" inputmode="numeric" maxlength="4" class="year-in" style="width:55px;padding:4px;font-size:12px;" placeholder="JJJJ" id="quick_tdap_yr" onchange="quickFillTdap(this.value)">'+
+                     '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">'+
+                       '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" id="quick_tdap_yr" onchange="quickFillTdap(this.value)">'+
                        '<button class="ext-btn'+(st.quick_type==='tdap_ipv'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap_ipv\')">Tdap-IPV</button>'+
                        '<button class="ext-btn'+(st.quick_type==='tdap'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap\')">Tdap</button>'+
                      '</div>'+
                    '</div>'+
-                   '<div style="display:flex;align-items:center">Letzte Td:'+yrIn('y_td')+'</div>'+
-                   '<div style="display:flex;align-items:center">Letzte aP:'+yrIn('y_ap')+'</div>'+
-                   '<div style="display:flex;align-items:center">Letzte IPV:'+yrIn('y_ipv')+'</div>'+
-                   '<div style="display:flex;align-items:center;margin-top:6px;border-top:1px solid var(--line);padding-top:4px">Letzte Hexa:'+yrIn('y_hexa')+'</div>'+
+                   '<div class="yr-row"><span>'+(LANG==='de'?'Letzte Td':'Last Td')+'</span>'+yrIn('y_td')+'</div>'+
+                   '<div class="yr-row"><span>'+(LANG==='de'?'Letzte aP':'Last aP')+'</span>'+yrIn('y_ap')+'</div>'+
+                   '<div class="yr-row"><span>'+(LANG==='de'?'Letzte IPV':'Last IPV')+'</span>'+yrIn('y_ipv')+'</div>'+
                  '</div>';
 
       html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+availBadge+infoBtn+'</div><div class="vsub">'+(LANG==='de'?'Basis-Impfschutz':'Core vaccines')+'</div></td>'+
@@ -1544,7 +1547,7 @@ function renderVaxTable(){
         if(s==='yellow') return LANG==='de'?'Unvollständig':'Incomplete';
         if(s==='blue') return LANG==='de'?'Empfohlen':'Recommended';
         if(s==='red') return LANG==='de'?'Empfohlen':'Recommended';
-        return LANG==='de'?'Nicht vordringlich':'Not a priority';
+        return LANG==='de'?'Nicht relevant':'Not relevant';
       };
       const aBadgeTxt = hepLbl(ha.A);
       let bBadgeTxt = hepLbl(ha.B);
@@ -1553,10 +1556,10 @@ function renderVaxTable(){
       }
 
       const aBadge='<div class="comp-badges" style="margin-bottom:6px"><span class="comp '+ha.A+'">Hep A</span></div>'+
-        '<span class="badge '+ha.A+'" style="margin-bottom:6px;display:inline-block">'+aBadgeTxt+'</span>'+
+        '<div style="margin-bottom:6px"><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
         '<div class="reason">'+(LANG==='de'?ha.aNote.de:ha.aNote.en)+'</div>';
       const bBadge='<div class="comp-badges" style="margin-bottom:6px; margin-top:6px"><span class="comp '+ha.B+'">Hep B</span></div>'+
-        '<span class="badge '+ha.B+'" style="margin-bottom:6px;display:inline-block">'+bBadgeTxt+'</span>'+
+        '<div style="margin-bottom:6px"><span class="badge '+ha.B+'">'+bBadgeTxt+'</span></div>'+
         '<div class="reason">'+(LANG==='de'?ha.bNote.de:ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
@@ -1751,14 +1754,25 @@ function updatePregVisibility(){const male=el('p-sex').value==='m';const f=el('p
 function updateDepartureHint(){const d=el('p-departure').value;const h=el('departure-hint');if(!h)return;h.textContent=d?((LANG==='de'?'Tage bis Abreise: ':'Days to departure: ')+Math.round((new Date(d)-new Date())/86400000)):'';}
 function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();}
 
+const DISEASE_MAPS = {
+  yellowfever:'yellowfever.png', tdap_polio:'polio.png', hepatitis:'hepatitis_a.png',
+  menacwy:'menacwy.png', jev:'jev.png', rabies:'rabies.png', tbe:'tbe.png',
+  dengue:'dengue.png', influenza:'influenza.png'
+};
+const PENCIL_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z"></path></svg>';
 function showInfo(k){
   const v=VACCINES.find(x=>x.k===k);const inf=INFO[k];const a=AVAIL[k];
   const availHtml=a?('<div class="m-sec avail-sec"><h4>'+(LANG==='de'?'Verfügbarkeit & Alter (Ambulanz)':'Availability & age (clinic)')+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
+  const mapFile=DISEASE_MAPS[k];
+  const mapHtml=mapFile?('<div class="m-sec map-sec"><h4>'+(LANG==='de'?'Geografische Verbreitung':'Geographic distribution')+'</h4>'+
+    '<img src="assets/karten/'+mapFile+'" alt="'+(LANG==='de'?'Verteilungskarte':'Distribution map')+'" class="dist-map" onclick="window.open(this.src,\'_blank\')">'+
+    '<div class="map-cap">'+(LANG==='de'?'Quelle: RKI, Epidemiologisches Bulletin 14/2025. Zum Vergrößern anklicken.':'Source: RKI, Epid. Bull. 14/2025. Click to enlarge.')+'</div></div>'):'';
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3>'+(LANG==='de'?v.de:v.en)+(v.live?' <span class="badge live">'+t('live')+'</span>':'')+'</h3>'+
     '<div class="m-sub">'+(LANG==='de'?'Vereinfachte Kurzinformation für das Patientengespräch':'Simplified summary for the patient conversation')+'</div>'+
     '<div class="m-sec disease-sec"><h4>'+t('mDisease')+'</h4><p>'+inf.disease[LANG]+'</p></div>'+
     '<div class="m-sec epi-sec"><h4>'+t('mEpi')+'</h4><p>'+inf.epi[LANG]+'</p></div>'+
+    mapHtml+
     '<div class="m-sec side-sec"><h4>'+t('mSide')+'</h4><p>'+inf.side[LANG]+'</p></div>'+
     '<div class="m-sec sched-sec"><h4>'+t('mSchedInfo')+'</h4><p>'+inf.sched[LANG]+'</p></div>'+
     availHtml;
@@ -1909,7 +1923,7 @@ function renderPatients(){
     const upd=(p.updatedAt&&p.updatedAt!==p.savedAt)?' · '+(LANG==='de'?'geändert':'edited')+' '+fmtDateTime(p.updatedAt):'';
     const stamp='<div style="margin-top:12px;font-size:11.5px;color:var(--grey);border-top:1px solid var(--line);padding-top:8px;">'+t('savedStamp')+': '+fmtDateTime(p.savedAt)+upd+' · '+t('physicianLbl')+': '+(p.physician||'—')+'</div>';
     const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LANG==='de'?'J.':'yrs')+')':'';
-    return '<li class="patient-item" id="pi-'+p.id+'"><div class="patient-head" onclick="togglePatient('+p.id+')"><span class="caret">▶</span><span class="pl-name">'+p.name+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+'</span><span class="pl-spacer"></span><button class="btn sec sm" onclick="event.stopPropagation();loadPatient('+p.id+')">'+t('edit')+'</button><button class="btn danger sm" onclick="event.stopPropagation();deletePatient('+p.id+')">'+t('del')+'</button></div>'+
+    return '<li class="patient-item" id="pi-'+p.id+'"><div class="patient-head" onclick="togglePatient('+p.id+')"><span class="caret">▶</span><span class="pl-name">'+p.name+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+'</span><span class="pl-spacer"></span><span class="icon-btn" onclick="event.stopPropagation();loadPatient('+p.id+')" title="'+t('edit')+'">'+PENCIL_SVG+'</span><span class="icon-btn del" onclick="event.stopPropagation();deletePatient('+p.id+')" title="'+t('del')+'">✕</span></div>'+
       '<div class="patient-body"><div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></li>';
   }).join('');
 }

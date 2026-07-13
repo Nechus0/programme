@@ -52,9 +52,10 @@ table.vax{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;
 table.vax th,table.vax td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top;}
 table.vax thead th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#fff;font-weight:600;background:var(--black);vertical-align:middle;}
 table.vax thead th:first-child{border-top-left-radius:6px;} table.vax thead th:last-child{border-top-right-radius:6px;}
-table.vax th:nth-child(1), table.vax td:nth-child(1) { width: 24%; }
-table.vax th:nth-child(2), table.vax td:nth-child(2) { width: 240px; }
-table.vax th:nth-child(3), table.vax td:nth-child(3) { width: 150px; text-align: center; }
+table.vax th:nth-child(1), table.vax td:nth-child(1) { width: 22%; }
+table.vax th:nth-child(2), table.vax td:nth-child(2) { width: 27%; }
+table.vax th:nth-child(3), table.vax td:nth-child(3) { width: 20%; }
+table.vax th:nth-child(4), table.vax td:nth-child(4) { width: 31%; }
 table.vax tbody tr:hover{background:#fafafa;}
 .combo-row{background:#fafafa;}
 .badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;}
@@ -72,8 +73,15 @@ table.vax tbody tr:hover{background:#fafafa;}
 .dose-chips{display:flex;flex-wrap:wrap;gap:4px;max-width:180px;}
 .dose-chip{border:1px solid var(--line);border-radius:6px;padding:5px 9px;font-size:12px;cursor:pointer;color:#555;user-select:none;min-width:30px;text-align:center;}
 .dose-chip:hover{border-color:var(--black);} .dose-chip.selected{background:var(--black);color:#fff;border-color:var(--black);font-weight:700;}
-.year-in{width:100px;padding:8px 10px;font-size:15px;text-align:center;border:1px solid var(--line);border-radius:6px;}
+.year-in{width:84px;padding:6px 8px;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;}
 .year-in:focus{outline:none;border-color:var(--black);}
+.hexa-sel{width:56px;padding:6px 6px;font-size:14px;border:1px solid var(--line);border-radius:6px;background:#fff;}
+.yr-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.yr-row span{color:var(--grey);}
+/* Einheitliche Aktions-Icons (Stift/X) für Impfstatus-Terminplan + Patientenliste */
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--grey);opacity:.55;padding:4px;background:none;border:none;font-size:15px;line-height:1;transition:opacity .15s,color .15s;}
+.icon-btn:hover{opacity:1;}
+.icon-btn.del:hover{color:var(--red);}
 /* Einheitliche Dropdowns (Breite via Klasse; Padding/Schrift erben von der Basisregel) */
 select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;margin-top:6px;}
 .appt-row{display:flex;flex-wrap:wrap;gap:4px;max-width:230px;}
@@ -196,6 +204,10 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .side-sec { background: #fef2f2; border-color: #f5c2c2; }
 .sched-sec { background: #f0faf0; border-color: #bfe0c2; }
 .avail-sec { background: #f5f0fa; border-color: #d4c2e8; }
+.map-sec { background: #f7f9fb; border-color: #cdd9e3; }
+.map-sec .dist-map { display:block; width:100%; height:auto; margin-top:4px; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:zoom-in; transition:filter .15s; }
+.map-sec .dist-map:hover { filter:brightness(0.97); }
+.map-sec .map-cap { margin-top:6px; font-size:11px; color:var(--grey); }
 
 /* Drag and Drop styles */
 .sched-item.dragging { opacity: 0.5; background: #f9f9f9; }
