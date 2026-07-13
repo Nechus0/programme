@@ -82,16 +82,17 @@
     </div>
     <div class="grid g4" style="margin-top:16px;">
       <div><label class="fld" data-i18n="fPhone">Telefon</label><input type="text" id="p-phone" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fEmailAddr">E-Mail</label><input type="email" id="p-email" placeholder="name@example.de"></div>
       <div><label class="fld" data-i18n="fInsurance">Krankenkasse</label><input type="text" id="p-insurance" placeholder="—"></div>
       <div><label class="fld" data-i18n="fProfession">Beruf (freiwillig)</label><input type="text" id="p-profession" placeholder="—"></div>
-      <div><label class="fld" data-i18n="fDuration">Aufenthaltsdauer</label><select id="p-duration" onchange="recompute()"><option value="<1w">&lt; 1 Woche</option><option value="1-2w">1–2 Wochen</option><option value="2-4w">2–4 Wochen</option><option value="1-3m">4 Wochen bis 3 Monate</option><option value="3-6m">3–6 Monate</option><option value=">6m">&gt;6 Monate</option></select></div>
     </div>
     <div class="grid g4" style="margin-top:16px;">
       <div><label class="fld" data-i18n="fAddress">Anschrift</label><input type="text" id="p-address" placeholder="Straße, Nr."></div>
       <div><label class="fld" data-i18n="fZip">PLZ</label><input type="text" id="p-zip" placeholder="—"></div>
       <div><label class="fld" data-i18n="fCity">Wohnort</label><input type="text" id="p-city" placeholder="—"></div>
-      <div><label class="fld" data-i18n="fDeparture">Abreisedatum</label><input type="date" id="p-departure" onchange="recompute()"><div class="hint" id="departure-hint"></div></div>
+      <div><label class="fld" data-i18n="fDuration">Aufenthaltsdauer</label><select id="p-duration" onchange="recompute()"><option value="<1w">&lt; 1 Woche</option><option value="1-2w">1–2 Wochen</option><option value="2-4w">2–4 Wochen</option><option value="1-3m">4 Wochen bis 3 Monate</option><option value="3-6m">3–6 Monate</option><option value=">6m">&gt;6 Monate</option></select></div>
     </div>
+    <div style="margin-top:16px;max-width:240px;"><label class="fld" data-i18n="fDeparture">Abreisedatum</label><input type="date" id="p-departure" onchange="recompute()"><div class="hint" id="departure-hint"></div></div>
     <div class="grid g2" style="margin-top:16px;">
       <div><label class="fld" data-i18n="fDest">Reiseziel(e) hinzufügen</label><select id="dest-select" onchange="addDest(this.value)"></select><div class="hint" data-i18n="fDestHint">Mehrere Ziele möglich. Überseegebiete separat (*).</div><div class="chips" id="dest-chips"></div></div>
       <div><label class="fld" data-i18n="fConditions">Besondere Bedingungen / Exposition</label>
@@ -116,12 +117,13 @@
     <div style="margin-top:16px;max-width:440px;">
       <label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><input type="text" id="p-recentvax" placeholder="—">
     </div>
-    <div style="display:flex;gap:22px;margin-top:14px;flex-wrap:wrap;font-size:13px;">
-      <label class="chk-line"><input type="checkbox" id="p-acute" onchange="recompute()"> <span data-i18n="fAcute">Akute Erkrankung (z. B. fieberhafter Infekt)</span></label>
-      <label class="chk-line"><input type="checkbox" id="p-chronic" onchange="recompute()"> <span data-i18n="fChronic">Chronische Erkrankung</span></label>
-      <label class="chk-line"><input type="checkbox" id="p-immunodef" onchange="recompute()"> <span data-i18n="fImmunodef">Immundefizienz</span></label>
-      <label class="chk-line"><input type="checkbox" id="p-thrombosis"> <span data-i18n="fThrombosis">Thrombose in der Vorgeschichte</span></label>
-      <label class="chk-line"><input type="checkbox" id="p-faint"> <span data-i18n="fFaint">Schwäche/Ohnmacht bei Impfung/Blutabnahme</span></label>
+    <div class="grid g2" style="margin-top:16px;">
+      <div><label class="fld" data-i18n="fChronicText">Chronische Erkrankung / Immundefizienz (welche?)</label><input type="text" id="p-chronic-text" placeholder="z. B. Diabetes, Asplenie, HIV, Rheuma …" oninput="recompute()"><div class="mini-note" id="immunodef-recog"></div></div>
+      <div style="display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;font-size:13px;padding-bottom:2px;">
+        <label class="chk-line"><input type="checkbox" id="p-acute" onchange="recompute()"> <span data-i18n="fAcute">Akute Erkrankung</span></label>
+        <label class="chk-line"><input type="checkbox" id="p-thrombosis"> <span data-i18n="fThrombosis">Thrombose</span></label>
+        <label class="chk-line"><input type="checkbox" id="p-faint"> <span data-i18n="fFaint">Ohnmacht bei Impfung/Blutabnahme</span></label>
+      </div>
     </div>
     <div id="immuno-warn"></div>
   </section>

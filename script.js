@@ -13,6 +13,7 @@ const I18N={
  thName:{de:'Name',en:'Name'},thTitle:{de:'Titel',en:'Title'},thGender:{de:'Geschlecht',en:'Gender'},thRole:{de:'Funktion',en:'Role'},thStatusReg:{de:'Status',en:'Status'},
  kasseTitle:{de:'Kasse',en:'Reception / Billing'},kasseDesc:{de:'Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.',en:'No function is assigned to the "Reception/Billing" role yet.'},
  kioskHint:{de:'Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.',en:'Please fill in your details and submit.'},kioskSubmit:{de:'Daten absenden',en:'Submit data'},
+ fEmailAddr:{de:'E-Mail',en:'Email'},fChronicText:{de:'Chronische Erkrankung / Immundefizienz (welche?)',en:'Chronic illness / immunodeficiency (which?)'},
  fMedication:{de:'Aktuelle Medikamente',en:'Current medication'},optPregnant:{de:'schwanger',en:'pregnant'},optBreastfeeding:{de:'stillend',en:'breastfeeding'},optPlanned:{de:'Schwangerschaft geplant',en:'pregnancy planned'},
  btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
  disclaimer:{de:'Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.',en:'Demonstration mockup. Recommendations follow STIKO methodology and do not replace clinical judgement. Verify outbreak/travel advisories (RKI, German Foreign Office) before each consultation; live retrieval needs a server backend.'},
@@ -952,8 +953,10 @@ function drugRecognized(){return matchedDrugs().length>0;}
 function isLowGradeOnly(){return hasLowImmuno()&&!hasHighImmuno();}
 function isPregnant(){return el('p-pregnant').value==='pregnant';}
 function isBreastfeeding(){return el('p-pregnant').value==='breastfeeding';}
-function hasChronic(){const e=el('p-chronic');return e&&e.checked;}
-function hasImmuneDef(){const e=el('p-immunodef');return e&&e.checked;}
+const IMMUNODEF_KW=['hiv','aids','asplen','splenekt','milzentfern','ohne milz','leukämie','leukamie','lymphom','myelom','transplant','stammzell','knochenmark','chemo','angeboren','kongenital','immundefekt','immundefizienz','scid','agammaglobulin','neutropenie','ctla','komplementdefekt','digeorge','di-george','sichelzell','graft'];
+function chronicTextVal(){const e=el('p-chronic-text');return e?e.value.trim().toLowerCase():'';}
+function hasChronic(){return chronicTextVal().length>0;}
+function hasImmuneDef(){const s=chronicTextVal();return s?IMMUNODEF_KW.some(k=>s.includes(k)):false;}
 function allergyEgg(){const s=(el('p-allergy').value||'').toLowerCase();return /h(ü|ue)hnerei|hühnereiwei|huehnereiwei|\begg\b|eiwei|ovalbumin|eiklar/.test(s);}
 function allergyNote(v){
   if(v.k==='yellowfever'&&allergyEgg())return {de:'Hühnereiweißallergie: Gelbfieber ist hühnerei-basiert – bei schwerer Allergie kontraindiziert, Rücksprache.',en:'Egg allergy: yellow fever is egg-based — contraindicated if severe; seek advice.'};
@@ -1770,6 +1773,7 @@ function renderNotes(){
 
 function renderImmunoWarn(){
   const box=el('immuno-warn');const recog=el('drug-recog');const drug=el('p-immuno').value.trim();
+  const idr=el('immunodef-recog'); if(idr){ const s=chronicTextVal(); idr.style.color=hasImmuneDef()?'var(--red)':'var(--grey)'; idr.textContent=(s&&hasImmuneDef())?(LANG==='de'?'Hinweis auf Immundefizienz – Lebendimpfstoffe kontraindiziert/prüfen':'Possible immunodeficiency — check live vaccines'):''; }
   const lives=VACCINES.filter(v=>v.live).map(v=>LANG==='de'?v.de:v.en).join(', ');
   if(!drug){recog.textContent='';}
   else if(!drugRecognized()){recog.style.color='var(--grey)';recog.textContent=(LANG==='de'?'Wirkstoff nicht in Datenbank erkannt – bitte manuell bewerten.':'Substance not recognised — assess manually.');}
@@ -1862,12 +1866,12 @@ async function savePatient(){
   const snap={
     id: editingId || (window.crypto&&crypto.randomUUID?crypto.randomUUID():String(Date.now())),
     name, firstname:g('p-firstname'), dob, age:ageYears(dob), sex:el('p-sex').value,
-    phone:g('p-phone'), insurance:g('p-insurance'), profession:g('p-profession'),
+    phone:g('p-phone'), email:g('p-email'), insurance:g('p-insurance'), profession:g('p-profession'),
     address:g('p-address'), zip:g('p-zip'), city:g('p-city'),
     duration:el('p-duration').value, departure:el('p-departure').value, destinations:[...destinations],
     pregnant:el('p-pregnant').value, allergy:g('p-allergy'),
     meds:[...medsList], immuno: medsList.filter(medIsImmuno).join(', '), recentVax:g('p-recentvax'),
-    conds:conds(), acute:c('p-acute'), chronic:c('p-chronic'), immunodef:c('p-immunodef'),
+    conds:conds(), acute:c('p-acute'), chronicText:g('p-chronic-text'), chronic:(chronicTextVal().length>0), immunodef:hasImmuneDef(),
     thrombosis:c('p-thrombosis'), faint:c('p-faint'),
     serology:JSON.parse(JSON.stringify(serologyState)), childhood:childhoodOn(),
     comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
@@ -1893,7 +1897,7 @@ function loadPatient(id){
   _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');_sv('p-recentvax',p.recentVax||'');
   medsList = Array.isArray(p.meds)?[...p.meds]:(p.meds?String(p.meds).split(/,\s*/).filter(Boolean):(p.immuno?String(p.immuno).split(/,\s*/).filter(Boolean):[]));
   _sv('p-med-input',''); _sv('p-immuno',medsList.join(', ')); renderMedPills();
-  el('p-chronic').checked=!!p.chronic;el('p-immunodef').checked=!!p.immunodef;
+  _sv('p-chronic-text', p.chronicText || (p.chronic&&!p.chronicText?'chronische Erkrankung':'') ); _sv('p-email', p.email||'');
   _sc('p-acute',!!p.acute);_sc('p-thrombosis',!!p.thrombosis);_sc('p-faint',!!p.faint);
   const ser=p.serology||{};
   serologyState.measles=!!ser.measles;serologyState.vzv=!!ser.vzv;serologyState.hbs=!!ser.hbs;
@@ -2111,8 +2115,7 @@ function _sv(id,v){const e=el(id);if(e)e.value=v;}
 function _sc(id,v){const e=el(id);if(e)e.checked=v;}
 function resetForm(){
   el('p-name').value='';el('p-dob').value='';el('p-sex').value='f';el('p-duration').value='<1w';el('p-departure').value='';el('p-pregnant').value='no';el('p-allergy').value='';el('p-immuno').value='';el('p-comment').value='';
-  el('p-chronic').checked=false;el('p-immunodef').checked=false;
-  ['p-firstname','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-med-input','p-recentvax'].forEach(id=>_sv(id,''));
+  ['p-firstname','p-email','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-chronic-text','p-med-input','p-recentvax'].forEach(id=>_sv(id,''));
   ['p-acute','p-thrombosis','p-faint'].forEach(id=>_sc(id,false));
   medsList=[]; renderMedPills();
   serologyState = { measles: false, vzv: false, hbs: false };
