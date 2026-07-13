@@ -13,6 +13,8 @@ const I18N={
  thName:{de:'Name',en:'Name'},thTitle:{de:'Titel',en:'Title'},thGender:{de:'Geschlecht',en:'Gender'},thRole:{de:'Funktion',en:'Role'},thStatusReg:{de:'Status',en:'Status'},
  kasseTitle:{de:'Kasse',en:'Reception / Billing'},kasseDesc:{de:'Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.',en:'No function is assigned to the "Reception/Billing" role yet.'},
  kioskHint:{de:'Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.',en:'Please fill in your details and submit.'},kioskSubmit:{de:'Daten absenden',en:'Submit data'},
+ fMedication:{de:'Aktuelle Medikamente',en:'Current medication'},optPregnant:{de:'schwanger',en:'pregnant'},optBreastfeeding:{de:'stillend',en:'breastfeeding'},optPlanned:{de:'Schwangerschaft geplant',en:'pregnancy planned'},
+ btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
  disclaimer:{de:'Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.',en:'Demonstration mockup. Recommendations follow STIKO methodology and do not replace clinical judgement. Verify outbreak/travel advisories (RKI, German Foreign Office) before each consultation; live retrieval needs a server backend.'},
  s1Title:{de:'Patient & Reise',en:'Patient & Travel'},s1Desc:{de:'Grunddaten, Reiseziel(e) und Aufenthaltsdauer erfassen.',en:'Enter basic data, destination(s) and duration.'},
  fName:{de:'Name',en:'Name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
@@ -948,7 +950,8 @@ function hasHighImmuno(){return matchedDrugs().some(d=>d.g==='high'||d.g==='dose
 function hasLowImmuno(){return matchedDrugs().some(d=>d.g==='low');}
 function drugRecognized(){return matchedDrugs().length>0;}
 function isLowGradeOnly(){return hasLowImmuno()&&!hasHighImmuno();}
-function isPregnant(){return el('p-pregnant').value==='yes';}
+function isPregnant(){return el('p-pregnant').value==='pregnant';}
+function isBreastfeeding(){return el('p-pregnant').value==='breastfeeding';}
 function hasChronic(){const e=el('p-chronic');return e&&e.checked;}
 function hasImmuneDef(){const e=el('p-immunodef');return e&&e.checked;}
 function allergyEgg(){const s=(el('p-allergy').value||'').toLowerCase();return /h(ü|ue)hnerei|hühnereiwei|huehnereiwei|\begg\b|eiwei|ovalbumin|eiklar/.test(s);}
@@ -974,6 +977,22 @@ function serHBs(){return serologyState.hbs;}
 function toggleSerology(key, checked) { serologyState[key] = checked; recompute(); }
 function immunocompromised(){return hasHighImmuno()||hasImmuneDef();}
 function livesBlocked(){return isPregnant()||immunocompromised();}
+
+/* ---------- Medikamente als Pillen (ein Feld, Immunsuppressiva rot) ---------- */
+let medsList = [];
+function medIsImmuno(name){const s=(name||'').toLowerCase();return IMMUNO_DB.some(d=>s.includes(d.n));}
+function medKey(e){ if(e.key==='Enter'){ e.preventDefault(); addMedFromInput(); } }
+function addMedFromInput(){
+  const inp=el('p-med-input'); if(!inp) return;
+  inp.value.split(',').forEach(part=>{ const n=part.trim(); if(n && !medsList.some(m=>m.toLowerCase()===n.toLowerCase())) medsList.push(n); });
+  inp.value=''; syncMeds();
+}
+function removeMed(i){ medsList.splice(i,1); syncMeds(); }
+function syncMeds(){ const h=el('p-immuno'); if(h) h.value = medsList.join(', '); renderMedPills(); recompute(); }
+function renderMedPills(){
+  const box=el('med-pills'); if(!box) return;
+  box.innerHTML = medsList.map((m,i)=>'<span class="med-pill'+(medIsImmuno(m)?' immuno':'')+'">'+m.replace(/</g,'&lt;')+'<span class="mx" onclick="removeMed('+i+')" title="Entfernen">✕</span></span>').join('');
+}
 
 function availability(v){
   const a=AVAIL[v.k];const age=ageExact(el('p-dob').value);
@@ -1058,6 +1077,10 @@ function baseLevel(v){
      if(age !== null && age < 2) {
          yfNoteDe.push('Hinweis: Bei Erstimpfung unter 2 Jahren ist bei fortgesetztem Risiko eine spätere Auffrischung nötig (DTG)');
          yfNoteEn.push('Note: If first dose < 2 years, a later booster is needed for ongoing risk (DTG)');
+     }
+     if(isBreastfeeding()) {
+         yfNoteDe.push('Stillzeit: Gelbfieber (Lebendimpfstoff) nur nach individueller Nutzen-Risiko-Abwägung');
+         yfNoteEn.push('Breastfeeding: yellow fever (live vaccine) only after individual risk-benefit assessment');
      }
      if(yfNoteDe.length > 0) { noteDe = yfNoteDe.join(' / '); noteEn = yfNoteEn.join(' / '); }
      break;
@@ -1213,7 +1236,7 @@ function baseLevel(v){
      else if(rl==='risk_based'||rl==='recommended'){level='useful';noteDe='Erhöhtes Hintergrundrisiko';noteEn='Elevated background risk';}
      break;
    case 'varicella':
-     let isWish = el('p-pregnant').value === 'wish';
+     let isWish = el('p-pregnant').value === 'planned';
      if(isWish && age !== null && (age < 13 || age > 50)) isWish = false;
      
      if(c.includes('health') || isWish){level='strong';noteDe='Indiziert bei med. Personal oder Kinderwunsch im gebärfähigen Alter (falls ungeschützt)';noteEn='Indicated for medical staff or planned pregnancy in childbearing age (if unprotected)';}
@@ -1841,8 +1864,8 @@ async function savePatient(){
     phone:g('p-phone'), insurance:g('p-insurance'), profession:g('p-profession'),
     address:g('p-address'), zip:g('p-zip'), city:g('p-city'),
     duration:el('p-duration').value, departure:el('p-departure').value, destinations:[...destinations],
-    pregnant:el('p-pregnant').value, allergy:g('p-allergy'), immuno:g('p-immuno'),
-    meds:g('p-meds'), recentVax:g('p-recentvax'),
+    pregnant:el('p-pregnant').value, allergy:g('p-allergy'),
+    meds:[...medsList], immuno: medsList.filter(medIsImmuno).join(', '), recentVax:g('p-recentvax'),
     conds:conds(), acute:c('p-acute'), chronic:c('p-chronic'), immunodef:c('p-immunodef'),
     thrombosis:c('p-thrombosis'), faint:c('p-faint'),
     serology:JSON.parse(JSON.stringify(serologyState)), childhood:childhoodOn(),
@@ -1853,19 +1876,22 @@ async function savePatient(){
   if(USE_DB){
     const res = editingId ? await dbUpdatePatient(editingId, snap) : await dbInsertPatient(snap);
     if(res && res.error){ alert('Speichern fehlgeschlagen: '+(res.error.message||res.error)); return false; }
-    await loadPatientsFromDB();
+    if(roleSeesClinic((CURRENT_PROFILE||{}).role)) await loadPatientsFromDB();
   } else {
     if(editingId){const i=patients.findIndex(p=>p.id===editingId);if(i>=0)patients[i]=snap;else patients.push(snap);}else patients.push(snap);
     storeSet('charite_patients',JSON.stringify(patients));
     renderPatients();
   }
-  resetForm();
+  if(document.body.classList.contains('clinic')) exitToList();
+  else resetForm();
   return true;
 }
 function loadPatient(id){
   const p=patients.find(x=>x.id===id);if(!p)return;
   el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
-  _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');_sv('p-meds',p.meds||'');_sv('p-recentvax',p.recentVax||'');
+  _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');_sv('p-recentvax',p.recentVax||'');
+  medsList = Array.isArray(p.meds)?[...p.meds]:(p.meds?String(p.meds).split(/,\s*/).filter(Boolean):(p.immuno?String(p.immuno).split(/,\s*/).filter(Boolean):[]));
+  _sv('p-med-input',''); _sv('p-immuno',medsList.join(', ')); renderMedPills();
   el('p-chronic').checked=!!p.chronic;el('p-immunodef').checked=!!p.immunodef;
   _sc('p-acute',!!p.acute);_sc('p-thrombosis',!!p.thrombosis);_sc('p-faint',!!p.faint);
   const ser=p.serology||{};
@@ -1887,9 +1913,12 @@ function loadPatient(id){
   }
   editingId=id;el('editing-banner').classList.add('show');el('editing-text').textContent=t('editingNow')+p.name;el('save-btn').textContent=t('btnSaveEdit');
   customSchedule=p.customSchedule?JSON.parse(JSON.stringify(p.customSchedule)):null;
-  renderDestChips();recompute();if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+  renderDestChips();recompute();
+  if(document.body.classList.contains('clinic')) enterPatient();
+  else if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
 }
-function cancelEdit(){editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnSave');resetForm();}
+function cancelEdit(){editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnSave');resetForm();
+  if(document.body.classList.contains('clinic')){document.body.classList.add('clinic-idle');const b=el('clinic-back');if(b)b.style.display='none';}}
 async function deletePatient(id){
   if(!confirm(t('confirmDel')))return;
   if(USE_DB){
@@ -2082,8 +2111,9 @@ function _sc(id,v){const e=el(id);if(e)e.checked=v;}
 function resetForm(){
   el('p-name').value='';el('p-dob').value='';el('p-sex').value='f';el('p-duration').value='<1w';el('p-departure').value='';el('p-pregnant').value='no';el('p-allergy').value='';el('p-immuno').value='';el('p-comment').value='';
   el('p-chronic').checked=false;el('p-immunodef').checked=false;
-  ['p-firstname','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-meds','p-recentvax'].forEach(id=>_sv(id,''));
+  ['p-firstname','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-med-input','p-recentvax'].forEach(id=>_sv(id,''));
   ['p-acute','p-thrombosis','p-faint'].forEach(id=>_sc(id,false));
+  medsList=[]; renderMedPills();
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
   destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnSave');
@@ -2147,8 +2177,29 @@ function applyRole(profile){
   }
   ['step1','step2','notes-card','step3','step-schedule','list-card'].forEach(id=>show(id,true));
   show('kasse-card',false);
-  if(USE_DB) loadPatientsFromDB();
+  document.body.classList.add('clinic');
+  document.body.classList.add('clinic-idle');       // Start: kein Patient gewählt → Abschnitte eingeklappt
+  const npb=el('new-patient-btn'); if(npb) npb.style.display='inline-block';
+  moveListToTop();
+  if(USE_DB) loadPatientsFromDB(); else renderPatients();
 }
+function moveListToTop(){
+  const main=document.querySelector('main'); const lc=el('list-card');
+  const anchor=el('clinic-back')||el('step1');
+  if(main&&lc&&anchor&&lc!==anchor){ try{ main.insertBefore(lc, anchor); }catch(e){} }
+}
+function enterPatient(){
+  document.body.classList.remove('clinic-idle');
+  const b=el('clinic-back'); if(b) b.style.display='';
+  try{ el('step1').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+}
+function exitToList(){
+  resetForm();
+  document.body.classList.add('clinic-idle');
+  const b=el('clinic-back'); if(b) b.style.display='none';
+  try{ el('list-card').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+}
+function startNewPatient(){ resetForm(); enterPatient(); }
 
 /* ---------- Kiosk (Patientenaccount) ---------- */
 async function kioskSubmit(){
@@ -2168,7 +2219,7 @@ function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
   _fillSelect('au-title', TITLES.map(x=>({v:x})), x=>x.v, x=>x.v||'—');
   _fillSelect('au-gender', GENDERS, x=>x.value, x=>LANG==='de'?x.de:x.en);
-  _fillSelect('au-role', ROLES, x=>x.value, x=>LANG==='de'?x.de:x.en, 'mfa');
+  _fillSelect('au-role', CREATABLE_ROLES, x=>x.value, x=>LANG==='de'?x.de:x.en, 'mfa');
   p.classList.add('show');
   renderAdminUsers();
 }
@@ -2176,16 +2227,25 @@ function closeAdminPanel(){ const p=el('admin-panel'); if(p) p.classList.remove(
 function adminMsg(text,type){ const e=el('admin-msg'); if(e) e.innerHTML = text?('<div class="msg '+(type||'err')+'">'+text+'</div>'):''; }
 
 async function renderAdminUsers(){
-  const tb=el('admin-users'); if(!tb) return;
+  const box=el('admin-users'); if(!box) return;
   const { data, error } = await adminListUsers();
-  if(error){ tb.innerHTML='<tr><td colspan="6">'+(error.message||error)+'</td></tr>'; return; }
-  if(!data.length){ tb.innerHTML='<tr><td colspan="6" style="color:var(--grey)">Noch keine Nutzer angelegt.</td></tr>'; return; }
-  tb.innerHTML = data.map(u=>{
-    const reg = u.registered ? '<span class="badge green">registriert</span>' : '<span class="badge yellow">offen</span>';
-    const em = (u.email||'').replace(/'/g,"\\'");
-    return '<tr><td>'+(u.full_name||'—')+'</td><td>'+(u.title||'—')+'</td><td>'+genderLabel(u.gender,'de')+'</td><td>'+roleLabel(u.role,'de')+'</td><td>'+reg+'<div class="mini-note">'+(u.email||'')+'</div></td>'+
-      '<td style="text-align:right"><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></td></tr>';
-  }).join('');
+  if(error){ box.innerHTML='<div class="msg err">'+(error.message||error)+'</div>'; return; }
+  if(!data.length){ box.innerHTML='<div class="mini-note">Noch keine Nutzer angelegt.</div>'; return; }
+  const order=['admin','arzt','mfa','kasse','patient'];
+  const byRole={}; data.forEach(u=>{(byRole[u.role]=byRole[u.role]||[]).push(u);});
+  let html='';
+  order.forEach(r=>{
+    const list=byRole[r]; if(!list||!list.length) return;
+    html+='<div class="admin-group"><div class="admin-group-h">'+roleLabel(r,'de')+' <span>('+list.length+')</span></div>';
+    list.forEach(u=>{
+      const em=(u.email||'').replace(/'/g,"\\'");
+      const reg=u.registered?'<span class="badge green">registriert</span>':'<span class="badge yellow">offen</span>';
+      const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
+      html+='<div class="admin-row"><div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
+    });
+    html+='</div>';
+  });
+  box.innerHTML=html;
 }
 async function adminSaveUser(){
   const email=el('au-email').value.trim();

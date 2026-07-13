@@ -22,6 +22,8 @@ const ROLES = [
   { value: 'kasse',   de: 'Kasse',         en: 'Reception/Billing' },
   { value: 'patient', de: 'Patientenaccount', en: 'Patient account' },
 ];
+// Rollen, die der Admin manuell anlegt (Patient = anonymer Tablet-Zugang, nicht anlegbar)
+const CREATABLE_ROLES = ROLES.filter(r => r.value !== 'patient');
 const TITLES  = ['', 'Dr.', 'Dr. med.', 'Prof.', 'Prof. Dr.', 'PD Dr.'];
 const GENDERS = [ {value:'w',de:'weiblich',en:'female'}, {value:'m',de:'männlich',en:'male'}, {value:'d',de:'divers',en:'diverse'} ];
 
@@ -54,6 +56,10 @@ async function signInWithPassword(email, password) {
 async function signUpWithPassword(email, password) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
   return await supabaseClient.auth.signUp({ email: email.trim(), password });
+}
+async function signInAnonymously() {
+  if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
+  return await supabaseClient.auth.signInAnonymously();
 }
 async function sendPasswordReset(email) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };

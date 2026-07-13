@@ -53,11 +53,12 @@
     </section>
     <section class="card">
       <h2 data-i18n="adminUserList">Angelegte Nutzer</h2>
-      <div class="table-container">
-        <table class="vax admin-table"><thead><tr>
-          <th data-i18n="thName">Name</th><th data-i18n="thTitle">Titel</th><th data-i18n="thGender">Geschlecht</th><th data-i18n="thRole">Funktion</th><th data-i18n="thStatusReg">Status</th><th></th>
-        </tr></thead><tbody id="admin-users"></tbody></table>
-      </div>
+      <div class="card-desc" data-i18n="adminUserListDesc">Nach Funktion gruppiert.</div>
+      <div id="admin-users" class="admin-users"></div>
+    </section>
+    <section class="card">
+      <h2 data-i18n="adminTabletTitle">Patienten-Tablet (Selbstanmeldung)</h2>
+      <div class="card-desc" data-i18n="adminTabletDesc">Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.</div>
     </section>
   </div>
 </div>
@@ -66,6 +67,8 @@
   <div class="disclaimer" data-i18n="disclaimer">Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.</div>
 
   <div class="editing-banner" id="editing-banner"><span id="editing-text"></span><button class="btn sec sm" onclick="cancelEdit()" data-i18n="btnCancelEdit">Bearbeitung abbrechen</button></div>
+
+  <div class="clinic-back" id="clinic-back" style="display:none" onclick="exitToList()">&larr; <span data-i18n="backToList">Zurück zur Ambulanzliste</span></div>
 
   <!-- STEP 1 -->
   <section class="card" id="step1">
@@ -106,13 +109,12 @@
     <h2><span class="step-badge">2</span><span data-i18n="s2Title">Anamnese & Kontraindikationen</span></h2>
     <div class="card-desc" data-i18n="s2Desc">Wesentliche Anamnese zur Impftauglichkeit. Medikamente werden gegen eine Wirkstoff-Datenbank geprüft.</div>
     <div class="grid g3">
-      <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillen</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="yes" data-i18n="optYes">ja</option><option value="wish" data-i18n="optWish">Kinderwunsch / geplant</option></select></div>
+      <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillzeit</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="pregnant" data-i18n="optPregnant">schwanger</option><option value="breastfeeding" data-i18n="optBreastfeeding">stillend</option><option value="planned" data-i18n="optPlanned">Schwangerschaft geplant</option></select></div>
       <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" oninput="recompute()"></div>
-      <div><label class="fld" data-i18n="fImmuno">Immunrelevante Medikation</label><input type="text" id="p-immuno" placeholder="z.B. Adalimumab, Methotrexat" oninput="recompute()"><div class="mini-note" id="drug-recog"></div></div>
+      <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><input type="text" id="p-med-input" placeholder="Medikament eingeben + Enter" onkeydown="medKey(event)"><div class="med-pills" id="med-pills"></div><div class="mini-note" id="drug-recog"></div><input type="hidden" id="p-immuno"></div>
     </div>
-    <div class="grid g2" style="margin-top:16px;">
-      <div><label class="fld" data-i18n="fMeds">Aktuelle Medikamente (welche?)</label><input type="text" id="p-meds" placeholder="—"></div>
-      <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><input type="text" id="p-recentvax" placeholder="—"></div>
+    <div style="margin-top:16px;max-width:440px;">
+      <label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><input type="text" id="p-recentvax" placeholder="—">
     </div>
     <div style="display:flex;gap:22px;margin-top:14px;flex-wrap:wrap;font-size:13px;">
       <label class="chk-line"><input type="checkbox" id="p-acute" onchange="recompute()"> <span data-i18n="fAcute">Akute Erkrankung (z. B. fieberhafter Infekt)</span></label>
@@ -166,7 +168,7 @@
 
   <!-- LIST / AMBULANZLISTE -->
   <section class="card" id="list-card">
-    <h2><span data-i18n="listTitle">Ambulanzliste</span><span class="count-pill" id="list-count">0</span></h2>
+    <h2 style="display:flex;align-items:center;"><span data-i18n="listTitle">Ambulanzliste</span><span class="count-pill" id="list-count">0</span><span style="flex:1"></span><button class="btn sm" id="new-patient-btn" onclick="startNewPatient()" style="display:none" data-i18n="btnNewPatient">+ Neuer Patient</button></h2>
     <div class="card-desc" data-i18n="listDesc">In Speicherreihenfolge. Aufklappen zum Ansehen, Stift zum Weiterbearbeiten.</div>
     <ul class="patient-list" id="patient-list"></ul>
   </section>
