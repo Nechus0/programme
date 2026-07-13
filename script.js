@@ -15,7 +15,7 @@ const I18N={
  kioskHint:{de:'Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.',en:'Please fill in your details and submit.'},kioskSubmit:{de:'Daten absenden',en:'Submit data'},
  fEmailAddr:{de:'E-Mail',en:'Email'},fChronicText:{de:'Chronische Erkrankung / Immundefizienz (welche?)',en:'Chronic illness / immunodeficiency (which?)'},
  fMedication:{de:'Aktuelle Medikamente',en:'Current medication'},optPregnant:{de:'schwanger',en:'pregnant'},optBreastfeeding:{de:'stillend',en:'breastfeeding'},optPlanned:{de:'Schwangerschaft geplant',en:'pregnancy planned'},
- btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
+ btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},btnToday:{de:'Heute',en:'Today'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
  disclaimer:{de:'Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.',en:'Demonstration mockup. Recommendations follow STIKO methodology and do not replace clinical judgement. Verify outbreak/travel advisories (RKI, German Foreign Office) before each consultation; live retrieval needs a server backend.'},
  s1Title:{de:'Patient & Reise',en:'Patient & Travel'},s1Desc:{de:'Grunddaten, Reiseziel(e) und Aufenthaltsdauer erfassen.',en:'Enter basic data, destination(s) and duration.'},
  fName:{de:'Name',en:'Name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
@@ -1876,6 +1876,7 @@ async function savePatient(){
     serology:JSON.parse(JSON.stringify(serologyState)), childhood:childhoodOn(),
     comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
+    status:(existing&&existing.status)||'waiting', group:(existing&&existing.group)||'',
     savedAt:(existing&&existing.savedAt)||new Date().toISOString(), updatedAt:new Date().toISOString()
   };
   if(USE_DB){
@@ -1936,11 +1937,76 @@ async function deletePatient(id){
     if(editingId===id)cancelEdit();renderPatients();
   }
 }
-function togglePatient(id){el('pi-'+id).classList.toggle('open');}
+function togglePatient(id){const e=el('pi-'+id);if(e)e.classList.toggle('open');}
+
+/* ================= AMBULANZLISTE: Tag / Suche / Status / Gruppen ================= */
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+let listDay = ymd(new Date());
+let listSearch = '';
+const AMB_STATUS=[{k:'waiting',de:'Wartend',en:'Waiting'},{k:'treatment',de:'In Behandlung',en:'In treatment'},{k:'done',de:'Behandelt',en:'Treated'}];
+function patientDay(p){const s=p.savedAt||p.updatedAt;if(!s)return listDay;try{return ymd(new Date(s));}catch(e){return listDay;}}
+function patientStatus(p){return p.status||'waiting';}
+function listDayPick(v){if(v){listDay=v;renderPatients();}}
+function listDayShift(n){const d=new Date(listDay+'T00:00:00');d.setDate(d.getDate()+n);listDay=ymd(d);const i=el('list-date');if(i)i.value=listDay;renderPatients();}
+function listDayToday(){listDay=ymd(new Date());const i=el('list-date');if(i)i.value=listDay;renderPatients();}
+function listSearchChange(v){listSearch=(v||'').trim().toLowerCase();renderPatients();}
+async function setPatientStatus(id,status){
+  const p=patients.find(x=>x.id===id);if(!p)return;p.status=status;
+  if(USE_DB){const res=await dbUpdatePatient(id,p);if(res&&res.error){alert('Status speichern fehlgeschlagen: '+(res.error.message||res.error));}}
+  else{storeSet('charite_patients',JSON.stringify(patients));}
+  renderPatients();
+}
+async function assignGroup(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  const g=prompt(LANG==='de'?'Gruppen-/Familienname (leer = Gruppe entfernen):':'Group/family name (empty = remove):', p.group||'');
+  if(g===null)return; p.group=g.trim();
+  if(USE_DB){const res=await dbUpdatePatient(id,p);if(res&&res.error){alert('Speichern fehlgeschlagen: '+(res.error.message||res.error));}}
+  else{storeSet('charite_patients',JSON.stringify(patients));}
+  renderPatients();
+}
+let _dragPid=null;
+function pDragStart(e,id){_dragPid=id;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
+function pDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function pDrop(e,status){e.preventDefault();e.currentTarget.classList.remove('drag-over');let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status);}
+function statusBtns(p){
+  const id=p.id,s=patientStatus(p);let b='';
+  const mk=(st,lbl)=>'<button class="btn sec sm amb-move" onclick="event.stopPropagation();setPatientStatus(\''+id+'\',\''+st+'\')">'+lbl+'</button>';
+  if(s==='waiting') b+=mk('treatment',LANG==='de'?'In Behandlung':'Treat');
+  else if(s==='treatment'){ b+=mk('done',LANG==='de'?'Behandelt':'Done'); b+=mk('waiting',LANG==='de'?'Wartend':'Wait'); }
+  else b+=mk('treatment',LANG==='de'?'Zurückholen':'Reopen');
+  return b;
+}
 function renderPatients(){
-  const ul=el('patient-list');el('list-count').textContent=patients.length;
-  if(!patients.length){ul.innerHTML='<div class="empty">'+t('emptyList')+'</div>';return;}
-  ul.innerHTML=patients.map(p=>{
+  const listEl=el('patient-list');if(!listEl)return;
+  const di=el('list-date');if(di&&di.value!==listDay)di.value=listDay;
+  const dayPats=patients.filter(p=>patientDay(p)===listDay);
+  el('list-count').textContent=dayPats.length;
+  const q=listSearch;
+  const filt=q?dayPats.filter(p=>((p.name||'')+' '+(p.firstname||'')).toLowerCase().includes(q)||((p.firstname||'')+' '+(p.name||'')).toLowerCase().includes(q)):dayPats;
+  let html='';
+  AMB_STATUS.forEach(s=>{
+    const inSec=filt.filter(p=>patientStatus(p)===s.k);
+    const collapsed=(s.k==='done');
+    html+='<div class="amb-section'+(collapsed?' collapsed':'')+'" data-status="'+s.k+'">';
+    html+='<div class="amb-sec-h" onclick="this.parentNode.classList.toggle(\'collapsed\')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
+    html+='<div class="patient-list drop-zone" data-status="'+s.k+'" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.k+'\')">';
+    html+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
+    html+='</div></div>';
+  });
+  listEl.innerHTML=html;
+}
+function renderSectionCards(list){
+  const groups={},order=[];
+  list.forEach(p=>{const g=(p.group||'').trim();const key=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[key]){groups[key]={g:g,items:[]};order.push(key);}groups[key].items.push(p);});
+  let h='';
+  order.forEach(key=>{const grp=groups[key];
+    if(grp.g&&grp.items.length>1){ h+='<div class="amb-group"><div class="amb-group-h">'+(LANG==='de'?'Gruppe: ':'Group: ')+grp.g+'</div>'+grp.items.map(renderPatientCard).join('')+'</div>'; }
+    else h+=grp.items.map(renderPatientCard).join('');
+  });
+  return h;
+}
+function renderPatientCard(p){
     const dest=(p.destinations||[]).map(c=>CBY[c]?(LANG==='de'?CBY[c].de:CBY[c].en):c).join(', ')||'—';
     const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
     const vax=p.vax||{};
@@ -2025,9 +2091,9 @@ function renderPatients(){
     const stamp='<div style="margin-top:12px;font-size:11.5px;color:var(--grey);border-top:1px solid var(--line);padding-top:8px;">'+t('savedStamp')+': '+fmtDateTime(p.savedAt)+upd+' · '+t('physicianLbl')+': '+(p.physician||'—')+'</div>';
     const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LANG==='de'?'J.':'yrs')+')':'';
     const dispName=(p.firstname?p.name+', '+p.firstname:p.name);
-    return '<li class="patient-item" id="pi-'+p.id+'"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret">▶</span><span class="pl-name">'+dispName+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+'</span><span class="pl-spacer"></span><span class="icon-btn" onclick="event.stopPropagation();loadPatient(\''+p.id+'\')" title="'+t('edit')+'">'+PENCIL_SVG+'</span><span class="icon-btn del" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')" title="'+t('del')+'">✕</span></div>'+
-      '<div class="patient-body"><div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></li>';
-  }).join('');
+    const grpBadge=p.group?' <span class="grp-badge">'+p.group+'</span>':'';
+    return '<div class="patient-item" id="pi-'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+'</span><span class="pl-spacer"></span>'+statusBtns(p)+'<span class="icon-btn" onclick="event.stopPropagation();loadPatient(\''+p.id+'\')" title="'+(LANG==='de'?'Öffnen':'Open')+'">'+PENCIL_SVG+'</span><span class="icon-btn" onclick="event.stopPropagation();assignGroup(\''+p.id+'\')" title="'+(LANG==='de'?'Gruppieren':'Group')+'">⋯</span><span class="icon-btn del" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')" title="'+t('del')+'">✕</span></div>'+
+      '<div class="patient-body"><div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></div>';
 }
 
 function fmtDate(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}

@@ -268,6 +268,27 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #notes-card, 
 .flag{width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:7px;box-shadow:0 0 0 1px rgba(0,0,0,.15);}
 .chip .flag{width:17px;height:17px;box-shadow:0 0 0 1px rgba(255,255,255,.45);}
 h4 .flag{width:20px;height:20px;}
+/* Ambulanzliste: Toolbar, Status-Spalten, Drag&Drop, Gruppen */
+.amb-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.amb-day{display:flex;align-items:center;gap:6px;}
+.amb-day input[type=date]{width:auto;padding:7px 9px;font-size:13px;}
+.amb-search{flex:1;min-width:180px;max-width:340px;padding:9px 12px;font-size:14px;}
+.amb-section{margin-bottom:14px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;}
+.amb-sec-h{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--grey-xl);font-weight:700;font-size:13px;cursor:pointer;}
+.amb-sec-h .amb-toggle{color:var(--grey);transition:transform .15s;}
+.amb-section.collapsed .amb-toggle{transform:rotate(-90deg);}
+.amb-section.collapsed .drop-zone{display:none;}
+.amb-section[data-status=treatment] .amb-sec-h{background:#eaf2fb;}
+.amb-section[data-status=done] .amb-sec-h{background:#eaf5ea;}
+.drop-zone{min-height:46px;padding:8px;display:flex;flex-direction:column;gap:8px;}
+.drop-zone.drag-over{background:#e3f2fd;outline:2px dashed var(--blue);outline-offset:-4px;}
+.drop-zone .patient-item{margin-bottom:0;}
+.amb-empty{color:var(--grey);font-size:12px;font-style:italic;padding:10px;text-align:center;}
+.patient-item[draggable=true] .patient-head{cursor:grab;}
+.amb-move{padding:4px 9px !important;font-size:11px !important;}
+.grp-badge{display:inline-block;background:var(--violet-bg);color:var(--violet);border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin-left:8px;}
+.amb-group{border:1px dashed var(--violet);border-radius:8px;padding:8px;background:#faf7fd;display:flex;flex-direction:column;gap:8px;}
+.amb-group-h{font-size:11px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.04em;}
 
 /* Drag and Drop styles */
 .sched-item.dragging { opacity: 0.5; background: #f9f9f9; }
