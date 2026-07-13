@@ -113,9 +113,12 @@ async function doReset(){
   if(q.get('denied')) showMsg('Ihr Konto ist noch nicht freigeschaltet. Bitte kontaktieren Sie den Administrator.','err');
   if(q.get('registered')) showMsg('Konto erstellt. Sie können sich jetzt anmelden.','ok');
   if(!AUTH_ENABLED){ showMsg('Hinweis: Supabase ist nicht konfiguriert – die App läuft im Demo-Modus ohne Login. <a href="index.html">Zur App</a>','ok'); return; }
-  // Bereits angemeldet? Direkt weiter.
+  // Bereits angemeldet? Nur echte Personal-Sitzungen weiterleiten.
   const user=await getSessionUser();
-  if(user){ const p=await getProfile(user.id); if(p&&p.role){ window.location.href='index.html'; } }
+  if(user){
+    if(user.is_anonymous){ try{ await supabaseClient.auth.signOut(); }catch(e){} }  // Tablet-Sitzung beenden, Personal-Login zeigen
+    else { const p=await getProfile(user.id); if(p&&p.role){ window.location.href='index.html'; return; } }
+  }
 })();
 </script>
 </body>
