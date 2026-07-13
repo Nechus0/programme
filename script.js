@@ -126,7 +126,7 @@ const PROD_COMPS={tdap_ipv:['T','D','aP','IPV'],tdap:['T','D','aP'],td_ipv:['T',
 /* ---------- AVAILABILITY (min = Jahre, präzise auf den Monat) ---------- */
 const AVAIL={
  yellowfever:{prod:'Stamaril',min:0.75,max:60,de:'9 Monate – 60 Jahre. Über 60 J. nur nach individueller Nutzen-Risiko-Abwägung. Auffrischung nach 10 J. (5 J. bei Erstimpfung <2 J.).',en:'9 months – 60 years. Over 60 only after individual assessment. Booster after 10 yrs (5 yrs if first dose <2 yrs).'},
- tdap_polio:{prod:'Boostrix / Repevax / Revaxis / Hexavalent / IPV Mérieux',min:0.115,de:'Säuglinge: hexavalent ab 6 Wochen. Auffrischungen: Boostrix ab 4 J., Repevax ab 3 J., Revaxis ab 5 J. Auffrischung Td (bzw. Tdap/IPV) alle 10 J. (Pertussis 1× als Erw. + in jeder SS). Polio Auffrischung nur bei Reise in Risikogebiete.',en:'Infants: hexavalent from 6 wks. Boosters: Boostrix from 4 yrs, Repevax from 3 yrs, Revaxis from 5 yrs. Booster Td (or Tdap/IPV) every 10 yrs (pertussis once adult + each pregnancy). Polio booster only for travel to risk areas.'},
+ tdap_polio:{prod:'Boostrix / Repevax / Hexavalent / IPV Mérieux',min:0.115,de:'Säuglinge: hexavalent ab 6 Wochen. Auffrischungen: Boostrix ab 4 J., Repevax (Tdap-IPV) ab 3 J. Auffrischung Td (bzw. Tdap/IPV) alle 10 J. (Pertussis 1× als Erw. + in jeder SS). Polio Auffrischung nur bei Reise in Risikogebiete.',en:'Infants: hexavalent from 6 wks. Boosters: Boostrix from 4 yrs, Repevax (Tdap-IPV) from 3 yrs. Booster Td (or Tdap/IPV) every 10 yrs (pertussis once adult + each pregnancy). Polio booster only for travel to risk areas.'},
  mmr:{prod:'MMRvaxPro / Priorix',min:0.75,de:'Ab (9–)12 Monaten. Lebendimpfstoff. Nach 1970 Geborene ≥18 J. mit unklarem Status: 1 × MMR.',en:'From (9–)12 months. Live vaccine. Adults born after 1970, unclear status: 1 × MMR.'},
  varicella:{prod:'Varilrix / ProVarivax',min:0.9,de:'Ab 11 Monaten. Lebendimpfstoff. 2 Dosen. Serologie-Check nach Möglichkeit.',en:'From 11 months. Live vaccine. 2 doses. Serology check if possible.'},
  hepatitis:{prod:'Avaxim/Havrix · Engerix B Erwachsene · Twinrix',min:0,de:'Hep A: Havrix Kinder 1–15 J., Avaxim ab 16 J. Hep B: ab Geburt (Twinrix Kinder ab 1 J., Erw. ab 16 J.).',en:'Hep A: Havrix paed 1–15 yrs, Avaxim from 16. Hep B: from birth (Twinrix paed from 1 yr, adult from 16).'},
@@ -1506,7 +1506,8 @@ function addDest(code){
   recompute();
 }
 function removeDest(code){destinations=destinations.filter(c=>c!==code);renderDestChips();recompute();}
-function renderDestChips(){el('dest-chips').innerHTML=destinations.map(code=>{const c=CBY[code];const d=window.countryData[code] ? window.countryData[code].diseases : null;const isYFMand = d && d.yellow_fever && d.yellow_fever.risk_level === 'mandatory_all';const isMenMand = (code === 'SA');const mand = isYFMand || isMenMand;return '<div class="chip'+(mand?' mand':'')+'">'+(LANG==='de'?c.de:c.en)+(c.terr?' *':'')+' <span onclick="removeDest(\''+code+'\')">×</span></div>';}).join('');}
+function flagImg(code){return '<img class="flag" src="https://flagcdn.com/w40/'+code.toLowerCase()+'.png" onerror="this.remove()" alt="" loading="lazy">';}
+function renderDestChips(){el('dest-chips').innerHTML=destinations.map(code=>{const c=CBY[code];const d=window.countryData[code] ? window.countryData[code].diseases : null;const isYFMand = d && d.yellow_fever && d.yellow_fever.risk_level === 'mandatory_all';const isMenMand = (code === 'SA');const mand = isYFMand || isMenMand;return '<div class="chip'+(mand?' mand':'')+'">'+flagImg(code)+(LANG==='de'?c.de:c.en)+(c.terr?' *':'')+' <span onclick="removeDest(\''+code+'\')">×</span></div>';}).join('');}
 
 function renderDoseChips(k){
   if(YEAR_ONLY.includes(k))return '<span class="mini-note">'+(LANG==='de'?'nur „zuletzt geimpft" →':'only “last vaccinated” →')+'</span>';
@@ -1759,7 +1760,7 @@ function renderNotes(){
     if(chik.details && chik.details.includes('outbreak')) items.push({t:'red',de:'Aktueller Chikungunya-Ausbruch.',en:'Active chikungunya outbreak.'});
     else if(chik.risk_level === 'recommended' || chik.risk_level === 'risk_based') items.push({t:'amber',de:'Erhöhtes Chikungunya-Hintergrundrisiko.',en:'Elevated chikungunya background risk.'});
 
-    const cls=items.length?(items[0].t==='red'?'':items[0].t):'info';let inner='<h4>'+name+(c.terr?' *':'')+'</h4>';
+    const cls=items.length?(items[0].t==='red'?'':items[0].t):'info';let inner='<h4><img class="flag" src="https://flagcdn.com/w40/'+code.toLowerCase()+'.png" onerror="this.remove()" alt="" loading="lazy">'+name+(c.terr?' *':'')+'</h4>';
     if(items.length)inner+='<ul>'+items.map(i=>'<li>'+(LANG==='de'?i.de:i.en)+'</li>').join('')+'</ul>';
     const hd=HEALTH_DEMO[code];if(hd)inner+='<div class="health-snap"><div class="hs-date">'+hd.stand+'</div>'+(LANG==='de'?hd.de:hd.en)+'</div>';else inner+='<div class="mini-note" style="margin-top:6px;">'+t('healthLive')+'</div>';
     inner+='<a class="aa-link" href="'+aaLink(code)+'" target="_blank" rel="noopener">'+t('aaLinkTxt')+'</a>';

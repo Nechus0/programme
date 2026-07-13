@@ -264,6 +264,10 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #notes-card, 
 .med-pill .mx{cursor:pointer;color:var(--grey);font-weight:700;font-size:12px;padding:0 3px;line-height:1;}
 .med-pill .mx:hover{color:var(--red);}
 .med-pill.immuno .mx{color:var(--red);opacity:.7;} .med-pill.immuno .mx:hover{opacity:1;}
+/* Runde Länderflaggen */
+.flag{width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:7px;box-shadow:0 0 0 1px rgba(0,0,0,.15);}
+.chip .flag{width:17px;height:17px;box-shadow:0 0 0 1px rgba(255,255,255,.45);}
+h4 .flag{width:20px;height:20px;}
 
 /* Drag and Drop styles */
 .sched-item.dragging { opacity: 0.5; background: #f9f9f9; }
