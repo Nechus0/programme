@@ -19,10 +19,48 @@
     <div><div class="app-title" data-i18n="appTitle">Reisemedizinische Ambulanz</div><div class="app-sub" data-i18n="appSub">Institut für Internationale Gesundheit · Reiseimpf-Assistent</div></div>
   </div>
   <div class="header-right">
-    <div class="login-box"><span data-i18n="loggedIn">Eingeloggt:</span><input type="text" id="p-physician" placeholder="Name"><span id="user-role" style="font-size:11px;color:var(--grey);font-weight:400"></span><button class="btn sec sm" id="logout-btn" onclick="signOut()" style="margin-left:8px;display:none">Logout</button></div>
+    <div class="user-box" id="user-box" style="display:none">
+      <div class="user-meta"><span id="user-name"></span><span id="user-role" class="user-role"></span></div>
+      <button class="btn sec sm" id="logout-btn" onclick="signOut()">Logout</button>
+    </div>
+    <input type="hidden" id="p-physician">
     <div class="lang-toggle"><button id="lang-de" class="active" onclick="setLang('de')">DE</button><button id="lang-en" onclick="setLang('en')">EN</button></div>
+    <button class="hamburger" id="admin-menu-btn" onclick="openAdminPanel()" style="display:none" title="Verwaltung" aria-label="Menü"><span></span><span></span><span></span></button>
   </div>
 </header>
+
+<!-- ADMIN-PANEL (nur Admin) -->
+<div class="admin-panel" id="admin-panel">
+  <div class="admin-bar">
+    <button class="admin-back" onclick="closeAdminPanel()">&larr; <span data-i18n="adminBack">Zurück</span></button>
+    <div class="admin-title" data-i18n="adminTitle">Nutzerverwaltung</div>
+  </div>
+  <div class="admin-body">
+    <section class="card">
+      <h2 data-i18n="adminNewUser">Neuen Nutzer anlegen</h2>
+      <div class="card-desc" data-i18n="adminNewDesc">Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.</div>
+      <div id="admin-msg"></div>
+      <div class="grid g3">
+        <div><label class="fld" data-i18n="fEmail">E-Mail</label><input type="email" id="au-email" placeholder="name@charite.de"></div>
+        <div><label class="fld" data-i18n="fTitle">Titel</label><select id="au-title"></select></div>
+        <div><label class="fld" data-i18n="fRole">Funktion</label><select id="au-role"></select></div>
+      </div>
+      <div class="grid g3" style="margin-top:14px;">
+        <div><label class="fld" data-i18n="fFullname">Name (Vor- und Nachname)</label><input type="text" id="au-name" placeholder="—"></div>
+        <div><label class="fld" data-i18n="fGender">Geschlecht</label><select id="au-gender"></select></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn" style="width:100%" onclick="adminSaveUser()" data-i18n="btnCreateUser">Nutzer anlegen</button></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2 data-i18n="adminUserList">Angelegte Nutzer</h2>
+      <div class="table-container">
+        <table class="vax admin-table"><thead><tr>
+          <th data-i18n="thName">Name</th><th data-i18n="thTitle">Titel</th><th data-i18n="thGender">Geschlecht</th><th data-i18n="thRole">Funktion</th><th data-i18n="thStatusReg">Status</th><th></th>
+        </tr></thead><tbody id="admin-users"></tbody></table>
+      </div>
+    </section>
+  </div>
+</div>
 
 <main>
   <div class="disclaimer" data-i18n="disclaimer">Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.</div>
@@ -30,16 +68,27 @@
   <div class="editing-banner" id="editing-banner"><span id="editing-text"></span><button class="btn sec sm" onclick="cancelEdit()" data-i18n="btnCancelEdit">Bearbeitung abbrechen</button></div>
 
   <!-- STEP 1 -->
-  <section class="card">
+  <section class="card" id="step1">
     <h2><span class="step-badge">1</span><span data-i18n="s1Title">Patient & Reise</span></h2>
-    <div class="card-desc" data-i18n="s1Desc">Grunddaten, Reiseziel(e) und Aufenthaltsdauer erfassen.</div>
+    <div class="card-desc" data-i18n="s1Desc">Stammdaten, Reiseziel(e) und Aufenthaltsdauer erfassen.</div>
     <div class="grid g4">
       <div><label class="fld" data-i18n="fName">Name</label><input type="text" id="p-name" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fFirstname">Vorname</label><input type="text" id="p-firstname" placeholder="—"></div>
       <div><label class="fld" data-i18n="fDob">Geburtsdatum</label><input type="date" id="p-dob" onchange="recompute()" oninput="recompute()"><div class="age-box empty" id="age-box" data-i18n="ageEmpty">Alter: bitte Geburtsdatum eingeben</div></div>
       <div><label class="fld" data-i18n="fSex">Geschlecht</label><select id="p-sex" onchange="recompute()"><option value="f" data-i18n="sexF">weiblich</option><option value="m" data-i18n="sexM">männlich</option><option value="d" data-i18n="sexD">divers</option></select></div>
+    </div>
+    <div class="grid g4" style="margin-top:16px;">
+      <div><label class="fld" data-i18n="fPhone">Telefon</label><input type="text" id="p-phone" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fInsurance">Krankenkasse</label><input type="text" id="p-insurance" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fProfession">Beruf (freiwillig)</label><input type="text" id="p-profession" placeholder="—"></div>
       <div><label class="fld" data-i18n="fDuration">Aufenthaltsdauer</label><select id="p-duration" onchange="recompute()"><option value="<1w">&lt; 1 Woche</option><option value="1-2w">1–2 Wochen</option><option value="2-4w">2–4 Wochen</option><option value="1-3m">4 Wochen bis 3 Monate</option><option value="3-6m">3–6 Monate</option><option value=">6m">&gt;6 Monate</option></select></div>
     </div>
-    <div style="margin-top:16px;max-width:240px;"><label class="fld" data-i18n="fDeparture">Abreisedatum</label><input type="date" id="p-departure" onchange="recompute()"><div class="hint" id="departure-hint"></div></div>
+    <div class="grid g4" style="margin-top:16px;">
+      <div><label class="fld" data-i18n="fAddress">Anschrift</label><input type="text" id="p-address" placeholder="Straße, Nr."></div>
+      <div><label class="fld" data-i18n="fZip">PLZ</label><input type="text" id="p-zip" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fCity">Wohnort</label><input type="text" id="p-city" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fDeparture">Abreisedatum</label><input type="date" id="p-departure" onchange="recompute()"><div class="hint" id="departure-hint"></div></div>
+    </div>
     <div class="grid g2" style="margin-top:16px;">
       <div><label class="fld" data-i18n="fDest">Reiseziel(e) hinzufügen</label><select id="dest-select" onchange="addDest(this.value)"></select><div class="hint" data-i18n="fDestHint">Mehrere Ziele möglich. Überseegebiete separat (*).</div><div class="chips" id="dest-chips"></div></div>
       <div><label class="fld" data-i18n="fConditions">Besondere Bedingungen / Exposition</label>
@@ -53,17 +102,24 @@
   </section>
 
   <!-- STEP 2 -->
-  <section class="card">
-    <h2><span class="step-badge">2</span><span data-i18n="s2Title">Kontraindikationen & Immunstatus</span></h2>
-    <div class="card-desc" data-i18n="s2Desc">Allergien und immunrelevante Medikation. Das Medikament wird gegen eine Wirkstoff-Datenbank geprüft.</div>
+  <section class="card" id="step2">
+    <h2><span class="step-badge">2</span><span data-i18n="s2Title">Anamnese & Kontraindikationen</span></h2>
+    <div class="card-desc" data-i18n="s2Desc">Wesentliche Anamnese zur Impftauglichkeit. Medikamente werden gegen eine Wirkstoff-Datenbank geprüft.</div>
     <div class="grid g3">
       <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillen</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="yes" data-i18n="optYes">ja</option><option value="wish" data-i18n="optWish">Kinderwunsch / geplant</option></select></div>
-      <div><label class="fld" data-i18n="fAllergy">Allergien</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" oninput="recompute()"></div>
-      <div><label class="fld" data-i18n="fImmuno">Immunsuppressive Medikation</label><input type="text" id="p-immuno" placeholder="z.B. Adalimumab, Methotrexat" oninput="recompute()"><div class="mini-note" id="drug-recog"></div></div>
+      <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" oninput="recompute()"></div>
+      <div><label class="fld" data-i18n="fImmuno">Immunrelevante Medikation</label><input type="text" id="p-immuno" placeholder="z.B. Adalimumab, Methotrexat" oninput="recompute()"><div class="mini-note" id="drug-recog"></div></div>
     </div>
-    <div style="display:flex;gap:24px;margin-top:12px;flex-wrap:wrap;font-size:13px;">
+    <div class="grid g2" style="margin-top:16px;">
+      <div><label class="fld" data-i18n="fMeds">Aktuelle Medikamente (welche?)</label><input type="text" id="p-meds" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><input type="text" id="p-recentvax" placeholder="—"></div>
+    </div>
+    <div style="display:flex;gap:22px;margin-top:14px;flex-wrap:wrap;font-size:13px;">
+      <label class="chk-line"><input type="checkbox" id="p-acute" onchange="recompute()"> <span data-i18n="fAcute">Akute Erkrankung (z. B. fieberhafter Infekt)</span></label>
       <label class="chk-line"><input type="checkbox" id="p-chronic" onchange="recompute()"> <span data-i18n="fChronic">Chronische Erkrankung</span></label>
       <label class="chk-line"><input type="checkbox" id="p-immunodef" onchange="recompute()"> <span data-i18n="fImmunodef">Immundefizienz</span></label>
+      <label class="chk-line"><input type="checkbox" id="p-thrombosis"> <span data-i18n="fThrombosis">Thrombose in der Vorgeschichte</span></label>
+      <label class="chk-line"><input type="checkbox" id="p-faint"> <span data-i18n="fFaint">Schwäche/Ohnmacht bei Impfung/Blutabnahme</span></label>
     </div>
     <div id="immuno-warn"></div>
   </section>
@@ -76,7 +132,7 @@
   </section>
 
   <!-- STEP 3 -->
-  <section class="card">
+  <section class="card" id="step3">
     <h2><span class="step-badge">3</span><span data-i18n="s3Title">Impfstatus & Planung</span></h2>
     <div class="card-desc" data-i18n="s3Desc">Vorimpfungen per Klick eintragen (nur Jahr). Farbe = Handlungsbedarf. Die Impfplanung erfolgt im nächsten Schritt.</div>
     <div class="today-warn" id="today-warn"></div>
@@ -102,13 +158,25 @@
     </div>
   </section>
 
-  <!-- LIST -->
-  <section class="card">
-    <h2><span data-i18n="listTitle">Patientenliste heute</span><span class="count-pill" id="list-count">0</span></h2>
-    <div class="card-desc" data-i18n="listDesc">Neueste zuerst. Aufklappen zum Ansehen, „Bearbeiten" zum Weiterbearbeiten.</div>
+  <!-- KASSE-PLATZHALTER -->
+  <section class="card" id="kasse-card" style="display:none">
+    <h2 data-i18n="kasseTitle">Kasse</h2>
+    <div class="card-desc" data-i18n="kasseDesc">Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.</div>
+  </section>
+
+  <!-- LIST / AMBULANZLISTE -->
+  <section class="card" id="list-card">
+    <h2><span data-i18n="listTitle">Ambulanzliste</span><span class="count-pill" id="list-count">0</span></h2>
+    <div class="card-desc" data-i18n="listDesc">In Speicherreihenfolge. Aufklappen zum Ansehen, Stift zum Weiterbearbeiten.</div>
     <ul class="patient-list" id="patient-list"></ul>
   </section>
 </main>
+
+<!-- KIOSK-Leiste (Patientenaccount) -->
+<div class="kiosk-bar" id="kiosk-bar">
+  <div class="kiosk-hint" data-i18n="kioskHint">Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.</div>
+  <button class="btn" id="kiosk-submit" onclick="kioskSubmit()" data-i18n="kioskSubmit">Daten absenden</button>
+</div>
 
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal-content"></div></div>
 
@@ -119,15 +187,10 @@
 <script src="data/country_data.js"></script>
 <script src="script.js"></script>
 <script>
-  // Auth-Guard: blendet die App erst nach erfolgreicher Prüfung ein (bzw. sofort, wenn Auth noch inaktiv).
+  // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){
     document.body.style.visibility = 'visible';
-    if (profile) {
-      var ph = document.getElementById('p-physician');
-      if (ph) { ph.value = profile.full_name || ''; ph.readOnly = true; ph.style.width = 'auto'; }
-      var ur = document.getElementById('user-role'); if (ur) ur.textContent = ' (' + roleLabel(profile.role, 'de') + ')';
-      var lo = document.getElementById('logout-btn'); if (lo) lo.style.display = 'inline-block';
-    }
+    if (typeof applyRole === 'function') applyRole(profile || { role:'arzt' });
   });
 </script>
 </body>

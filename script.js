@@ -6,6 +6,13 @@
 let LANG='de';
 const I18N={
  appTitle:{de:'Reisemedizinische Ambulanz',en:'Travel Medicine Clinic'},appSub:{de:'Institut für Internationale Gesundheit · Reiseimpf-Assistent',en:'Institute of International Health · Travel Vaccination Assistant'},
+ fFirstname:{de:'Vorname',en:'First name'},fPhone:{de:'Telefon',en:'Phone'},fInsurance:{de:'Krankenkasse',en:'Health insurance'},fProfession:{de:'Beruf (freiwillig)',en:'Profession (optional)'},fAddress:{de:'Anschrift',en:'Address'},fZip:{de:'PLZ',en:'Postal code'},fCity:{de:'Wohnort',en:'City'},
+ fMeds:{de:'Aktuelle Medikamente (welche?)',en:'Current medication (which?)'},fRecentVax:{de:'Impfung/Injektion in den letzten 4 Wochen (welche, wann?)',en:'Vaccination/injection in the last 4 weeks (which, when?)'},fAcute:{de:'Akute Erkrankung (z. B. fieberhafter Infekt)',en:'Acute illness (e.g. febrile infection)'},fThrombosis:{de:'Thrombose in der Vorgeschichte',en:'History of thrombosis'},fFaint:{de:'Schwäche/Ohnmacht bei Impfung/Blutabnahme',en:'Weakness/fainting during vaccination/blood draw'},
+ adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
+ fEmail:{de:'E-Mail',en:'Email'},fTitle:{de:'Titel',en:'Title'},fRole:{de:'Funktion',en:'Role'},fFullname:{de:'Name (Vor- und Nachname)',en:'Name (first and last)'},fGender:{de:'Geschlecht',en:'Gender'},btnCreateUser:{de:'Nutzer anlegen',en:'Create user'},
+ thName:{de:'Name',en:'Name'},thTitle:{de:'Titel',en:'Title'},thGender:{de:'Geschlecht',en:'Gender'},thRole:{de:'Funktion',en:'Role'},thStatusReg:{de:'Status',en:'Status'},
+ kasseTitle:{de:'Kasse',en:'Reception / Billing'},kasseDesc:{de:'Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.',en:'No function is assigned to the "Reception/Billing" role yet.'},
+ kioskHint:{de:'Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.',en:'Please fill in your details and submit.'},kioskSubmit:{de:'Daten absenden',en:'Submit data'},
  disclaimer:{de:'Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.',en:'Demonstration mockup. Recommendations follow STIKO methodology and do not replace clinical judgement. Verify outbreak/travel advisories (RKI, German Foreign Office) before each consultation; live retrieval needs a server backend.'},
  s1Title:{de:'Patient & Reise',en:'Patient & Travel'},s1Desc:{de:'Grunddaten, Reiseziel(e) und Aufenthaltsdauer erfassen.',en:'Enter basic data, destination(s) and duration.'},
  fName:{de:'Name',en:'Name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
@@ -231,8 +238,8 @@ function buildOptimalSchedule(planned, departureStr) {
     else if (item.k === 'hepA') { if (!st.aMono && !st.twin) doseCount = 2; }
     else if (item.k === 'tbe' || item.k === 'rabies' || item.k === 'hpv') { if (st.done === '') doseCount = 3; }
     else if (['jev', 'dengue', 'mpox', 'zoster', 'menb', 'varicella', 'mmr'].includes(item.k)) { if (st.done === '') doseCount = 2; }
-    else if (item.k === 'tdap_combo') { if (!st.gi_tdap) doseCount = 3; }
-    else if (item.k === 'ipv_mono') { if (!st.gi_ipv) doseCount = 3; }
+    else if (item.k === 'tdap_combo') { const dh = st.doses_hexa==='>3'?4:parseInt(st.doses_hexa||0,10); if (!(st.gi_tdap || dh>=3)) doseCount = 3; }
+    else if (item.k === 'ipv_mono') { const dh = st.doses_hexa==='>3'?4:parseInt(st.doses_hexa||0,10); if (!(st.gi_ipv || dh>=3)) doseCount = 3; }
     else if (item.k === 'menacwy') { if (st.done === '') doseCount = 1; }
 
     let currentMinOffset = 0;
@@ -575,9 +582,9 @@ function autoTdapProduct(st, a) {
     let needsIPV = (a.IPV === 'red' || a.IPV === 'yellow');
 
     if (needsT && needsD && needsAP && needsIPV) return 'tdap_ipv';
-    if (needsT && needsD && !needsAP && needsIPV) return 'td_ipv';
+    if (needsT && needsD && !needsAP && needsIPV) return 'tdap_ipv'; // Ambulanz führt kein Revaxis → Repevax (Tdap-IPV)
     if (needsT && needsD && needsAP && !needsIPV) return 'tdap';
-    if (needsT && needsD && !needsAP && !needsIPV) return 'td';
+    if (needsT && needsD && !needsAP && !needsIPV) return 'tdap';    // kein Td-Einzelprodukt → Boostrix (Tdap)
     if (!needsT && !needsD && !needsAP && needsIPV) return 'ipv';
     if (!needsT && !needsD && needsAP && !needsIPV) return 'tdap';
     
@@ -951,6 +958,16 @@ function allergyNote(v){
   return null;
 }
 function departureMonth(){const d=el('p-departure').value;return d?new Date(d).getMonth():null;}
+// Überschneidet sich der Aufenthalt (Abreise + Dauer) mit der Meningitis-Epidemiesaison (Trockenzeit Dez–Jun)?
+// null = Abreisedatum unbekannt (Aufrufer nutzt dann Fallback auf Abreisemonat)
+function staySpansDrySeason(){
+  const dep=el('p-departure').value; if(!dep) return null;
+  const start=new Date(dep+'T00:00:00'); if(isNaN(start.getTime())) return null;
+  const durDays={'<1w':6,'1-2w':13,'2-4w':27,'1-3m':75,'3-6m':150,'>6m':240}[el('p-duration').value]||14;
+  const dry=[11,0,1,2,3,4,5];
+  for(let d=0; d<=durDays; d+=5){ if(dry.includes(new Date(start.getTime()+d*86400000).getMonth())) return true; }
+  return false;
+}
 function serMeasles(){return serologyState.measles;}
 function serVZV(){return serologyState.vzv;}
 function serHBs(){return serologyState.hbs;}
@@ -1420,14 +1437,16 @@ function menacwyAssess(){
   if(destinations.includes('SA')){ if(protectedNow){status='green';note={de:'ACWY aktuell – Nachweis für Hajj/Umrah',en:'ACWY current — proof for Hajj/Umrah'};} else {status='red';mand=true;note={de:'ACWY Pflicht für Hajj/Umrah',en:'ACWY mandatory for Hajj/Umrah'};} }
   else {
     const menR = getRisk('meningitis');
-    if(menR && (menR.level === 'recommended' || menR.level === 'risk_based')){ 
-        const dm=departureMonth();const dry=dm!==null&&[11,0,1,2,3,4,5].includes(dm);
+    if(menR && (menR.level === 'recommended' || menR.level === 'risk_based')){
+        const spans=staySpansDrySeason();
+        const dm=departureMonth();
+        const dry = spans===null ? (dm!==null&&[11,0,1,2,3,4,5].includes(dm)) : spans;
         if(dry) {
             status=protectedNow?'green':'red';
-            note={de:'Meningitisgürtel (Erhöhtes Risiko in Trockenzeit Dez-Jun)',en:'Meningitis belt (High risk in dry season Dec-Jun)'};
+            note={de:'Meningitisgürtel – Reise fällt in die Epidemiesaison (Trockenzeit Dez–Jun, höchstes Risiko): dringend empfohlen.',en:'Meningitis belt — travel falls in the epidemic season (dry season Dec–Jun, highest risk): strongly recommended.'};
         } else {
             status=protectedNow?'green':'yellow';
-            note={de:'Meningitisgürtel / Endemiegebiet',en:'Meningitis belt / endemic area'};
+            note={de:'Meningitisgürtel – nur erwogen: gesamter Aufenthalt außerhalb der Epidemiesaison (Trockenzeit Dez–Jun). In der Trockenzeit dringend empfohlen.',en:'Meningitis belt — optional only: entire stay outside the epidemic season (dry season Dec–Jun). Strongly recommended during the dry season.'};
         }
     }
     else if(st.type==='acwy'&&done>=1&&yrs!==null&&yrs>=10){status='grey';note={de:'Früher ACWY geimpft (>10 J.) – Auffrischung nur bei Reiseindikation nötig',en:'ACWY given >10 yrs ago — booster only needed with travel indication'};}
@@ -1790,38 +1809,65 @@ function showMap(k){
 function closeMap(){el('map-bg').classList.remove('show');el('map-bg').innerHTML='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeMap();closeModal();}});
 
-function savePatient(){
+async function savePatient(){
   const name=el('p-name').value.trim();const dob=el('p-dob').value;
-  if(!name||!dob){alert(t('needName'));return;}
+  if(!name||!dob){alert(t('needName'));return false;}
+  const g=id=>{const e=el(id);return e?(''+e.value).trim():'';};
+  const c=id=>{const e=el(id);return e?!!e.checked:false;};
   const vaxCopy=JSON.parse(JSON.stringify(vaxState));
   VACCINES.forEach(v => {
       if(!vaxCopy[v.k]) return;
       if (v.menacwy) { vaxCopy[v.k].status = menacwyAssess().status; }
       else if (v.poliovax) { vaxCopy[v.k].status = polioAssess().status; }
-      else if (v.tdap_polio) { 
+      else if (v.tdap_polio) {
          const tpa = tdapPolioAssess();
          vaxCopy[v.k].status = 'combo';
          vaxCopy[v.k].comps = { T: tpa.T, D: tpa.D, aP: tpa.aP, IPV: tpa.IPV };
       }
-      else if (v.hep) { 
+      else if (v.hep) {
          const ha = hepAssess();
          if (ha.A === 'red' || ha.B === 'red') vaxCopy[v.k].status = 'red';
          else if (ha.A === 'yellow' || ha.B === 'yellow') vaxCopy[v.k].status = 'yellow';
          else vaxCopy[v.k].status = 'green';
       }
-      else { 
+      else {
          vaxCopy[v.k].status = assess(v).status;
       }
   });
-  const snap={id:editingId||Date.now(),name,dob,age:ageYears(dob),sex:el('p-sex').value,duration:el('p-duration').value,departure:el('p-departure').value,destinations:[...destinations],pregnant:el('p-pregnant').value,allergy:el('p-allergy').value.trim(),immuno:el('p-immuno').value.trim(),conds:conds(),chronic:el('p-chronic').checked,immunodef:el('p-immunodef').checked,serology:JSON.parse(JSON.stringify(serologyState)),childhood:childhoodOn(),comment:el('p-comment').value.trim(),physician:el('p-physician').value.trim(),vax:vaxCopy,customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,savedAt:(editingId&&(patients.find(p=>p.id===editingId)||{}).savedAt)||new Date().toISOString(),updatedAt:new Date().toISOString()};
-  if(editingId){const i=patients.findIndex(p=>p.id===editingId);if(i>=0)patients[i]=snap;else patients.unshift(snap);}else patients.unshift(snap);
-  storeSet('charite_patients',JSON.stringify(patients));
-  resetForm();renderPatients();
+  const existing = patients.find(p=>p.id===editingId);
+  const snap={
+    id: editingId || (window.crypto&&crypto.randomUUID?crypto.randomUUID():String(Date.now())),
+    name, firstname:g('p-firstname'), dob, age:ageYears(dob), sex:el('p-sex').value,
+    phone:g('p-phone'), insurance:g('p-insurance'), profession:g('p-profession'),
+    address:g('p-address'), zip:g('p-zip'), city:g('p-city'),
+    duration:el('p-duration').value, departure:el('p-departure').value, destinations:[...destinations],
+    pregnant:el('p-pregnant').value, allergy:g('p-allergy'), immuno:g('p-immuno'),
+    meds:g('p-meds'), recentVax:g('p-recentvax'),
+    conds:conds(), acute:c('p-acute'), chronic:c('p-chronic'), immunodef:c('p-immunodef'),
+    thrombosis:c('p-thrombosis'), faint:c('p-faint'),
+    serology:JSON.parse(JSON.stringify(serologyState)), childhood:childhoodOn(),
+    comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
+    customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
+    savedAt:(existing&&existing.savedAt)||new Date().toISOString(), updatedAt:new Date().toISOString()
+  };
+  if(USE_DB){
+    const res = editingId ? await dbUpdatePatient(editingId, snap) : await dbInsertPatient(snap);
+    if(res && res.error){ alert('Speichern fehlgeschlagen: '+(res.error.message||res.error)); return false; }
+    await loadPatientsFromDB();
+  } else {
+    if(editingId){const i=patients.findIndex(p=>p.id===editingId);if(i>=0)patients[i]=snap;else patients.push(snap);}else patients.push(snap);
+    storeSet('charite_patients',JSON.stringify(patients));
+    renderPatients();
+  }
+  resetForm();
+  return true;
 }
 function loadPatient(id){
   const p=patients.find(x=>x.id===id);if(!p)return;
-  el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'0-7';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
+  el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
+  _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');_sv('p-meds',p.meds||'');_sv('p-recentvax',p.recentVax||'');
   el('p-chronic').checked=!!p.chronic;el('p-immunodef').checked=!!p.immunodef;
+  _sc('p-acute',!!p.acute);_sc('p-thrombosis',!!p.thrombosis);_sc('p-faint',!!p.faint);
   const ser=p.serology||{};
   serologyState.measles=!!ser.measles;serologyState.vzv=!!ser.vzv;serologyState.hbs=!!ser.hbs;
   document.querySelectorAll('.cond').forEach(c=>c.checked=(p.conds||[]).includes(c.value));
@@ -1844,7 +1890,18 @@ function loadPatient(id){
   renderDestChips();recompute();if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
 }
 function cancelEdit(){editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnSave');resetForm();}
-function deletePatient(id){if(confirm(t('confirmDel'))){patients=patients.filter(p=>p.id!==id);storeSet('charite_patients',JSON.stringify(patients));if(editingId===id)cancelEdit();renderPatients();}}
+async function deletePatient(id){
+  if(!confirm(t('confirmDel')))return;
+  if(USE_DB){
+    const res=await dbDeletePatient(id);
+    if(res&&res.error){alert('Löschen fehlgeschlagen: '+(res.error.message||res.error));return;}
+    if(editingId===id)cancelEdit();
+    await loadPatientsFromDB();
+  } else {
+    patients=patients.filter(p=>p.id!==id);storeSet('charite_patients',JSON.stringify(patients));
+    if(editingId===id)cancelEdit();renderPatients();
+  }
+}
 function togglePatient(id){el('pi-'+id).classList.toggle('open');}
 function renderPatients(){
   const ul=el('patient-list');el('list-count').textContent=patients.length;
@@ -1933,8 +1990,9 @@ function renderPatients(){
     const upd=(p.updatedAt&&p.updatedAt!==p.savedAt)?' · '+(LANG==='de'?'geändert':'edited')+' '+fmtDateTime(p.updatedAt):'';
     const stamp='<div style="margin-top:12px;font-size:11.5px;color:var(--grey);border-top:1px solid var(--line);padding-top:8px;">'+t('savedStamp')+': '+fmtDateTime(p.savedAt)+upd+' · '+t('physicianLbl')+': '+(p.physician||'—')+'</div>';
     const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LANG==='de'?'J.':'yrs')+')':'';
-    return '<li class="patient-item" id="pi-'+p.id+'"><div class="patient-head" onclick="togglePatient('+p.id+')"><span class="caret">▶</span><span class="pl-name">'+p.name+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+'</span><span class="pl-spacer"></span><span class="icon-btn" onclick="event.stopPropagation();loadPatient('+p.id+')" title="'+t('edit')+'">'+PENCIL_SVG+'</span><span class="icon-btn del" onclick="event.stopPropagation();deletePatient('+p.id+')" title="'+t('del')+'">✕</span></div>'+
-      '<div class="patient-body"><div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></li>';
+    const dispName=(p.firstname?p.name+', '+p.firstname:p.name);
+    return '<li class="patient-item" id="pi-'+p.id+'"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret">▶</span><span class="pl-name">'+dispName+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+'</span><span class="pl-spacer"></span><span class="icon-btn" onclick="event.stopPropagation();loadPatient(\''+p.id+'\')" title="'+t('edit')+'">'+PENCIL_SVG+'</span><span class="icon-btn del" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')" title="'+t('del')+'">✕</span></div>'+
+      '<div class="patient-body"><div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></li>';
   }).join('');
 }
 
@@ -2019,9 +2077,13 @@ function printSchedule() {
 }
 
 /* ---------- RESET ---------- */
+function _sv(id,v){const e=el(id);if(e)e.value=v;}
+function _sc(id,v){const e=el(id);if(e)e.checked=v;}
 function resetForm(){
-  el('p-name').value='';el('p-dob').value='';el('p-sex').value='f';el('p-duration').value='0-7';el('p-departure').value='';el('p-pregnant').value='no';el('p-allergy').value='';el('p-immuno').value='';el('p-comment').value='';
+  el('p-name').value='';el('p-dob').value='';el('p-sex').value='f';el('p-duration').value='<1w';el('p-departure').value='';el('p-pregnant').value='no';el('p-allergy').value='';el('p-immuno').value='';el('p-comment').value='';
   el('p-chronic').checked=false;el('p-immunodef').checked=false;
+  ['p-firstname','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-meds','p-recentvax'].forEach(id=>_sv(id,''));
+  ['p-acute','p-thrombosis','p-faint'].forEach(id=>_sc(id,false));
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
   destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnSave');
@@ -2037,6 +2099,110 @@ function setLang(l){
   [...el('p-duration').options].forEach(o=>{if(durLabels[o.value])o.textContent=durLabels[o.value];});
   if(editingId)el('save-btn').textContent=t('btnSaveEdit');
   buildDestSelect();renderDestChips();recompute();renderPatients();
+}
+
+/* ================= ROLLEN / AUTH-INTEGRATION ================= */
+let USE_DB = false;
+let CURRENT_PROFILE = null;
+
+async function loadPatientsFromDB(){
+  if(typeof dbListPatients!=='function') return;
+  const { data, error } = await dbListPatients();
+  if(error){ console.warn('Ambulanzliste laden:', error.message||error); return; }
+  patients = (data||[]).map(row=>{
+    const p = Object.assign({}, row.data||{});
+    p.id = row.id;
+    if(!p.savedAt) p.savedAt = row.created_at;
+    p.updatedAt = row.updated_at || p.updatedAt;
+    return p;
+  });
+  renderPatients();
+}
+
+function applyRole(profile){
+  CURRENT_PROFILE = profile || { role:'arzt' };
+  const role = CURRENT_PROFILE.role || 'arzt';
+  const nameFull = ((CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'')+(CURRENT_PROFILE.full_name||'')).trim();
+  const ub=el('user-box'); if(ub) ub.style.display='flex';
+  const un=el('user-name'); if(un) un.textContent = nameFull || (CURRENT_PROFILE.email||'');
+  const ur=el('user-role'); if(ur) ur.textContent = roleLabel(role,'de');
+  const ph=el('p-physician'); if(ph) ph.value = nameFull;
+  const hb=el('admin-menu-btn'); if(hb) hb.style.display = (role==='admin')?'inline-flex':'none';
+
+  USE_DB = (typeof AUTH_ENABLED!=='undefined') && AUTH_ENABLED && !!supabaseClient && (roleSeesClinic(role) || role==='patient');
+  const show=(id,on)=>{const e=el(id); if(e) e.style.display = on?'':'none';};
+
+  if(role==='patient'){
+    document.body.classList.add('kiosk');
+    ['notes-card','step3','step-schedule','list-card','kasse-card'].forEach(id=>show(id,false));
+    ['step1','step2'].forEach(id=>show(id,true));
+    if(ub) ub.style.display='none';
+    const kb=el('kiosk-bar'); if(kb) kb.classList.add('show');
+    return;
+  }
+  if(role==='kasse'){
+    ['step1','step2','notes-card','step3','step-schedule','list-card'].forEach(id=>show(id,false));
+    show('kasse-card',true);
+    return;
+  }
+  ['step1','step2','notes-card','step3','step-schedule','list-card'].forEach(id=>show(id,true));
+  show('kasse-card',false);
+  if(USE_DB) loadPatientsFromDB();
+}
+
+/* ---------- Kiosk (Patientenaccount) ---------- */
+async function kioskSubmit(){
+  const ok = await savePatient();
+  if(ok){
+    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+    alert(LANG==='de'?'Vielen Dank! Ihre Angaben wurden übermittelt.':'Thank you! Your data has been submitted.');
+  }
+}
+
+/* ================= ADMIN-PANEL ================= */
+function _fillSelect(id, items, valfn, labfn, sel){
+  const e=el(id); if(!e) return;
+  e.innerHTML = items.map(it=>'<option value="'+valfn(it)+'"'+(sel===valfn(it)?' selected':'')+'>'+labfn(it)+'</option>').join('');
+}
+function openAdminPanel(){
+  const p=el('admin-panel'); if(!p) return;
+  _fillSelect('au-title', TITLES.map(x=>({v:x})), x=>x.v, x=>x.v||'—');
+  _fillSelect('au-gender', GENDERS, x=>x.value, x=>LANG==='de'?x.de:x.en);
+  _fillSelect('au-role', ROLES, x=>x.value, x=>LANG==='de'?x.de:x.en, 'mfa');
+  p.classList.add('show');
+  renderAdminUsers();
+}
+function closeAdminPanel(){ const p=el('admin-panel'); if(p) p.classList.remove('show'); }
+function adminMsg(text,type){ const e=el('admin-msg'); if(e) e.innerHTML = text?('<div class="msg '+(type||'err')+'">'+text+'</div>'):''; }
+
+async function renderAdminUsers(){
+  const tb=el('admin-users'); if(!tb) return;
+  const { data, error } = await adminListUsers();
+  if(error){ tb.innerHTML='<tr><td colspan="6">'+(error.message||error)+'</td></tr>'; return; }
+  if(!data.length){ tb.innerHTML='<tr><td colspan="6" style="color:var(--grey)">Noch keine Nutzer angelegt.</td></tr>'; return; }
+  tb.innerHTML = data.map(u=>{
+    const reg = u.registered ? '<span class="badge green">registriert</span>' : '<span class="badge yellow">offen</span>';
+    const em = (u.email||'').replace(/'/g,"\\'");
+    return '<tr><td>'+(u.full_name||'—')+'</td><td>'+(u.title||'—')+'</td><td>'+genderLabel(u.gender,'de')+'</td><td>'+roleLabel(u.role,'de')+'</td><td>'+reg+'<div class="mini-note">'+(u.email||'')+'</div></td>'+
+      '<td style="text-align:right"><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></td></tr>';
+  }).join('');
+}
+async function adminSaveUser(){
+  const email=el('au-email').value.trim();
+  const full_name=el('au-name').value.trim();
+  const title=el('au-title').value, gender=el('au-gender').value, role=el('au-role').value;
+  if(!email||!full_name){ adminMsg('Bitte E-Mail und Name angeben.','err'); return; }
+  const { error } = await adminCreateUser({ email, full_name, title, gender, role });
+  if(error){ adminMsg('Fehler: '+(error.message||error),'err'); return; }
+  adminMsg('Nutzer angelegt. Er kann sich nun über den Registrierungslink ein Passwort vergeben.','ok');
+  el('au-email').value=''; el('au-name').value='';
+  renderAdminUsers();
+}
+async function adminRemoveUser(email){
+  if(!confirm('Nutzer „'+email+'" aus der Freigabe entfernen?'))return;
+  const { error } = await adminDeleteUser(email);
+  if(error){ adminMsg('Fehler: '+(error.message||error),'err'); return; }
+  renderAdminUsers();
 }
 
 /* ---------- INIT ---------- */

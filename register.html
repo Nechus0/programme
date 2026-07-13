@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Charité · Reiseimpf-Assistent · Anmeldung</title>
+<title>Charité · Reiseimpf-Assistent · Registrierung</title>
 <link rel="stylesheet" href="style.css">
 <style>
   body{background:#fff;}
@@ -11,7 +11,7 @@
   .auth-top .brand svg{height:30px;}
   .auth-wrap{min-height:calc(100vh - 74px);display:flex;align-items:center;justify-content:center;padding:24px;background:var(--grey-xl);}
   .auth-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:40px 40px 32px;max-width:400px;width:100%;box-shadow:0 6px 30px rgba(0,0,0,.05);}
-  .auth-card h1{font-size:22px;margin:0 0 6px;font-weight:700;letter-spacing:-.01em;}
+  .auth-card h1{font-size:22px;margin:0 0 6px;font-weight:700;}
   .auth-card .sub{color:var(--grey);font-size:13px;margin-bottom:26px;}
   .auth-field{margin-bottom:16px;}
   .auth-field label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#333;}
@@ -19,8 +19,8 @@
   .auth-field input:focus{outline:none;border-color:var(--black);}
   .auth-btn{width:100%;background:var(--black);color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:6px;}
   .auth-btn:hover{background:#333;} .auth-btn:disabled{opacity:.6;cursor:default;}
-  .auth-links{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:12.5px;}
-  .auth-links a{color:var(--blue);text-decoration:none;cursor:pointer;} .auth-links a:hover{text-decoration:underline;}
+  .auth-links{margin-top:18px;font-size:12.5px;text-align:center;}
+  .auth-links a{color:var(--blue);text-decoration:none;} .auth-links a:hover{text-decoration:underline;}
   .auth-note{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--grey);line-height:1.55;}
   .msg{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:18px;}
   .msg.err{background:var(--red-bg);color:var(--red);border:1px solid #f5c2c2;}
@@ -45,67 +45,79 @@
 
 <div class="auth-wrap">
   <div class="auth-card">
-    <h1>Anmeldung</h1>
-    <div class="sub">Reiseimpf-Assistent · Bitte mit Ihren Zugangsdaten anmelden.</div>
+    <h1 id="title">Passwort festlegen</h1>
+    <div class="sub" id="subtitle">Für Ihre freigeschaltete E-Mail-Adresse ein Passwort vergeben.</div>
     <div id="msg-slot"></div>
-    <form id="login-form" onsubmit="return doLogin(event)">
-      <div class="auth-field">
-        <label for="email">E-Mail</label>
+    <form id="reg-form" onsubmit="return doRegister(event)">
+      <div class="auth-field" id="email-field">
+        <label for="email">E-Mail (vom Admin freigeschaltet)</label>
         <input type="email" id="email" autocomplete="username" placeholder="name@charite.de" required>
       </div>
       <div class="auth-field">
-        <label for="password">Passwort</label>
-        <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" required>
+        <label for="password">Passwort (mind. 8 Zeichen)</label>
+        <input type="password" id="password" autocomplete="new-password" placeholder="••••••••" minlength="8" required>
       </div>
-      <button type="submit" class="auth-btn" id="login-btn">Anmelden</button>
+      <div class="auth-field">
+        <label for="password2">Passwort bestätigen</label>
+        <input type="password" id="password2" autocomplete="new-password" placeholder="••••••••" minlength="8" required>
+      </div>
+      <button type="submit" class="auth-btn" id="reg-btn">Konto einrichten</button>
     </form>
-    <div class="auth-links">
-      <a onclick="doReset()">Passwort vergessen?</a>
-      <a href="register.html">Passwort festlegen / Registrieren</a>
-    </div>
-    <div class="auth-note">Der Zugang ist ausschließlich für Nutzer möglich, die von einem Administrator freigeschaltet wurden. Bei Fragen wenden Sie sich an die Ambulanzleitung.</div>
+    <div class="auth-links"><a href="login.html">Zurück zur Anmeldung</a></div>
+    <div class="auth-note">Sie können sich nur registrieren, wenn Ihre E-Mail zuvor von einem Administrator angelegt wurde.</div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
 <script>
+let RECOVERY = false; // Passwort-Reset-Flow (via E-Mail-Link)
 function showMsg(text, type){ document.getElementById('msg-slot').innerHTML = text ? ('<div class="msg '+(type||'err')+'">'+text+'</div>') : ''; }
 
-async function doLogin(e){
+async function doRegister(e){
   e.preventDefault();
-  const email=document.getElementById('email').value.trim();
   const pw=document.getElementById('password').value;
-  const btn=document.getElementById('login-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
-  const { error } = await signInWithPassword(email, pw);
-  btn.disabled=false; btn.textContent='Anmelden';
+  const pw2=document.getElementById('password2').value;
+  if(pw!==pw2){ showMsg('Die Passwörter stimmen nicht überein.','err'); return false; }
+  const btn=document.getElementById('reg-btn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+
+  if(RECOVERY){
+    const { error } = await supabaseClient.auth.updateUser({ password: pw });
+    btn.disabled=false; btn.textContent='Passwort speichern';
+    if(error){ showMsg(error.message,'err'); return false; }
+    showMsg('Passwort aktualisiert. Sie werden zur Anmeldung weitergeleitet…','ok');
+    setTimeout(()=>{ location.href='login.html'; }, 1400);
+    return false;
+  }
+
+  const email=document.getElementById('email').value.trim();
+  const { data, error } = await signUpWithPassword(email, pw);
+  btn.disabled=false; btn.textContent='Konto einrichten';
   if(error){
-    let m=error.message||'Anmeldung fehlgeschlagen.';
-    if(/invalid login credentials/i.test(m)) m='E-Mail oder Passwort ist falsch.';
-    if(/email not confirmed/i.test(m)) m='E-Mail noch nicht bestätigt.';
+    let m=error.message||'Registrierung fehlgeschlagen.';
+    if(/nicht freigeschaltet|not allowed|Database error/i.test(m)) m='Diese E-Mail ist nicht freigeschaltet. Bitte den Administrator kontaktieren.';
+    if(/already registered/i.test(m)) m='Für diese E-Mail besteht bereits ein Konto. Bitte anmelden oder Passwort zurücksetzen.';
     showMsg(m,'err'); return false;
   }
-  window.location.href='index.html';
+  showMsg('Konto eingerichtet. Sie werden zur Anmeldung weitergeleitet…','ok');
+  setTimeout(()=>{ location.href='login.html?registered=1'; }, 1400);
   return false;
 }
-async function doReset(){
-  const email=document.getElementById('email').value.trim();
-  if(!email){ showMsg('Bitte zuerst Ihre E-Mail eingeben.','err'); return; }
-  const { error } = await sendPasswordReset(email);
-  if(error){ showMsg(error.message,'err'); return; }
-  showMsg('Falls die E-Mail freigeschaltet ist, wurde ein Link zum Zurücksetzen versendet.','ok');
-}
 
-(async function init(){
+(function init(){
   document.body.style.visibility='visible';
-  const q=new URLSearchParams(location.search);
-  if(q.get('denied')) showMsg('Ihr Konto ist noch nicht freigeschaltet. Bitte kontaktieren Sie den Administrator.','err');
-  if(q.get('registered')) showMsg('Konto erstellt. Sie können sich jetzt anmelden.','ok');
-  if(!AUTH_ENABLED){ showMsg('Hinweis: Supabase ist nicht konfiguriert – die App läuft im Demo-Modus ohne Login. <a href="index.html">Zur App</a>','ok'); return; }
-  // Bereits angemeldet? Direkt weiter.
-  const user=await getSessionUser();
-  if(user){ const p=await getProfile(user.id); if(p&&p.role){ window.location.href='index.html'; } }
+  if(!AUTH_ENABLED){ showMsg('Supabase ist nicht konfiguriert.','err'); return; }
+  // Reset-Link erkennt Supabase automatisch → PASSWORD_RECOVERY
+  supabaseClient.auth.onAuthStateChange((event)=>{
+    if(event==='PASSWORD_RECOVERY'){
+      RECOVERY=true;
+      document.getElementById('title').textContent='Neues Passwort setzen';
+      document.getElementById('subtitle').textContent='Bitte vergeben Sie ein neues Passwort für Ihr Konto.';
+      document.getElementById('email-field').style.display='none';
+      document.getElementById('email').required=false;
+      document.getElementById('reg-btn').textContent='Passwort speichern';
+    }
+  });
 })();
 </script>
 </body>
