@@ -89,6 +89,7 @@ async function doLogin(e){
     if(/email not confirmed/i.test(m)) m='E-Mail noch nicht bestätigt.';
     showMsg(m,'err'); return false;
   }
+  try{ localStorage.removeItem('charite_seccollapse'); }catch(_){}   // frischer Login → Sektionen auf Standard
   window.location.href='index.html';
   return false;
 }

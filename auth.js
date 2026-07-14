@@ -36,7 +36,7 @@ function genderLabel(value, lang) {
   return g ? (lang === 'en' ? g.en : g.de) : (value || '');
 }
 // Klinische Voll-Ansicht (Ambulanzliste, Impfstatus …)
-function roleSeesClinic(role){ return role === 'arzt' || role === 'mfa' || role === 'admin'; }
+function roleSeesClinic(role){ return role === 'arzt' || role === 'mfa' || role === 'admin' || role === 'kasse'; }
 
 // --- Auth --------------------------------------------------------
 async function getSessionUser() {
@@ -67,6 +67,7 @@ async function sendPasswordReset(email) {
   return await supabaseClient.auth.resetPasswordForEmail(email.trim(), { redirectTo });
 }
 async function signOut() {
+  try{ localStorage.removeItem('charite_seccollapse'); }catch(e){}   // Sektionszustand auf Standard zurücksetzen
   if (supabaseClient) { await supabaseClient.auth.signOut(); }
   window.location.href = 'login.html';
 }

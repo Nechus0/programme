@@ -318,19 +318,21 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 .clinic-back{background:#fff;border:1px solid var(--line);border-left:3px solid var(--black);border-radius:8px;padding:11px 15px;margin-bottom:16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--black);}
 .clinic-back:hover{background:var(--grey-xl);}
 /* Admin-Nutzerliste (gruppiert) */
-/* Nutzer-Board (Freischaltung per Drag&Drop) */
-.admin-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:10px;}
-.ab-col{background:var(--grey-xl);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px;}
-.ab-col.ab-pending{background:#fff9ec;border-color:#f0dca8;}
-.ab-col.drag-over{outline:2px dashed var(--blue);outline-offset:-4px;background:#e8f1fe;}
-.ab-col-h{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);display:flex;align-items:center;gap:6px;}
-.ab-empty{font-size:11.5px;color:var(--neutral);padding:6px 2px;font-style:italic;}
-.ab-card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,.04);}
-.ab-card:active{cursor:grabbing;}
-.ab-card .ab-main{flex:1;min-width:0;}
-.ab-card .ab-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ab-card .ab-sub{font-size:11px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ab-card .icon-btn{flex-shrink:0;}
+/* Nutzer-Board (Freischaltung per Drag&Drop) – vertikale Rollen-Abschnitte */
+.admin-board{display:flex;flex-direction:column;gap:14px;margin-top:12px;}
+.ab-sec{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+.ab-sec.ab-pending{border-color:#f0dca8;}
+.ab-sec.drag-over{outline:2px dashed var(--blue);outline-offset:-3px;}
+.ab-sec-h{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);background:var(--grey-xl);border-bottom:1px solid var(--line);}
+.ab-sec.ab-pending .ab-sec-h{background:#fff9ec;color:#8a6d3b;}
+.ab-rows{display:flex;flex-direction:column;padding:6px;gap:6px;min-height:20px;}
+.ab-empty{font-size:12px;color:var(--neutral);padding:8px 6px;font-style:italic;}
+.ab-row{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+.ab-row:active{cursor:grabbing;}
+.ab-row .ab-main{flex:1;min-width:0;}
+.ab-row .ab-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ab-row .ab-sub{font-size:11.5px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ab-row .icon-btn{flex-shrink:0;}
 
 .admin-group{margin-bottom:18px;}
 .admin-group-h{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);font-weight:700;padding:0 0 6px;border-bottom:1px solid var(--line);margin-bottom:4px;}
@@ -388,6 +390,16 @@ h4 .flag{width:20px;height:20px;}
 .amb-day{display:flex;align-items:center;gap:6px;}
 .amb-day input[type=date]{width:auto;padding:7px 9px;font-size:13px;}
 .amb-search{flex:1;min-width:180px;max-width:340px;padding:9px 12px;font-size:14px;}
+/* Typ-Gruppe (Beratung / Folgeimpfung) verbindet Wartend + In Behandlung */
+.amb-typegroup{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;background:#fff;}
+.amb-typegroup.beratung{border-left:3px solid #2563eb;}
+.amb-typegroup.folgeimpfung{border-left:3px solid #0e9e8e;}
+.amb-tg-h{display:flex;align-items:center;gap:9px;padding:11px 14px;font-weight:800;font-size:14px;border-bottom:1px solid var(--line);}
+.amb-typegroup .amb-section.amb-lane{border:none;border-radius:0;margin:0;background:transparent;overflow:visible;}
+.amb-typegroup .amb-section.amb-lane + .amb-section.amb-lane{border-top:1px solid var(--line);}
+.amb-typegroup .amb-lane>.amb-sec-h{background:#fafbfc;font-size:12px;font-weight:600;padding:8px 14px 8px 18px;color:var(--text);}
+.amb-typegroup .amb-lane[data-status=treatment]>.amb-sec-h{background:#f4f8fd;}
+
 .amb-section{margin-bottom:14px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;}
 .amb-sec-h{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--grey-xl);font-weight:700;font-size:13px;cursor:pointer;}
 .amb-sec-h .amb-toggle{color:var(--grey);transition:transform .15s;}

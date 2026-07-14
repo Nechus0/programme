@@ -2017,7 +2017,9 @@ function togglePatient(id){const e=el('pi-'+id);if(e)e.classList.toggle('open');
 function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 let listDay = ymd(new Date());
 let listSearch = '';
-let SEC_COLLAPSE={};   // gemerkter Auf-/Zuklapp-Zustand der Ambulanz-Sektionen (Reset bei Login = Seiten-Reload)
+let SEC_COLLAPSE={};   // gemerkter Auf-/Zuklapp-Zustand der Ambulanz-Sektionen
+function loadSecCollapse(){ try{ const s=localStorage.getItem('charite_seccollapse'); SEC_COLLAPSE=s?JSON.parse(s):{}; }catch(e){ SEC_COLLAPSE={}; } }
+function saveSecCollapse(){ try{ localStorage.setItem('charite_seccollapse', JSON.stringify(SEC_COLLAPSE)); }catch(e){} }
 let INTAKE_TYPE=null;  // Kiosk-Auswahl: 'beratung' | 'folgeimpfung'
 function icLang(l){ if(typeof setLang==='function') setLang(l); const de=el('ic-de'),en=el('ic-en'); if(de)de.classList.toggle('active',l==='de'); if(en)en.classList.toggle('active',l==='en'); }
 function showIntakeChoice(){ INTAKE_TYPE=null; const o=el('intake-choice'); if(o)o.classList.add('show'); icLang(typeof LANG!=='undefined'?LANG:'de'); }
@@ -2146,14 +2148,13 @@ function renderPatients(){
   const filt=q?dayPats.filter(p=>((p.name||'')+' '+(p.firstname||'')).toLowerCase().includes(q)||((p.firstname||'')+' '+(p.name||'')).toLowerCase().includes(q)):dayPats;
   // Offene Schnellansichten merken, damit sie beim Neu-Rendern (Auto-Refresh) nicht zuklappen
   const openIds=Array.from(listEl.querySelectorAll('.patient-item.open')).map(e=>e.dataset.pid);
-  let html='';
-  AMB_SECTIONS.forEach(s=>{
+  // Eine Sektion (Lane) rendern: Wartend / In Behandlung / Behandelt
+  const lane=(s)=>{
     const inSec=filt.filter(p=>{ if(patientStatus(p)!==s.status)return false; if(s.type)return patientTreatType(p)===s.type; return true; });
     const key=secKey(s);
     let collapsed;
-    if(key in SEC_COLLAPSE){ collapsed=SEC_COLLAPSE[key]; }   // gemerkter Zustand hat Vorrang
+    if(key in SEC_COLLAPSE){ collapsed=SEC_COLLAPSE[key]; }
     else {
-      // Standard-Zustand je Rolle: MFA = Folgeimpfung offen/Beratung eingeklappt; Arzt = umgekehrt
       const myRole=(CURRENT_PROFILE||{}).role;
       collapsed=false;
       if(s.status==='done') collapsed=true;
@@ -2162,18 +2163,27 @@ function renderPatients(){
     }
     const dropAttr='data-status="'+s.status+'"'+(s.type?' data-type="'+s.type+'"':'');
     const typeArg=s.type?("'"+s.type+"'"):'null';
-    html+='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-treat':'')+'" '+dropAttr+'>';
-    html+='<div class="amb-sec-h" onclick="toggleSection(\''+key+'\',this)" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
-    html+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
-    html+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
-    html+='</div></div>';
+    let h='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-lane':'')+'" '+dropAttr+'>';
+    h+='<div class="amb-sec-h" onclick="toggleSection(\''+key+'\',this)" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
+    h+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
+    h+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
+    h+='</div></div>';
+    return h;
+  };
+  let html='';
+  [{type:'beratung',de:'Beratung',en:'Consultation'},{type:'folgeimpfung',de:'Folgeimpfung',en:'Follow-up'}].forEach(g=>{
+    html+='<div class="amb-typegroup '+g.type+'"><div class="amb-tg-h"><span class="type-badge '+g.type+'">'+(g.type==='folgeimpfung'?'F':'B')+'</span>'+(LANG==='de'?g.de:g.en)+'</div>';
+    html+=lane({status:'waiting',type:g.type,de:'Wartend',en:'Waiting'});
+    html+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment'});
+    html+='</div>';
   });
+  html+=lane({status:'done',de:'Behandelt',en:'Treated'});
   listEl.innerHTML=html;
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
 }
 function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
-function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); }
+function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
 // Linkes Behandlungsfeld des behandelnden Arztes: eigene Patienten in Behandlung + Sektions-Navigation
 function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item'+act+'" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></button>'; }
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
@@ -2468,16 +2478,13 @@ function applyRole(profile){
     showIntakeChoice();   // zuerst Reiseberatung / Folgeimpfung wählen lassen
     return;
   }
-  if(role==='kasse'){
-    ['step1','step2','step3','step4','step5','list-card'].forEach(id=>show(id,false));
-    show('kasse-card',true);
-    return;
-  }
+  // Kasse verhält sich vorerst wie Arzt/Ärztin (voller Klinikzugriff)
   ['step1','step2','step3','step4','step5','list-card'].forEach(id=>show(id,true));
   show('kasse-card',false);
   document.body.classList.add('clinic');
   document.body.classList.add('clinic-idle');       // Start: kein Patient gewählt → Abschnitte eingeklappt
   const npb=el('new-patient-btn'); if(npb) npb.style.display='inline-block';
+  loadSecCollapse();   // gemerkten Auf-/Zuklapp-Zustand wiederherstellen (bleibt auch bei manuellem Refresh)
   moveListToTop();
   if(USE_DB){ loadPatientsFromDB(); startAmbRefresh(); } else renderPatients();
   renderTreatPanel();
@@ -2599,14 +2606,15 @@ async function renderAdminUsers(){
   ADMIN_BOARD.forEach(col=>{
     const list=byRole[col.role]||[];
     const pending=col.role==='';
-    html+='<div class="ab-col'+(pending?' ab-pending':'')+'" data-role="'+col.role+'" ondragover="adminColOver(event)" ondragleave="adminColLeave(event)" ondrop="adminColDrop(event)">';
-    html+='<div class="ab-col-h">'+(LANG==='de'?col.de:col.en)+' <span class="count-pill">'+list.length+'</span></div>';
-    if(!list.length){ html+='<div class="ab-empty">'+(pending?(LANG==='de'?'Keine offenen Registrierungen':'None'):(LANG==='de'?'Hierher ziehen …':'Drop here …'))+'</div>'; }
+    html+='<div class="ab-sec'+(pending?' ab-pending':'')+'" data-role="'+col.role+'" ondragover="adminColOver(event)" ondragleave="adminColLeave(event)" ondrop="adminColDrop(event)">';
+    html+='<div class="ab-sec-h">'+(LANG==='de'?col.de:col.en)+' <span class="count-pill">'+list.length+'</span></div>';
+    html+='<div class="ab-rows">';
+    if(!list.length){ html+='<div class="ab-empty">'+(pending?(LANG==='de'?'Keine offenen Registrierungen':'None'):(LANG==='de'?'Person hierher ziehen …':'Drop person here …'))+'</div>'; }
     list.forEach(u=>{
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="ab-card" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
+      html+='<div class="ab-row" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
     });
-    html+='</div>';
+    html+='</div></div>';
   });
   box.innerHTML=html;
 }
