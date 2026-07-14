@@ -1940,6 +1940,7 @@ async function savePatient(){
     treatmentType:(existing&&existing.treatmentType)||undefined,
     claimedBy:(existing&&existing.claimedBy)||(document.body.classList.contains('clinic')?myUserKey():null),
     claimedByName:(existing&&existing.claimedByName)||((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''),
+    claimedByRole:(existing&&existing.claimedByRole)||(document.body.classList.contains('clinic')?((CURRENT_PROFILE&&CURRENT_PROFILE.role)||''):''),
     treatmentAt:(existing&&existing.treatmentAt)||null,
     savedAt:(existing&&existing.savedAt)||new Date().toISOString(), updatedAt:new Date().toISOString()
   };
@@ -2028,14 +2029,31 @@ async function persistPatient(p){
   else{storeSet('charite_patients',JSON.stringify(patients));}
   return true;
 }
-async function setPatientStatus(id,status,type){
+function claimPatient(p,type){ p.claimedBy=myUserKey(); p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''; p.claimedByRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||''; if(!p.treatmentAt)p.treatmentAt=new Date().toISOString(); p.treatmentType=type||p.treatmentType||myTreatmentMode(); }
+async function setPatientStatus(id,status,type,claim){
   const p=patients.find(x=>x.id===id);if(!p)return;
   p.status=status;
-  if(status==='treatment'){ p.claimedBy=myUserKey(); p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''; if(!p.treatmentAt)p.treatmentAt=new Date().toISOString(); p.treatmentType=type||p.treatmentType||myTreatmentMode(); }
-  else if(status==='waiting'){ p.claimedBy=null; p.claimedByName=''; p.treatmentAt=null; }
+  if(status==='treatment'){ if(claim) claimPatient(p,type); else if(!p.treatmentType) p.treatmentType=type||myTreatmentMode(); }
+  else if(status==='waiting'){ p.claimedBy=null; p.claimedByName=''; p.claimedByRole=''; p.treatmentAt=null; }
   await persistPatient(p); renderPatients();
 }
-async function startTreatment(id){ await setPatientStatus(id,'treatment',myTreatmentMode()); loadPatient(id); }
+// Rechter Pfeil: Patient in die EIGENE Behandlung nehmen (claim) und öffnen
+async function takeIntoTreatment(id){ await setPatientStatus(id,'treatment',myTreatmentMode(),true); loadPatient(id); }
+async function takeGroupIntoTreatment(g){ await moveGroupStatus(g,'treatment',myTreatmentMode(),true); const first=patients.find(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===g.trim().toLowerCase()); if(first)loadPatient(first.id); }
+async function startTreatment(id){ await takeIntoTreatment(id); }
+// Behandlung abschließen (grüner Haken): aktuellen Patienten + ggf. ganze Gruppe auf „behandelt"
+async function finishTreatment(){
+  if(!editingId){ exitToList(); return; }
+  const cur=patients.find(p=>p.id===editingId);
+  const grp=(cur&&cur.group)?cur.group.trim().toLowerCase():'';
+  const ok=await savePatient();   // speichert aktuellen Patienten als „done" + exitToList()
+  if(!ok) return;
+  if(grp){
+    const mates=patients.filter(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===grp && p.status!=='done');
+    for(const m of mates){ m.status='done'; await persistPatient(m); }
+    renderPatients();
+  }
+}
 async function assignGroup(id){
   closeCardMenus();
   const p=patients.find(x=>x.id===id);if(!p)return;
@@ -2054,16 +2072,17 @@ function gDragStart(e,g){ if(e.target.closest('.patient-item'))return; _dragGrou
 function pDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');const sec=e.currentTarget.closest('.amb-section');if(sec)sec.classList.remove('collapsed');}
 function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
 function pDrop(e,status,type){
+  // Drag&Drop = reiner Sektionswechsel, KEIN Übernehmen in die eigene Behandlung (claim=false)
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
-  if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status,type);return; }
-  let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status,type);
+  if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status,type,false);return; }
+  let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status,type,false);
 }
-async function moveGroupStatus(groupName,status,type){
+async function moveGroupStatus(groupName,status,type,claim){
   const gl=groupName.trim().toLowerCase();
   const members=patients.filter(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===gl);
   for(const p of members){ p.status=status;
-    if(status==='treatment'){p.claimedBy=myUserKey();p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';if(!p.treatmentAt)p.treatmentAt=new Date().toISOString();p.treatmentType=type||p.treatmentType||myTreatmentMode();}
-    else if(status==='waiting'){p.claimedBy=null;p.claimedByName='';p.treatmentAt=null;}
+    if(status==='treatment'){ if(claim) claimPatient(p,type); else if(!p.treatmentType) p.treatmentType=type||myTreatmentMode(); }
+    else if(status==='waiting'){p.claimedBy=null;p.claimedByName='';p.claimedByRole='';p.treatmentAt=null;}
     await persistPatient(p);
   }
   renderPatients();
@@ -2084,17 +2103,13 @@ async function pCardDrop(e){
   src.group=grp; tgt.group=grp;
   await persistPatient(tgt); await persistPatient(src); renderPatients();
 }
-function actionBtns(p){
-  const id=p.id,s=patientStatus(p);let b='';
-  const mk=(fn,lbl,cls)=>'<button class="btn sec sm amb-move'+(cls?' '+cls:'')+'" onclick="event.stopPropagation();'+fn+'">'+lbl+'</button>';
-  if(s==='waiting') b+=mk("startTreatment('"+id+"')",(LANG==='de'?'Behandeln':'Treat'),'primary');
-  else if(s==='treatment') b+=mk("setPatientStatus('"+id+"','done')",(LANG==='de'?'Behandelt':'Done'),'primary');
-  else b+=mk("setPatientStatus('"+id+"','treatment')",(LANG==='de'?'Zurückholen':'Reopen'));
-  return b;
-}
+// Rechter Pfeil: Patient in die eigene Behandlung nehmen. Nur für Wartend/In Behandlung.
+function arrowBtn(id){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeIntoTreatment(\''+id+'\')" title="'+(LANG==='de'?'In Behandlung nehmen':'Take into treatment')+'">→</button>'; }
+function groupArrowBtn(gesc){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')" title="'+(LANG==='de'?'Gruppe in Behandlung nehmen':'Take group into treatment')+'">→</button>'; }
 function elapsedStr(iso){ if(!iso)return''; const min=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000)); if(isNaN(min))return''; if(min<1)return LANG==='de'?'gerade eben':'just now'; if(min<60)return min+' min'; const h=Math.floor(min/60),m=min%60; return h+' h'+(m?' '+m:'')+(m?' min':''); }
 function initials(name){ if(!name)return '?'; const parts=String(name).trim().split(/\s+/).filter(Boolean); if(!parts.length)return '?'; if(parts.length===1)return parts[0].slice(0,2).toUpperCase(); return (parts[0][0]+parts[parts.length-1][0]).toUpperCase(); }
-function initialsCircle(name){ return '<span class="ini-circle" title="'+_esc(name||'')+'">'+_esc(initials(name))+'</span>'; }
+function roleColor(role){ switch(role){ case 'arzt':return '#2563eb'; case 'mfa':return '#0e9e8e'; case 'admin':return '#111827'; case 'kasse':return '#b45309'; case 'patient':return '#6b7280'; default:return '#6b7280'; } }
+function initialsCircle(name,role){ return '<span class="ini-circle" style="background:'+roleColor(role)+'" title="'+_esc(name||'')+(role?' · '+role:'')+'">'+_esc(initials(name))+'</span>'; }
 function toggleCardMenu(id){ const m=el('cm-'+id); const open=m&&m.style.display==='block'; closeCardMenus(); if(m&&!open)m.style.display='block'; }
 function closeCardMenus(){ document.querySelectorAll('.card-menu').forEach(m=>m.style.display='none'); }
 document.addEventListener('click',function(e){ if(!e.target.closest('.card-menu')&&!e.target.closest('.menu-btn')) closeCardMenus(); });
@@ -2120,18 +2135,42 @@ function renderPatients(){
     html+='</div></div>';
   });
   listEl.innerHTML=html;
+  renderTreatConsole();
+}
+// Rechte Behandlungs-Konsole: zeigt die Patienten, die ich gerade in Behandlung habe
+function tcItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tc-item'+act+'" onclick="loadPatient(\''+p.id+'\')">'+initialsCircle(p.claimedByName,p.claimedByRole)+'<span class="tc-nm">'+_esc(nm)+'</span></button>'; }
+function renderTreatConsole(){
+  const box=el('treat-console'); if(!box) return;
+  if(!document.body.classList.contains('clinic')){ box.innerHTML=''; box.classList.remove('show'); return; }
+  const mine=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='treatment' && p.claimedBy===myUserKey());
+  if(!mine.length){ box.innerHTML=''; box.classList.remove('show'); return; }
+  const groups={},order=[];
+  mine.forEach(p=>{const g=(p.group||'').trim();const k=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[k]){groups[k]={g:g,items:[]};order.push(k);}groups[k].items.push(p);});
+  let h='<div class="tc-title">'+(LANG==='de'?'In Behandlung':'In treatment')+'</div>';
+  order.forEach(k=>{const grp=groups[k];
+    if(grp.g&&grp.items.length>1) h+='<div class="tc-group"><div class="tc-gname">'+_esc(grp.g)+'</div>'+grp.items.map(tcItem).join('')+'</div>';
+    else h+=grp.items.map(tcItem).join('');
+  });
+  box.innerHTML=h; box.classList.add('show');
 }
 function renderSectionCards(list){
   const groups={},order=[];
   list.forEach(p=>{const g=(p.group||'').trim();const key=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[key]){groups[key]={g:g,items:[]};order.push(key);}groups[key].items.push(p);});
   let h='';
   order.forEach(key=>{const grp=groups[key];
-    if(grp.g&&grp.items.length>1){ const gesc=_esc(grp.g).replace(/'/g,"\\'"); h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h">'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+' <span class="amb-group-hint">'+(LANG==='de'?'(ganze Gruppe ziehen)':'(drag whole group)')+'</span></div>'+grp.items.map(renderPatientCard).join('')+'</div>'; }
-    else h+=grp.items.map(renderPatientCard).join('');
+    if(grp.g&&grp.items.length>1){
+      const gesc=_esc(grp.g).replace(/'/g,"\\'");
+      const st=patientStatus(grp.items[0]);
+      const claimed=grp.items.find(p=>p.claimedByName);
+      const gIcon=((st==='treatment'||st==='done')&&claimed)?initialsCircle(claimed.claimedByName,claimed.claimedByRole):'';
+      const gArrow=(st!=='done')?groupArrowBtn(gesc):'';
+      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+' <span class="amb-group-hint">'+(LANG==='de'?'(ganze Gruppe ziehen)':'(drag whole group)')+'</span></span><span class="amb-group-act">'+gIcon+gArrow+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
+    }
+    else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
   });
   return h;
 }
-function renderPatientCard(p){
+function renderPatientCard(p,inGroup){
     const dest=(p.destinations||[]).map(c=>CBY[c]?(LANG==='de'?CBY[c].de:CBY[c].en):c).join(', ')||'—';
     const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
     const vax=p.vax||{};
@@ -2221,9 +2260,10 @@ function renderPatientCard(p){
     let timeMeta='';
     if(s==='waiting') timeMeta=' · '+(LANG==='de'?'wartet ':'waiting ')+elapsedStr(p.savedAt);
     else if(s==='treatment') timeMeta=(mine?' · '+(LANG==='de'?'von mir':'by me'):'')+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
-    const ini=((s==='treatment'||s==='done')&&p.claimedByName)?initialsCircle(p.claimedByName):'';
-    const bodyActions='<div class="pb-actions"><button class="btn sec sm" onclick="event.stopPropagation();assignGroup(\''+p.id+'\')">'+(LANG==='de'?'Gruppieren':'Group')+'</button>'+(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();loadPatient(\''+p.id+'\')" title="'+(LANG==='de'?'Öffnen':'Open')+'">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+actionBtns(p)+ini+'</div>'+
+    const ini=(!inGroup&&(s==='treatment'||s==='done')&&p.claimedByName)?initialsCircle(p.claimedByName,p.claimedByRole):'';
+    const arrow=(!inGroup&&s!=='done')?arrowBtn(p.id):'';
+    const bodyActions='<div class="pb-actions">'+(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'<button class="btn sec sm" onclick="event.stopPropagation();assignGroup(\''+p.id+'\')">'+(LANG==='de'?'Zu Gruppe hinzufügen':'Add to group')+'</button>')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+ini+arrow+'</div>'+
       '<div class="patient-body">'+bodyActions+'<div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></div>';
 }
 
@@ -2367,6 +2407,7 @@ function applyRole(profile){
     document.body.classList.add('kiosk');
     ['step4','step5','list-card','kasse-card'].forEach(id=>show(id,false));
     ['step1','step2','step3'].forEach(id=>show(id,true));
+    show('notes-block',false);   // Länder-/Gesundheitshinweise nur für Personal, nicht auf dem Patienten-Tablet
     if(ub) ub.style.display='none';
     const kb=el('kiosk-bar'); if(kb) kb.classList.add('show');
     buildSecNav();
@@ -2393,13 +2434,13 @@ function moveListToTop(){
 function enterPatient(){
   document.body.classList.remove('clinic-idle');
   try{ el('step1').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
-  buildSecNav();
+  buildSecNav(); renderTreatConsole();
 }
 function exitToList(){
   resetForm();
   document.body.classList.add('clinic-idle');
   try{ el('list-card').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
-  buildSecNav();
+  buildSecNav(); renderTreatConsole();
 }
 function startNewPatient(){ resetForm(); const et=el('editing-text'); if(et) et.textContent=(LANG==='de'?'Neuer Patient':'New patient'); enterPatient(); }
 function cancelEditConfirm(){
@@ -2409,14 +2450,18 @@ function cancelEditConfirm(){
 
 /* ---------- Linke Sektions-Navigation (Scroll-Punkte) ---------- */
 const SEC_NAV_ITEMS=[
-  {id:'list-card',label:'A'},{id:'step1',label:'1'},{id:'step2',label:'2'},
-  {id:'step3',label:'3'},{id:'step4',label:'4'},{id:'step5',label:'5'}
+  {id:'list-card',label:'A',de:'Ambulanzliste',en:'Clinic list'},
+  {id:'step1',label:'1',de:'Stammdaten',en:'Master data'},
+  {id:'step2',label:'2',de:'Reise',en:'Travel'},
+  {id:'step3',label:'3',de:'Immunstatus',en:'Immune status'},
+  {id:'step4',label:'4',de:'Impfstatus',en:'Vaccination status'},
+  {id:'step5',label:'5',de:'Geplante Impfungen',en:'Planned'}
 ];
 function buildSecNav(){
   const nav=el('sec-nav'); if(!nav) return;
   const vis=SEC_NAV_ITEMS.filter(it=>{const e=el(it.id); return e && e.offsetParent!==null;});
   if(vis.length<2){ nav.innerHTML=''; return; }
-  nav.innerHTML=vis.map(it=>'<button type="button" data-target="'+it.id+'" onclick="secNavJump(\''+it.id+'\')" title="'+it.id+'">'+it.label+'</button>').join('');
+  nav.innerHTML=vis.map(it=>'<button type="button" data-target="'+it.id+'" onclick="secNavJump(\''+it.id+'\')"><span class="sn-dot">'+it.label+'</span><span class="sn-lbl">'+(LANG==='de'?it.de:it.en)+'</span></button>').join('');
   updateSecNav();
 }
 function secNavJump(id){ const e=el(id); if(e) try{ e.scrollIntoView({behavior:'smooth',block:'start'}); }catch(err){} }
@@ -2477,7 +2522,7 @@ async function renderAdminUsers(){
       const em=(u.email||'').replace(/'/g,"\\'");
       const reg=u.registered?'<span class="badge green">registriert</span>':'<span class="badge yellow">offen</span>';
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="admin-row">'+initialsCircle(u.full_name||u.email)+'<div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
+      html+='<div class="admin-row">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
     });
     html+='</div>';
   });

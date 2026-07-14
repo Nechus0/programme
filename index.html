@@ -73,12 +73,12 @@
   </div>
 </div>
 
-<nav class="sec-nav" id="sec-nav" aria-label="Abschnitte"></nav>
 <button class="edit-cancel" id="edit-cancel" onclick="cancelEditConfirm()" title="Bearbeitung abbrechen" aria-label="Bearbeitung abbrechen">✕</button>
+<button class="finish-treat" id="finish-treat" onclick="finishTreatment()" title="Behandlung abschließen" aria-label="Behandlung abschließen">✓</button>
 
+<div class="shell">
+<nav class="sec-nav" id="sec-nav" aria-label="Abschnitte"></nav>
 <main>
-  <div class="disclaimer" data-i18n="disclaimer">Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.</div>
-
   <div class="editing-banner" id="editing-banner" style="display:none"><span id="editing-text"></span></div>
 
   <!-- STEP 1 -->
@@ -88,7 +88,7 @@
     <div class="grid g4">
       <div><label class="fld" data-i18n="fName">Name</label><input type="text" id="p-name" placeholder="—"></div>
       <div><label class="fld" data-i18n="fFirstname">Vorname</label><input type="text" id="p-firstname" placeholder="—"></div>
-      <div><label class="fld" data-i18n="fDob">Geburtsdatum</label><input type="date" id="p-dob" onchange="recompute()" oninput="recompute()"><div class="age-box empty" id="age-box" data-i18n="ageEmpty">Alter: bitte Geburtsdatum eingeben</div></div>
+      <div><label class="fld" data-i18n="fDob">Geburtsdatum</label><input type="date" id="p-dob" onchange="recompute()" oninput="recompute()"></div>
       <div><label class="fld" data-i18n="fSex">Geschlecht</label><select id="p-sex" onchange="recompute()"><option value="f" data-i18n="sexF">weiblich</option><option value="m" data-i18n="sexM">männlich</option><option value="d" data-i18n="sexD">divers</option></select></div>
     </div>
     <div class="grid g4" style="margin-top:14px;">
@@ -125,8 +125,10 @@
         </div>
       </div>
     </div>
-    <div class="card-sub" data-i18n="notesTitle" style="margin-top:22px;">Länder- &amp; Gesundheitshinweise</div>
-    <div id="country-notes"><div class="empty" data-i18n="noDest">Noch kein Reiseziel gewählt.</div></div>
+    <div id="notes-block">
+      <div class="card-sub" data-i18n="notesTitle" style="margin-top:22px;">Länder- &amp; Gesundheitshinweise</div>
+      <div id="country-notes"><div class="empty" data-i18n="noDest">Noch kein Reiseziel gewählt.</div></div>
+    </div>
   </section>
 
   <!-- STEP 3: Immunstatus -->
@@ -153,7 +155,7 @@
 
   <!-- STEP 4: Impfstatus -->
   <section class="card" id="step4">
-    <h2><span class="step-badge">4</span><span data-i18n="s4Title">Impfstatus</span></h2>
+    <h2 style="display:flex;align-items:center;"><span class="step-badge">4</span><span data-i18n="s4Title">Impfstatus</span><span style="flex:1"></span><div class="age-box empty" id="age-box" data-i18n="ageEmpty">Alter: bitte Geburtsdatum eingeben</div></h2>
     <div class="card-desc" data-i18n="s4Desc">Vorimpfungen per Klick eintragen (nur Jahr). Farbe = Handlungsbedarf. Die Impfplanung erfolgt im nächsten Schritt.</div>
     <div class="today-warn" id="today-warn"></div>
     <div class="table-container">
@@ -173,8 +175,7 @@
     <div style="margin-top:16px;"><label class="fld" data-i18n="fComment">Kommentar / Notiz zum Patienten</label><textarea id="p-comment" rows="2" placeholder="Freitext – erscheint in der Patientenakte und optional im Impfplan"></textarea></div>
     <div class="row-flex" style="margin-top:18px;justify-content:flex-end;">
       <button class="btn sec" onclick="printSchedule()" data-i18n="btnPrint">Impfplan drucken</button>
-      <button class="btn sec" onclick="resetForm()" data-i18n="btnReset">Formular leeren</button>
-      <button class="btn" id="save-btn" onclick="savePatient()" data-i18n="btnFinish">Behandlung abschließen</button>
+      <button class="btn" id="save-btn" onclick="savePatient()" data-i18n="btnFinish" style="display:none">Behandlung abschließen</button>
     </div>
   </section>
 
@@ -200,6 +201,8 @@
     <div id="patient-list"></div>
   </section>
 </main>
+<aside class="treat-console" id="treat-console" aria-label="In Behandlung"></aside>
+</div>
 
 <!-- KIOSK-Leiste (Patientenaccount) -->
 <div class="kiosk-bar" id="kiosk-bar">

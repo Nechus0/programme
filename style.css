@@ -21,7 +21,8 @@ header{background:#fff;border-bottom:2px solid var(--black);padding:14px 28px;di
 .lang-toggle{display:flex;border:1px solid var(--black);border-radius:20px;overflow:hidden;}
 .lang-toggle button{border:none;background:#fff;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--black);}
 .lang-toggle button.active{background:var(--black);color:#fff;}
-main{max-width:1320px;margin:0 auto;padding:24px 20px 90px;}
+.shell{max-width:1560px;margin:0 auto;padding:0 20px;display:flex;align-items:flex-start;gap:22px;}
+main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90px;}
 .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:22px;}
 .card h2{margin:0 0 4px;font-size:17px;font-weight:700;}
 .card .card-desc{color:var(--grey);font-size:12.5px;margin-bottom:18px;}
@@ -42,6 +43,8 @@ input[type=checkbox]{width:19px;height:19px;cursor:pointer;accent-color:#000;ver
 .age-box.empty{background:var(--grey-xl);color:var(--grey);font-weight:500;font-size:12px;}
 .age-box .yob{font-weight:400;font-size:11px;opacity:.85;}
 .age-box.child{background:#0d3b66;}
+h2 .age-box{margin-top:0;padding:5px 12px;font-size:13px;min-height:32px;font-weight:700;}
+h2 .age-box.empty{font-size:11.5px;font-weight:500;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .chip{background:var(--black);color:#fff;border-radius:16px;padding:4px 10px 4px 12px;font-size:12px;display:flex;align-items:center;gap:7px;}
 .chip span{cursor:pointer;font-weight:700;opacity:.75;} .chip span:hover{opacity:1;} .chip.mand{background:var(--red);}
@@ -59,11 +62,14 @@ table.vax{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;
 table.vax th,table.vax td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top;}
 table.vax thead th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#fff;font-weight:600;background:var(--black);vertical-align:middle;}
 table.vax thead th:first-child{border-top-left-radius:6px;} table.vax thead th:last-child{border-top-right-radius:6px;}
-table.vax th:nth-child(1), table.vax td:nth-child(1) { width: 20%; }
-table.vax th:nth-child(2), table.vax td:nth-child(2) { width: 26%; }
-table.vax th:nth-child(3), table.vax td:nth-child(3) { width: 15%; }
-table.vax th:nth-child(4), table.vax td:nth-child(4) { width: 39%; }
+table.vax th:nth-child(1), table.vax td:nth-child(1) { width: 25%; }
+table.vax th:nth-child(2), table.vax td:nth-child(2) { width: 31%; }
+table.vax th:nth-child(3), table.vax td:nth-child(3) { width: 17%; }
+table.vax th:nth-child(4), table.vax td:nth-child(4) { width: 27%; }
 table.vax tbody tr:hover{background:#fafafa;}
+/* Kompaktere Eingaben in der Impfstatus-Tabelle */
+table.vax input[type=text],table.vax input[type=number],table.vax select{height:38px;max-width:150px;}
+table.vax .age-box{max-width:none;}
 .combo-row{background:#fafafa;}
 .badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;}
 .badge.red{background:var(--red-bg);color:var(--red);} .badge.yellow{background:var(--yellow-bg);color:var(--yellow);} .badge.green{background:var(--green-bg);color:var(--green);} .badge.grey{background:var(--neutral-bg);color:#666;} .badge.blue{background:var(--blue-bg);color:var(--blue);} .badge.violet{background:var(--violet-bg);color:var(--violet);}
@@ -118,25 +124,46 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .today-warn.red{background:var(--red-bg);color:var(--red);border-left:4px solid var(--red);}
 .editing-banner{display:none !important;}
 
-/* Schwebendes graues Abbrechen-Kreuz (nur während Bearbeitung im Klinik-Modus) */
-.edit-cancel{position:fixed;right:26px;bottom:26px;z-index:60;width:52px;height:52px;border-radius:50%;
-  border:1px solid var(--line);background:var(--grey-l,#8a8f98);color:#fff;font-size:22px;line-height:1;
-  cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18);
-  transition:background .15s,transform .15s;font-family:var(--font);}
+/* Schwebende Aktions-Buttons unten rechts (nur während Bearbeitung im Klinik-Modus) */
+.edit-cancel,.finish-treat{position:fixed;right:26px;z-index:60;width:52px;height:52px;border-radius:50%;
+  border:none;color:#fff;font-size:24px;line-height:1;cursor:pointer;display:none;align-items:center;
+  justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:background .15s,transform .15s;font-family:var(--font);}
+.edit-cancel{bottom:26px;background:#8a8f98;}
 .edit-cancel:hover{background:#6b7280;transform:scale(1.06);}
-body.clinic:not(.clinic-idle) .edit-cancel{display:flex;}
+.finish-treat{bottom:90px;background:var(--green,#1f9d55);font-weight:700;}
+.finish-treat:hover{background:#188045;transform:scale(1.06);}
+body.clinic:not(.clinic-idle) .edit-cancel,
+body.clinic:not(.clinic-idle) .finish-treat{display:flex;}
 
-/* Linke vertikale Sektions-Navigation (Scroll-Punkte) */
-.sec-nav{position:fixed;left:16px;top:50%;transform:translateY(-50%);z-index:55;display:none;
-  flex-direction:column;gap:10px;}
+/* Linke Sektions-Navigation (sticky, mit Namen) */
+.sec-nav{position:sticky;top:80px;flex:0 0 172px;display:none;flex-direction:column;gap:4px;padding-top:24px;}
 body.clinic .sec-nav, body.kiosk .sec-nav{display:flex;}
-.sec-nav button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:#fff;
-  color:var(--grey);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;
-  justify-content:center;opacity:.55;transition:opacity .15s,background .15s,color .15s,border-color .15s;
-  font-family:var(--font);padding:0;}
-.sec-nav button:hover{opacity:1;border-color:var(--grey);}
-.sec-nav button.active{background:var(--black);color:#fff;border-color:var(--black);opacity:1;}
-@media(max-width:1100px){.sec-nav{display:none !important;}}
+.sec-nav button{display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;
+  padding:5px 6px;border-radius:7px;font-family:var(--font);color:var(--grey);text-align:left;
+  transition:background .12s,color .12s;width:100%;}
+.sec-nav button:hover{background:var(--grey-xl);color:var(--text);}
+.sec-nav .sn-dot{flex:0 0 24px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;background:#fff;
+  transition:background .12s,color .12s,border-color .12s;}
+.sec-nav .sn-lbl{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sec-nav button.active{color:var(--text);}
+.sec-nav button.active .sn-dot{background:var(--black);color:#fff;border-color:var(--black);}
+.sec-nav button.active .sn-lbl{font-weight:700;}
+
+/* Rechte Behandlungs-Konsole */
+.treat-console{position:sticky;top:80px;flex:0 0 208px;display:none;flex-direction:column;gap:6px;
+  padding:14px;margin-top:24px;background:#fff;border:1px solid var(--line);border-radius:10px;
+  max-height:calc(100vh - 110px);overflow:auto;}
+.treat-console.show{display:flex;}
+.treat-console .tc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);margin-bottom:2px;}
+.tc-item{display:flex;align-items:center;gap:9px;width:100%;background:none;border:1px solid transparent;
+  border-radius:8px;padding:7px 8px;cursor:pointer;font-family:var(--font);text-align:left;transition:background .12s,border-color .12s;}
+.tc-item:hover{background:var(--grey-xl);}
+.tc-item.active{background:#eef4ff;border-color:var(--blue);}
+.tc-item .tc-nm{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tc-group{border:1px dashed var(--violet);border-radius:9px;padding:6px;background:#faf7fd;display:flex;flex-direction:column;gap:3px;}
+.tc-group .tc-gname{font-size:10.5px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.03em;padding:2px 4px;}
+@media(max-width:1200px){.sec-nav,.treat-console{display:none !important;}}
 .patient-list{list-style:none;margin:0;padding:0;}
 .patient-item{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden;background:#fff;}
 .patient-head{display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;}
@@ -346,7 +373,14 @@ h4 .flag{width:20px;height:20px;}
 .amb-move{padding:4px 9px !important;font-size:11px !important;}
 .grp-badge{display:inline-block;background:var(--violet-bg);color:var(--violet);border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin-left:8px;}
 .amb-group{border:1px dashed var(--violet);border-radius:8px;padding:8px;background:#faf7fd;display:flex;flex-direction:column;gap:8px;}
-.amb-group-h{font-size:11px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.04em;}
+.amb-group-h{font-size:11px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:10px;}
+.amb-group-h>span:first-child{flex:1;min-width:0;}
+.amb-group-act{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+/* Rechter Pfeil „in Behandlung nehmen" */
+.amb-arrow{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;
+  color:var(--black);font-size:16px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;
+  justify-content:center;transition:background .12s,color .12s,border-color .12s;font-family:var(--font);}
+.amb-arrow:hover{background:var(--black);color:#fff;border-color:var(--black);}
 .patient-item{position:relative;}
 .patient-item.mine{border-left:4px solid var(--blue);}
 .patient-item.group-target{outline:2px dashed var(--violet);outline-offset:-3px;background:#faf7fd;}
