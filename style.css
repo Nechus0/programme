@@ -31,6 +31,8 @@ main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90p
 label.fld{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:#333;}
 .card-sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);padding-bottom:6px;margin-bottom:14px;border-bottom:1px solid var(--line);}
 .chk-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.chk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.chk-row .chk-chip{flex:1 1 0;min-width:190px;justify-content:flex-start;}
 .chk-chip{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13px;background:#fff;transition:border-color .12s,background .12s;user-select:none;}
 .chk-chip:hover{border-color:#aaa;}
 .chk-chip:has(input:checked){border-color:var(--black);background:var(--grey-xl);font-weight:600;}
@@ -126,45 +128,58 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .editing-banner{display:none !important;}
 
 /* Schwebende Aktions-Buttons unten rechts (nur während Bearbeitung im Klinik-Modus) */
-.edit-cancel,.finish-treat{position:fixed;right:26px;z-index:60;width:52px;height:52px;border-radius:50%;
+.edit-cancel,.finish-treat,.jump-list{position:fixed;right:26px;z-index:60;width:52px;height:52px;border-radius:50%;
   border:none;color:#fff;font-size:24px;line-height:1;cursor:pointer;display:none;align-items:center;
   justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:background .15s,transform .15s;font-family:var(--font);}
 .edit-cancel{bottom:26px;background:#8a8f98;}
 .edit-cancel:hover{background:#6b7280;transform:scale(1.06);}
 .finish-treat{bottom:90px;background:var(--green,#1f9d55);font-weight:700;}
 .finish-treat:hover{background:#188045;transform:scale(1.06);}
+.jump-list{bottom:154px;background:#8a8f98;font-size:26px;}
+.jump-list:hover{background:#6b7280;transform:scale(1.06);}
 body.clinic:not(.clinic-idle) .edit-cancel,
-body.clinic:not(.clinic-idle) .finish-treat{display:flex;}
+body.clinic:not(.clinic-idle) .finish-treat,
+body.clinic:not(.clinic-idle) .jump-list{display:flex;}
 
-/* Linke Sektions-Navigation (sticky, mit Namen) */
-.sec-nav{position:sticky;top:80px;flex:0 0 172px;display:none;flex-direction:column;gap:4px;padding-top:24px;}
-body.clinic .sec-nav, body.kiosk .sec-nav{display:flex;}
-.sec-nav button{display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;
+/* Linkes Behandlungsfeld des Arztes (Patienten in Behandlung + Sektions-Navigation) */
+.treat-panel{position:sticky;top:80px;flex:0 0 208px;display:none;flex-direction:column;gap:6px;
+  padding:14px;margin-top:24px;background:#fff;border:1px solid var(--line);border-radius:10px;
+  max-height:calc(100vh - 104px);overflow:auto;}
+.treat-panel.show{display:flex;}
+.tp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
+.tp-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);}
+.tp-list{display:flex;flex-direction:column;gap:4px;}
+.tp-empty{font-size:12px;color:var(--grey);padding:4px 2px;}
+.tp-item{display:flex;align-items:center;width:100%;background:none;border:1px solid transparent;
+  border-radius:8px;padding:8px 10px;cursor:pointer;font-family:var(--font);text-align:left;transition:background .12s,border-color .12s;}
+.tp-item:hover{background:var(--grey-xl);}
+.tp-item.active{background:#eef4ff;border-color:var(--blue);}
+.tp-item .tp-nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tp-group{border:1px dashed var(--violet);border-radius:9px;padding:6px;background:#faf7fd;display:flex;flex-direction:column;gap:3px;}
+.tp-group .tp-gname{font-size:10.5px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.03em;padding:2px 4px;}
+.tp-sep{height:1px;background:var(--line);margin:8px 0 4px;}
+.tp-sections{display:flex;flex-direction:column;gap:3px;}
+.tp-sections button{display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;
   padding:5px 6px;border-radius:7px;font-family:var(--font);color:var(--grey);text-align:left;
   transition:background .12s,color .12s;width:100%;}
-.sec-nav button:hover{background:var(--grey-xl);color:var(--text);}
-.sec-nav .sn-dot{flex:0 0 24px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;background:#fff;
+.tp-sections button:hover{background:var(--grey-xl);color:var(--text);}
+.tp-sections .sn-dot{flex:0 0 22px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#fff;
   transition:background .12s,color .12s,border-color .12s;}
-.sec-nav .sn-lbl{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sec-nav button.active{color:var(--text);}
-.sec-nav button.active .sn-dot{background:var(--black);color:#fff;border-color:var(--black);}
-.sec-nav button.active .sn-lbl{font-weight:700;}
+.tp-sections .sn-lbl{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tp-sections button.active{color:var(--text);}
+.tp-sections button.active .sn-dot{background:var(--black);color:#fff;border-color:var(--black);}
+.tp-sections button.active .sn-lbl{font-weight:700;}
+@media(max-width:1200px){.treat-panel{display:none !important;}}
 
-/* Rechte Behandlungs-Konsole */
-.treat-console{position:sticky;top:80px;flex:0 0 208px;display:none;flex-direction:column;gap:6px;
-  padding:14px;margin-top:24px;background:#fff;border:1px solid var(--line);border-radius:10px;
-  max-height:calc(100vh - 110px);overflow:auto;}
-.treat-console.show{display:flex;}
-.treat-console .tc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);margin-bottom:2px;}
-.tc-item{display:flex;align-items:center;gap:9px;width:100%;background:none;border:1px solid transparent;
-  border-radius:8px;padding:7px 8px;cursor:pointer;font-family:var(--font);text-align:left;transition:background .12s,border-color .12s;}
-.tc-item:hover{background:var(--grey-xl);}
-.tc-item.active{background:#eef4ff;border-color:var(--blue);}
-.tc-item .tc-nm{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tc-group{border:1px dashed var(--violet);border-radius:9px;padding:6px;background:#faf7fd;display:flex;flex-direction:column;gap:3px;}
-.tc-group .tc-gname{font-size:10.5px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.03em;padding:2px 4px;}
-@media(max-width:1200px){.sec-nav,.treat-console{display:none !important;}}
+/* Dialoge im App-Design */
+.ui-dialog-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:120;align-items:center;justify-content:center;padding:20px;}
+.ui-dialog-bg.show{display:flex;}
+.ui-dialog{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:420px;width:100%;padding:22px 24px 20px;box-shadow:0 12px 44px rgba(0,0,0,.22);}
+.ui-dialog-title{font-size:16px;font-weight:700;margin-bottom:8px;}
+.ui-dialog-msg{font-size:14px;line-height:1.55;color:var(--text);}
+.ui-dialog-input{width:100%;margin-top:14px;}
+.ui-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
 .patient-list{list-style:none;margin:0;padding:0;}
 .patient-item{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden;background:#fff;}
 .patient-head{display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;}

@@ -73,11 +73,12 @@
   </div>
 </div>
 
-<button class="edit-cancel" id="edit-cancel" onclick="cancelEditConfirm()" title="Bearbeitung abbrechen" aria-label="Bearbeitung abbrechen">✕</button>
+<button class="jump-list" id="jump-list" onclick="secNavJump('list-card')" title="Zur Ambulanzliste" aria-label="Zur Ambulanzliste">↑</button>
 <button class="finish-treat" id="finish-treat" onclick="finishTreatment()" title="Behandlung abschließen" aria-label="Behandlung abschließen">✓</button>
+<button class="edit-cancel" id="edit-cancel" onclick="cancelEditConfirm()" title="Bearbeitung abbrechen" aria-label="Bearbeitung abbrechen">✕</button>
 
 <div class="shell">
-<nav class="sec-nav" id="sec-nav" aria-label="Abschnitte"></nav>
+<aside class="treat-panel" id="treat-panel" aria-label="In Behandlung"></aside>
 <main>
   <div class="editing-banner" id="editing-banner" style="display:none"><span id="editing-text"></span></div>
 
@@ -113,16 +114,15 @@
     <div class="grid g3">
       <div><label class="fld" data-i18n="fDuration">Aufenthaltsdauer</label><select id="p-duration" onchange="recompute()"><option value="<1w">&lt; 1 Woche</option><option value="1-2w">1–2 Wochen</option><option value="2-4w">2–4 Wochen</option><option value="1-3m">4 Wochen bis 3 Monate</option><option value="3-6m">3–6 Monate</option><option value=">6m">&gt;6 Monate</option></select></div>
       <div><label class="fld" data-i18n="fDeparture">Abreisedatum</label><input type="date" id="p-departure" onchange="recompute()"><div class="hint" id="departure-hint"></div></div>
-      <div></div>
+      <div><label class="fld" data-i18n="fDest">Reiseziel(e) hinzufügen</label><select id="dest-select" onchange="addDest(this.value)"></select><div class="hint" data-i18n="fDestHint">Mehrere Ziele möglich. Überseegebiete separat (*).</div></div>
     </div>
-    <div class="grid g2" style="margin-top:14px;">
-      <div><label class="fld" data-i18n="fDest">Reiseziel(e) hinzufügen</label><select id="dest-select" onchange="addDest(this.value)"></select><div class="hint" data-i18n="fDestHint">Mehrere Ziele möglich. Überseegebiete separat (*).</div><div class="chips" id="dest-chips"></div></div>
-      <div><label class="fld" data-i18n="fConditions">Besondere Bedingungen / Exposition</label>
-        <div class="chk-grid">
-          <label class="chk-chip"><input type="checkbox" class="cond" value="rural" onchange="recompute()"> <span data-i18n="condRural">Ländlich / einfache Unterkunft</span></label>
-          <label class="chk-chip"><input type="checkbox" class="cond" value="animal" onchange="recompute()"> <span data-i18n="condAnimal">Tierkontakt / Höhlen / Fledermäuse</span></label>
-          <label class="chk-chip"><input type="checkbox" class="cond" value="health" onchange="recompute()"> <span data-i18n="condHealth">Gesundheitswesen / Blutkontakt</span></label>
-        </div>
+    <div class="chips" id="dest-chips" style="margin-top:10px;"></div>
+    <div style="margin-top:16px;">
+      <label class="fld" data-i18n="fConditions">Besondere Bedingungen / Exposition</label>
+      <div class="chk-row">
+        <label class="chk-chip"><input type="checkbox" class="cond" value="rural" onchange="recompute()"> <span data-i18n="condRural">Ländlich / einfache Unterkunft</span></label>
+        <label class="chk-chip"><input type="checkbox" class="cond" value="animal" onchange="recompute()"> <span data-i18n="condAnimal">Tierkontakt / Höhlen / Fledermäuse</span></label>
+        <label class="chk-chip"><input type="checkbox" class="cond" value="health" onchange="recompute()"> <span data-i18n="condHealth">Gesundheitswesen / Blutkontakt</span></label>
       </div>
     </div>
     <div id="notes-block">
@@ -201,7 +201,19 @@
     <div id="patient-list"></div>
   </section>
 </main>
-<aside class="treat-console" id="treat-console" aria-label="In Behandlung"></aside>
+</div>
+
+<!-- Generischer Dialog (Bestätigen / Eingabe) im App-Design -->
+<div class="ui-dialog-bg" id="ui-dialog-bg">
+  <div class="ui-dialog" role="dialog" aria-modal="true">
+    <div class="ui-dialog-title" id="ui-dialog-title"></div>
+    <div class="ui-dialog-msg" id="ui-dialog-msg"></div>
+    <input type="text" class="ui-dialog-input" id="ui-dialog-input" style="display:none">
+    <div class="ui-dialog-actions">
+      <button class="btn sec" id="ui-dialog-cancel" type="button">Abbrechen</button>
+      <button class="btn" id="ui-dialog-ok" type="button">OK</button>
+    </div>
+  </div>
 </div>
 
 <!-- KIOSK-Leiste (Patientenaccount) -->
