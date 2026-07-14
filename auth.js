@@ -24,7 +24,7 @@ const ROLES = [
 ];
 // Rollen, die der Admin manuell anlegt (Patient = anonymer Tablet-Zugang, nicht anlegbar)
 const CREATABLE_ROLES = ROLES.filter(r => r.value !== 'patient');
-const TITLES  = ['', 'Dr.', 'Dr. med.', 'Prof.', 'Prof. Dr.', 'PD Dr.'];
+const TITLES  = ['', 'Dr.', 'Dr. med.', 'Dr. med. univ.', 'Prof.', 'Prof. Dr.', 'PD Dr.'];
 const GENDERS = [ {value:'w',de:'weiblich',en:'female'}, {value:'m',de:'männlich',en:'male'}, {value:'d',de:'divers',en:'diverse'} ];
 
 function roleLabel(value, lang) {

@@ -2011,6 +2011,7 @@ function togglePatient(id){const e=el('pi-'+id);if(e)e.classList.toggle('open');
 function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 let listDay = ymd(new Date());
 let listSearch = '';
+let SEC_COLLAPSE={};   // gemerkter Auf-/Zuklapp-Zustand der Ambulanz-Sektionen (Reset bei Login = Seiten-Reload)
 const AMB_SECTIONS=[
   {status:'waiting', de:'Wartend', en:'Waiting'},
   {status:'treatment', type:'beratung', de:'In Behandlung · Beratung', en:'In treatment · Consultation'},
@@ -2130,26 +2131,36 @@ function renderPatients(){
   el('list-count').textContent=dayPats.length;
   const q=listSearch;
   const filt=q?dayPats.filter(p=>((p.name||'')+' '+(p.firstname||'')).toLowerCase().includes(q)||((p.firstname||'')+' '+(p.name||'')).toLowerCase().includes(q)):dayPats;
+  // Offene Schnellansichten merken, damit sie beim Neu-Rendern (Auto-Refresh) nicht zuklappen
+  const openIds=Array.from(listEl.querySelectorAll('.patient-item.open')).map(e=>e.dataset.pid);
   let html='';
   AMB_SECTIONS.forEach(s=>{
     const inSec=filt.filter(p=>{ if(patientStatus(p)!==s.status)return false; if(s.status==='treatment')return patientTreatType(p)===s.type; return true; });
-    // Standard-Zustand je Rolle: MFA = Folgeimpfung offen/Beratung eingeklappt; Arzt = umgekehrt
-    const myRole=(CURRENT_PROFILE||{}).role;
-    let collapsed=false;
-    if(s.status==='done') collapsed=true;
-    else if(s.status==='treatment'&&s.type==='beratung') collapsed=(myRole==='mfa');
-    else if(s.status==='treatment'&&s.type==='folgeimpfung') collapsed=(myRole!=='mfa');
+    const key=secKey(s);
+    let collapsed;
+    if(key in SEC_COLLAPSE){ collapsed=SEC_COLLAPSE[key]; }   // gemerkter Zustand hat Vorrang
+    else {
+      // Standard-Zustand je Rolle: MFA = Folgeimpfung offen/Beratung eingeklappt; Arzt = umgekehrt
+      const myRole=(CURRENT_PROFILE||{}).role;
+      collapsed=false;
+      if(s.status==='done') collapsed=true;
+      else if(s.status==='treatment'&&s.type==='beratung') collapsed=(myRole==='mfa');
+      else if(s.status==='treatment'&&s.type==='folgeimpfung') collapsed=(myRole!=='mfa');
+    }
     const dropAttr='data-status="'+s.status+'"'+(s.type?' data-type="'+s.type+'"':'');
     const typeArg=s.type?("'"+s.type+"'"):'null';
     html+='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-treat':'')+'" '+dropAttr+'>';
-    html+='<div class="amb-sec-h" onclick="this.parentNode.classList.toggle(\'collapsed\')" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
+    html+='<div class="amb-sec-h" onclick="toggleSection(\''+key+'\',this)" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
     html+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
     html+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
     html+='</div></div>';
   });
   listEl.innerHTML=html;
+  openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
 }
+function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
+function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); }
 // Linkes Behandlungsfeld des behandelnden Arztes: eigene Patienten in Behandlung + Sektions-Navigation
 function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item'+act+'" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></button>'; }
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
@@ -2190,7 +2201,8 @@ function renderSectionCards(list){
       const st=patientStatus(grp.items[0]);
       const claimed=grp.items.find(p=>p.claimedByName);
       const gIcon=((st==='treatment'||st==='done')&&claimed)?initialsCircle(claimed.claimedByName,claimed.claimedByRole):'';
-      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+' <span class="amb-group-hint">'+(LANG==='de'?'(ganze Gruppe ziehen)':'(drag whole group)')+'</span></span><span class="amb-group-act">'+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
+      const gBehandeln=(st==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
+      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+' <span class="amb-group-hint">'+(LANG==='de'?'(ganze Gruppe ziehen)':'(drag whole group)')+'</span></span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
   });
@@ -2288,8 +2300,10 @@ function renderPatientCard(p,inGroup){
     else if(s==='treatment') timeMeta=(mine?' · '+(LANG==='de'?'von mir':'by me'):'')+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
     // Behandler-Icon in der Liste (damit anderes Personal sieht, wer behandelt) – bei Gruppen nur im Gruppenkopf
     const ini=(!inGroup&&(s==='treatment'||s==='done')&&p.claimedByName)?initialsCircle(p.claimedByName,p.claimedByRole):'';
-    const bodyActions='<div class="pb-actions">'+(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'<button class="btn sec sm" onclick="event.stopPropagation();assignGroup(\''+p.id+'\')">'+(LANG==='de'?'Zu Gruppe hinzufügen':'Add to group')+'</button>')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+ini+'</div>'+
+    // „Behandeln"-Button bei wartenden Einzelpatienten → in eigene Behandlung übernehmen
+    const behandeln=(!inGroup&&s==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
+    const bodyActions='<div class="pb-actions">'+(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+
       '<div class="patient-body">'+bodyActions+'<div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></div>';
 }
 

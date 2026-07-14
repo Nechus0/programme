@@ -411,6 +411,11 @@ h4 .flag{width:20px;height:20px;}
   color:var(--black);font-size:16px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;
   justify-content:center;transition:background .12s,color .12s,border-color .12s;font-family:var(--font);}
 .amb-arrow:hover{background:var(--black);color:#fff;border-color:var(--black);}
+/* „Behandeln"-Button (wartende Patienten/Gruppen) */
+.amb-behandeln{flex-shrink:0;background:var(--black);color:#fff;border:1px solid var(--black);
+  padding:6px 14px;font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;font-family:var(--font);
+  transition:background .12s;white-space:nowrap;}
+.amb-behandeln:hover{background:#333;}
 .patient-item{position:relative;}
 .patient-item.mine{border-left:4px solid var(--blue);}
 .patient-item.group-target{outline:2px dashed var(--violet);outline-offset:-3px;background:#faf7fd;}
