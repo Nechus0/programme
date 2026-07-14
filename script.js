@@ -2311,9 +2311,9 @@ function renderPatientCard(p,inGroup){
     }
     
     const schedBlock=schedHTML?('<div style="margin-top:10px;">'+schedHTML+'</div>'):('<div style="margin-top:10px;" class="mini-note">'+(LANG==='de'?'Keine Impfungen geplant.':'No vaccinations planned.')+'</div>');
-    const cmt=p.comment?'<div style="margin-top:10px;"><strong>'+(LANG==='de'?'Kommentar':'Comment')+':</strong> '+p.comment+'</div>':'';
+    const cmt=p.comment?'<div class="pb-comment"><span class="pb-lbl">'+(LANG==='de'?'Kommentar':'Comment')+'</span><span class="pb-val">'+_esc(p.comment)+'</span></div>':'';
     const upd=(p.updatedAt&&p.updatedAt!==p.savedAt)?' · '+(LANG==='de'?'geändert':'edited')+' '+fmtDateTime(p.updatedAt):'';
-    const stamp='<div style="margin-top:12px;font-size:11.5px;color:var(--grey);border-top:1px solid var(--line);padding-top:8px;">'+t('savedStamp')+': '+fmtDateTime(p.savedAt)+upd+' · '+t('physicianLbl')+': '+(p.physician||'—')+'</div>';
+    const stampTxt=t('savedStamp')+': '+fmtDateTime(p.savedAt)+upd+' · '+t('physicianLbl')+': '+_esc(p.physician||'—');
     const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LANG==='de'?'J.':'yrs')+')':'';
     const dispName=(p.firstname?p.name+', '+p.firstname:p.name);
     const grpBadge=(p.group&&!inGroup)?' <span class="grp-badge">'+p.group+'</span>':'';
@@ -2327,9 +2327,21 @@ function renderPatientCard(p,inGroup){
     const behandeln=(!inGroup&&s==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
     const tt=patientTreatType(p);
     const typeBadge='<span class="type-badge '+tt+'" title="'+(tt==='folgeimpfung'?'Folgeimpfung':'Beratung')+'">'+(tt==='folgeimpfung'?'F':'B')+'</span>';
-    const bodyActions='<div class="pb-actions">'+(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+
-      '<div class="patient-body">'+bodyActions+'<div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></div>';
+    const actionsBtns=(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button>';
+    const fld=(lbl,val)=>'<div class="pb-field"><span class="pb-lbl">'+lbl+'</span><span class="pb-val">'+val+'</span></div>';
+    const body='<div class="patient-body">'
+      +'<div class="pb-grid">'
+        +fld(LANG==='de'?'Reisedauer':'Duration', durLbl)
+        +fld(LANG==='de'?'Reiseziel(e)':'Destination(s)', dest)
+        +fld(LANG==='de'?'Krankenkasse':'Insurance', _esc(p.insurance||'—'))
+        +fld(LANG==='de'?'Telefon':'Phone', _esc(p.phone||'—'))
+        +fld(LANG==='de'?'Allergien':'Allergies', _esc(p.allergy||'—'))
+        +fld(LANG==='de'?'Immunsuppression':'Immunosuppression', _esc(p.immuno||'—'))
+      +'</div>'
+      +statusHTML+schedBlock+cmt
+      +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
+      +'</div>';
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
 }
 
 function fmtDate(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}

@@ -197,7 +197,7 @@
 
   <!-- LIST / AMBULANZLISTE -->
   <section class="card" id="list-card">
-    <h2 style="display:flex;align-items:center;"><span data-i18n="listTitle">Ambulanzliste</span><span class="count-pill" id="list-count">0</span><span style="flex:1"></span><button class="btn sm" id="new-patient-btn" onclick="startNewPatient()" style="display:none" data-i18n="btnNewPatient">+ Neuer Patient</button></h2>
+    <h2 class="list-h2"><span data-i18n="listTitle">Ambulanzliste</span><span class="count-pill" id="list-count">0</span></h2>
     <div class="amb-toolbar">
       <div class="amb-day">
         <button class="btn sec sm" onclick="listDayShift(-1)" title="Vortag">‹</button>
@@ -205,7 +205,10 @@
         <button class="btn sec sm" onclick="listDayShift(1)" title="Folgetag">›</button>
         <button class="btn sec sm" onclick="listDayToday()" data-i18n="btnToday">Heute</button>
       </div>
-      <input type="text" id="list-search" class="amb-search" placeholder="Suche nach Name…" oninput="listSearchChange(this.value)">
+      <div class="amb-tools-right">
+        <input type="text" id="list-search" class="amb-search" placeholder="Suche nach Name…" oninput="listSearchChange(this.value)">
+        <button class="btn sm" id="new-patient-btn" onclick="startNewPatient()" style="display:none" data-i18n="btnNewPatient">+ Neuer Patient</button>
+      </div>
     </div>
     <div id="patient-list"></div>
   </section>
