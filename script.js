@@ -1294,13 +1294,13 @@ function baseLevel(v){
      else if(endemic){level='strong';noteDe='Nach durchgemachter Dengue-Infektion bei Reise in Endemiegebiet empfohlen';noteEn='Recommended after prior dengue infection for travel to endemic area';}
      else{level='none';}
      break;}
-   case 'chikungunya': {
+   case 'chikungunya':
+     if (rl === 'outbreak') {
          level = 'useful'; noteDe = 'Aktueller Ausbruch'; noteEn = 'Active outbreak';
      } else if (rl === 'risk_based' || rl === 'recommended') {
          level = 'general'; noteDe = 'Erhöhtes Hintergrundrisiko'; noteEn = 'Elevated background risk';
      }
      break;
-   }
    case 'varicella':
      let isWish = el('p-pregnant').value === 'planned';
      if(isWish && age !== null && (age < 13 || age > 50)) isWish = false;
