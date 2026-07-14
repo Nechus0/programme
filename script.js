@@ -2198,14 +2198,16 @@ function renderPatients(){
     h+='</div></div>';
     return h;
   };
-  let html='';
+  let cols='';
   [{type:'beratung',de:'Beratung',en:'Consultation'},{type:'folgeimpfung',de:'Folgeimpfung',en:'Follow-up'}].forEach(g=>{
-    html+='<div class="amb-typegroup '+g.type+'"><div class="amb-tg-h"><span class="type-badge '+g.type+'">'+(g.type==='folgeimpfung'?'F':'B')+'</span>'+(LANG==='de'?g.de:g.en)+'</div>';
-    html+=lane({status:'waiting',type:g.type,de:'Wartend',en:'Waiting'});
-    html+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment'});
-    html+='</div>';
+    const wCount=filt.filter(p=>patientStatus(p)==='waiting'&&patientTreatType(p)===g.type).length;
+    const tCount=filt.filter(p=>patientStatus(p)==='treatment'&&patientTreatType(p)===g.type).length;
+    cols+='<div class="amb-typegroup '+g.type+'"><div class="amb-tg-h"><span class="type-badge '+g.type+'">'+(g.type==='folgeimpfung'?'F':'B')+'</span>'+(LANG==='de'?g.de:g.en)+'<span class="amb-tg-count">'+(wCount+tCount)+'</span></div>';
+    cols+=lane({status:'waiting',type:g.type,de:'Wartend',en:'Waiting'});
+    cols+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment'});
+    cols+='</div>';
   });
-  html+=lane({status:'done',de:'Behandelt',en:'Treated'});
+  const html='<div class="amb-board2">'+cols+'</div>'+lane({status:'done',de:'Behandelt',en:'Treated'});
   listEl.innerHTML=html;
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
@@ -2225,7 +2227,9 @@ function renderTreatPanel(){
   if(!mine.length && !editing){ box.innerHTML=''; box.classList.remove('show'); return; }
   const docName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';
   const docRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
-  let h='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'In Behandlung':'In treatment')+'</span>'+(docName?initialsCircle(docName,docRole):'')+'</div>';
+  let h='';
+  if(editing) h+='<button class="tp-home" onclick="showList()">&larr; '+(LANG==='de'?'Ambulanzliste':'Clinic list')+'</button>';
+  h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'In Behandlung':'In treatment')+'</span>'+(docName?initialsCircle(docName,docRole):'')+'</div>';
   if(mine.length){
     const groups={},order=[];
     mine.forEach(p=>{const g=(p.group||'').trim();const k=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[k]){groups[k]={g:g,items:[]};order.push(k);}groups[k].items.push(p);});
@@ -2542,6 +2546,12 @@ function exitToList(){
   resetForm();
   document.body.classList.add('clinic-idle');
   try{ el('list-card').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+  renderTreatPanel();
+}
+// Zur Ambulanzliste zurück, ohne die Behandlung zu beenden (Patient bleibt geladen/in Behandlung)
+function showList(){
+  document.body.classList.add('clinic-idle');
+  try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
   renderTreatPanel();
 }
 function startNewPatient(){ resetForm(); const et=el('editing-text'); if(et) et.textContent=(LANG==='de'?'Neuer Patient':'New patient'); enterPatient(); }

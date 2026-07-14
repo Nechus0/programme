@@ -128,18 +128,22 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .editing-banner{display:none !important;}
 
 /* Schwebende Aktions-Buttons unten rechts (nur während Bearbeitung im Klinik-Modus) */
-.edit-cancel,.finish-treat,.jump-list{position:fixed;right:26px;z-index:60;width:52px;height:52px;border-radius:50%;
+.edit-cancel,.finish-treat{position:fixed;right:26px;z-index:60;width:52px;height:52px;border-radius:50%;
   border:none;color:#fff;font-size:24px;line-height:1;cursor:pointer;display:none;align-items:center;
   justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:background .15s,transform .15s;font-family:var(--font);}
 .edit-cancel{bottom:26px;background:#8a8f98;}
 .edit-cancel:hover{background:#6b7280;transform:scale(1.06);}
 .finish-treat{bottom:90px;background:var(--green,#1f9d55);font-weight:700;}
 .finish-treat:hover{background:#188045;transform:scale(1.06);}
-.jump-list{bottom:154px;background:#8a8f98;font-size:26px;}
-.jump-list:hover{background:#6b7280;transform:scale(1.06);}
 body.clinic:not(.clinic-idle) .edit-cancel,
-body.clinic:not(.clinic-idle) .finish-treat,
-body.clinic:not(.clinic-idle) .jump-list{display:flex;}
+body.clinic:not(.clinic-idle) .finish-treat{display:flex;}
+/* Ambulanzliste und Sektionen 1–5 nie gleichzeitig anzeigen */
+body.clinic:not(.clinic-idle) #list-card{display:none !important;}
+/* „Zurück zur Ambulanzliste"-Button im linken Behandlungsfeld */
+.tp-home{display:flex;align-items:center;gap:8px;width:100%;background:var(--black);color:#fff;border:none;
+  border-radius:8px;padding:10px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);
+  margin-bottom:10px;transition:background .12s;}
+.tp-home:hover{background:#333;}
 
 /* Linkes Behandlungsfeld des Arztes (Patienten in Behandlung + Sektions-Navigation) */
 .treat-panel{position:sticky;top:80px;flex:0 0 208px;display:none;flex-direction:column;gap:6px;
@@ -408,7 +412,10 @@ h4 .flag{width:20px;height:20px;}
 .amb-typegroup{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;background:#fff;}
 .amb-typegroup.beratung{border-left:3px solid #2563eb;}
 .amb-typegroup.folgeimpfung{border-left:3px solid #0e9e8e;}
+.amb-board2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+@media(max-width:820px){.amb-board2{grid-template-columns:1fr;}}
 .amb-tg-h{display:flex;align-items:center;gap:9px;padding:11px 14px;font-weight:800;font-size:14px;border-bottom:1px solid var(--line);}
+.amb-tg-count{margin-left:auto;background:var(--grey-xl);color:var(--grey);font-size:12px;font-weight:700;border-radius:20px;padding:2px 10px;}
 .amb-typegroup .amb-section.amb-lane{border:none;border-radius:0;margin:0;background:transparent;overflow:visible;}
 .amb-typegroup .amb-section.amb-lane + .amb-section.amb-lane{border-top:1px solid var(--line);}
 .amb-typegroup .amb-lane>.amb-sec-h{background:#fafbfc;font-size:12px;font-weight:600;padding:8px 14px 8px 18px;color:var(--text);}
