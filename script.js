@@ -16,7 +16,7 @@ const I18N={
  subMasterData:{de:'Stammdaten',en:'Master data'},subTravel:{de:'Reisedaten',en:'Travel data'},
  fEmailAddr:{de:'E-Mail',en:'Email'},fChronicText:{de:'Chronische Erkrankung / Immundefizienz (welche?)',en:'Chronic illness / immunodeficiency (which?)'},
  fMedication:{de:'Aktuelle Medikamente',en:'Current medication'},optPregnant:{de:'schwanger',en:'pregnant'},optBreastfeeding:{de:'stillend',en:'breastfeeding'},optPlanned:{de:'Schwangerschaft geplant',en:'pregnancy planned'},
- btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},btnToday:{de:'Heute',en:'Today'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
+ btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},btnToday:{de:'Heute',en:'Today'},btnFinish:{de:'Behandlung abschließen',en:'Finish treatment'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
  disclaimer:{de:'Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.',en:'Demonstration mockup. Recommendations follow STIKO methodology and do not replace clinical judgement. Verify outbreak/travel advisories (RKI, German Foreign Office) before each consultation; live retrieval needs a server backend.'},
  s1Title:{de:'Patient & Reise',en:'Patient & Travel'},s1Desc:{de:'Grunddaten, Reiseziel(e) und Aufenthaltsdauer erfassen.',en:'Enter basic data, destination(s) and duration.'},
  fName:{de:'Name',en:'Name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
@@ -1934,7 +1934,12 @@ async function savePatient(){
     serology:JSON.parse(JSON.stringify(serologyState)), childhood:childhoodOn(),
     comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
-    status:(existing&&existing.status)||'waiting', group:(existing&&existing.group)||'',
+    status: (document.body.classList.contains('clinic') ? 'done' : ((existing&&existing.status)||'waiting')),
+    group:(existing&&existing.group)||'',
+    treatmentType:(existing&&existing.treatmentType)||undefined,
+    claimedBy:(existing&&existing.claimedBy)||(document.body.classList.contains('clinic')?myUserKey():null),
+    claimedByName:(existing&&existing.claimedByName)||((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''),
+    treatmentAt:(existing&&existing.treatmentAt)||null,
     savedAt:(existing&&existing.savedAt)||new Date().toISOString(), updatedAt:new Date().toISOString()
   };
   if(USE_DB){
@@ -1975,13 +1980,13 @@ function loadPatient(id){
     }
     Object.keys(p.vax).forEach(k=>{if(vaxState[k])vaxState[k]=Object.assign(vaxState[k],JSON.parse(JSON.stringify(p.vax[k])));});
   }
-  editingId=id;el('editing-banner').classList.add('show');el('editing-text').textContent=t('editingNow')+p.name;el('save-btn').textContent=t('btnSaveEdit');
+  editingId=id;el('editing-banner').classList.add('show');el('editing-text').textContent=t('editingNow')+p.name;el('save-btn').textContent=t('btnFinish');
   customSchedule=p.customSchedule?JSON.parse(JSON.stringify(p.customSchedule)):null;
   renderDestChips();recompute();
   if(document.body.classList.contains('clinic')) enterPatient();
   else if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
 }
-function cancelEdit(){editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnSave');resetForm();
+function cancelEdit(){editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');resetForm();
   if(document.body.classList.contains('clinic'))document.body.classList.add('clinic-idle');}
 async function deletePatient(id){
   if(!confirm(t('confirmDel')))return;
@@ -2087,6 +2092,8 @@ function actionBtns(p){
   return b;
 }
 function elapsedStr(iso){ if(!iso)return''; const min=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000)); if(isNaN(min))return''; if(min<1)return LANG==='de'?'gerade eben':'just now'; if(min<60)return min+' min'; const h=Math.floor(min/60),m=min%60; return h+' h'+(m?' '+m:'')+(m?' min':''); }
+function initials(name){ if(!name)return '?'; const parts=String(name).trim().split(/\s+/).filter(Boolean); if(!parts.length)return '?'; if(parts.length===1)return parts[0].slice(0,2).toUpperCase(); return (parts[0][0]+parts[parts.length-1][0]).toUpperCase(); }
+function initialsCircle(name){ return '<span class="ini-circle" title="'+_esc(name||'')+'">'+_esc(initials(name))+'</span>'; }
 function toggleCardMenu(id){ const m=el('cm-'+id); const open=m&&m.style.display==='block'; closeCardMenus(); if(m&&!open)m.style.display='block'; }
 function closeCardMenus(){ document.querySelectorAll('.card-menu').forEach(m=>m.style.display='none'); }
 document.addEventListener('click',function(e){ if(!e.target.closest('.card-menu')&&!e.target.closest('.menu-btn')) closeCardMenus(); });
@@ -2106,7 +2113,7 @@ function renderPatients(){
     const dropAttr='data-status="'+s.status+'"'+(s.type?' data-type="'+s.type+'"':'');
     const typeArg=s.type?("'"+s.type+"'"):'null';
     html+='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-treat':'')+'" '+dropAttr+'>';
-    html+='<div class="amb-sec-h" onclick="this.parentNode.classList.toggle(\'collapsed\')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
+    html+='<div class="amb-sec-h" onclick="this.parentNode.classList.toggle(\'collapsed\')" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
     html+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
     html+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
     html+='</div></div>';
@@ -2212,10 +2219,10 @@ function renderPatientCard(p){
     const s=patientStatus(p); const mine=p.claimedBy&&p.claimedBy===myUserKey();
     let timeMeta='';
     if(s==='waiting') timeMeta=' · '+(LANG==='de'?'wartet ':'waiting ')+elapsedStr(p.savedAt);
-    else if(s==='treatment') timeMeta=(mine?' · '+(LANG==='de'?'von mir':'by me'):(p.claimedByName?' · '+_esc(p.claimedByName):''))+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
-    const openIcon='<span class="icon-btn" onclick="event.stopPropagation();loadPatient(\''+p.id+'\')" title="'+(LANG==='de'?'Öffnen':'Open')+'">'+PENCIL_SVG+'</span>';
+    else if(s==='treatment') timeMeta=(mine?' · '+(LANG==='de'?'von mir':'by me'):'')+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
+    const ini=((s==='treatment'||s==='done')&&p.claimedByName)?initialsCircle(p.claimedByName):'';
     const bodyActions='<div class="pb-actions"><button class="btn sec sm" onclick="event.stopPropagation();assignGroup(\''+p.id+'\')">'+(LANG==='de'?'Gruppieren':'Group')+'</button>'+(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+actionBtns(p)+openIcon+'</div>'+
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();loadPatient(\''+p.id+'\')" title="'+(LANG==='de'?'Öffnen':'Open')+'">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+actionBtns(p)+ini+'</div>'+
       '<div class="patient-body">'+bodyActions+'<div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></div>';
 }
 
@@ -2309,7 +2316,7 @@ function resetForm(){
   medsList=[]; renderMedPills();
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
-  destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnSave');
+  destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');
   renderDestChips();recompute();
 }
 
@@ -2320,7 +2327,7 @@ function setLang(l){
   document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(I18N[k])e.textContent=I18N[k][l];});
   const durLabels={'0-7':'0–7 '+(l==='de'?'Tage':'days'),'7-14':'7–14 '+(l==='de'?'Tage':'days'),'14-21':'14–21 '+(l==='de'?'Tage':'days'),'21-28':'21–28 '+(l==='de'?'Tage':'days'),'1-3m':'1–3 '+(l==='de'?'Monate':'months'),'3-6m':'3–6 '+(l==='de'?'Monate':'months'),'>6m':'>6 '+(l==='de'?'Monate':'months')};
   [...el('p-duration').options].forEach(o=>{if(durLabels[o.value])o.textContent=durLabels[o.value];});
-  if(editingId)el('save-btn').textContent=t('btnSaveEdit');
+  if(editingId)el('save-btn').textContent=t('btnFinish');
   buildDestSelect();renderDestChips();recompute();renderPatients();
 }
 
@@ -2439,7 +2446,7 @@ async function renderAdminUsers(){
       const em=(u.email||'').replace(/'/g,"\\'");
       const reg=u.registered?'<span class="badge green">registriert</span>':'<span class="badge yellow">offen</span>';
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="admin-row"><div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
+      html+='<div class="admin-row">'+initialsCircle(u.full_name||u.email)+'<div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
     });
     html+='</div>';
   });
