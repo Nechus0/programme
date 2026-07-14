@@ -281,8 +281,8 @@ body.clinic:not(.clinic-idle) #list-card{display:none !important;}
 .hep-group-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .hep-group-row { flex-wrap: nowrap; }
 .hep-doses { flex: 1; min-width: 0; }
-.hep-year { width: 140px; flex-shrink: 0; text-align: left; }
-.hep-year .year-in, .hep-year input { width: 100%; }
+.hep-year { width: 84px; flex-shrink: 0; text-align: left; }
+.hep-year .year-in, .hep-year input { width: 84px; text-align: center; }
 /* Lebendimpfstoff-Kennung (violetter Kreis „L") */
 .live-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#5b2a9e;color:#fff;font-size:10.5px;font-weight:700;margin-left:6px;flex-shrink:0;vertical-align:middle;}
 /* Info-/Karten-Buttons ganz rechts in der Statusspalte */
@@ -426,7 +426,7 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 .med-ac{display:none;position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:40;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;}
 .med-ac-item{padding:9px 12px;font-size:13.5px;cursor:pointer;border-bottom:1px solid var(--grey-xl);}
 .med-ac-item:last-child{border-bottom:none;}
-.med-ac-item:hover{background:var(--blue-bg);}
+.med-ac-item:hover,.med-ac-item.active{background:var(--blue-bg);}
 /* Runde Länderflaggen */
 .flag{width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:7px;box-shadow:0 0 0 1px rgba(0,0,0,.15);}
 .chip .flag{width:17px;height:17px;box-shadow:0 0 0 1px rgba(255,255,255,.45);}
@@ -547,8 +547,15 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .handlers-circles .ini-circle:nth-child(3) { z-index:2; }
 .handlers-circles .ini-circle:nth-child(4) { z-index:3; }
 .handlers-circles .ini-circle:nth-child(5) { z-index:4; }
-.change-log { margin-top:20px; font-size:11px; color:#666; border-top:1px dashed #ddd; padding-top:10px; }
-.log-entry { margin-bottom:4px; }
-.log-ts { font-weight:600; color:#444; margin-right:6px; }
-.log-who { color:#111; margin-right:6px; }
-.log-fields { color:#888; }
+.change-log { margin-top:20px; font-size:12px; color:var(--grey); border-top:1px dashed var(--line); padding-top:12px; }
+.change-log:empty { display:none; }
+.log-title { font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--grey); margin-bottom:6px; }
+.log-entry { margin-bottom:4px; line-height:1.5; }
+.log-ts { font-weight:600; color:var(--text); margin-right:6px; }
+.log-who { color:var(--text); margin-right:6px; }
+.log-fields { color:var(--grey); }
+/* Änderungsprotokoll in der Schnellansicht */
+.pb-log { margin-top:12px; padding-top:10px; border-top:1px dashed var(--line); }
+.pb-log .pb-lbl { margin-bottom:4px; }
+.pb-log-row { font-size:11.5px; color:var(--grey); line-height:1.5; }
+.pb-log-row.del { color:var(--red); font-weight:600; }

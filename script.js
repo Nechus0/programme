@@ -21,7 +21,7 @@ const I18N={
  s1Title:{de:'Stammdaten',en:'Master data'},s1Desc:{de:'Persönliche Daten und Kontakt.',en:'Personal details and contact.'},
  s2Title:{de:'Reise',en:'Travel'},s2Desc:{de:'Reiseziel(e), Aufenthaltsdauer und besondere Bedingungen.',en:'Destination(s), duration and special conditions.'},
  s5Title:{de:'Geplante Impfungen',en:'Planned vaccinations'},s5Desc:{de:'Termine für die ausgewählten Impfungen festlegen.',en:'Set appointments for the selected vaccinations.'},
- fName:{de:'Name',en:'Name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
+ fName:{de:'Nachname',en:'Last name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
  fSex:{de:'Geschlecht',en:'Sex'},sexF:{de:'weiblich',en:'female'},sexM:{de:'männlich',en:'male'},sexD:{de:'divers',en:'diverse'},
  fDuration:{de:'Aufenthaltsdauer',en:'Duration of stay'},fDeparture:{de:'Abreisedatum',en:'Departure date'},fDest:{de:'Reiseziel(e) hinzufügen',en:'Add destination(s)'},
  fDestHint:{de:'Mehrere Ziele möglich. Überseegebiete separat (*).',en:'Multiple destinations possible. Overseas territories separate (*).'},
@@ -1026,7 +1026,15 @@ function renderMedList(){
   }).join('');
 }
 function renderMedVacCheck(){ renderMedList(); }
-function medKey(e){ if(e.key==='Enter'){ e.preventDefault(); addMedFromInput(); } }
+let _medAcItems=[], _medAcIdx=-1;
+function medAcHighlight(){ const ac=el('med-ac'); if(!ac)return; const items=ac.querySelectorAll('.med-ac-item'); items.forEach((it,i)=>it.classList.toggle('active', i===_medAcIdx)); const act=ac.querySelector('.med-ac-item.active'); if(act&&act.scrollIntoView) act.scrollIntoView({block:'nearest'}); }
+function medKey(e){
+  const ac=el('med-ac'); const open=ac && ac.style.display==='block' && _medAcItems.length>0;
+  if(e.key==='ArrowDown'){ if(open){ e.preventDefault(); _medAcIdx=Math.min(_medAcIdx+1, _medAcItems.length-1); medAcHighlight(); } }
+  else if(e.key==='ArrowUp'){ if(open){ e.preventDefault(); _medAcIdx=Math.max(_medAcIdx-1, 0); medAcHighlight(); } }
+  else if(e.key==='Enter'){ e.preventDefault(); if(open && _medAcIdx>=0){ addMedName(_medAcItems[_medAcIdx].add); } else { addMedFromInput(); } }
+  else if(e.key==='Escape'){ if(ac){ ac.style.display='none'; } _medAcIdx=-1; }
+}
 function addMedFromInput(){
   const inp=el('p-med-input'); if(!inp) return;
   inp.value.split(',').forEach(part=>{ const n=part.trim(); if(n && !medsList.some(m=>m.toLowerCase()===n.toLowerCase())) medsList.push(n); });
@@ -1050,8 +1058,9 @@ function medAutocomplete(){
   }
   out.sort((a,b)=>(b.starts-a.starts)|| a.label.localeCompare(b.label));
   const top=out.slice(0,8);
-  if(!top.length){ ac.innerHTML=''; ac.style.display='none'; return; }
-  ac.innerHTML=top.map(o=>'<div class="med-ac-item" onmousedown="addMedName(\''+o.add.replace(/'/g,"\\'")+'\')">'+_esc(o.label)+'</div>').join('');
+  if(!top.length){ ac.innerHTML=''; ac.style.display='none'; _medAcItems=[]; _medAcIdx=-1; return; }
+  _medAcItems=top; _medAcIdx=-1;
+  ac.innerHTML=top.map((o,i)=>'<div class="med-ac-item" data-idx="'+i+'" onmousedown="addMedName(\''+o.add.replace(/'/g,"\\'")+'\')">'+_esc(o.label)+'</div>').join('');
   ac.style.display='block';
 }
 function addMedName(name){ if(name && !medsList.some(m=>m.toLowerCase()===name.toLowerCase())) medsList.push(name); const inp=el('p-med-input'); if(inp)inp.value=''; const ac=el('med-ac'); if(ac){ac.innerHTML='';ac.style.display='none';} syncMeds(); }
@@ -2122,7 +2131,7 @@ function loadPatient(id){
     if(p.editLog){
       const logs=p.editLog.filter(l=>l.section===sid&&l.fields&&l.fields.length>0);
       if(logs.length){
-        logEl.innerHTML=logs.map(l=>'<div class="log-entry"><span class="log-ts">'+fmtDateTime(l.ts)+'</span> <span class="log-who">'+_esc(l.who)+'</span> <span class="log-fields">['+l.fields.join(', ')+']</span></div>').join('');
+        logEl.innerHTML='<div class="log-title">'+(LANG==='de'?'Änderungsprotokoll':'Change log')+'</div>'+logs.slice().reverse().map(l=>'<div class="log-entry"><span class="log-ts">'+fmtDateTime(l.ts)+'</span> <span class="log-who">'+_esc(l.who)+'</span> <span class="log-fields">'+_esc(l.fields.join(', '))+'</span></div>').join('');
       }
     }
   });
@@ -2656,7 +2665,7 @@ function renderPatientCard(p,inGroup){
         +fld(LANG==='de'?'Allergien':'Allergies', _esc(p.allergy||'—'))
         +fld(LANG==='de'?'Immunsuppression':'Immunosuppression', _esc(p.immuno||'—'))
       +'</div>'
-      +statusHTML+schedBlock+cmt
+      +statusHTML+schedBlock+cmt+editLogHtml(p)
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
       +'</div>';
     return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
@@ -2866,9 +2875,9 @@ function editLogHtml(p){
   const log=(p.editLog||[]).slice().reverse();
   const del=p.deleted;
   if(!log.length && !del) return '';
-  let h='<div class="pb-log"><div class="pb-lbl">'+(LANG==='de'?'Protokoll':'Change log')+'</div>';
+  let h='<div class="pb-log"><div class="pb-lbl">'+(LANG==='de'?'Änderungsprotokoll':'Change log')+'</div>';
   if(del) h+='<div class="pb-log-row del"><b>'+(LANG==='de'?'Gelöscht':'Deleted')+'</b> · '+_esc(del.who||'—')+' · '+fmtDateTime(del.ts)+'</div>';
-  log.slice(0,8).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(LANG==='de'?SECTION_TITLES[e.section].de:SECTION_TITLES[e.section].en):e.section; h+='<div class="pb-log-row">'+_esc(sn)+' '+(LANG==='de'?'geändert':'changed')+' · '+_esc(e.who||'—')+' · '+fmtDateTime(e.ts)+'</div>'; });
+  log.slice(0,12).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(LANG==='de'?SECTION_TITLES[e.section].de:SECTION_TITLES[e.section].en):e.section; const flds=(e.fields&&e.fields.length)?' · '+e.fields.join(', '):''; h+='<div class="pb-log-row">'+fmtDateTime(e.ts)+' · '+_esc(e.who||'—')+' · '+_esc(sn)+_esc(flds)+'</div>'; });
   return h+'</div>';
 }
 function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LANG==='de'?'Neuer Patient':'New patient'); enterPatient(); }
