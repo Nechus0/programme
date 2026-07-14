@@ -2542,54 +2542,66 @@ function openAdminPanel(){
   const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode);});
   const isAdmin=(CURRENT_PROFILE||{}).role==='admin';
   const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
-  if(isAdmin){
-    _fillSelect('au-title', TITLES.map(x=>({v:x})), x=>x.v, x=>x.v||'—');
-    _fillSelect('au-gender', GENDERS, x=>x.value, x=>LANG==='de'?x.de:x.en);
-    _fillSelect('au-role', CREATABLE_ROLES, x=>x.value, x=>LANG==='de'?x.de:x.en, 'mfa');
-    renderAdminUsers();
-  }
+  if(isAdmin){ renderAdminUsers(); }
   p.classList.add('show');
 }
 function openSettings(){ openAdminPanel(); }
 function closeAdminPanel(){ const p=el('admin-panel'); if(p) p.classList.remove('show'); }
 function adminMsg(text,type){ const e=el('admin-msg'); if(e) e.innerHTML = text?('<div class="msg '+(type||'err')+'">'+text+'</div>'):''; }
 
+// Nutzer-Board: Spalten „Pending" + Rollen; Freischalten per Drag&Drop
+const ADMIN_BOARD=[
+  {role:'', de:'Wartet auf Freischaltung', en:'Awaiting approval'},
+  {role:'admin', de:'Admin', en:'Admin'},
+  {role:'arzt', de:'Arzt / Ärztin', en:'Doctor'},
+  {role:'mfa', de:'MFA', en:'MFA'},
+  {role:'kasse', de:'Kasse', en:'Reception'}
+];
+let _adminUsers=[];
 async function renderAdminUsers(){
   const box=el('admin-users'); if(!box) return;
   const { data, error } = await adminListUsers();
   if(error){ box.innerHTML='<div class="msg err">'+(error.message||error)+'</div>'; return; }
-  if(!data.length){ box.innerHTML='<div class="mini-note">Noch keine Nutzer angelegt.</div>'; return; }
-  const order=['admin','arzt','mfa','kasse','patient'];
-  const byRole={}; data.forEach(u=>{(byRole[u.role]=byRole[u.role]||[]).push(u);});
+  _adminUsers=data||[];
+  const byRole={}; _adminUsers.forEach(u=>{const k=u.role||''; (byRole[k]=byRole[k]||[]).push(u);});
   let html='';
-  order.forEach(r=>{
-    const list=byRole[r]; if(!list||!list.length) return;
-    html+='<div class="admin-group"><div class="admin-group-h">'+roleLabel(r,'de')+' <span>('+list.length+')</span></div>';
+  ADMIN_BOARD.forEach(col=>{
+    const list=byRole[col.role]||[];
+    const pending=col.role==='';
+    html+='<div class="ab-col'+(pending?' ab-pending':'')+'" data-role="'+col.role+'" ondragover="adminColOver(event)" ondragleave="adminColLeave(event)" ondrop="adminColDrop(event)">';
+    html+='<div class="ab-col-h">'+(LANG==='de'?col.de:col.en)+' <span class="count-pill">'+list.length+'</span></div>';
+    if(!list.length){ html+='<div class="ab-empty">'+(pending?(LANG==='de'?'Keine offenen Registrierungen':'None'):(LANG==='de'?'Hierher ziehen …':'Drop here …'))+'</div>'; }
     list.forEach(u=>{
-      const em=(u.email||'').replace(/'/g,"\\'");
-      const reg=u.registered?'<span class="badge green">registriert</span>':'<span class="badge yellow">offen</span>';
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="admin-row">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
+      html+='<div class="ab-card" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
     });
     html+='</div>';
   });
   box.innerHTML=html;
 }
-async function adminSaveUser(){
-  const email=el('au-email').value.trim();
-  const full_name=el('au-name').value.trim();
-  const title=el('au-title').value, gender=el('au-gender').value, role=el('au-role').value;
-  if(!email||!full_name){ adminMsg('Bitte E-Mail und Name angeben.','err'); return; }
-  const { error } = await adminCreateUser({ email, full_name, title, gender, role });
+let _adminDragUid=null;
+function adminUserDragStart(e,uid){ _adminDragUid=uid; try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',uid);}catch(_){}}
+function adminColOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function adminColLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+async function adminColDrop(e){
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  let uid=_adminDragUid; if(!uid){try{uid=e.dataTransfer.getData('text/plain');}catch(_){}} _adminDragUid=null;
+  if(!uid) return;
+  const role=e.currentTarget.dataset.role||'';
+  const u=_adminUsers.find(x=>x.id===uid); if(u && (u.role||'')===role) return;   // keine Änderung
+  if(uid===(CURRENT_PROFILE&&CURRENT_PROFILE.id) && role!=='admin'){ adminMsg('Sie können Ihre eigene Admin-Rolle nicht ändern.','err'); return; }
+  const { error } = await adminSetRole(uid, role);
   if(error){ adminMsg('Fehler: '+(error.message||error),'err'); return; }
-  adminMsg('Nutzer angelegt. Er kann sich nun über den Registrierungslink ein Passwort vergeben.','ok');
-  el('au-email').value=''; el('au-name').value='';
+  adminMsg(role?('Nutzer freigeschaltet: '+(roleLabel(role,'de'))+'.'):'Nutzer auf „Wartet auf Freischaltung" gesetzt.','ok');
   renderAdminUsers();
 }
-async function adminRemoveUser(email){
-  if(!(await uiConfirm('Nutzer „'+email+'" aus der Freigabe entfernen?',{title:'Nutzer entfernen',ok:'Entfernen',danger:true})))return;
-  const { error } = await adminDeleteUser(email);
+async function adminSoftDeleteUI(uid){
+  if(uid===(CURRENT_PROFILE&&CURRENT_PROFILE.id)){ adminMsg('Sie können Ihren eigenen Zugang nicht deaktivieren.','err'); return; }
+  const u=_adminUsers.find(x=>x.id===uid); const nm=u?((u.full_name||u.email||'')):'';
+  if(!(await uiConfirm('Zugang von „'+nm+'" deaktivieren? Der Datensatz bleibt 30 Tage erhalten und wird dann automatisch gelöscht.',{title:'Zugang deaktivieren',ok:'Deaktivieren',danger:true}))) return;
+  const { error } = await adminSoftDeleteUser(uid);
   if(error){ adminMsg('Fehler: '+(error.message||error),'err'); return; }
+  adminMsg('Zugang deaktiviert.','ok');
   renderAdminUsers();
 }
 

@@ -53,9 +53,9 @@ async function signInWithPassword(email, password) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
   return await supabaseClient.auth.signInWithPassword({ email: email.trim(), password });
 }
-async function signUpWithPassword(email, password) {
+async function signUpWithPassword(email, password, meta) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
-  return await supabaseClient.auth.signUp({ email: email.trim(), password });
+  return await supabaseClient.auth.signUp({ email: email.trim(), password, options: { data: meta || {} } });
 }
 async function signInAnonymously() {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
@@ -80,35 +80,43 @@ async function guardApp(onReady) {
   const user = await getSessionUser();
   if (!user) { window.location.href = 'login.html'; return; }
   const profile = await getProfile(user.id);
-  if (!profile || !profile.role) {
-    // Angemeldet, aber (noch) nicht freigeschaltet
+  if (profile && profile.deleted_at) {
+    // Konto wurde deaktiviert
     await supabaseClient.auth.signOut();
-    window.location.href = 'login.html?denied=1';
+    window.location.href = 'login.html?deleted=1';
+    return;
+  }
+  if (!profile || !profile.role) {
+    // Angemeldet, aber (noch) nicht freigeschaltet → wartet auf Admin
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html?pending=1';
     return;
   }
   if (onReady) onReady(user, profile);
 }
 
-// --- Admin: Nutzerverwaltung (allowed_users) ---------------------
+// --- Admin: Nutzerverwaltung (profiles) --------------------------
+// Registrierte Konten; role NULL = „Pending" (noch nicht freigeschaltet).
 async function adminListUsers() {
   if (!supabaseClient) return { data: [], error: null };
-  const [{ data: allowed, error: e1 }, { data: profs }] = await Promise.all([
-    supabaseClient.from('allowed_users').select('*').order('created_at', { ascending: true }),
-    supabaseClient.from('profiles').select('email'),
-  ]);
-  if (e1) return { data: [], error: e1 };
-  const registered = new Set((profs || []).map(p => (p.email || '').toLowerCase()));
-  (allowed || []).forEach(u => { u.registered = registered.has((u.email || '').toLowerCase()); });
-  return { data: allowed || [], error: null };
+  const { data, error } = await supabaseClient.from('profiles')
+    .select('id,email,full_name,title,gender,role,created_at,deleted_at')
+    .is('deleted_at', null)
+    .order('created_at', { ascending: true });
+  if (error) return { data: [], error };
+  // Kiosk-/Patienten-Konten (anonym) gehören nicht ins Personal-Board
+  const list = (data || []).filter(u => u.role !== 'patient');
+  return { data: list, error: null };
 }
-async function adminCreateUser({ email, full_name, title, gender, role }) {
+// Rolle setzen / Nutzer freischalten (role='' → Pending/NULL)
+async function adminSetRole(id, role) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
-  return await supabaseClient.from('allowed_users')
-    .upsert({ email: email.trim().toLowerCase(), full_name, title, gender, role }, { onConflict: 'email' });
+  return await supabaseClient.from('profiles').update({ role: role || null }).eq('id', id);
 }
-async function adminDeleteUser(email) {
+// Soft-Delete: sofort kein Zugriff, Datensatz bleibt 30 Tage erhalten
+async function adminSoftDeleteUser(id) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
-  return await supabaseClient.from('allowed_users').delete().eq('email', email.trim().toLowerCase());
+  return await supabaseClient.from('profiles').update({ deleted_at: new Date().toISOString() }).eq('id', id);
 }
 // Einladungs-E-Mail über die Supabase Edge Function 'send-invite' (MailerSend) versenden
 async function sendInviteEmail({ email, full_name, title, role }) {

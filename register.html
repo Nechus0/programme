@@ -45,12 +45,32 @@
 
 <div class="auth-wrap">
   <div class="auth-card">
-    <h1 id="title">Passwort festlegen</h1>
-    <div class="sub" id="subtitle">Für Ihre freigeschaltete E-Mail-Adresse ein Passwort vergeben.</div>
+    <h1 id="title">Registrieren</h1>
+    <div class="sub" id="subtitle">Konto anlegen – die Freischaltung erfolgt anschließend durch einen Administrator.</div>
     <div id="msg-slot"></div>
     <form id="reg-form" onsubmit="return doRegister(event)">
+      <div id="reg-extra">
+        <div class="auth-field">
+          <label for="name">Vor- und Nachname</label>
+          <input type="text" id="name" autocomplete="name" placeholder="Vorname Nachname" required>
+        </div>
+        <div class="auth-field" style="display:flex;gap:12px;">
+          <div style="flex:1;">
+            <label for="title-sel">Titel</label>
+            <select id="title-sel" style="width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:var(--font);background:#fff;">
+              <option value="">—</option><option>Dr.</option><option>Prof.</option><option>Prof. Dr.</option><option>PD Dr.</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label for="gender-sel">Geschlecht</label>
+            <select id="gender-sel" style="width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:var(--font);background:#fff;">
+              <option value="w">weiblich</option><option value="m">männlich</option><option value="d">divers</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <div class="auth-field" id="email-field">
-        <label for="email">E-Mail (vom Admin freigeschaltet)</label>
+        <label for="email">E-Mail</label>
         <input type="email" id="email" autocomplete="username" placeholder="name@charite.de" required>
       </div>
       <div class="auth-field">
@@ -61,10 +81,10 @@
         <label for="password2">Passwort bestätigen</label>
         <input type="password" id="password2" autocomplete="new-password" placeholder="••••••••" minlength="8" required>
       </div>
-      <button type="submit" class="auth-btn" id="reg-btn">Konto einrichten</button>
+      <button type="submit" class="auth-btn" id="reg-btn">Konto anlegen</button>
     </form>
     <div class="auth-links"><a href="login.html">Zurück zur Anmeldung</a></div>
-    <div class="auth-note">Sie können sich nur registrieren, wenn Ihre E-Mail zuvor von einem Administrator angelegt wurde.</div>
+    <div class="auth-note">Nach der Registrierung wird Ihr Konto von einem Administrator einer Funktion (Arzt/Ärztin, MFA, Kasse, Admin) zugeordnet. Erst danach ist die Anmeldung möglich.</div>
   </div>
 </div>
 
@@ -91,16 +111,21 @@ async function doRegister(e){
   }
 
   const email=document.getElementById('email').value.trim();
-  const { data, error } = await signUpWithPassword(email, pw);
-  btn.disabled=false; btn.textContent='Konto einrichten';
+  const full_name=document.getElementById('name').value.trim();
+  const title=document.getElementById('title-sel').value;
+  const gender=document.getElementById('gender-sel').value;
+  if(!full_name){ btn.disabled=false; btn.textContent='Konto anlegen'; showMsg('Bitte Ihren Namen angeben.','err'); return false; }
+  const { data, error } = await signUpWithPassword(email, pw, { full_name, title, gender });
+  btn.disabled=false; btn.textContent='Konto anlegen';
   if(error){
     let m=error.message||'Registrierung fehlgeschlagen.';
-    if(/nicht freigeschaltet|not allowed|Database error/i.test(m)) m='Diese E-Mail ist nicht freigeschaltet. Bitte den Administrator kontaktieren.';
     if(/already registered/i.test(m)) m='Für diese E-Mail besteht bereits ein Konto. Bitte anmelden oder Passwort zurücksetzen.';
     showMsg(m,'err'); return false;
   }
-  showMsg('Konto eingerichtet. Sie werden zur Anmeldung weitergeleitet…','ok');
-  setTimeout(()=>{ location.href='login.html?registered=1'; }, 1400);
+  // Sitzung (falls automatisch angelegt) beenden – Zugriff erst nach Freischaltung
+  try{ await supabaseClient.auth.signOut(); }catch(_){}
+  document.getElementById('reg-form').style.display='none';
+  showMsg('Registrierung eingegangen. Ihr Konto muss noch von einem Administrator freigeschaltet werden. Sie können sich anschließend anmelden.','ok');
   return false;
 }
 
@@ -117,6 +142,8 @@ async function doRegister(e){
       document.getElementById('subtitle').textContent='Bitte vergeben Sie ein neues Passwort für Ihr Konto.';
       document.getElementById('email-field').style.display='none';
       document.getElementById('email').required=false;
+      const ex=document.getElementById('reg-extra'); if(ex) ex.style.display='none';
+      const nm=document.getElementById('name'); if(nm) nm.required=false;
       document.getElementById('reg-btn').textContent='Passwort speichern';
     }
   });

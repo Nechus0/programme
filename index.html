@@ -46,24 +46,10 @@
     </section>
     <div id="admin-only">
     <section class="card">
-      <h2 data-i18n="adminNewUser">Neuen Nutzer anlegen</h2>
-      <div class="card-desc" data-i18n="adminNewDesc">Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.</div>
+      <h2>Nutzerverwaltung</h2>
+      <div class="card-desc">Neue Registrierungen erscheinen unter „Wartet auf Freischaltung". Ziehe eine Person in eine Funktion, um ihr die entsprechenden Rechte zu geben. Das ✕ deaktiviert den Zugang sofort – der Datensatz bleibt 30 Tage erhalten.</div>
       <div id="admin-msg"></div>
-      <div class="grid g3">
-        <div><label class="fld" data-i18n="fEmail">E-Mail</label><input type="email" id="au-email" placeholder="name@charite.de"></div>
-        <div><label class="fld" data-i18n="fTitle">Titel</label><select id="au-title"></select></div>
-        <div><label class="fld" data-i18n="fRole">Funktion</label><select id="au-role"></select></div>
-      </div>
-      <div class="grid g3" style="margin-top:14px;">
-        <div><label class="fld" data-i18n="fFullname">Name (Vor- und Nachname)</label><input type="text" id="au-name" placeholder="—"></div>
-        <div><label class="fld" data-i18n="fGender">Geschlecht</label><select id="au-gender"></select></div>
-        <div style="display:flex;align-items:flex-end;"><button class="btn" style="width:100%" onclick="adminSaveUser()" data-i18n="btnCreateUser">Nutzer anlegen</button></div>
-      </div>
-    </section>
-    <section class="card">
-      <h2 data-i18n="adminUserList">Angelegte Nutzer</h2>
-      <div class="card-desc" data-i18n="adminUserListDesc">Nach Funktion gruppiert.</div>
-      <div id="admin-users" class="admin-users"></div>
+      <div id="admin-users" class="admin-board"></div>
     </section>
     <section class="card">
       <h2 data-i18n="adminTabletTitle">Patienten-Tablet (Selbstanmeldung)</h2>

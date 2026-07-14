@@ -318,6 +318,20 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 .clinic-back{background:#fff;border:1px solid var(--line);border-left:3px solid var(--black);border-radius:8px;padding:11px 15px;margin-bottom:16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--black);}
 .clinic-back:hover{background:var(--grey-xl);}
 /* Admin-Nutzerliste (gruppiert) */
+/* Nutzer-Board (Freischaltung per Drag&Drop) */
+.admin-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:10px;}
+.ab-col{background:var(--grey-xl);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px;}
+.ab-col.ab-pending{background:#fff9ec;border-color:#f0dca8;}
+.ab-col.drag-over{outline:2px dashed var(--blue);outline-offset:-4px;background:#e8f1fe;}
+.ab-col-h{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);display:flex;align-items:center;gap:6px;}
+.ab-empty{font-size:11.5px;color:var(--neutral);padding:6px 2px;font-style:italic;}
+.ab-card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+.ab-card:active{cursor:grabbing;}
+.ab-card .ab-main{flex:1;min-width:0;}
+.ab-card .ab-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ab-card .ab-sub{font-size:11px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ab-card .icon-btn{flex-shrink:0;}
+
 .admin-group{margin-bottom:18px;}
 .admin-group-h{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);font-weight:700;padding:0 0 6px;border-bottom:1px solid var(--line);margin-bottom:4px;}
 .admin-group-h span{color:var(--neutral);font-weight:600;}

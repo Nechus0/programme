@@ -61,7 +61,7 @@
     </form>
     <div class="auth-links">
       <a onclick="doReset()">Passwort vergessen?</a>
-      <a href="register.html">Passwort festlegen / Registrieren</a>
+      <a href="register.html">Neu registrieren</a>
     </div>
     <div class="auth-note">Der Zugang ist ausschließlich für Nutzer möglich, die von einem Administrator freigeschaltet wurden. Bei Fragen wenden Sie sich an die Ambulanzleitung.</div>
     <div class="kiosk-launch" style="margin-top:16px;text-align:center;">
@@ -110,7 +110,8 @@ async function doReset(){
 (async function init(){
   document.body.style.visibility='visible';
   const q=new URLSearchParams(location.search);
-  if(q.get('denied')) showMsg('Ihr Konto ist noch nicht freigeschaltet. Bitte kontaktieren Sie den Administrator.','err');
+  if(q.get('denied')||q.get('pending')) showMsg('Ihr Konto ist noch nicht freigeschaltet. Ein Administrator muss Sie zuerst einer Funktion zuordnen.','err');
+  if(q.get('deleted')) showMsg('Ihr Zugang wurde deaktiviert. Bitte kontaktieren Sie den Administrator.','err');
   if(q.get('registered')) showMsg('Konto erstellt. Sie können sich jetzt anmelden.','ok');
   if(!AUTH_ENABLED){ showMsg('Hinweis: Supabase ist nicht konfiguriert – die App läuft im Demo-Modus ohne Login. <a href="index.html">Zur App</a>','ok'); return; }
   // Bereits angemeldet? Nur echte Personal-Sitzungen weiterleiten.
