@@ -28,6 +28,11 @@ main{max-width:1320px;margin:0 auto;padding:24px 20px 90px;}
 .step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--black);color:#fff;border-radius:50%;font-size:12px;font-weight:700;margin-right:10px;}
 .grid{display:grid;gap:16px;} .g4{grid-template-columns:repeat(4,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);}
 label.fld{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:#333;}
+.card-sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);padding-bottom:6px;margin-bottom:14px;border-bottom:1px solid var(--line);}
+.chk-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.chk-chip{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13px;background:#fff;transition:border-color .12s,background .12s;user-select:none;}
+.chk-chip:hover{border-color:#aaa;}
+.chk-chip:has(input:checked){border-color:var(--black);background:var(--grey-xl);font-weight:600;}
 input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:var(--font);font-size:16px;background:#fff;}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--black);}
 input[type=checkbox]{width:19px;height:19px;cursor:pointer;accent-color:#000;vertical-align:middle;}
