@@ -115,11 +115,11 @@ const VACCINES=[
  {k:'dengue',de:'Dengue-Fieber',en:'Dengue fever',live:true,dengue:true},
  {k:'chikungunya',de:'Chikungunya',en:'Chikungunya',live:false},
  {k:'cholera',de:'Cholera',en:'Cholera'},
- {k:'influenza',de:'Influenza (Grippe)',en:'Influenza'},
+ {k:'influenza',de:'Influenza',en:'Influenza'},
  {k:'covid',de:'COVID-19',en:'COVID-19'},
  {k:'pneumo',de:'Pneumokokken',en:'Pneumococcal'},
  {k:'hpv',de:'HPV',en:'HPV'},
- {k:'zoster',de:'Herpes Zoster (Gürtelrose)',en:'Herpes zoster'},
+ {k:'zoster',de:'Herpes Zoster',en:'Herpes zoster'},
  {k:'mpox',de:'Mpox',en:'Mpox'}
 ];
 const PROD_COMPS={tdap_ipv:['T','D','aP','IPV'],tdap:['T','D','aP'],td_ipv:['T','D','IPV'],td:['T','D'],t:['T'],hexa:['T','D','aP','IPV'],penta:['T','D','aP','IPV']};
@@ -629,7 +629,7 @@ function getPlanName(v, st) {
      } else if (v.k === 'pneumo') { planName += ' (Prevenar 20)';
      } else if (v.k === 'menb') { planName += ' (Bexsero)';
      } else if (v.k === 'varicella') { planName += ' (Varilrix)';
-     } else if (v.k === 'influenza') { planName += ' (Eflueda / Influsplit)';
+     } else if (v.k === 'influenza') { planName += ' (Efluelda / Influsplit)';
      }
     return planName;
 }
@@ -724,11 +724,11 @@ function renderApptOverview() {
 
     if (v.hep) {
       if (st.plannedA) planned.push({ name: 'Hepatitis A (' + hepForm('a').split('(')[0].trim() + ')', k: 'hepA', live: false, stKey: v.k, planField: 'plannedA' });
-      if (st.plannedB) planned.push({ name: 'Hepatitis B (' + hepForm('b') + ')', k: 'hepB', live: false, stKey: v.k, planField: 'plannedB' });
-      if (st.plannedAB) planned.push({ name: 'Twinrix (A+B) (' + hepForm('ab').split('(')[0].trim() + ')', k: 'hepAB', live: false, stKey: v.k, planField: 'plannedAB' });
+      if (st.plannedB) planned.push({ name: 'Hepatitis B (' + hepForm('b').split('(')[0].trim() + ')', k: 'hepB', live: false, stKey: v.k, planField: 'plannedB' });
+      if (st.plannedAB) planned.push({ name: 'Hepatitis A+B (' + hepForm('ab').split('(')[0].trim() + ')', k: 'hepAB', live: false, stKey: v.k, planField: 'plannedAB' });
     } else if (v.tdap_polio) {
       if (st.planned) planned.push({ name: getPlanName(v, st), k: 'tdap_combo', live: false, stKey: v.k, planField: 'planned' });
-      if (st.planned_ipv) planned.push({ name: 'Polio (einmalig IPV Mérieux)', k: 'ipv_mono', live: false, stKey: v.k, planField: 'planned_ipv' });
+      if (st.planned_ipv) planned.push({ name: 'Polio (IPV Mérieux)', k: 'ipv_mono', live: false, stKey: v.k, planField: 'planned_ipv' });
     } else {
       if (st.planned) planned.push({ name: getPlanName(v, st), k: v.k, live: !!v.live, stKey: v.k, planField: 'planned' });
     }
@@ -828,7 +828,8 @@ function renderApptOverview() {
             if (reasonHtml) {
                 subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${reasonHtml} <span style="color:var(--text);font-weight:bold;margin-left:8px">• ${absText}</span></div>`;
             } else {
-                subtitle = `<div style="font-size:13px;color:var(--grey);font-style:italic;">${LANG==='de'?'Flexibel terminierbar':'Flexible'} <span style="font-style:normal;font-weight:bold;margin-left:8px">• ${absText}</span></div>`;
+                // Flexibel = keine feste Zeitvorgabe → keine widersprüchliche "In X"-Angabe
+                subtitle = `<div style="font-size:13px;color:var(--grey);font-style:italic;">${LANG==='de'?'Flexibel terminierbar':'Flexible'}</div>`;
             }
         }
     }
@@ -1419,7 +1420,7 @@ function hepAssess(){
   else {
     const hepaR = getRisk('hepatitis_a');
     const destEndemic = hepaR ? (hepaR.level === 'recommended' || hepaR.level === 'risk_based' || hepaR.level === 'mandatory_all') : false;
-    A=destEndemic?'red':'grey';aNote={de:destEndemic?'Dringend empfohlen für die meisten Reiseziele':'Für dieses Ziel nicht vordringlich',en:destEndemic?'Strongly recommended for most destinations':'Not a priority'};
+    A=destEndemic?'red':'grey';aNote={de:destEndemic?'Dringend empfohlen für die meisten Reiseziele':'',en:destEndemic?'Strongly recommended for most destinations':''};
   }
   const bDoses=b+tw+hexaB;let B,bNote;
   if(serHBs()){B='green';bNote={de:'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig',en:'Immune — anti-HBs sufficient, no further vaccination needed'};}
@@ -1428,7 +1429,7 @@ function hepAssess(){
   else {
     const hepbR = getRisk('hepatitis_b');
     const destEndemicB = hepbR ? (hepbR.level === 'recommended' || hepbR.level === 'risk_based' || hepbR.level === 'mandatory_all') : false;
-    const strong=(ls&&destEndemicB)||c.includes('health')||c.includes('animal');B=strong?'red':'blue';bNote={de:strong?'Langzeit/Exposition – Grundimmunisierung':'STIKO-Standardimpfung',en:strong?'Long stay/exposure — primary series':'STIKO standard vaccination'};
+    const strong=(ls&&destEndemicB)||c.includes('health')||c.includes('animal');B=strong?'red':'blue';bNote={de:strong?'Langzeit/Exposition – Grundimmunisierung':'',en:strong?'Long stay/exposure — primary series':''};
   }
   const needA=(A!=='green'),needB=(B!=='green');const childForm=age!==null&&age<16;const infant=age!==null&&age<1;
   function form(kind){
@@ -1482,7 +1483,7 @@ function menacwyAssess(){
     else if(age!==null&&age>=15&&age<25){ status=protectedNow?'green':'blue';note={de:'STIKO: Nachholimpfung bis <25 J.',en:'STIKO: catch-up until <25 yrs'}; }
     else if(age!==null&&age<12){ status=protectedNow?'green':'yellow';note={de:'STIKO-Standard (ab 12 J.) – vorgezogene Impfung erwägen',en:'STIKO standard (from 12) — consider early vaccination'}; }
     else if(immunocompromised()){ status=protectedNow?'green':'yellow';note={de:'Indikation bei Risiko/Labor/Ausland',en:'Indicated for risk/lab/travel'}; }
-    else{status=protectedNow?'green':'grey';note={de:'Nicht reisebezogen indiziert',en:'Not indicated for travel'};}
+    else{status=protectedNow?'green':'grey';note={de:'',en:''};}
   }
   return {status,noteDe:note.de,noteEn:note.en,mand};
 }
