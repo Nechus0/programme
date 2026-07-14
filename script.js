@@ -2898,9 +2898,9 @@ async function renderAdminUsers(){
     html+='</div></div>';
   });
   if(deletedUsers.length > 0) {
-    html+='<div class="ab-sec" style="margin-top:20px; border-top:1px solid var(--line); padding-top:10px">';
-    html+='<div class="ab-sec-h" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'"><div>Entfernt <span class="count-pill" style="margin-left:8px;">'+deletedUsers.length+'</span></div><span style="font-size:0.8em;opacity:0.6">▼</span></div>';
-    html+='<div class="ab-rows" style="display:none; margin-top:8px;">';
+    html+='<div class="ab-sec">';
+    html+='<div class="ab-sec-h" style="cursor:pointer; display:flex; justify-content:space-between;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'"><div>Entfernt <span class="count-pill">'+deletedUsers.length+'</span></div><span style="font-size:0.8em;opacity:0.6">▼</span></div>';
+    html+='<div class="ab-rows" style="display:none;">';
     deletedUsers.forEach(u=>{
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
       html+='<div class="ab-row" style="opacity:0.8;">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name" style="text-decoration:line-through;">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+'</div></div><span class="icon-btn del" title="Komplett löschen" onclick="adminHardDeleteUI(\''+u.id+'\')">✕</span></div>';
