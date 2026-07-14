@@ -106,6 +106,8 @@ async function doRegister(e){
 
 (function init(){
   document.body.style.visibility='visible';
+  // E-Mail aus dem Einladungslink vorbelegen
+  try{ const pe=new URLSearchParams(location.search).get('email'); if(pe){ const ef=document.getElementById('email'); if(ef) ef.value=pe; } }catch(_){}
   if(!AUTH_ENABLED){ showMsg('Supabase ist nicht konfiguriert.','err'); return; }
   // Reset-Link erkennt Supabase automatisch → PASSWORD_RECOVERY
   supabaseClient.auth.onAuthStateChange((event)=>{

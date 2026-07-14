@@ -110,6 +110,22 @@ async function adminDeleteUser(email) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
   return await supabaseClient.from('allowed_users').delete().eq('email', email.trim().toLowerCase());
 }
+// Einladungs-E-Mail über die Supabase Edge Function 'send-invite' (MailerSend) versenden
+async function sendInviteEmail({ email, full_name, title, role }) {
+  if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
+  const registerUrl = location.origin + location.pathname.replace(/[^/]*$/, '') + 'register.html';
+  const { data, error } = await supabaseClient.functions.invoke('send-invite', {
+    body: { email: (email || '').trim().toLowerCase(), full_name, title, role, registerUrl }
+  });
+  if (error) {
+    // FunctionsHttpError liefert den Body im context; versuchen, die Server-Meldung zu lesen
+    let msg = error.message || 'Versand fehlgeschlagen';
+    try { const j = await error.context?.json?.(); if (j?.error) msg = j.error; } catch (_) {}
+    return { error: { message: msg } };
+  }
+  if (data && data.error) return { error: { message: data.error } };
+  return { data: data || { ok: true } };
+}
 
 // --- Patienten (Ambulanzliste) ----------------------------------
 async function dbListPatients() {

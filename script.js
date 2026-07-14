@@ -2522,7 +2522,8 @@ async function renderAdminUsers(){
       const em=(u.email||'').replace(/'/g,"\\'");
       const reg=u.registered?'<span class="badge green">registriert</span>':'<span class="badge yellow">offen</span>';
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="admin-row">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
+      const invTitle=u.registered?'Zugangslink erneut senden':'Einladung senden';
+      html+='<div class="admin-row">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ar-main"><div class="ar-name">'+nm+'</div><div class="ar-sub">'+(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><div class="ar-status">'+reg+'</div><span class="icon-btn invite" title="'+invTitle+'" onclick="adminInvite(\''+em+'\')">✉</span><span class="icon-btn del" title="Entfernen" onclick="adminRemoveUser(\''+em+'\')">✕</span></div>';
     });
     html+='</div>';
   });
@@ -2535,9 +2536,21 @@ async function adminSaveUser(){
   if(!email||!full_name){ adminMsg('Bitte E-Mail und Name angeben.','err'); return; }
   const { error } = await adminCreateUser({ email, full_name, title, gender, role });
   if(error){ adminMsg('Fehler: '+(error.message||error),'err'); return; }
-  adminMsg('Nutzer angelegt. Er kann sich nun über den Registrierungslink ein Passwort vergeben.','ok');
+  adminMsg('Nutzer angelegt – Einladung wird versendet …','ok');
   el('au-email').value=''; el('au-name').value='';
   renderAdminUsers();
+  const inv = await sendInviteEmail({ email, full_name, title, role });
+  if(inv.error) adminMsg('Nutzer angelegt, aber Einladung konnte nicht versendet werden: '+inv.error.message,'err');
+  else adminMsg('Nutzer angelegt und Einladung an '+email+' versendet.','ok');
+}
+async function adminInvite(email){
+  const { data } = await adminListUsers();
+  const u=(data||[]).find(x=>(x.email||'').toLowerCase()===(email||'').toLowerCase());
+  if(!u){ adminMsg('Nutzer nicht gefunden.','err'); return; }
+  adminMsg('Einladung an '+email+' wird versendet …','ok');
+  const inv = await sendInviteEmail({ email:u.email, full_name:u.full_name, title:u.title, role:u.role });
+  if(inv.error) adminMsg('Einladung fehlgeschlagen: '+inv.error.message,'err');
+  else adminMsg('Einladung an '+email+' versendet.','ok');
 }
 async function adminRemoveUser(email){
   if(!confirm('Nutzer „'+email+'" aus der Freigabe entfernen?'))return;
