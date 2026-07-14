@@ -93,7 +93,7 @@
 
   <!-- STEP 1 -->
   <section class="card" id="step1">
-    <h2><span class="step-badge">1</span><span data-i18n="s1Title">Stammdaten</span></h2>
+    <h2 class="sec-h"><span class="step-badge">1</span><span data-i18n="s1Title">Stammdaten</span><span style="flex:1"></span><button class="lock-btn" id="lock-step1" onclick="toggleLock('step1')" title="Bearbeiten" aria-label="Bearbeiten">✎</button></h2>
     <div class="card-desc" data-i18n="s1Desc">Persönliche Daten und Kontakt.</div>
     <div class="grid g4">
       <div><label class="fld" data-i18n="fName">Name</label><input type="text" id="p-name" placeholder="—"></div>
@@ -118,7 +118,7 @@
 
   <!-- STEP 2: Reise -->
   <section class="card" id="step2">
-    <h2><span class="step-badge">2</span><span data-i18n="s2Title">Reise</span></h2>
+    <h2 class="sec-h"><span class="step-badge">2</span><span data-i18n="s2Title">Reise</span><span style="flex:1"></span><button class="lock-btn" id="lock-step2" onclick="toggleLock('step2')" title="Bearbeiten" aria-label="Bearbeiten">✎</button></h2>
     <div class="card-desc" data-i18n="s2Desc">Reiseziel(e), Aufenthaltsdauer und besondere Bedingungen.</div>
     <div class="grid g3">
       <div><label class="fld" data-i18n="fDuration">Aufenthaltsdauer</label><select id="p-duration" onchange="recompute()"><option value="<1w">&lt; 1 Woche</option><option value="1-2w">1–2 Wochen</option><option value="2-4w">2–4 Wochen</option><option value="1-3m">4 Wochen bis 3 Monate</option><option value="3-6m">3–6 Monate</option><option value=">6m">&gt;6 Monate</option></select></div>
@@ -142,7 +142,7 @@
 
   <!-- STEP 3: Immunstatus -->
   <section class="card" id="step3">
-    <h2><span class="step-badge">3</span><span data-i18n="s3Title">Immunstatus</span></h2>
+    <h2 class="sec-h"><span class="step-badge">3</span><span data-i18n="s3Title">Immunstatus</span><span style="flex:1"></span><button class="lock-btn" id="lock-step3" onclick="toggleLock('step3')" title="Bearbeiten" aria-label="Bearbeiten">✎</button></h2>
     <div class="grid g3">
       <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillzeit</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="pregnant" data-i18n="optPregnant">schwanger</option><option value="breastfeeding" data-i18n="optBreastfeeding">stillend</option><option value="planned" data-i18n="optPlanned">Schwangerschaft geplant</option></select></div>
       <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" oninput="recompute()"></div>
@@ -187,11 +187,50 @@
     </div>
   </section>
 
-  <!-- KASSE-PLATZHALTER -->
-  <section class="card" id="kasse-card" style="display:none">
-    <h2 data-i18n="kasseTitle">Kasse</h2>
-    <div class="card-desc" data-i18n="kasseDesc">Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.</div>
+  <!-- STEP 6: Leistungen -->
+  <section class="card" id="step6" style="display:none">
+    <h2><span class="step-badge">6</span>Leistungen</h2>
+    <div class="card-desc">Dokumentation der heute erbrachten Leistungen.</div>
+    
+    <div class="fld" style="margin-top:16px;">Impfungen heute</div>
+    <div id="leistung-vax-list" style="margin-bottom:12px;"></div>
+    
+    <div class="fld">Beratung & Untersuchung</div>
+    <label class="chk-chip" style="display:block;margin-bottom:8px;">
+      <input type="radio" name="leistung_beratung" value="1" checked onchange="updateLeistungen()"> 
+      <span>Beratung (1) mit Impfplan (A76) und Beurteilung der Impftauglichkeit (5)</span>
+    </label>
+    <label class="chk-chip" style="display:block;margin-bottom:8px;">
+      <input type="radio" name="leistung_beratung" value="3" onchange="updateLeistungen()"> 
+      <span>Beratung (3), ggf. mit Rezept</span>
+    </label>
+    <label class="chk-chip" style="display:block;margin-bottom:8px;">
+      <input type="radio" name="leistung_beratung" value="A34" onchange="updateLeistungen()"> 
+      <span>Ausführliche Beratung, >20 min (A34)</span>
+    </label>
+    <label class="chk-chip" style="display:block;margin-bottom:8px;">
+      <input type="radio" name="leistung_beratung" value="none" onchange="updateLeistungen()"> 
+      <span>Keine Beratung</span>
+    </label>
+    
+    <div class="fld" style="margin-top:16px;">Weitere Leistungen</div>
+    <label class="chk-chip" style="display:block;margin-bottom:8px;">
+      <input type="checkbox" id="leistung_folge" onchange="updateLeistungen()"> 
+      <span>Folgeverordnung (2)</span>
+    </label>
+    <label class="chk-chip" style="display:block;margin-bottom:8px;">
+      <input type="checkbox" id="leistung_bescheinigung" onchange="updateLeistungen()"> 
+      <span>Bescheinigung, z.B.: Impfheft, Impfbefreiung (70)</span>
+    </label>
+    <label class="chk-chip" style="display:block;margin-bottom:8px;opacity:0.8">
+      <input type="checkbox" id="leistung_impf" disabled> 
+      <span>Impfleistung (375) <span style="font-size:0.85em;font-weight:normal">(automatisch bei Impfung)</span></span>
+    </label>
+    
+    <div id="leistung-warning" style="display:none; color:var(--red); font-weight:600; margin-top:12px; padding:8px; background:rgba(255,0,0,0.1); border-radius:4px;">Keine Leistung erfolgt</div>
   </section>
+
+
 
   <!-- LIST / AMBULANZLISTE -->
   <section class="card" id="list-card">

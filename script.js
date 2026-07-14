@@ -643,6 +643,7 @@ function getPlanName(v, st) {
 }
 
 function renderApptOverview() {
+  updateLeistungen();
   const container = el('appt-overview');
   if (!container) return;
 
@@ -1620,7 +1621,7 @@ function renderVaxTable(){
     else if(av.flag==='caution')availBadge='<span class="badge yellow">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
     const availNote=(av.flag==='na'||av.flag==='age')?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':(av.flag==='caution'?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':'');
     const liveNote=la?'<div class="reason" style="color:'+(la.level==='block'?'var(--red)':'var(--yellow)')+';font-weight:600">'+(LANG==='de'?la.de:la.en)+'</div>':'';
-    const infoBtn='<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>'+(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">K</button>':'');
+    const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">K</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>';
 
     if(v.tdap_polio){
       const a = tdapPolioAssess();
@@ -1679,49 +1680,42 @@ function renderVaxTable(){
           bBadgeTxt = LANG === 'de' ? 'Dringend empfohlen' : 'Strongly recommended';
       }
 
-      const aBadge='<div class="hep-stat"><span class="hep-stat-lbl">Hep A</span><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
+      const aBadge='<div class="hep-stat"><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
         '<div class="reason">'+(LANG==='de'?ha.aNote.de:ha.aNote.en)+'</div>';
-      const bBadge='<div class="hep-stat"><span class="hep-stat-lbl">Hep B</span><span class="badge '+ha.B+'">'+bBadgeTxt+'</span></div>'+
+      const bBadge='<div class="hep-stat"><span class="badge '+ha.B+'">'+bBadgeTxt+'</span></div>'+
         '<div class="reason">'+(LANG==='de'?ha.bNote.de:ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
       function yrSel(f){return yearInput('hepatitis',f);}
       
-      const colCombined = `
-        <div class="hep-group">
-          <div class="hep-group-title">Hep A mono <span>Avaxim/Havrix</span></div>
-          <div class="hep-group-row">
-            <div class="hep-doses">${renderDoseChips2(v.k, 'aMono')}</div>
-            <div class="hep-year">${yrSel('aYear')}</div>
-          </div>
-        </div>
-        <div class="hep-group">
-          <div class="hep-group-title">Hep B mono <span>Engerix</span></div>
-          <div class="hep-group-row">
-            <div class="hep-doses">${renderDoseChips2(v.k, 'bMono')}</div>
-            <div class="hep-year">${yrSel('bYear')}</div>
-          </div>
-        </div>
-        <div class="hep-group">
-          <div class="hep-group-title">Twinrix (A+B)</div>
-          <div class="hep-group-row">
-            <div class="hep-doses">${renderDoseChips2(v.k, 'twin')}</div>
-            <div class="hep-year">${yrSel('twYear')}</div>
-          </div>
-        </div>
-      `;
-      
       html+=`<tr>
         <td data-label="${t('thVax')}">
-          <div class="vname" style="display:flex; align-items:center;">${LANG==='de'?v.de:v.en}${availBadge}</div>
-          <div class="vsub">${LANG==='de'?'A + B getrennt impfbar; Twinrix zählt für beide':'A + B separately possible; Twinrix counts for both'}</div>
+          <div class="vname" style="display:flex; align-items:center;">Hepatitis A</div>
+        </td>
+        <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'aMono')}</div></div></td>
+        <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('aYear')}</div></div></td>
+        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtn}</div>
+          ${aBadge}
+        </td>
+      </tr>`;
+      html+=`<tr>
+        <td data-label="${t('thVax')}">
+          <div class="vname" style="display:flex; align-items:center;">Hepatitis B</div>
           ${hbsChk}
         </td>
-        <td colspan="2" data-label="${LANG==='de'?'Vorimpfungen & Jahr':'Previous doses & Year'}">${colCombined}</td>
-        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtn}</div>
-          <div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed var(--line);">${aBadge}</div>
-          <div>${bBadge}</div>
+        <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'bMono')}</div></div></td>
+        <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('bYear')}</div></div></td>
+        <td class="status" data-label="${t('thStatus')}">
+          ${bBadge}
         </td>
+      </tr>`;
+      html+=`<tr>
+        <td data-label="${t('thVax')}">
+          <div class="vname" style="display:flex; align-items:center;"></div>
+        </td>
+        <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'twin')}</div></div></td>
+        <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('twYear')}</div></div></td>
+        <td class="status" data-label="${t('thStatus')}"></td>
       </tr>`;
       return;
     }
@@ -1934,6 +1928,15 @@ async function savePatient(finish){
   finish = finish!==false;   // Standard: abschließen (Status → done im Klinikmodus). false = Zwischenspeichern.
   const name=el('p-name').value.trim();const dob=el('p-dob').value;
   if(!name||!dob){await uiAlert(t('needName'));return false;}
+  
+  if (finish && document.body.classList.contains('clinic')) {
+     const warn = el('leistung-warning');
+     if (warn && warn.style.display === 'block') {
+         if (!(await uiConfirm('Es wurde keine Leistung (Beratung/Impfung) ausgewählt. Patient dennoch abschließen?', {title:'Keine Leistung', ok:'Trotzdem abschließen', danger:true}))) {
+             return false;
+         }
+     }
+  }
   const g=id=>{const e=el(id);return e?(''+e.value).trim():'';};
   const c=id=>{const e=el(id);return e?!!e.checked:false;};
   const vaxCopy=JSON.parse(JSON.stringify(vaxState));
@@ -1977,8 +1980,21 @@ async function savePatient(finish){
     claimedByName:(existing&&existing.claimedByName)||((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''),
     claimedByRole:(existing&&existing.claimedByRole)||(document.body.classList.contains('clinic')?((CURRENT_PROFILE&&CURRENT_PROFILE.role)||''):''),
     treatmentAt:(existing&&existing.treatmentAt)||null,
+    editLog:(existing&&existing.editLog)?existing.editLog.slice():[],
+    deleted:(existing&&existing.deleted)||undefined,
     savedAt:(existing&&existing.savedAt)||new Date().toISOString(), updatedAt:new Date().toISOString()
   };
+  // Änderungsprotokoll: bearbeitete Abschnitte (1–3) beim Speichern eines bestehenden Patienten festhalten
+  if(existing){
+    const touched=LOCK_SECTIONS.filter(id=>SECTION_EDIT[id]);
+    if(touched.length){
+      const ts=new Date().toISOString();
+      const who=((CURRENT_PROFILE&&CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'')+((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'')).trim()||myUserKey();
+      const role=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
+      touched.forEach(id=>snap.editLog.push({ts,who,role,section:id}));
+    }
+  }
+  LOCK_SECTIONS.forEach(id=>SECTION_EDIT[id]=false);
   if(USE_DB){
     const res = editingId ? await dbUpdatePatient(editingId, snap) : await dbInsertPatient(snap);
     if(res && res.error){ await uiAlert('Speichern fehlgeschlagen: '+(res.error.message||res.error)); return false; }
@@ -1988,12 +2004,45 @@ async function savePatient(finish){
     storeSet('charite_patients',JSON.stringify(patients));
     renderPatients();
   }
+  
+  if (typeof dbAuditLog === 'function') {
+      dbAuditLog('save_patient', { patient_id: snap.id, name: snap.name, finish: finish });
+  }
+  
   if(finish){
     if(document.body.classList.contains('clinic')) exitToList();
     else resetForm();
   }
   return true;
 }
+function fuzzyNameMatch(n1, f1, n2, f2) {
+  const normalize = s => (s||'').toLowerCase().replace(/[^a-zäöüß ]/g, ' ').split(/\s+/).filter(Boolean);
+  let p1 = normalize((f1||'') + ' ' + (n1||''));
+  let p2 = normalize((f2||'') + ' ' + (n2||''));
+  if (p1.length === 0 || p2.length === 0) return false;
+  if (p1.slice().sort().join('') === p2.slice().sort().join('')) return true;
+  const levenshtein = (s, t) => {
+    if (!s.length) return t.length;
+    if (!t.length) return s.length;
+    const arr = [];
+    for (let i = 0; i <= t.length; i++) {
+      arr[i] = [i];
+      for (let j = 1; j <= s.length; j++) {
+        arr[i][j] = i === 0 ? j : Math.min(arr[i-1][j]+1, arr[i][j-1]+1, arr[i-1][j-1] + (s[j-1] === t[i-1] ? 0 : 1));
+      }
+    }
+    return arr[t.length][s.length];
+  };
+  let s1 = p1.slice().sort().join('');
+  let s2 = p2.slice().sort().join('');
+  let dist = levenshtein(s1, s2);
+  if (dist <= 2 && Math.max(s1.length, s2.length) > 3) return true;
+  if (dist <= 3 && Math.max(s1.length, s2.length) >= 8) return true;
+  for (let part of p1) { if (part.length >= 4 && p2.includes(part)) return true; }
+  for (let part of p2) { if (part.length >= 4 && p1.includes(part)) return true; }
+  return false;
+}
+
 function loadPatient(id){
   const p=patients.find(x=>x.id===id);if(!p)return;
   el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
@@ -2021,7 +2070,62 @@ function loadPatient(id){
   }
   editingId=id;el('editing-banner').classList.add('show');el('editing-text').textContent=t('editingNow')+p.name;el('save-btn').textContent=t('btnFinish');
   customSchedule=p.customSchedule?JSON.parse(JSON.stringify(p.customSchedule)):null;
+  
+  if (p.treatmentType === 'folgeimpfung' && !p.vaxMerged) {
+     const past = patients.filter(x => 
+       x.id !== p.id && 
+       x.status === 'done' && 
+       x.dob === p.dob &&
+       fuzzyNameMatch(p.name, p.firstname, x.name, x.firstname)
+     ).sort((a,b) => (a.savedAt < b.savedAt) ? 1 : -1);
+     
+     if (past.length > 0) {
+        const lastP = past[0];
+        p.vaxMerged = true;
+        Object.keys(lastP.vax || {}).forEach(k => {
+           if (vaxState[k]) {
+              vaxState[k] = Object.assign(vaxState[k], JSON.parse(JSON.stringify(lastP.vax[k])));
+              vaxState[k].planned = false; vaxState[k].planned_ipv = false;
+              vaxState[k].plannedA = false; vaxState[k].plannedB = false; vaxState[k].plannedAB = false;
+           }
+        });
+        if (lastP.customSchedule) customSchedule = JSON.parse(JSON.stringify(lastP.customSchedule));
+        p.customSchedule = customSchedule;
+        
+        if (customSchedule && lastP.savedAt) {
+           const today = new Date();
+           const startD = new Date(lastP.savedAt);
+           let earlyWarning = false;
+           customSchedule.forEach(b => {
+              const targetD = new Date(startD.getTime() + b.offset * 24*60*60*1000);
+              const diffDays = (targetD - today) / (1000 * 60 * 60 * 24);
+              if (diffDays > 14) earlyWarning = true;
+              
+              if (Math.abs(diffDays) <= 14) {
+                 b.items.forEach(it => {
+                    let st = vaxState[it.k];
+                    if (st) {
+                       if (it.sub) st[it.sub] = true;
+                       else st.planned = true;
+                    }
+                 });
+              }
+           });
+           if (earlyWarning) {
+              setTimeout(() => uiAlert('Achtung: Der Patient erscheint deutlich zu früh für mindestens eine geplante Impfung!'), 500);
+           }
+        }
+        
+        setTimeout(() => {
+           const rad = document.querySelector('input[name="leistung_beratung"][value="none"]');
+           if (rad) rad.checked = true;
+           updateLeistungen();
+        }, 100);
+     }
+  }
+
   renderDestChips();recompute();
+  lockAllSections();   // Abschnitte 1–3 gesperrt öffnen; Bearbeiten erst per Stift
   if(document.body.classList.contains('clinic')) enterPatient();
   else if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
 }
@@ -2029,15 +2133,22 @@ function cancelEdit(){editingId=null;el('editing-banner').classList.remove('show
   if(document.body.classList.contains('clinic'))document.body.classList.add('clinic-idle');}
 async function deletePatient(id){
   if(!(await uiConfirm(t('confirmDel'),{title:LANG==='de'?'Patient löschen':'Delete patient',ok:LANG==='de'?'Löschen':'Delete',danger:true})))return;
-  if(USE_DB){
-    const res=await dbDeletePatient(id);
-    if(res&&res.error){await uiAlert('Löschen fehlgeschlagen: '+(res.error.message||res.error));return;}
-    if(editingId===id)cancelEdit();
-    await loadPatientsFromDB();
-  } else {
-    patients=patients.filter(p=>p.id!==id);storeSet('charite_patients',JSON.stringify(patients));
-    if(editingId===id)cancelEdit();renderPatients();
-  }
+  const p=patients.find(x=>x.id===id); if(!p)return;
+  // Soft-Delete: Datensatz bleibt erhalten (für Admin sichtbar), mit Protokoll wann/von wem
+  const who=((CURRENT_PROFILE&&CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'')+((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'')).trim()||myUserKey();
+  p.deleted={ts:new Date().toISOString(), who, role:(CURRENT_PROFILE&&CURRENT_PROFILE.role)||''};
+  const ok=await persistPatient(p);
+  if(!ok) return;
+  if(editingId===id) cancelEdit();
+  if(USE_DB && roleSeesClinic((CURRENT_PROFILE||{}).role)) await loadPatientsFromDB();
+  renderPatients();
+}
+async function restorePatient(id){
+  const p=patients.find(x=>x.id===id); if(!p)return;
+  delete p.deleted;
+  const ok=await persistPatient(p); if(!ok)return;
+  if(USE_DB && roleSeesClinic((CURRENT_PROFILE||{}).role)) await loadPatientsFromDB();
+  renderPatients();
 }
 function togglePatient(id){const e=el('pi-'+id);if(e)e.classList.toggle('open');}
 
@@ -2064,6 +2175,61 @@ function setMyTreatmentMode(m){ if(m!=='beratung'&&m!=='folgeimpfung')return; tr
 function patientTreatType(p){ return (p.treatmentType==='folgeimpfung'||p.treatmentType==='beratung')?p.treatmentType:'beratung'; }
 function patientDay(p){const s=p.savedAt||p.updatedAt;if(!s)return listDay;try{return ymd(new Date(s));}catch(e){return listDay;}}
 function patientStatus(p){return p.status||'waiting';}
+
+function updateLeistungen() {
+   const listDiv = el('leistung-vax-list');
+   if (!listDiv) return;
+   let list = [];
+   VACCINES.forEach(v => {
+      const st = vaxState[v.k];
+      if (!st) return;
+      if (v.hep) {
+         if (st.plannedA) list.push({k: v.k, sub: 'plannedA', name: 'Hepatitis A'});
+         if (st.plannedB) list.push({k: v.k, sub: 'plannedB', name: 'Hepatitis B'});
+         if (st.plannedAB) list.push({k: v.k, sub: 'plannedAB', name: 'Twinrix (A+B)'});
+      } else if (v.tdap_polio) {
+         if (st.planned) list.push({k: v.k, sub: 'planned', name: 'Tetanus Diphtherie Pertussis Polio'});
+         if (st.planned_ipv) list.push({k: v.k, sub: 'planned_ipv', name: 'Polio (IPV)'});
+      } else {
+         if (st.planned) list.push({k: v.k, sub: 'planned', name: (LANG==='de'?v.de:v.en)});
+      }
+   });
+   let html = '';
+   if (list.length === 0) {
+      html = '<div style="font-size:0.9em;color:var(--grey);">Keine Impfungen für heute geplant</div>';
+   } else {
+      list.forEach(item => {
+         html += `<div style="display:inline-flex;align-items:center;background:var(--grey-xl);border:1px solid var(--line);border-radius:16px;padding:4px 10px;font-size:0.9em;margin-right:8px;margin-bottom:8px;">
+           ${item.name} <span style="margin-left:8px;cursor:pointer;color:var(--grey);font-weight:bold" onclick="removeLeistungVax('${item.k}', '${item.sub}')">✕</span>
+         </div>`;
+      });
+   }
+   listDiv.innerHTML = html;
+   
+   const impfCheckbox = el('leistung_impf');
+   if (impfCheckbox) {
+      impfCheckbox.checked = list.length > 0;
+   }
+   checkLeistungWarning();
+}
+function removeLeistungVax(k, sub) {
+   if (vaxState[k]) vaxState[k][sub] = false;
+   renderApptOverview();
+}
+function checkLeistungWarning() {
+   const warn = el('leistung-warning');
+   if (!warn) return;
+   const rad = document.querySelector('input[name="leistung_beratung"]:checked');
+   const folge = el('leistung_folge') ? el('leistung_folge').checked : false;
+   const besch = el('leistung_bescheinigung') ? el('leistung_bescheinigung').checked : false;
+   const impf = el('leistung_impf') ? el('leistung_impf').checked : false;
+   
+   if ((!rad || rad.value === 'none') && !folge && !besch && !impf) {
+      warn.style.display = 'block';
+   } else {
+      warn.style.display = 'none';
+   }
+}
 function listDayPick(v){if(v){listDay=v;renderPatients();}}
 function listDayShift(n){const d=new Date(listDay+'T00:00:00');d.setDate(d.getDate()+n);listDay=ymd(d);const i=el('list-date');if(i)i.value=listDay;renderPatients();}
 function listDayToday(){listDay=ymd(new Date());const i=el('list-date');if(i)i.value=listDay;renderPatients();}
@@ -2171,14 +2337,14 @@ function renderPatients(){
   const listEl=el('patient-list');if(!listEl)return;
   const di=el('list-date');if(di&&di.value!==listDay)di.value=listDay;
   const dayPats=patients.filter(p=>patientDay(p)===listDay);
-  el('list-count').textContent=dayPats.length;
+  el('list-count').textContent=dayPats.filter(p=>!p.deleted).length;
   const q=listSearch;
   const filt=q?dayPats.filter(p=>((p.name||'')+' '+(p.firstname||'')).toLowerCase().includes(q)||((p.firstname||'')+' '+(p.name||'')).toLowerCase().includes(q)):dayPats;
   // Offene Schnellansichten merken, damit sie beim Neu-Rendern (Auto-Refresh) nicht zuklappen
   const openIds=Array.from(listEl.querySelectorAll('.patient-item.open')).map(e=>e.dataset.pid);
   // Eine Sektion (Lane) rendern: Wartend / In Behandlung / Behandelt
   const lane=(s)=>{
-    const inSec=filt.filter(p=>{ if(patientStatus(p)!==s.status)return false; if(s.type)return patientTreatType(p)===s.type; return true; });
+    const inSec=filt.filter(p=>{ if(p.deleted)return false; if(patientStatus(p)!==s.status)return false; if(s.type)return patientTreatType(p)===s.type; return true; });
     const key=secKey(s);
     let collapsed;
     if(key in SEC_COLLAPSE){ collapsed=SEC_COLLAPSE[key]; }
@@ -2207,7 +2373,17 @@ function renderPatients(){
     cols+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment'});
     cols+='</div>';
   });
-  const html='<div class="amb-board2">'+cols+'</div>'+lane({status:'done',de:'Behandelt',en:'Treated'});
+  let html='<div class="amb-board2">'+cols+'</div>'+lane({status:'done',de:'Behandelt',en:'Treated'});
+  // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
+  if((CURRENT_PROFILE||{}).role==='admin'){
+    const del=dayPats.filter(p=>p.deleted);
+    if(del.length){
+      const collapsed=('del' in SEC_COLLAPSE)?SEC_COLLAPSE.del:true;
+      html+='<div class="amb-section amb-deleted'+(collapsed?' collapsed':'')+'"><div class="amb-sec-h" onclick="toggleSection(\'del\',this)"><span>'+(LANG==='de'?'Gelöscht':'Deleted')+' <span class="count-pill">'+del.length+'</span></span><span class="amb-toggle">▾</span></div><div class="patient-list">'+
+        del.map(p=>{const nm=(p.firstname?p.name+', '+p.firstname:p.name);const d=p.deleted||{};return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LANG==='de'?'gelöscht von ':'deleted by ')+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LANG==='de'?'Wiederherstellen':'Restore')+'</button></div>';}).join('')+
+        '</div></div>';
+    }
+  }
   listEl.innerHTML=html;
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
@@ -2514,7 +2690,7 @@ function applyRole(profile){
 
   if(role==='patient'){
     document.body.classList.add('kiosk');
-    ['step4','step5','list-card','kasse-card'].forEach(id=>show(id,false));
+    ['step4','step5','step6','list-card','kasse-card'].forEach(id=>show(id,false));
     ['step1','step2','step3'].forEach(id=>show(id,true));
     show('notes-block',false);   // Länder-/Gesundheitshinweise nur für Personal, nicht auf dem Patienten-Tablet
     if(ub) ub.style.display='none';
@@ -2523,7 +2699,7 @@ function applyRole(profile){
     return;
   }
   // Kasse verhält sich vorerst wie Arzt/Ärztin (voller Klinikzugriff)
-  ['step1','step2','step3','step4','step5','list-card'].forEach(id=>show(id,true));
+  ['step1','step2','step3','step4','step5','step6','list-card'].forEach(id=>show(id,true));
   show('kasse-card',false);
   document.body.classList.add('clinic');
   document.body.classList.add('clinic-idle');       // Start: kein Patient gewählt → Abschnitte eingeklappt
@@ -2554,7 +2730,38 @@ function showList(){
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
   renderTreatPanel();
 }
-function startNewPatient(){ resetForm(); const et=el('editing-text'); if(et) et.textContent=(LANG==='de'?'Neuer Patient':'New patient'); enterPatient(); }
+
+/* ---------- Bearbeitungssperre + Änderungsprotokoll (Abschnitte 1–3) ---------- */
+const LOCK_SECTIONS=['step1','step2','step3'];
+const SECTION_TITLES={step1:{de:'Stammdaten',en:'Master data'},step2:{de:'Reise',en:'Travel'},step3:{de:'Immunstatus',en:'Immune status'}};
+let SECTION_LOCKED={}, SECTION_EDIT={}, LOCK_LISTENERS=false;
+function isStaff(){ return (typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{}).role); }
+function lockAllSections(){ LOCK_SECTIONS.forEach(id=>{SECTION_LOCKED[id]=true;SECTION_EDIT[id]=false;}); applyLocks(); }
+function unlockAllSections(){ LOCK_SECTIONS.forEach(id=>{SECTION_LOCKED[id]=false;SECTION_EDIT[id]=false;}); applyLocks(); }
+function toggleLock(id){ SECTION_LOCKED[id]=!(SECTION_LOCKED[id]!==false); applyLocks(); }
+function applyLocks(){
+  const staff=isStaff();
+  LOCK_SECTIONS.forEach(id=>{
+    const sec=el(id); if(!sec)return;
+    const locked = staff && SECTION_LOCKED[id]!==false;   // Patienten (Kiosk): nie gesperrt
+    sec.classList.toggle('locked', locked);
+    const btn=el('lock-'+id); if(btn){ btn.classList.toggle('active', !locked); btn.title=locked?(LANG==='de'?'Bearbeiten':'Edit'):(LANG==='de'?'Bearbeitung aktiv':'Editing'); }
+  });
+  if(!LOCK_LISTENERS){
+    LOCK_SECTIONS.forEach(id=>{ const sec=el(id); if(sec) sec.addEventListener('input',()=>{ if(SECTION_LOCKED[id]===false) SECTION_EDIT[id]=true; }); });
+    LOCK_LISTENERS=true;
+  }
+}
+function editLogHtml(p){
+  const log=(p.editLog||[]).slice().reverse();
+  const del=p.deleted;
+  if(!log.length && !del) return '';
+  let h='<div class="pb-log"><div class="pb-lbl">'+(LANG==='de'?'Protokoll':'Change log')+'</div>';
+  if(del) h+='<div class="pb-log-row del"><b>'+(LANG==='de'?'Gelöscht':'Deleted')+'</b> · '+_esc(del.who||'—')+' · '+fmtDateTime(del.ts)+'</div>';
+  log.slice(0,8).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(LANG==='de'?SECTION_TITLES[e.section].de:SECTION_TITLES[e.section].en):e.section; h+='<div class="pb-log-row">'+_esc(sn)+' '+(LANG==='de'?'geändert':'changed')+' · '+_esc(e.who||'—')+' · '+fmtDateTime(e.ts)+'</div>'; });
+  return h+'</div>';
+}
+function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LANG==='de'?'Neuer Patient':'New patient'); enterPatient(); }
 async function cancelEditConfirm(){
   if(!(await uiConfirm(LANG==='de'?'Bearbeitung wirklich abbrechen? Nicht gespeicherte Änderungen gehen verloren.':'Really cancel editing? Unsaved changes will be lost.',{title:LANG==='de'?'Bearbeitung abbrechen':'Cancel editing',ok:LANG==='de'?'Verwerfen':'Discard',danger:true}))) return;
   cancelEdit();
@@ -2651,7 +2858,9 @@ async function renderAdminUsers(){
   const { data, error } = await adminListUsers();
   if(error){ box.innerHTML='<div class="msg err">'+(error.message||error)+'</div>'; return; }
   _adminUsers=data||[];
-  const byRole={}; _adminUsers.forEach(u=>{const k=u.role||''; (byRole[k]=byRole[k]||[]).push(u);});
+  const activeUsers = _adminUsers.filter(u => !u.deleted_at);
+  const deletedUsers = _adminUsers.filter(u => u.deleted_at);
+  const byRole={}; activeUsers.forEach(u=>{const k=u.role||''; (byRole[k]=byRole[k]||[]).push(u);});
   let html='';
   ADMIN_BOARD.forEach(col=>{
     const list=byRole[col.role]||[];
@@ -2666,6 +2875,16 @@ async function renderAdminUsers(){
     });
     html+='</div></div>';
   });
+  if(deletedUsers.length > 0) {
+    html+='<div class="ab-sec" style="margin-top:20px; border-top:1px solid var(--line); padding-top:10px">';
+    html+='<div class="ab-sec-h" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">Ehemalige (gelöscht) <span class="count-pill">'+deletedUsers.length+'</span> <span style="font-size:0.8em;opacity:0.6">▼</span></div>';
+    html+='<div class="ab-rows" style="display:none">';
+    deletedUsers.forEach(u=>{
+      const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
+      html+='<div class="ab-row">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name" style="text-decoration:line-through;opacity:0.6">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+'</div></div><span class="icon-btn del" title="Komplett löschen" onclick="adminHardDeleteUI(\''+u.id+'\')">✕</span></div>';
+    });
+    html+='</div></div>';
+  }
   box.innerHTML=html;
 }
 let _adminDragUid=null;
@@ -2691,6 +2910,14 @@ async function adminSoftDeleteUI(uid){
   const { error } = await adminSoftDeleteUser(uid);
   if(error){ adminMsg('Fehler: '+(error.message||error),'err'); return; }
   adminMsg('Zugang deaktiviert.','ok');
+  renderAdminUsers();
+}
+async function adminHardDeleteUI(uid){
+  const u=_adminUsers.find(x=>x.id===uid); const nm=u?((u.full_name||u.email||'')):'';
+  if(!(await uiConfirm('Nutzer „'+nm+'" komplett aus dem System löschen? Dies kann nicht rückgängig gemacht werden.',{title:'Komplett löschen',ok:'Endgültig löschen',danger:true}))) return;
+  const { error } = await adminHardDeleteUser(uid);
+  if(error){ adminMsg('Fehler: '+(error.message||error),'err'); return; }
+  adminMsg('Nutzer endgültig gelöscht.','ok');
   renderAdminUsers();
 }
 

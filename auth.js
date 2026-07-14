@@ -102,7 +102,6 @@ async function adminListUsers() {
   if (!supabaseClient) return { data: [], error: null };
   const { data, error } = await supabaseClient.from('profiles')
     .select('id,email,full_name,title,gender,role,created_at,deleted_at')
-    .is('deleted_at', null)
     .order('created_at', { ascending: true });
   if (error) return { data: [], error };
   // Kiosk-/Patienten-Konten (anonym) gehören nicht ins Personal-Board
@@ -112,12 +111,27 @@ async function adminListUsers() {
 // Rolle setzen / Nutzer freischalten (role='' → Pending/NULL)
 async function adminSetRole(id, role) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
+  dbAuditLog('admin_set_role', { target_user_id: id, new_role: role });
   return await supabaseClient.from('profiles').update({ role: role || null }).eq('id', id);
 }
 // Soft-Delete: sofort kein Zugriff, Datensatz bleibt 30 Tage erhalten
 async function adminSoftDeleteUser(id) {
   if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
+  dbAuditLog('admin_soft_delete', { target_user_id: id });
   return await supabaseClient.from('profiles').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+}
+// Hard-Delete: komplett löschen via Edge Function
+async function adminHardDeleteUser(id) {
+  if (!supabaseClient) return { error: { message: 'Auth nicht konfiguriert' } };
+  dbAuditLog('admin_hard_delete', { target_user_id: id });
+  const { data, error } = await supabaseClient.functions.invoke('delete-user', { body: { userId: id } });
+  if (error) {
+    let msg = error.message || 'Löschen fehlgeschlagen';
+    try { const j = await error.context?.json?.(); if (j?.error) msg = j.error; } catch (_) {}
+    return { error: { message: msg } };
+  }
+  if (data && data.error) return { error: { message: data.error } };
+  return { data: data || { ok: true } };
 }
 // Einladungs-E-Mail über die Supabase Edge Function 'send-invite' (MailerSend) versenden
 async function sendInviteEmail({ email, full_name, title, role }) {
@@ -153,6 +167,26 @@ async function dbUpdatePatient(id, rec) {
     .update({ name: rec.name || null, dob: rec.dob || null, data: rec }).eq('id', id);
 }
 async function dbDeletePatient(id) {
-  if (!supabaseClient) return { error: { message: 'offline' } };
+  if (!supabaseClient) return { data: null, error: { message: 'offline' } };
   return await supabaseClient.from('patients').delete().eq('id', id);
+}
+
+// --- Audit Log ----------------------------------
+async function dbAuditLog(action, details) {
+  if (!supabaseClient) return;
+  const user_id = CURRENT_PROFILE ? CURRENT_PROFILE.id : null;
+  const user_email = CURRENT_PROFILE ? CURRENT_PROFILE.email : 'anonym';
+  const user_role = CURRENT_PROFILE ? CURRENT_PROFILE.role : 'patient';
+  
+  try {
+    await supabaseClient.from('audit_logs').insert({
+      user_id,
+      user_email,
+      user_role,
+      action,
+      details
+    });
+  } catch (e) {
+    console.warn("Audit Log failed", e);
+  }
 }
