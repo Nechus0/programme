@@ -1294,10 +1294,33 @@ function baseLevel(v){
      else if(endemic){level='strong';noteDe='Nach durchgemachter Dengue-Infektion bei Reise in Endemiegebiet empfohlen';noteEn='Recommended after prior dengue infection for travel to endemic area';}
      else{level='none';}
      break;}
-   case 'chikungunya':
-     if(risk && risk.outbreak){level='strong';noteDe='Aktueller Ausbruch';noteEn='Active outbreak';}
-     else if(rl==='risk_based'||rl==='recommended'){level='useful';noteDe='Erhöhtes Hintergrundrisiko';noteEn='Elevated background risk';}
+   case 'chikungunya': {
+     const g1 = ['BO','GF','MU','YT','SC','SR'];
+     const g2 = ['BR','CO','IN','ID','MX','NG','PK','PE','PH','TH'];
+     let inG1 = false; let inG2 = false;
+     for (let d of destinations) { if(g1.includes(d)) inG1 = true; if(g2.includes(d)) inG2 = true; }
+     
+     const chronicLong = hasChronic() && di >= 3;
+     
+     if (inG1 && chronicLong) {
+         level = 'strong'; 
+         noteDe = 'Endemiegebiet / Ausbruch (mit chron. Erkrankung & Aufenthalt >4 Wo.)'; 
+         noteEn = 'Endemic/outbreak area (with chronic condition & stay >4 wks)';
+     } else if (inG1 || (inG2 && chronicLong)) {
+         level = 'useful'; 
+         noteDe = inG1 ? 'Endemiegebiet / Ausbruch' : 'Erhöhtes Risiko (mit chron. Erkrankung & Aufenthalt >4 Wo.)'; 
+         noteEn = inG1 ? 'Endemic/outbreak area' : 'Elevated risk (with chronic condition & stay >4 wks)';
+     } else if (inG2) {
+         level = 'general'; 
+         noteDe = 'Erhöhtes Hintergrundrisiko'; 
+         noteEn = 'Elevated background risk';
+     } else if (risk && risk.outbreak) {
+         level = 'useful'; noteDe = 'Aktueller Ausbruch'; noteEn = 'Active outbreak';
+     } else if (rl === 'risk_based' || rl === 'recommended') {
+         level = 'general'; noteDe = 'Erhöhtes Hintergrundrisiko'; noteEn = 'Elevated background risk';
+     }
      break;
+   }
    case 'varicella':
      let isWish = el('p-pregnant').value === 'planned';
      if(isWish && age !== null && (age < 13 || age > 50)) isWish = false;
@@ -1705,13 +1728,13 @@ function renderVaxTable(){
         </td>
         <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'bMono')}</div></div></td>
         <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('bYear')}</div></div></td>
-        <td class="status" data-label="${t('thStatus')}">
+        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtn}</div>
           ${bBadge}
         </td>
       </tr>`;
       html+=`<tr>
         <td data-label="${t('thVax')}">
-          <div class="vname" style="display:flex; align-items:center;"></div>
+          <div class="vname" style="display:flex; align-items:center;">Hepatitis A+B</div>
         </td>
         <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'twin')}</div></div></td>
         <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('twYear')}</div></div></td>
@@ -2337,7 +2360,6 @@ function renderPatients(){
   const listEl=el('patient-list');if(!listEl)return;
   const di=el('list-date');if(di&&di.value!==listDay)di.value=listDay;
   const dayPats=patients.filter(p=>patientDay(p)===listDay);
-  el('list-count').textContent=dayPats.filter(p=>!p.deleted).length;
   const q=listSearch;
   const filt=q?dayPats.filter(p=>((p.name||'')+' '+(p.firstname||'')).toLowerCase().includes(q)||((p.firstname||'')+' '+(p.name||'')).toLowerCase().includes(q)):dayPats;
   // Offene Schnellansichten merken, damit sie beim Neu-Rendern (Auto-Refresh) nicht zuklappen
@@ -2393,7 +2415,7 @@ function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle(
 // Linkes Behandlungsfeld des behandelnden Arztes: eigene Patienten in Behandlung + Sektions-Navigation
 function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item'+act+'" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></button>'; }
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
-async function tpSwitch(id){ if(id===editingId)return; if(editingId){ try{ await savePatient(false); }catch(_){} } loadPatient(id); }
+async function tpSwitch(id){ if(id===editingId){ if(document.body.classList.contains('clinic-idle')) enterPatient(); return; } if(editingId){ try{ await savePatient(false); }catch(_){} } loadPatient(id); }
 function renderTreatPanel(){
   const box=el('treat-panel'); if(!box) return;
   const clinic=document.body.classList.contains('clinic');
@@ -2877,11 +2899,11 @@ async function renderAdminUsers(){
   });
   if(deletedUsers.length > 0) {
     html+='<div class="ab-sec" style="margin-top:20px; border-top:1px solid var(--line); padding-top:10px">';
-    html+='<div class="ab-sec-h" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">Ehemalige (gelöscht) <span class="count-pill">'+deletedUsers.length+'</span> <span style="font-size:0.8em;opacity:0.6">▼</span></div>';
-    html+='<div class="ab-rows" style="display:none">';
+    html+='<div class="ab-sec-h" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'"><div>Entfernt <span class="count-pill" style="margin-left:8px;">'+deletedUsers.length+'</span></div><span style="font-size:0.8em;opacity:0.6">▼</span></div>';
+    html+='<div class="ab-rows" style="display:none; margin-top:8px;">';
     deletedUsers.forEach(u=>{
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="ab-row">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name" style="text-decoration:line-through;opacity:0.6">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+'</div></div><span class="icon-btn del" title="Komplett löschen" onclick="adminHardDeleteUI(\''+u.id+'\')">✕</span></div>';
+      html+='<div class="ab-row" style="opacity:0.8;">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name" style="text-decoration:line-through;">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+'</div></div><span class="icon-btn del" title="Komplett löschen" onclick="adminHardDeleteUI(\''+u.id+'\')">✕</span></div>';
     });
     html+='</div></div>';
   }

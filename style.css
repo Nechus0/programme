@@ -137,6 +137,36 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .finish-treat:hover{background:#188045;transform:scale(1.06);}
 body.clinic:not(.clinic-idle) .edit-cancel,
 body.clinic:not(.clinic-idle) .finish-treat{display:flex;}
+/* Locked forms */
+.card.locked { opacity: 0.95; }
+.card.locked .fld { color: var(--text-light); }
+.card.locked input, .card.locked select, .card.locked textarea, .card.locked .chk-chip, .card.locked .radio-group, .card.locked .icon-btn, .card.locked .vname {
+  pointer-events: none !important;
+}
+.card.locked input, .card.locked select, .card.locked textarea {
+  background-color: var(--grey-xl) !important;
+  border-color: transparent !important;
+  color: var(--text) !important;
+}
+.lock-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 16px;
+  color: var(--text-light);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lock-btn:hover { background: var(--grey-m); color: var(--black); }
+.lock-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 2px 6px rgba(0,113,227,0.3); }
 /* Ambulanzliste und Sektionen 1–5 nie gleichzeitig anzeigen */
 body.clinic:not(.clinic-idle) #list-card{display:none !important;}
 /* „Zurück zur Ambulanzliste"-Button im linken Behandlungsfeld */
@@ -329,7 +359,7 @@ table.vax td.status{position:relative;padding-right:44px;}
 body.kiosk main{padding-bottom:110px;}
 body.kiosk .lang-toggle{display:flex;}
 /* Klinik-Workflow: Abschnitte einklappen bis Patient gewählt */
-body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.clinic-idle #step4, body.clinic-idle #step5{display:none !important;}
+body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.clinic-idle #step4, body.clinic-idle #step5, body.clinic-idle #step6{display:none !important;}
 .clinic-back{background:#fff;border:1px solid var(--line);border-left:3px solid var(--black);border-radius:8px;padding:11px 15px;margin-bottom:16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--black);}
 .clinic-back:hover{background:var(--grey-xl);}
 /* Admin-Nutzerliste (gruppiert) */
@@ -343,6 +373,7 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 .ab-rows{display:flex;flex-direction:column;padding:6px;gap:6px;min-height:20px;}
 .ab-empty{font-size:12px;color:var(--neutral);padding:8px 6px;font-style:italic;}
 .ab-row{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+.card{background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);position:relative;}
 .ab-row:active{cursor:grabbing;}
 .ab-row .ab-main{flex:1;min-width:0;}
 .ab-row .ab-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
