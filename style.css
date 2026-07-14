@@ -6,6 +6,7 @@
   --font:'Helvetica Neue',Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box;}
+html{scrollbar-gutter:stable;}
 body{margin:0;font-family:var(--font);color:var(--text);background:var(--grey-xl);font-size:15px;line-height:1.55;}
 header{background:#fff;border-bottom:2px solid var(--black);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
 .brand{display:flex;align-items:center;gap:16px;}
@@ -283,6 +284,12 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #notes-card, 
 .vc-abstract{font-size:12px;font-style:italic;color:#555;margin-top:3px;line-height:1.5;}
 .vc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;font-size:12px;}
 @media(max-width:640px){.vc-grid{grid-template-columns:1fr;}}
+/* Medikamenten-Autocomplete */
+.med-inp-wrap{position:relative;}
+.med-ac{display:none;position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:40;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;}
+.med-ac-item{padding:9px 12px;font-size:13.5px;cursor:pointer;border-bottom:1px solid var(--grey-xl);}
+.med-ac-item:last-child{border-bottom:none;}
+.med-ac-item:hover{background:var(--blue-bg);}
 /* Runde Länderflaggen */
 .flag{width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:7px;box-shadow:0 0 0 1px rgba(0,0,0,.15);}
 .chip .flag{width:17px;height:17px;box-shadow:0 0 0 1px rgba(255,255,255,.45);}

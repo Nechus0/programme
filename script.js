@@ -1021,8 +1021,30 @@ function removeMed(i){ medsList.splice(i,1); syncMeds(); }
 function syncMeds(){ const h=el('p-immuno'); if(h) h.value = medsList.join(', '); renderMedPills(); renderMedVacCheck(); recompute(); }
 function renderMedPills(){
   const box=el('med-pills'); if(!box) return;
-  box.innerHTML = medsList.map((m,i)=>'<span class="med-pill'+(medIsImmuno(m)?' immuno':'')+'">'+m.replace(/</g,'&lt;')+'<span class="mx" onclick="removeMed('+i+')" title="Entfernen">✕</span></span>').join('');
+  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  box.innerHTML = medsList.map((m,i)=>'<span class="med-pill'+(staff&&medIsImmuno(m)?' immuno':'')+'">'+_esc(m)+'<span class="mx" onclick="removeMed('+i+')" title="Entfernen">✕</span></span>').join('');
 }
+// Autocomplete (wie in der Standalone-App)
+function medAutocomplete(){
+  const inp=el('p-med-input'), ac=el('med-ac'); if(!inp||!ac) return;
+  const v=inp.value.trim().toLowerCase();
+  if(v.length<2 || !window.DRUGS_DB){ ac.innerHTML=''; ac.style.display='none'; return; }
+  const seen=new Set(), out=[];
+  for(const d of window.DRUGS_DB){
+    let label='';
+    if((d.substance||'').toLowerCase().includes(v)) label=d.substance;
+    else { const b=(d.brand_names||[]).find(x=>x.toLowerCase().includes(v)); if(b) label=b+' ('+d.substance+')'; }
+    if(label && !seen.has(label)){ seen.add(label); out.push({label, add:d.substance, starts:(d.substance||'').toLowerCase().startsWith(v)||(d.brand_names||[]).some(x=>x.toLowerCase().startsWith(v))}); }
+    if(out.length>80) break;
+  }
+  out.sort((a,b)=>(b.starts-a.starts)|| a.label.localeCompare(b.label));
+  const top=out.slice(0,8);
+  if(!top.length){ ac.innerHTML=''; ac.style.display='none'; return; }
+  ac.innerHTML=top.map(o=>'<div class="med-ac-item" onmousedown="addMedName(\''+o.add.replace(/'/g,"\\'")+'\')">'+_esc(o.label)+'</div>').join('');
+  ac.style.display='block';
+}
+function addMedName(name){ if(name && !medsList.some(m=>m.toLowerCase()===name.toLowerCase())) medsList.push(name); const inp=el('p-med-input'); if(inp)inp.value=''; const ac=el('med-ac'); if(ac){ac.innerHTML='';ac.style.display='none';} syncMeds(); }
+function medAcHide(){ const ac=el('med-ac'); if(ac) setTimeout(()=>{ac.style.display='none';},150); }
 
 function availability(v){
   const a=AVAIL[v.k];const age=ageExact(el('p-dob').value);
@@ -1799,19 +1821,24 @@ function renderNotes(){
 }
 
 function renderImmunoWarn(){
-  const box=el('immuno-warn');const recog=el('drug-recog');const drug=el('p-immuno').value.trim();
-  const idr=el('immunodef-recog'); if(idr){ const s=chronicTextVal(); idr.style.color=hasImmuneDef()?'var(--red)':'var(--grey)'; idr.textContent=(s&&hasImmuneDef())?(LANG==='de'?'Hinweis auf Immundefizienz – Lebendimpfstoffe kontraindiziert/prüfen':'Possible immunodeficiency — check live vaccines'):''; }
+  const box=el('immuno-warn');const recog=el('drug-recog');const idr=el('immunodef-recog');
+  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
   if(typeof renderMedVacCheck==='function') renderMedVacCheck();
+  const immunoMeds=medsList.filter(medIsImmuno);
+  // Immundefizienz-Hinweis (nur Personal)
+  if(idr){ idr.style.color=hasImmuneDef()?'var(--red)':'var(--grey)'; idr.textContent=(staff && chronicTextVal() && hasImmuneDef())?(LANG==='de'?'Hinweis auf Immundefizienz – Lebendimpfstoffe kontraindiziert/prüfen':'Possible immunodeficiency — check live vaccines'):''; }
+  // Medikamenten-Hinweis (nur Personal, nur die immunsuppressiven)
+  if(recog){
+    if(!staff || !medsList.length) recog.textContent='';
+    else if(immunoMeds.length){ recog.style.color='var(--red)'; recog.textContent=(LANG==='de'?'Immunsuppressiv: ':'Immunosuppressive: ')+immunoMeds.join(', '); }
+    else { recog.style.color='var(--green)'; recog.textContent=(LANG==='de'?'Keine immunsuppressiven Medikamente erkannt.':'No immunosuppressive medication detected.'); }
+  }
+  if(!box) return;
+  if(!staff || !livesBlocked()){ box.innerHTML=''; return; }
   const lives=VACCINES.filter(v=>v.live).map(v=>LANG==='de'?v.de:v.en).join(', ');
-  if(!drug){recog.textContent='';}
-  else if(!drugRecognized()){recog.style.color='var(--grey)';recog.textContent=(LANG==='de'?'Wirkstoff nicht in Datenbank erkannt – bitte manuell bewerten.':'Substance not recognised — assess manually.');}
-  else{recog.style.color='var(--green)';recog.textContent=(LANG==='de'?'Erkannt: ':'Recognised: ')+matchedDrugs().map(d=>d.n).join(', ');}
-  if(drug&&!drugRecognized()&&!isPregnant()){box.innerHTML='<div class="warn-box grey"><h4>'+(LANG==='de'?'Medikament nicht erkannt':'Drug not recognised')+'</h4><p>'+(LANG==='de'?'„'+drug+'" ist nicht in der Wirkstoff-Datenbank. Immunsuppressive Wirkung manuell prüfen; Lebendimpfstoffe im Zweifel zurückstellen.':'“'+drug+'” is not in the database. Check immunosuppressive effect manually; defer live vaccines if in doubt.')+'</p></div>';return;}
-  if(isLowGradeOnly()&&!isPregnant()){box.innerHTML='<div class="warn-box amber"><h4>'+(LANG==='de'?'Niedriggradige Immunsuppression':'Low-grade immunosuppression')+'</h4><p>'+(LANG==='de'?('„'+drug+'" gilt als niedriggradig (bzw. kein Immunsuppressivum). Lebendimpfstoffe ('+lives+') sind i.d.R. <strong>keine Kontraindikation</strong> – möglichst ≥4 Wochen vor Therapiebeginn.'):('“'+drug+'” is low-grade (or not immunosuppressive). Live vaccines ('+lives+') are usually <strong>not contraindicated</strong> — ≥4 weeks before therapy where possible.'))+'</p></div>';return;}
-  if(!livesBlocked()){box.innerHTML='';return;}
-  const doseHint=matchedDrugs().some(d=>d.g==='dose');
-  const reason=isPregnant()?(LANG==='de'?'Schwangerschaft':'Pregnancy'):(LANG==='de'?('Immunsuppression'+(drug?' ('+drug+')':'')):('Immunosuppression'+(drug?' ('+drug+')':'')));
-  box.innerHTML='<div class="warn-box"><h4>'+(LANG==='de'?'Lebendimpfstoffe – kontraindiziert / Vorsicht':'Live vaccines — contraindicated / caution')+'</h4><p>'+(LANG==='de'?('Wegen '+reason+' sind Lebendimpfstoffe kontraindiziert bzw. nur nach individueller Abwägung mit Abstand zur Therapie: '):('Because of '+reason+', live vaccines are contraindicated or only after individual assessment: '))+'<strong>'+lives+'</strong>.</p>'+(doseHint?'<p class="mini-note">'+(LANG==='de'?'Dosisabhängig: niedrigdosiert (Prednisolon <10 mg/Tag oder <2 Wochen, MTX ≤20 mg/Woche) = niedriggradig, dann keine KI.':'Dose-dependent: low dose = low-grade, then no contraindication.')+'</p>':'')+'<p class="mini-note">'+(LANG==='de'?'Falls indiziert: Lebendimpfung ≥4 Wochen vor Beginn abschließen. Gelbfieber: ggf. Ausnahmebescheinigung. Totimpfstoffe (Chikungunya/Vimkunya, Shingrix, Pneumokokken, Influenza) anwendbar.':'If indicated: complete live vaccination ≥4 weeks before start. Inactivated vaccines usable.')+'</p></div>';
+  const immunoStr=immunoMeds.join(', ');
+  const reason=isPregnant()?(LANG==='de'?'Schwangerschaft':'Pregnancy'):((hasImmuneDef()&&!immunoStr)?(LANG==='de'?'Immundefizienz':'Immunodeficiency'):(LANG==='de'?('Immunsuppression'+(immunoStr?' ('+immunoStr+')':'')):('Immunosuppression'+(immunoStr?' ('+immunoStr+')':''))));
+  box.innerHTML='<div class="warn-box"><h4>'+(LANG==='de'?'Lebendimpfstoffe – kontraindiziert / Vorsicht':'Live vaccines — contraindicated / caution')+'</h4><p>'+(LANG==='de'?('Wegen '+reason+' sind Lebendimpfstoffe kontraindiziert bzw. nur nach individueller Abwägung: '):('Because of '+reason+', live vaccines are contraindicated or only after individual assessment: '))+'<strong>'+lives+'</strong>.</p><p class="mini-note">'+(LANG==='de'?'Falls indiziert: Lebendimpfung möglichst ≥4 Wochen vor Therapiebeginn; Details je Substanz siehe Medikamenten-Übersicht.':'If indicated: complete live vaccination ≥4 weeks before therapy; per-drug details see the medication overview.')+'</p></div>';
 }
 
 function renderAge(){

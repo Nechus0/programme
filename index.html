@@ -112,7 +112,7 @@
     <div class="grid g3">
       <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillzeit</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="pregnant" data-i18n="optPregnant">schwanger</option><option value="breastfeeding" data-i18n="optBreastfeeding">stillend</option><option value="planned" data-i18n="optPlanned">Schwangerschaft geplant</option></select></div>
       <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" oninput="recompute()"></div>
-      <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><input type="text" id="p-med-input" placeholder="Medikament eingeben + Enter" onkeydown="medKey(event)"><div class="med-pills" id="med-pills"></div><div class="mini-note" id="drug-recog"></div><input type="hidden" id="p-immuno"></div>
+      <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><div class="med-inp-wrap"><input type="text" id="p-med-input" autocomplete="off" placeholder="Medikament eingeben…" oninput="medAutocomplete()" onkeydown="medKey(event)" onblur="medAcHide()"><div class="med-ac" id="med-ac"></div></div><div class="med-pills" id="med-pills"></div><div class="mini-note" id="drug-recog"></div><input type="hidden" id="p-immuno"></div>
     </div>
     <div style="margin-top:16px;max-width:440px;">
       <label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><input type="text" id="p-recentvax" placeholder="—">
