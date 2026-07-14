@@ -33,9 +33,18 @@
 <div class="admin-panel" id="admin-panel">
   <div class="admin-bar">
     <button class="admin-back" onclick="closeAdminPanel()">&larr; <span data-i18n="adminBack">Zurück</span></button>
-    <div class="admin-title" data-i18n="adminTitle">Nutzerverwaltung</div>
+    <div class="admin-title" data-i18n="settingsTitle">Einstellungen</div>
   </div>
   <div class="admin-body">
+    <section class="card">
+      <h2 data-i18n="setGeneral">Allgemein</h2>
+      <div class="card-desc" data-i18n="setTreatModeDesc">Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.</div>
+      <div class="chk-grid">
+        <label class="chk-chip"><input type="radio" name="treatmode" value="beratung" onchange="setMyTreatmentMode('beratung')"> <span data-i18n="treatBeratung">Beratung</span></label>
+        <label class="chk-chip"><input type="radio" name="treatmode" value="folgeimpfung" onchange="setMyTreatmentMode('folgeimpfung')"> <span data-i18n="treatFolge">Folgeimpfung</span></label>
+      </div>
+    </section>
+    <div id="admin-only">
     <section class="card">
       <h2 data-i18n="adminNewUser">Neuen Nutzer anlegen</h2>
       <div class="card-desc" data-i18n="adminNewDesc">Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.</div>
@@ -60,6 +69,7 @@
       <h2 data-i18n="adminTabletTitle">Patienten-Tablet (Selbstanmeldung)</h2>
       <div class="card-desc" data-i18n="adminTabletDesc">Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.</div>
     </section>
+    </div>
   </div>
 </div>
 

@@ -8,7 +8,7 @@ const I18N={
  appTitle:{de:'Reisemedizinische Ambulanz',en:'Travel Medicine Clinic'},appSub:{de:'Institut für Internationale Gesundheit · Reiseimpf-Assistent',en:'Institute of International Health · Travel Vaccination Assistant'},
  fFirstname:{de:'Vorname',en:'First name'},fPhone:{de:'Telefon',en:'Phone'},fInsurance:{de:'Krankenkasse',en:'Health insurance'},fProfession:{de:'Beruf (freiwillig)',en:'Profession (optional)'},fAddress:{de:'Anschrift',en:'Address'},fZip:{de:'PLZ',en:'Postal code'},fCity:{de:'Wohnort',en:'City'},
  fMeds:{de:'Aktuelle Medikamente (welche?)',en:'Current medication (which?)'},fRecentVax:{de:'Impfung/Injektion in den letzten 4 Wochen (welche, wann?)',en:'Vaccination/injection in the last 4 weeks (which, when?)'},fAcute:{de:'Akute Erkrankung (z. B. fieberhafter Infekt)',en:'Acute illness (e.g. febrile infection)'},fThrombosis:{de:'Thrombose in der Vorgeschichte',en:'History of thrombosis'},fFaint:{de:'Schwäche/Ohnmacht bei Impfung/Blutabnahme',en:'Weakness/fainting during vaccination/blood draw'},
- adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
+ adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},settingsTitle:{de:'Einstellungen',en:'Settings'},setGeneral:{de:'Allgemein',en:'General'},setTreatModeDesc:{de:'Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.',en:'Default treatment type when you take a patient into treatment.'},treatBeratung:{de:'Beratung',en:'Consultation'},treatFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
  fEmail:{de:'E-Mail',en:'Email'},fTitle:{de:'Titel',en:'Title'},fRole:{de:'Funktion',en:'Role'},fFullname:{de:'Name (Vor- und Nachname)',en:'Name (first and last)'},fGender:{de:'Geschlecht',en:'Gender'},btnCreateUser:{de:'Nutzer anlegen',en:'Create user'},
  thName:{de:'Name',en:'Name'},thTitle:{de:'Titel',en:'Title'},thGender:{de:'Geschlecht',en:'Gender'},thRole:{de:'Funktion',en:'Role'},thStatusReg:{de:'Status',en:'Status'},
  kasseTitle:{de:'Kasse',en:'Reception / Billing'},kasseDesc:{de:'Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.',en:'No function is assigned to the "Reception/Billing" role yet.'},
@@ -2001,7 +2001,15 @@ function togglePatient(id){const e=el('pi-'+id);if(e)e.classList.toggle('open');
 function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 let listDay = ymd(new Date());
 let listSearch = '';
-const AMB_STATUS=[{k:'waiting',de:'Wartend',en:'Waiting'},{k:'treatment',de:'In Behandlung',en:'In treatment'},{k:'done',de:'Behandelt',en:'Treated'}];
+const AMB_SECTIONS=[
+  {status:'waiting', de:'Wartend', en:'Waiting'},
+  {status:'treatment', type:'beratung', de:'In Behandlung · Beratung', en:'In treatment · Consultation'},
+  {status:'treatment', type:'folgeimpfung', de:'In Behandlung · Folgeimpfung', en:'In treatment · Follow-up'},
+  {status:'done', de:'Behandelt', en:'Treated'}
+];
+function myTreatmentMode(){ let m=null; try{m=localStorage.getItem('charite_treatmentmode');}catch(e){} if(m==='beratung'||m==='folgeimpfung')return m; return ((CURRENT_PROFILE||{}).role==='mfa')?'folgeimpfung':'beratung'; }
+function setMyTreatmentMode(m){ if(m!=='beratung'&&m!=='folgeimpfung')return; try{localStorage.setItem('charite_treatmentmode',m);}catch(e){} }
+function patientTreatType(p){ return (p.treatmentType==='folgeimpfung'||p.treatmentType==='beratung')?p.treatmentType:'beratung'; }
 function patientDay(p){const s=p.savedAt||p.updatedAt;if(!s)return listDay;try{return ymd(new Date(s));}catch(e){return listDay;}}
 function patientStatus(p){return p.status||'waiting';}
 function listDayPick(v){if(v){listDay=v;renderPatients();}}
@@ -2014,14 +2022,14 @@ async function persistPatient(p){
   else{storeSet('charite_patients',JSON.stringify(patients));}
   return true;
 }
-async function setPatientStatus(id,status){
+async function setPatientStatus(id,status,type){
   const p=patients.find(x=>x.id===id);if(!p)return;
   p.status=status;
-  if(status==='treatment'){ p.claimedBy=myUserKey(); p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''; if(!p.treatmentAt)p.treatmentAt=new Date().toISOString(); }
+  if(status==='treatment'){ p.claimedBy=myUserKey(); p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''; if(!p.treatmentAt)p.treatmentAt=new Date().toISOString(); p.treatmentType=type||p.treatmentType||myTreatmentMode(); }
   else if(status==='waiting'){ p.claimedBy=null; p.claimedByName=''; p.treatmentAt=null; }
   await persistPatient(p); renderPatients();
 }
-async function startTreatment(id){ await setPatientStatus(id,'treatment'); loadPatient(id); }
+async function startTreatment(id){ await setPatientStatus(id,'treatment',myTreatmentMode()); loadPatient(id); }
 async function assignGroup(id){
   closeCardMenus();
   const p=patients.find(x=>x.id===id);if(!p)return;
@@ -2039,16 +2047,16 @@ function pDragStart(e,id){_dragPid=id;_dragGroup=null;try{e.dataTransfer.effectA
 function gDragStart(e,g){ if(e.target.closest('.patient-item'))return; _dragGroup=g;_dragPid=null;try{e.dataTransfer.effectAllowed='move';}catch(_){}}
 function pDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');const sec=e.currentTarget.closest('.amb-section');if(sec)sec.classList.remove('collapsed');}
 function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
-function pDrop(e,status){
+function pDrop(e,status,type){
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
-  if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status);return; }
-  let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status);
+  if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status,type);return; }
+  let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status,type);
 }
-async function moveGroupStatus(groupName,status){
+async function moveGroupStatus(groupName,status,type){
   const gl=groupName.trim().toLowerCase();
   const members=patients.filter(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===gl);
   for(const p of members){ p.status=status;
-    if(status==='treatment'){p.claimedBy=myUserKey();p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';if(!p.treatmentAt)p.treatmentAt=new Date().toISOString();}
+    if(status==='treatment'){p.claimedBy=myUserKey();p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';if(!p.treatmentAt)p.treatmentAt=new Date().toISOString();p.treatmentType=type||p.treatmentType||myTreatmentMode();}
     else if(status==='waiting'){p.claimedBy=null;p.claimedByName='';p.treatmentAt=null;}
     await persistPatient(p);
   }
@@ -2092,12 +2100,14 @@ function renderPatients(){
   const q=listSearch;
   const filt=q?dayPats.filter(p=>((p.name||'')+' '+(p.firstname||'')).toLowerCase().includes(q)||((p.firstname||'')+' '+(p.name||'')).toLowerCase().includes(q)):dayPats;
   let html='';
-  AMB_STATUS.forEach(s=>{
-    const inSec=filt.filter(p=>patientStatus(p)===s.k);
-    const collapsed=(s.k==='done');
-    html+='<div class="amb-section'+(collapsed?' collapsed':'')+'" data-status="'+s.k+'">';
+  AMB_SECTIONS.forEach(s=>{
+    const inSec=filt.filter(p=>{ if(patientStatus(p)!==s.status)return false; if(s.status==='treatment')return patientTreatType(p)===s.type; return true; });
+    const collapsed=(s.status==='done');
+    const dropAttr='data-status="'+s.status+'"'+(s.type?' data-type="'+s.type+'"':'');
+    const typeArg=s.type?("'"+s.type+"'"):'null';
+    html+='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-treat':'')+'" '+dropAttr+'>';
     html+='<div class="amb-sec-h" onclick="this.parentNode.classList.toggle(\'collapsed\')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
-    html+='<div class="patient-list drop-zone" data-status="'+s.k+'" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.k+'\')">';
+    html+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
     html+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
     html+='</div></div>';
   });
@@ -2340,7 +2350,7 @@ function applyRole(profile){
   const un=el('user-name'); if(un) un.textContent = nameFull || (CURRENT_PROFILE.email||'');
   const ur=el('user-role'); if(ur) ur.textContent = roleLabel(role,'de');
   const ph=el('p-physician'); if(ph) ph.value = nameFull;
-  const hb=el('admin-menu-btn'); if(hb) hb.style.display = (role==='admin')?'inline-flex':'none';
+  const hb=el('admin-menu-btn'); if(hb) hb.style.display = roleSeesClinic(role)?'inline-flex':'none';
 
   USE_DB = (typeof AUTH_ENABLED!=='undefined') && AUTH_ENABLED && !!supabaseClient && (roleSeesClinic(role) || role==='patient');
   const show=(id,on)=>{const e=el(id); if(e) e.style.display = on?'':'none';};
@@ -2399,12 +2409,18 @@ function _fillSelect(id, items, valfn, labfn, sel){
 }
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
-  _fillSelect('au-title', TITLES.map(x=>({v:x})), x=>x.v, x=>x.v||'—');
-  _fillSelect('au-gender', GENDERS, x=>x.value, x=>LANG==='de'?x.de:x.en);
-  _fillSelect('au-role', CREATABLE_ROLES, x=>x.value, x=>LANG==='de'?x.de:x.en, 'mfa');
+  const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode);});
+  const isAdmin=(CURRENT_PROFILE||{}).role==='admin';
+  const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
+  if(isAdmin){
+    _fillSelect('au-title', TITLES.map(x=>({v:x})), x=>x.v, x=>x.v||'—');
+    _fillSelect('au-gender', GENDERS, x=>x.value, x=>LANG==='de'?x.de:x.en);
+    _fillSelect('au-role', CREATABLE_ROLES, x=>x.value, x=>LANG==='de'?x.de:x.en, 'mfa');
+    renderAdminUsers();
+  }
   p.classList.add('show');
-  renderAdminUsers();
 }
+function openSettings(){ openAdminPanel(); }
 function closeAdminPanel(){ const p=el('admin-panel'); if(p) p.classList.remove('show'); }
 function adminMsg(text,type){ const e=el('admin-msg'); if(e) e.innerHTML = text?('<div class="msg '+(type||'err')+'">'+text+'</div>'):''; }
 
