@@ -847,7 +847,7 @@ function renderApptOverview() {
 
     let itemsHtml = b.items.map(it => {
        return `<div class="sched-item" id="${it.id}" draggable="true" ondragstart="hDragStart(event)" ondragend="hDragEnd(event)" data-name="${it.name}" data-k="${it.k}" data-stkey="${it.stKey}" data-planfield="${it.planField}" data-live="${it.live}" data-reacto="${it.isReacto}">
-         <div style="cursor:grab;flex:1;"><b>${it.displayName}</b> ${it.live ? '<span class="badge live">Lebend</span>' : ''}</div>
+         <div style="cursor:grab;flex:1;"><b>${it.displayName}</b> ${it.live ? '<span class="live-dot" title="Lebendimpfstoff">L</span>' : ''}</div>
          <div style="display:flex; gap:12px; align-items:center;">
             <span class="icon-btn del" onclick="hRemoveItem('${it.id}'); event.stopPropagation();" title="${LANG==='de'?'Impfung entfernen':'Remove vaccine'}">✕</span>
             <div style="color:var(--grey);font-size:14px;cursor:grab;">☰</div>
@@ -1571,10 +1571,28 @@ function removeDest(code){destinations=destinations.filter(c=>c!==code);renderDe
 function flagImg(code){return '<img class="flag" src="https://flagcdn.com/w40/'+code.toLowerCase()+'.png" onerror="this.remove()" alt="" loading="lazy">';}
 function renderDestChips(){el('dest-chips').innerHTML=destinations.map(code=>{const c=CBY[code];const d=window.countryData[code] ? window.countryData[code].diseases : null;const isYFMand = d && d.yellow_fever && d.yellow_fever.risk_level === 'mandatory_all';const isMenMand = (code === 'SA');const mand = isYFMand || isMenMand;return '<div class="chip'+(mand?' mand':'')+'">'+flagImg(code)+(LANG==='de'?c.de:c.en)+(c.terr?' *':'')+' <span onclick="removeDest(\''+code+'\')">×</span></div>';}).join('');}
 
+// Baut die Dosis-Chips. Endet die Liste auf eine „>N"-Option, wird sie mit der
+// exakten N-Option zu EINEM Umschalt-Chip zusammengefasst: Klick zyklisch  „—“ → N → >N → „—“.
+function buildDoseChips(spec, cur, mkClick){
+  let items=spec.slice(); let combo=null;
+  if(items.length>=2 && String(items[items.length-1][1]).trim().charAt(0)==='>'){
+    const gt=items.pop(); const ex=items.pop(); combo={ex,gt};
+  }
+  let h='<div class="dose-chips">';
+  items.forEach(o=>{ const sel=cur===o[0]; h+='<span class="dose-chip'+(sel?' selected':'')+'" '+mkClick(o[0])+'>'+o[1]+'</span>'; });
+  if(combo){
+    const isEx=cur===combo.ex[0], isGt=cur===combo.gt[0], sel=isEx||isGt;
+    const next=isEx?combo.gt[0]:(isGt?'':combo.ex[0]);
+    const label=isGt?combo.gt[1]:combo.ex[1];
+    const tip=isGt?(LANG==='de'?'mehr als '+combo.ex[1]+' – erneut klicken zum Abwählen':'more than '+combo.ex[1]):(LANG==='de'?'genau '+combo.ex[1]+' – erneut klicken für „>'+combo.ex[1]+'“':'exactly '+combo.ex[1]+' – click again for ">'+combo.ex[1]+'"');
+    h+='<span class="dose-chip combo'+(sel?' selected':'')+(isGt?' gt':'')+'" '+mkClick(next)+' title="'+tip+'">'+label+'</span>';
+  }
+  return h+'</div>';
+}
 function renderDoseChips(k){
   if(YEAR_ONLY.includes(k))return '<span class="mini-note">'+(LANG==='de'?'nur „zuletzt geimpft" →':'only “last vaccinated” →')+'</span>';
   const cur=vaxState[k].done||'';const spec=DOSE_MAP[k]||DEFAULT_DOSE;
-  return '<div class="dose-chips">'+spec.map(o=>{const sel=cur===o[0];return '<span class="dose-chip'+(sel?' selected':'')+'" onclick="setDose(\''+k+'\',\''+o[0]+'\')">'+o[1]+'</span>';}).join('')+'</div>';}
+  return buildDoseChips(spec,cur,(val)=>'onclick="setDose(\''+k+'\',\''+val+'\')"');}
 function setDose(k,val){vaxState[k].done=(vaxState[k].done===val)?'':val;renderVaxTable();}
 function yearInput(k,field){const y=vaxState[k][field];return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" value="'+(y||'')+'" onchange="setYear(\''+k+'\',\''+field+'\',this.value)">';}
 function setYear(k,field,raw){const s=(raw||'').replace(/\D/g,'');const cur=new Date().getFullYear();let full='';
@@ -1595,7 +1613,7 @@ function renderVaxTable(){
   let html='';
   VACCINES.forEach(v=>{
     const st=vaxState[v.k];const av=availability(v);const la=liveAdvice(v);
-    const liveBadge=v.live?'<span class="badge live">'+t('live')+'</span>':'';
+    const liveBadge=v.live?'<span class="live-dot" title="'+t('live')+'">L</span>':'';
     let availBadge='';
     if(av.flag==='na')availBadge='<span class="badge grey">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
     else if(av.flag==='age')availBadge='<span class="badge red">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
@@ -1641,10 +1659,10 @@ function renderVaxTable(){
                    '<div class="yr-row"><span>'+(LANG==='de'?'Letzte IPV':'Last IPV')+'</span>'+yrIn('y_ipv')+'</div>'+
                  '</div>';
 
-      html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+availBadge+infoBtn+'</div><div class="vsub">'+(LANG==='de'?'Basis-Impfschutz':'Core vaccines')+'</div></td>'+
+      html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+availBadge+'</div><div class="vsub">'+(LANG==='de'?'Basis-Impfschutz':'Core vaccines')+'</div></td>'+
         '<td data-label="'+t('thDone')+'">'+col2+'</td>'+
         '<td data-label="'+t('thLast')+'">'+col3+'</td>'+
-        '<td class="status" data-label="'+t('thStatus')+'"><div style="min-height:48px;">'+compBadges+(a.ipvNote&&a.ipvNote.de?'<div class="reason" style="margin-top:6px;border-top:1px solid var(--line);padding-top:4px"><b>Polio:</b> '+(LANG==='de'?a.ipvNote.de:a.ipvNote.en)+'</div>':'')+'</div></td></tr>';return;
+        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><div style="min-height:48px;">'+compBadges+(a.ipvNote&&a.ipvNote.de?'<div class="reason" style="margin-top:6px;border-top:1px solid var(--line);padding-top:4px"><b>Polio:</b> '+(LANG==='de'?a.ipvNote.de:a.ipvNote.en)+'</div>':'')+'</div></td></tr>';return;
     }
     if(v.hep){
       const ha=hepAssess();
@@ -1661,11 +1679,9 @@ function renderVaxTable(){
           bBadgeTxt = LANG === 'de' ? 'Dringend empfohlen' : 'Strongly recommended';
       }
 
-      const aBadge='<div class="comp-badges" style="margin-bottom:6px"><span class="comp '+ha.A+'">Hep A</span></div>'+
-        '<div style="margin-bottom:6px"><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
+      const aBadge='<div class="hep-stat"><span class="hep-stat-lbl">Hep A</span><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
         '<div class="reason">'+(LANG==='de'?ha.aNote.de:ha.aNote.en)+'</div>';
-      const bBadge='<div class="comp-badges" style="margin-bottom:6px; margin-top:6px"><span class="comp '+ha.B+'">Hep B</span></div>'+
-        '<div style="margin-bottom:6px"><span class="badge '+ha.B+'">'+bBadgeTxt+'</span></div>'+
+      const bBadge='<div class="hep-stat"><span class="hep-stat-lbl">Hep B</span><span class="badge '+ha.B+'">'+bBadgeTxt+'</span></div>'+
         '<div class="reason">'+(LANG==='de'?ha.bNote.de:ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
@@ -1697,14 +1713,12 @@ function renderVaxTable(){
       
       html+=`<tr>
         <td data-label="${t('thVax')}">
-          <div class="vname" style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <span style="display:flex; align-items:center;">${LANG==='de'?v.de:v.en}${availBadge}${infoBtn}</span>
-          </div>
+          <div class="vname" style="display:flex; align-items:center;">${LANG==='de'?v.de:v.en}${availBadge}</div>
           <div class="vsub">${LANG==='de'?'A + B getrennt impfbar; Twinrix zählt für beide':'A + B separately possible; Twinrix counts for both'}</div>
           ${hbsChk}
         </td>
         <td colspan="2" data-label="${LANG==='de'?'Vorimpfungen & Jahr':'Previous doses & Year'}">${colCombined}</td>
-        <td class="status" data-label="${t('thStatus')}">
+        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtn}</div>
           <div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed var(--line);">${aBadge}</div>
           <div>${bBadge}</div>
         </td>
@@ -1716,10 +1730,10 @@ function renderVaxTable(){
       const typeOpts=[['','— Typ —'],['acwy','ACWY'],['c','C']];
       const typeSel=typeOpts.map(o=>'<option value="'+o[0]+'"'+(st.type===o[0]?' selected':'')+'>'+o[1]+'</option>').join('');
       const mandBadge=ma.mand?'<span class="badge mand">'+t('mandatory')+'</span>':'';
-      html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+mandBadge+availBadge+infoBtn+'</div><select class="mini" onchange="setField(\'menacwy\',\'type\',this.value)">'+typeSel+'</select></td>'+
+      html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+mandBadge+availBadge+'</div><select class="mini" onchange="setField(\'menacwy\',\'type\',this.value)">'+typeSel+'</select></td>'+
         '<td data-label="'+t('thDone')+'">'+renderDoseChips(v.k)+'</td>'+
         '<td data-label="'+t('thLast')+'">'+yearInput('menacwy','year')+'</td>'+
-        '<td class="status" data-label="'+t('thStatus')+'"><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+(LANG==='de'?ma.noteDe:ma.noteEn)+'</div></td></tr>';return;
+        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+(LANG==='de'?ma.noteDe:ma.noteEn)+'</div></td></tr>';return;
     }
     const a=assess(v);let badgeTxt={red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[a.status];
     if((v.k === 'rabies' || v.k === 'tbe') && a.status === 'red') {
@@ -1757,10 +1771,10 @@ function renderVaxTable(){
     } else if (v.k === 'varicella') {
       mmrChk = '<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.vzv?'checked':'')+' onchange="toggleSerology(\'vzv\', this.checked)"> <span style="flex:1; line-height:1.3">Varizellen-IgG ausreichend</span></label></div>';
     }
-    html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+liveBadge+mandBadge+availBadge+infoBtn+'</div>'+(tbeF?'<div class="mini-note" style="margin-top:4px;font-weight:700;color:#333">→ '+(LANG==='de'?tbeF.de:tbeF.en)+'</div>':'')+(note?'<div class="reason"'+noteStyle+'>'+note+'</div>':'')+liveNote+availNote+alNote+mmrChk+extraChk+'</td>'+
+    html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+liveBadge+mandBadge+availBadge+'</div>'+(note?'<div class="reason"'+noteStyle+'>'+note+'</div>':'')+liveNote+availNote+alNote+mmrChk+extraChk+'</td>'+
       '<td data-label="'+t('thDone')+'">'+renderDoseChips(v.k)+'</td>'+
       '<td data-label="'+t('thLast')+'">'+yearInput(v.k,'year')+'</td>'+
-      '<td class="status" data-label="'+t('thStatus')+'"><span class="badge '+a.status+'">'+badgeTxt+'</span></td></tr>';
+      '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+a.status+'">'+badgeTxt+'</span></td></tr>';
   });
   tb.innerHTML=html;
   renderApptOverview();
@@ -1792,7 +1806,7 @@ window.quickFillTdap = function(raw) {
     }
 };
 const HEP_DOSE=[['1','1'],['2','2'],['3','3'],['4','>3']];
-function renderDoseChips2(k,field){const cur=vaxState[k][field]||'';return '<div class="dose-chips">'+HEP_DOSE.map(o=>{const sel=cur===o[0];return '<span class="dose-chip'+(sel?' selected':'')+'" onclick="setSub(\''+k+'\',\''+field+'\',\''+o[0]+'\')">'+o[1]+'</span>';}).join('')+'</div>';}
+function renderDoseChips2(k,field){const cur=vaxState[k][field]||'';return buildDoseChips(HEP_DOSE,cur,(val)=>'onclick="setSub(\''+k+'\',\''+field+'\',\''+val+'\')"');}
 function setSub(k,field,val){vaxState[k][field]=(vaxState[k][field]===val)?'':val;renderVaxTable();}
 
 function countToday(){let n=0;VACCINES.forEach(v=>{const st=vaxState[v.k];if(v.hep){['apptsA','apptsB','apptsAB'].forEach(f=>{if((st[f]||[]).includes('today'))n++;});}else if((st.appts||[]).includes('today'))n++;});return n;}
@@ -1865,7 +1879,21 @@ function renderAge(){
 }
 function updatePregVisibility(){const male=el('p-sex').value==='m';const f=el('preg-field');if(f)f.style.display=male?'none':'';if(male)el('p-pregnant').value='no';}
 function updateDepartureHint(){const d=el('p-departure').value;const h=el('departure-hint');if(!h)return;h.textContent=d?((LANG==='de'?'Tage bis Abreise: ':'Days to departure: ')+Math.round((new Date(d)-new Date())/86400000)):'';}
-function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();}
+function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();renderContraWarn();}
+// Hinweise zu Akuterkrankung / Thrombose / Ohnmacht – nur für Personal, nichts für Patienten
+function renderContraWarn(){
+  const box=el('contra-warn'); if(!box) return;
+  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  const acute=el('p-acute')&&el('p-acute').checked;
+  const thromb=el('p-thrombosis')&&el('p-thrombosis').checked;
+  const faint=el('p-faint')&&el('p-faint').checked;
+  if(!staff || (!acute&&!thromb&&!faint)){ box.innerHTML=''; return; }
+  const items=[];
+  if(acute) items.push(LANG==='de'?'<b>Akute Erkrankung:</b> Impfung bei behandlungsbedürftiger akuter Erkrankung (≥38,5 °C) verschieben; leichte Infekte ohne Fieber sind i. d. R. kein Hindernis.':'<b>Acute illness:</b> postpone if acute illness needing treatment (≥38.5 °C); mild infections without fever are usually no barrier.');
+  if(thromb) items.push(LANG==='de'?'<b>Thrombose / Antikoagulation:</b> i. m. Injektion mit sehr feiner Kanüle, danach ≥2 Min. komprimieren; ggf. Rücksprache bei hoher Blutungsneigung.':'<b>Thrombosis / anticoagulation:</b> use a fine needle for i.m. injection, then compress ≥2 min; consult if high bleeding risk.');
+  if(faint) items.push(LANG==='de'?'<b>Ohnmachtsneigung:</b> im Liegen impfen und anschließend ≥15 Min. nachbeobachten.':'<b>Fainting tendency:</b> vaccinate lying down and observe ≥15 min afterwards.');
+  box.innerHTML='<div class="warn-box" style="margin-top:12px;"><h4>'+(LANG==='de'?'Hinweise zur Durchführung':'Procedure notes')+'</h4><ul style="margin:4px 0 0 18px;padding:0;">'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul></div>';
+}
 
 const DISEASE_MAPS = {
   yellowfever:'yellowfever.png', tdap_polio:'polio.png', hepatitis:'hepatitis_a.png',
@@ -1878,7 +1906,7 @@ function showInfo(k){
   const availHtml=a?('<div class="m-sec"><h4>'+(LANG==='de'?'Verfügbarkeit & Alter (Ambulanz)':'Availability & age (clinic)')+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
   const mapBtn=DISEASE_MAPS[k]?'<button class="m-mapbtn" onclick="showMap(\''+k+'\')">'+(LANG==='de'?'Verbreitungskarte ansehen':'View distribution map')+'</button>':'';
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
-    '<h3>'+(LANG==='de'?v.de:v.en)+(v.live?' <span class="badge live">'+t('live')+'</span>':'')+'</h3>'+
+    '<h3>'+(LANG==='de'?v.de:v.en)+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
     '<div class="m-sub">'+(LANG==='de'?'Vereinfachte Kurzinformation für das Patientengespräch':'Simplified summary for the patient conversation')+'</div>'+
     '<div class="m-sec"><h4>'+t('mDisease')+'</h4><p>'+inf.disease[LANG]+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mEpi')+'</h4><p>'+inf.epi[LANG]+'</p></div>'+
@@ -2289,7 +2317,7 @@ function renderPatientCard(p,inGroup){
          let itemsHtml = b.items.length ? b.items.map(it => {
             let n = it.displayName || it.name;
             return `<div style="background:#fff;border:1px solid var(--line);border-radius:4px;padding:4px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-               <div style="font-size:11.5px;"><b>${n}</b> ${it.live ? '<span class="badge live" style="font-size:10px;padding:1px 4px;margin-left:4px;">Lebend</span>' : ''}</div>
+               <div style="font-size:11.5px;"><b>${n}</b> ${it.live ? '<span class="live-dot" title="Lebendimpfstoff">L</span>' : ''}</div>
             </div>`;
          }).join('') : '<div style="color:var(--grey);font-size:11px;font-style:italic;padding:4px;">'+(LANG==='de'?'Keine Impfungen':'No vaccinations')+'</div>';
 

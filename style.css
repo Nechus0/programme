@@ -245,8 +245,19 @@ body.clinic:not(.clinic-idle) .jump-list{display:flex;}
 .hep-group-title { font-weight: 600; font-size: 12.5px; margin-bottom: 8px; }
 .hep-group-title span { font-weight: 400; color: var(--grey); margin-left: 6px; font-size: 11px; }
 .hep-group-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.hep-doses { flex: 1; min-width: 180px; }
-.hep-year { width: 80px; text-align: center; }
+.hep-group-row { flex-wrap: nowrap; }
+.hep-doses { flex: 1; min-width: 0; }
+.hep-year { width: 140px; flex-shrink: 0; text-align: left; }
+.hep-year .year-in, .hep-year input { width: 100%; }
+/* Lebendimpfstoff-Kennung (violetter Kreis „L") */
+.live-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#5b2a9e;color:#fff;font-size:10.5px;font-weight:700;margin-left:6px;flex-shrink:0;vertical-align:middle;}
+/* Info-/Karten-Buttons ganz rechts in der Statusspalte */
+table.vax td.status{position:relative;padding-right:44px;}
+.row-info{position:absolute;top:8px;right:8px;display:flex;gap:5px;}
+.row-info .info-btn,.row-info .map-btn{margin-left:0;}
+/* Hep-Statuslabel (statt farbiger Hep-A/B-Badges) */
+.hep-stat{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.hep-stat-lbl{font-size:11px;font-weight:700;color:var(--grey);min-width:40px;}
 /* New toggle styles for Planen */
 .plan-pill:hover { filter: brightness(0.95); transform: translateY(-1px); }
 

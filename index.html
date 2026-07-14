@@ -144,7 +144,6 @@
   <!-- STEP 3: Immunstatus -->
   <section class="card" id="step3">
     <h2><span class="step-badge">3</span><span data-i18n="s3Title">Immunstatus</span></h2>
-    <div class="card-desc" data-i18n="s3Desc">Wesentliche Anamnese zur Impftauglichkeit. Medikamente werden gegen eine Wirkstoff-Datenbank geprüft.</div>
     <div class="grid g3">
       <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillzeit</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="pregnant" data-i18n="optPregnant">schwanger</option><option value="breastfeeding" data-i18n="optBreastfeeding">stillend</option><option value="planned" data-i18n="optPlanned">Schwangerschaft geplant</option></select></div>
       <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" oninput="recompute()"></div>
@@ -154,11 +153,12 @@
       <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><input type="text" id="p-recentvax" placeholder="—"></div>
       <div><label class="fld" data-i18n="fChronicText">Chronische Erkrankung / Immundefizienz (welche?)</label><input type="text" id="p-chronic-text" placeholder="z. B. Diabetes, Asplenie, HIV, Rheuma …" oninput="recompute()"><div class="mini-note" id="immunodef-recog"></div></div>
     </div>
-    <div class="chk-grid" style="margin-top:14px;">
+    <div class="chk-row" style="margin-top:14px;">
       <label class="chk-chip"><input type="checkbox" id="p-acute" onchange="recompute()"> <span data-i18n="fAcute">Akute Erkrankung</span></label>
-      <label class="chk-chip"><input type="checkbox" id="p-thrombosis"> <span data-i18n="fThrombosis">Thrombose</span></label>
-      <label class="chk-chip"><input type="checkbox" id="p-faint"> <span data-i18n="fFaint">Ohnmacht bei Impfung/Blutabnahme</span></label>
+      <label class="chk-chip"><input type="checkbox" id="p-thrombosis" onchange="recompute()"> <span data-i18n="fThrombosis">Thrombose</span></label>
+      <label class="chk-chip"><input type="checkbox" id="p-faint" onchange="recompute()"> <span data-i18n="fFaint">Ohnmacht bei Impfung/Blutabnahme</span></label>
     </div>
+    <div id="contra-warn"></div>
     <div id="med-vaccheck" class="med-vaccheck"></div>
     <div id="immuno-warn"></div>
   </section>
@@ -166,7 +166,6 @@
   <!-- STEP 4: Impfstatus -->
   <section class="card" id="step4">
     <h2 style="display:flex;align-items:center;"><span class="step-badge">4</span><span data-i18n="s4Title">Impfstatus</span><span style="flex:1"></span><div class="age-box empty" id="age-box" data-i18n="ageEmpty">Alter: bitte Geburtsdatum eingeben</div></h2>
-    <div class="card-desc" data-i18n="s4Desc">Vorimpfungen per Klick eintragen (nur Jahr). Farbe = Handlungsbedarf. Die Impfplanung erfolgt im nächsten Schritt.</div>
     <div class="today-warn" id="today-warn"></div>
     <div class="table-container">
       <table class="vax"><thead><tr>
