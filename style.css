@@ -116,8 +116,27 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .today-warn.show{display:block;}
 .today-warn.yellow{background:var(--yellow-bg);color:var(--yellow);border-left:4px solid var(--yellow);}
 .today-warn.red{background:var(--red-bg);color:var(--red);border-left:4px solid var(--red);}
-.editing-banner{display:none;background:var(--blue-bg);border:1px solid var(--blue);color:var(--blue);border-radius:8px;padding:10px 16px;margin-bottom:18px;font-size:13px;align-items:center;justify-content:space-between;}
-.editing-banner.show{display:flex;}
+.editing-banner{display:none !important;}
+
+/* Schwebendes graues Abbrechen-Kreuz (nur während Bearbeitung im Klinik-Modus) */
+.edit-cancel{position:fixed;right:26px;bottom:26px;z-index:60;width:52px;height:52px;border-radius:50%;
+  border:1px solid var(--line);background:var(--grey-l,#8a8f98);color:#fff;font-size:22px;line-height:1;
+  cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18);
+  transition:background .15s,transform .15s;font-family:var(--font);}
+.edit-cancel:hover{background:#6b7280;transform:scale(1.06);}
+body.clinic:not(.clinic-idle) .edit-cancel{display:flex;}
+
+/* Linke vertikale Sektions-Navigation (Scroll-Punkte) */
+.sec-nav{position:fixed;left:16px;top:50%;transform:translateY(-50%);z-index:55;display:none;
+  flex-direction:column;gap:10px;}
+body.clinic .sec-nav, body.kiosk .sec-nav{display:flex;}
+.sec-nav button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:#fff;
+  color:var(--grey);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;opacity:.55;transition:opacity .15s,background .15s,color .15s,border-color .15s;
+  font-family:var(--font);padding:0;}
+.sec-nav button:hover{opacity:1;border-color:var(--grey);}
+.sec-nav button.active{background:var(--black);color:#fff;border-color:var(--black);opacity:1;}
+@media(max-width:1100px){.sec-nav{display:none !important;}}
 .patient-list{list-style:none;margin:0;padding:0;}
 .patient-item{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden;background:#fff;}
 .patient-head{display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;}
@@ -252,7 +271,7 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 body.kiosk main{padding-bottom:110px;}
 body.kiosk .lang-toggle{display:flex;}
 /* Klinik-Workflow: Abschnitte einklappen bis Patient gewählt */
-body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #notes-card, body.clinic-idle #step3, body.clinic-idle #step-schedule{display:none !important;}
+body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.clinic-idle #step4, body.clinic-idle #step5{display:none !important;}
 .clinic-back{background:#fff;border:1px solid var(--line);border-left:3px solid var(--black);border-radius:8px;padding:11px 15px;margin-bottom:16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--black);}
 .clinic-back:hover{background:var(--grey-xl);}
 /* Admin-Nutzerliste (gruppiert) */

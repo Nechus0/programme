@@ -18,7 +18,9 @@ const I18N={
  fMedication:{de:'Aktuelle Medikamente',en:'Current medication'},optPregnant:{de:'schwanger',en:'pregnant'},optBreastfeeding:{de:'stillend',en:'breastfeeding'},optPlanned:{de:'Schwangerschaft geplant',en:'pregnancy planned'},
  btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},btnToday:{de:'Heute',en:'Today'},btnFinish:{de:'Behandlung abschließen',en:'Finish treatment'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
  disclaimer:{de:'Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.',en:'Demonstration mockup. Recommendations follow STIKO methodology and do not replace clinical judgement. Verify outbreak/travel advisories (RKI, German Foreign Office) before each consultation; live retrieval needs a server backend.'},
- s1Title:{de:'Patient & Reise',en:'Patient & Travel'},s1Desc:{de:'Grunddaten, Reiseziel(e) und Aufenthaltsdauer erfassen.',en:'Enter basic data, destination(s) and duration.'},
+ s1Title:{de:'Stammdaten',en:'Master data'},s1Desc:{de:'Persönliche Daten und Kontakt.',en:'Personal details and contact.'},
+ s2Title:{de:'Reise',en:'Travel'},s2Desc:{de:'Reiseziel(e), Aufenthaltsdauer und besondere Bedingungen.',en:'Destination(s), duration and special conditions.'},
+ s5Title:{de:'Geplante Impfungen',en:'Planned vaccinations'},s5Desc:{de:'Termine für die ausgewählten Impfungen festlegen.',en:'Set appointments for the selected vaccinations.'},
  fName:{de:'Name',en:'Name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
  fSex:{de:'Geschlecht',en:'Sex'},sexF:{de:'weiblich',en:'female'},sexM:{de:'männlich',en:'male'},sexD:{de:'divers',en:'diverse'},
  fDuration:{de:'Aufenthaltsdauer',en:'Duration of stay'},fDeparture:{de:'Abreisedatum',en:'Departure date'},fDest:{de:'Reiseziel(e) hinzufügen',en:'Add destination(s)'},
@@ -26,13 +28,12 @@ const I18N={
  fConditions:{de:'Besondere Bedingungen / Exposition',en:'Special conditions / exposure'},
  condRural:{de:'Ländlich / einfache Unterkunft',en:'Rural / basic accommodation'},condAnimal:{de:'Tierkontakt / Höhlen / Fledermäuse',en:'Animal contact / caves / bats'},condHealth:{de:'Gesundheitswesen / Blutkontakt',en:'Healthcare / blood contact'},condHajj:{de:'Hajj / Umrah (Saudi-Arabien)',en:'Hajj / Umrah (Saudi Arabia)'},
  childhoodToggle:{de:'Übrige Standardimpfungen laut STIKO-Impfkalender beim Kinderarzt fortführen (erscheint im Impfplan)',en:'Continue remaining standard vaccinations per STIKO schedule at the paediatrician (appears on the plan)'},
- s2Title:{de:'Kontraindikationen & Immunstatus',en:'Contraindications & immune status'},s2Desc:{de:'Allergien und immunrelevante Medikation. Das Medikament wird gegen eine Wirkstoff-Datenbank geprüft.',en:'Allergies and immune-relevant medication. The drug is checked against a substance database.'},
+ s3Title:{de:'Immunstatus',en:'Immune status'},s3Desc:{de:'Allergien, Schwangerschaft und immunrelevante Medikation. Das Medikament wird gegen eine Wirkstoff-Datenbank geprüft.',en:'Allergies, pregnancy and immune-relevant medication. The drug is checked against a substance database.'},
  fPregnant:{de:'Schwangerschaft / Stillen',en:'Pregnancy / breastfeeding'},optNo:{de:'nein',en:'no'},optYes:{de:'ja',en:'yes'},optPlanning:{de:'geplant (<3 Mon)',en:'planned (<3 mo)'},optWish:{de:'Kinderwunsch (>3 Mon)',en:'Planning pregnancy (>3 mo)'},
  fAllergy:{de:'Allergien',en:'Allergies'},fImmuno:{de:'Immunsuppressive Medikation',en:'Immunosuppressive medication'},
  notesTitle:{de:'Länder- & Gesundheitshinweise',en:'Country & health advisories'},notesDesc:{de:'Pflichtimpfungen, Ausbrüche und Gesundheitshinweise des Auswärtigen Amts (Deep-Link je Land).',en:'Mandatory vaccines, outbreaks and German Foreign Office health advisories (per-country deep link).'},
  noDest:{de:'Noch kein Reiseziel gewählt.',en:'No destination selected yet.'},
- s3Title:{de:'Impfstatus',en:'Vaccination status'},s3Desc:{de:'Vorimpfungen per Klick eintragen (nur Jahr). Farbe = Handlungsbedarf. Für geplante Impfungen „Planen" anklicken.',en:'Enter prior vaccinations by click (year only). Colour = action needed. Click "Plan" for planned vaccinations.'},
- s4Title:{de:'Geplante Impfungen (Terminierung)',en:'Planned vaccinations (Scheduling)'},s4Desc:{de:'Automatische Terminbündelung für geplante Impfungen auf Basis der STIKO-Mindestabstände.',en:'Automated appointment bundling for planned vaccinations based on STIKO minimum intervals.'},
+ s4Title:{de:'Impfstatus',en:'Vaccination status'},s4Desc:{de:'Vorimpfungen per Klick eintragen (nur Jahr). Farbe = Handlungsbedarf. Für geplante Impfungen „Planen" anklicken.',en:'Enter prior vaccinations by click (year only). Colour = action needed. Click "Plan" for planned vaccinations.'},
  noPlan:{de:'Noch keine Impfungen zur Planung markiert.',en:'No vaccinations marked for planning yet.'},
  lgRed:{de:'Dringend empfohlen',en:'Strongly recommended'},lgYellow:{de:'Erwägen',en:'Consider'},lUseful:{de:'Empfohlen (Reise)',en:'Recommended (Travel)'},
  lGeneral:{de:'Generell empfohlen (STIKO)',en:'Generally recommended (STIKO)'},lgGreen:{de:'Geschützt',en:'Protected'},lgBlue:{de:'Generell empfohlen',en:'Generally advised'},lgGrey:{de:'Nicht relevant',en:'Not relevant'},lgPlan:{de:'Geplant (noch kein Schutz)',en:'Planned (not yet protected)'},
@@ -2364,24 +2365,26 @@ function applyRole(profile){
 
   if(role==='patient'){
     document.body.classList.add('kiosk');
-    ['notes-card','step3','step-schedule','list-card','kasse-card'].forEach(id=>show(id,false));
-    ['step1','step2'].forEach(id=>show(id,true));
+    ['step4','step5','list-card','kasse-card'].forEach(id=>show(id,false));
+    ['step1','step2','step3'].forEach(id=>show(id,true));
     if(ub) ub.style.display='none';
     const kb=el('kiosk-bar'); if(kb) kb.classList.add('show');
+    buildSecNav();
     return;
   }
   if(role==='kasse'){
-    ['step1','step2','notes-card','step3','step-schedule','list-card'].forEach(id=>show(id,false));
+    ['step1','step2','step3','step4','step5','list-card'].forEach(id=>show(id,false));
     show('kasse-card',true);
     return;
   }
-  ['step1','step2','notes-card','step3','step-schedule','list-card'].forEach(id=>show(id,true));
+  ['step1','step2','step3','step4','step5','list-card'].forEach(id=>show(id,true));
   show('kasse-card',false);
   document.body.classList.add('clinic');
   document.body.classList.add('clinic-idle');       // Start: kein Patient gewählt → Abschnitte eingeklappt
   const npb=el('new-patient-btn'); if(npb) npb.style.display='inline-block';
   moveListToTop();
   if(USE_DB){ loadPatientsFromDB(); startAmbRefresh(); } else renderPatients();
+  buildSecNav();
 }
 function moveListToTop(){
   const main=document.querySelector('main'); const lc=el('list-card'), s1=el('step1'), eb=el('editing-banner');
@@ -2389,16 +2392,44 @@ function moveListToTop(){
 }
 function enterPatient(){
   document.body.classList.remove('clinic-idle');
-  const eb=el('editing-banner'); if(eb) eb.classList.add('show');
   try{ el('step1').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+  buildSecNav();
 }
 function exitToList(){
   resetForm();
   document.body.classList.add('clinic-idle');
-  const eb=el('editing-banner'); if(eb) eb.classList.remove('show');
   try{ el('list-card').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+  buildSecNav();
 }
 function startNewPatient(){ resetForm(); const et=el('editing-text'); if(et) et.textContent=(LANG==='de'?'Neuer Patient':'New patient'); enterPatient(); }
+function cancelEditConfirm(){
+  if(!confirm(LANG==='de'?'Bearbeitung wirklich abbrechen? Nicht gespeicherte Änderungen gehen verloren.':'Really cancel editing? Unsaved changes will be lost.')) return;
+  cancelEdit();
+}
+
+/* ---------- Linke Sektions-Navigation (Scroll-Punkte) ---------- */
+const SEC_NAV_ITEMS=[
+  {id:'list-card',label:'A'},{id:'step1',label:'1'},{id:'step2',label:'2'},
+  {id:'step3',label:'3'},{id:'step4',label:'4'},{id:'step5',label:'5'}
+];
+function buildSecNav(){
+  const nav=el('sec-nav'); if(!nav) return;
+  const vis=SEC_NAV_ITEMS.filter(it=>{const e=el(it.id); return e && e.offsetParent!==null;});
+  if(vis.length<2){ nav.innerHTML=''; return; }
+  nav.innerHTML=vis.map(it=>'<button type="button" data-target="'+it.id+'" onclick="secNavJump(\''+it.id+'\')" title="'+it.id+'">'+it.label+'</button>').join('');
+  updateSecNav();
+}
+function secNavJump(id){ const e=el(id); if(e) try{ e.scrollIntoView({behavior:'smooth',block:'start'}); }catch(err){} }
+function updateSecNav(){
+  const nav=el('sec-nav'); if(!nav) return;
+  const btns=nav.querySelectorAll('button'); if(!btns.length) return;
+  const mid=window.innerHeight*0.32; let activeId=null;
+  btns.forEach(b=>{const e=el(b.dataset.target); if(!e||e.offsetParent===null) return;
+    const r=e.getBoundingClientRect(); if(r.top<=mid) activeId=b.dataset.target;});
+  if(!activeId) activeId=btns[0].dataset.target;
+  btns.forEach(b=>b.classList.toggle('active', b.dataset.target===activeId));
+}
+window.addEventListener('scroll',()=>{ if(el('sec-nav')) updateSecNav(); },{passive:true});
 
 /* ---------- Kiosk (Patientenaccount) ---------- */
 async function kioskSubmit(){
