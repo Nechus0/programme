@@ -59,6 +59,30 @@
   </div>
 </div>
 
+<!-- Patienten-Auswahl (Kiosk): Reiseberatung oder Folgeimpfung -->
+<div class="intake-choice" id="intake-choice">
+  <div class="ic-lang">
+    <button type="button" id="ic-de" onclick="icLang('de')">DE</button>
+    <button type="button" id="ic-en" onclick="icLang('en')">EN</button>
+  </div>
+  <div class="ic-inner">
+    <h1 class="ic-title" data-i18n="icTitle">Willkommen in der Reisemedizinischen Ambulanz</h1>
+    <p class="ic-sub" data-i18n="icSub">Bitte wählen Sie den Grund Ihres Besuchs.</p>
+    <div class="ic-cards">
+      <button type="button" class="ic-card" onclick="chooseIntake('beratung')">
+        <span class="ic-icon"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="26" r="8"/><path d="M10 50 a12 12 0 0 1 24 0"/><rect x="36" y="12" width="22" height="16" rx="4"/><path d="M44 28 v7 l7 -7"/></svg></span>
+        <span class="ic-name" data-i18n="icBeratung">Reiseberatung</span>
+        <span class="ic-desc" data-i18n="icBeratungDesc">Für die reisemedizinische Beratung: Sie planen eine Reise und möchten sich zu empfohlenen Impfungen und Schutzmaßnahmen beraten lassen.</span>
+      </button>
+      <button type="button" class="ic-card" onclick="chooseIntake('folgeimpfung')">
+        <span class="ic-icon"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="24" width="24" height="16" rx="2"/><line x1="44" y1="32" x2="56" y2="32"/><line x1="8" y1="32" x2="20" y2="32"/><line x1="8" y1="26" x2="8" y2="38"/><line x1="28" y1="24" x2="28" y2="40"/><line x1="34" y1="24" x2="34" y2="40"/></svg></span>
+        <span class="ic-name" data-i18n="icFolge">Folgeimpfung</span>
+        <span class="ic-desc" data-i18n="icFolgeDesc">Für bereits beratene Patienten mit Termin: Sie kommen nur zur nächsten Impfdosis Ihrer laufenden Impfserie.</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <button class="jump-list" id="jump-list" onclick="secNavJump('list-card')" title="Zur Ambulanzliste" aria-label="Zur Ambulanzliste">↑</button>
 <button class="finish-treat" id="finish-treat" onclick="finishTreatment()" title="Behandlung abschließen" aria-label="Behandlung abschließen">✓</button>
 <button class="edit-cancel" id="edit-cancel" onclick="cancelEditConfirm()" title="Bearbeitung abbrechen" aria-label="Bearbeitung abbrechen">✕</button>
@@ -174,7 +198,6 @@
   <!-- LIST / AMBULANZLISTE -->
   <section class="card" id="list-card">
     <h2 style="display:flex;align-items:center;"><span data-i18n="listTitle">Ambulanzliste</span><span class="count-pill" id="list-count">0</span><span style="flex:1"></span><button class="btn sm" id="new-patient-btn" onclick="startNewPatient()" style="display:none" data-i18n="btnNewPatient">+ Neuer Patient</button></h2>
-    <div class="card-desc" data-i18n="listDesc">Patienten per Drag&amp;Drop zwischen Wartend / In Behandlung / Behandelt verschieben. Jeder Tag hat eine eigene Liste.</div>
     <div class="amb-toolbar">
       <div class="amb-day">
         <button class="btn sec sm" onclick="listDayShift(-1)" title="Vortag">‹</button>

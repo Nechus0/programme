@@ -23,7 +23,7 @@ header{background:#fff;border-bottom:2px solid var(--black);padding:14px 28px;di
 .lang-toggle button.active{background:var(--black);color:#fff;}
 .shell{max-width:1560px;margin:0 auto;padding:0 20px;display:flex;align-items:flex-start;gap:22px;}
 main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90px;}
-.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:22px;}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:22px;scroll-margin-top:78px;}
 .card h2{margin:0 0 4px;font-size:17px;font-weight:700;}
 .card .card-desc{color:var(--grey);font-size:12.5px;margin-bottom:18px;}
 .step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--black);color:#fff;border-radius:50%;font-size:12px;font-weight:700;margin-right:10px;}
@@ -416,6 +416,28 @@ h4 .flag{width:20px;height:20px;}
   padding:6px 14px;font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;font-family:var(--font);
   transition:background .12s;white-space:nowrap;}
 .amb-behandeln:hover{background:#333;}
+/* Typ-Kennung Beratung (B) / Folgeimpfung (F) */
+.type-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10.5px;font-weight:700;flex-shrink:0;}
+.type-badge.beratung{background:#e8f0fe;color:#2563eb;}
+.type-badge.folgeimpfung{background:#e3f6f2;color:#0e9e8e;}
+
+/* Patienten-Auswahl (Kiosk) */
+.intake-choice{position:fixed;inset:0;z-index:80;background:#fff;display:none;flex-direction:column;padding:32px;}
+.intake-choice.show{display:flex;}
+.ic-lang{position:absolute;top:24px;right:28px;display:flex;gap:6px;}
+.ic-lang button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 13px;font-weight:700;font-size:13px;cursor:pointer;color:var(--grey);font-family:var(--font);transition:background .12s,color .12s,border-color .12s;}
+.ic-lang button.active{background:var(--black);color:#fff;border-color:var(--black);}
+.ic-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:920px;margin:0 auto;text-align:center;width:100%;}
+.ic-title{font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em;}
+.ic-sub{font-size:15px;color:var(--grey);margin:0 0 30px;}
+.ic-cards{display:flex;gap:24px;width:100%;justify-content:center;flex-wrap:wrap;}
+.ic-card{flex:1 1 320px;max-width:390px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:40px 30px;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s;font-family:var(--font);text-align:center;}
+.ic-card:hover{border-color:var(--black);box-shadow:0 12px 32px rgba(0,0,0,.09);transform:translateY(-2px);}
+.ic-card .ic-icon{color:var(--black);line-height:0;margin-bottom:6px;}
+.ic-card .ic-icon svg{width:92px;height:92px;}
+.ic-card .ic-name{font-size:22px;font-weight:700;}
+.ic-card .ic-desc{font-size:14px;color:var(--grey);line-height:1.55;}
+@media(max-width:600px){.ic-title{font-size:21px;}.ic-card{padding:28px 22px;}.ic-card .ic-icon svg{width:72px;height:72px;}}
 .patient-item{position:relative;}
 .patient-item.mine{border-left:4px solid var(--blue);}
 .patient-item.group-target{outline:2px dashed var(--violet);outline-offset:-3px;background:#faf7fd;}

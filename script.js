@@ -43,7 +43,13 @@ const I18N={
  thVax:{de:'Impfung',en:'Vaccine'},thDone:{de:'Vorimpfungen',en:'Prior doses'},thLast:{de:'Zuletzt geimpft (Jahr)',en:'Last vaccinated (year)'},thStatus:{de:'Empfehlung',en:'Recommendation'},thPlan:{de:'Planen',en:'Plan'},thSchedule:{de:'Termine & Ort',en:'Appointments & site'},thInfo:{de:'Info',en:'Info'},
  fComment:{de:'Kommentar / Notiz zum Patienten',en:'Comment / note on the patient'},
  btnReset:{de:'Formular leeren',en:'Clear form'},btnSave:{de:'Patient speichern',en:'Save patient'},btnSaveEdit:{de:'Änderungen speichern',en:'Save changes'},btnPrint:{de:'Impfplan drucken',en:'Print schedule'},btnCancelEdit:{de:'Bearbeitung abbrechen',en:'Cancel editing'},
- listTitle:{de:'Patientenliste heute',en:'Patient list today'},listDesc:{de:'Neueste zuerst. Aufklappen zum Ansehen, „Bearbeiten" zum Weiterbearbeiten.',en:'Newest first. Expand to view, “Edit” to continue.'},emptyList:{de:'Noch keine Patienten gespeichert.',en:'No patients saved yet.'},
+ listTitle:{de:'Ambulanzliste',en:'Clinic list'},listDesc:{de:'',en:''},emptyList:{de:'Noch keine Patienten gespeichert.',en:'No patients saved yet.'},
+ icTitle:{de:'Willkommen in der Reisemedizinischen Ambulanz',en:'Welcome to the Travel Medicine Clinic'},
+ icSub:{de:'Bitte wählen Sie den Grund Ihres Besuchs.',en:'Please choose the reason for your visit.'},
+ icBeratung:{de:'Reiseberatung',en:'Travel consultation'},
+ icBeratungDesc:{de:'Für die reisemedizinische Beratung: Sie planen eine Reise und möchten sich zu empfohlenen Impfungen und Schutzmaßnahmen beraten lassen.',en:'For travel-medicine advice: you are planning a trip and want guidance on recommended vaccinations and precautions.'},
+ icFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},
+ icFolgeDesc:{de:'Für bereits beratene Patienten mit Termin: Sie kommen nur zur nächsten Impfdosis Ihrer laufenden Impfserie.',en:'For already-advised patients with an appointment: you are only here for the next dose of your ongoing vaccination series.'},
  del:{de:'Löschen',en:'Delete'},edit:{de:'Bearbeiten',en:'Edit'},mandatory:{de:'Pflicht',en:'Mandatory'},live:{de:'Lebendimpfstoff',en:'Live vaccine'},
  planToday:{de:'heute',en:'today'},planFuture:{de:'geplant',en:'planned'},
  mDisease:{de:'Krankheitsbild',en:'Clinical picture'},mEpi:{de:'Epidemiologie',en:'Epidemiology'},mSide:{de:'Nebenwirkungen (vereinfacht)',en:'Side effects (simplified)'},mSchedInfo:{de:'Impfschema (inkl. Schnellschema)',en:'Schedule (incl. rapid)'},
@@ -1938,7 +1944,7 @@ async function savePatient(finish){
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
     status: ((finish && document.body.classList.contains('clinic')) ? 'done' : ((existing&&existing.status)||(document.body.classList.contains('clinic')?'treatment':'waiting'))),
     group:(existing&&existing.group)||'',
-    treatmentType:(existing&&existing.treatmentType)||undefined,
+    treatmentType:(existing&&existing.treatmentType)||INTAKE_TYPE||undefined,
     claimedBy:(existing&&existing.claimedBy)||(document.body.classList.contains('clinic')?myUserKey():null),
     claimedByName:(existing&&existing.claimedByName)||((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''),
     claimedByRole:(existing&&existing.claimedByRole)||(document.body.classList.contains('clinic')?((CURRENT_PROFILE&&CURRENT_PROFILE.role)||''):''),
@@ -2012,10 +2018,15 @@ function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'
 let listDay = ymd(new Date());
 let listSearch = '';
 let SEC_COLLAPSE={};   // gemerkter Auf-/Zuklapp-Zustand der Ambulanz-Sektionen (Reset bei Login = Seiten-Reload)
+let INTAKE_TYPE=null;  // Kiosk-Auswahl: 'beratung' | 'folgeimpfung'
+function icLang(l){ if(typeof setLang==='function') setLang(l); const de=el('ic-de'),en=el('ic-en'); if(de)de.classList.toggle('active',l==='de'); if(en)en.classList.toggle('active',l==='en'); }
+function showIntakeChoice(){ INTAKE_TYPE=null; const o=el('intake-choice'); if(o)o.classList.add('show'); icLang(typeof LANG!=='undefined'?LANG:'de'); }
+function chooseIntake(t){ INTAKE_TYPE=t; const o=el('intake-choice'); if(o)o.classList.remove('show'); try{window.scrollTo({top:0});}catch(e){} }
 const AMB_SECTIONS=[
-  {status:'waiting', de:'Wartend', en:'Waiting'},
-  {status:'treatment', type:'beratung', de:'In Behandlung · Beratung', en:'In treatment · Consultation'},
-  {status:'treatment', type:'folgeimpfung', de:'In Behandlung · Folgeimpfung', en:'In treatment · Follow-up'},
+  {status:'waiting',   type:'beratung',     de:'Beratung · Wartend',        en:'Consultation · Waiting'},
+  {status:'treatment', type:'beratung',     de:'Beratung · In Behandlung',  en:'Consultation · In treatment'},
+  {status:'waiting',   type:'folgeimpfung', de:'Folgeimpfung · Wartend',    en:'Follow-up · Waiting'},
+  {status:'treatment', type:'folgeimpfung', de:'Folgeimpfung · In Behandlung', en:'Follow-up · In treatment'},
   {status:'done', de:'Behandelt', en:'Treated'}
 ];
 function myTreatmentMode(){ let m=null; try{m=localStorage.getItem('charite_treatmentmode');}catch(e){} if(m==='beratung'||m==='folgeimpfung')return m; return ((CURRENT_PROFILE||{}).role==='mfa')?'folgeimpfung':'beratung'; }
@@ -2037,7 +2048,8 @@ function claimPatient(p,type){ p.claimedBy=myUserKey(); p.claimedByName=(CURRENT
 async function setPatientStatus(id,status,type,claim){
   const p=patients.find(x=>x.id===id);if(!p)return;
   p.status=status;
-  if(status==='treatment'){ if(claim) claimPatient(p,type); else if(!p.treatmentType) p.treatmentType=type||myTreatmentMode(); }
+  if(type) p.treatmentType=type;   // Drop in Beratung/Folgeimpfung setzt den Typ
+  if(status==='treatment'){ if(claim) claimPatient(p,type); }
   else if(status==='waiting'){ p.claimedBy=null; p.claimedByName=''; p.claimedByRole=''; p.treatmentAt=null; }
   await persistPatient(p); renderPatients();
 }
@@ -2090,7 +2102,8 @@ async function moveGroupStatus(groupName,status,type,claim){
   const gl=groupName.trim().toLowerCase();
   const members=patients.filter(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===gl);
   for(const p of members){ p.status=status;
-    if(status==='treatment'){ if(claim) claimPatient(p,type); else if(!p.treatmentType) p.treatmentType=type||myTreatmentMode(); }
+    if(type) p.treatmentType=type;
+    if(status==='treatment'){ if(claim) claimPatient(p,type); }
     else if(status==='waiting'){p.claimedBy=null;p.claimedByName='';p.claimedByRole='';p.treatmentAt=null;}
     await persistPatient(p);
   }
@@ -2135,7 +2148,7 @@ function renderPatients(){
   const openIds=Array.from(listEl.querySelectorAll('.patient-item.open')).map(e=>e.dataset.pid);
   let html='';
   AMB_SECTIONS.forEach(s=>{
-    const inSec=filt.filter(p=>{ if(patientStatus(p)!==s.status)return false; if(s.status==='treatment')return patientTreatType(p)===s.type; return true; });
+    const inSec=filt.filter(p=>{ if(patientStatus(p)!==s.status)return false; if(s.type)return patientTreatType(p)===s.type; return true; });
     const key=secKey(s);
     let collapsed;
     if(key in SEC_COLLAPSE){ collapsed=SEC_COLLAPSE[key]; }   // gemerkter Zustand hat Vorrang
@@ -2144,8 +2157,8 @@ function renderPatients(){
       const myRole=(CURRENT_PROFILE||{}).role;
       collapsed=false;
       if(s.status==='done') collapsed=true;
-      else if(s.status==='treatment'&&s.type==='beratung') collapsed=(myRole==='mfa');
-      else if(s.status==='treatment'&&s.type==='folgeimpfung') collapsed=(myRole!=='mfa');
+      else if(s.type==='beratung') collapsed=(myRole==='mfa');
+      else if(s.type==='folgeimpfung') collapsed=(myRole!=='mfa');
     }
     const dropAttr='data-status="'+s.status+'"'+(s.type?' data-type="'+s.type+'"':'');
     const typeArg=s.type?("'"+s.type+"'"):'null';
@@ -2302,8 +2315,10 @@ function renderPatientCard(p,inGroup){
     const ini=(!inGroup&&(s==='treatment'||s==='done')&&p.claimedByName)?initialsCircle(p.claimedByName,p.claimedByRole):'';
     // „Behandeln"-Button bei wartenden Einzelpatienten → in eigene Behandlung übernehmen
     const behandeln=(!inGroup&&s==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
+    const tt=patientTreatType(p);
+    const typeBadge='<span class="type-badge '+tt+'" title="'+(tt==='folgeimpfung'?'Folgeimpfung':'Beratung')+'">'+(tt==='folgeimpfung'?'F':'B')+'</span>';
     const bodyActions='<div class="pb-actions">'+(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+
       '<div class="patient-body">'+bodyActions+'<div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></div>';
 }
 
@@ -2450,6 +2465,7 @@ function applyRole(profile){
     show('notes-block',false);   // Länder-/Gesundheitshinweise nur für Personal, nicht auf dem Patienten-Tablet
     if(ub) ub.style.display='none';
     const kb=el('kiosk-bar'); if(kb) kb.classList.add('show');
+    showIntakeChoice();   // zuerst Reiseberatung / Folgeimpfung wählen lassen
     return;
   }
   if(role==='kasse'){
@@ -2543,6 +2559,7 @@ async function kioskSubmit(){
   if(ok){
     try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
     await uiAlert(LANG==='de'?'Vielen Dank! Ihre Angaben wurden übermittelt.':'Thank you! Your data has been submitted.',{title:LANG==='de'?'Übermittelt':'Submitted'});
+    showIntakeChoice();   // für den nächsten Patienten wieder die Auswahl zeigen
   }
 }
 
