@@ -1295,26 +1295,6 @@ function baseLevel(v){
      else{level='none';}
      break;}
    case 'chikungunya': {
-     const g1 = ['BO','GF','MU','YT','SC','SR'];
-     const g2 = ['BR','CO','IN','ID','MX','NG','PK','PE','PH','TH'];
-     let inG1 = false; let inG2 = false;
-     for (let d of destinations) { if(g1.includes(d)) inG1 = true; if(g2.includes(d)) inG2 = true; }
-     
-     const chronicLong = hasChronic() && di >= 3;
-     
-     if (inG1 && chronicLong) {
-         level = 'strong'; 
-         noteDe = 'Endemiegebiet / Ausbruch (mit chron. Erkrankung & Aufenthalt >4 Wo.)'; 
-         noteEn = 'Endemic/outbreak area (with chronic condition & stay >4 wks)';
-     } else if (inG1 || (inG2 && chronicLong)) {
-         level = 'useful'; 
-         noteDe = inG1 ? 'Endemiegebiet / Ausbruch' : 'Erhöhtes Risiko (mit chron. Erkrankung & Aufenthalt >4 Wo.)'; 
-         noteEn = inG1 ? 'Endemic/outbreak area' : 'Elevated risk (with chronic condition & stay >4 wks)';
-     } else if (inG2) {
-         level = 'general'; 
-         noteDe = 'Erhöhtes Hintergrundrisiko'; 
-         noteEn = 'Elevated background risk';
-     } else if (risk && risk.outbreak) {
          level = 'useful'; noteDe = 'Aktueller Ausbruch'; noteEn = 'Active outbreak';
      } else if (rl === 'risk_based' || rl === 'recommended') {
          level = 'general'; noteDe = 'Erhöhtes Hintergrundrisiko'; noteEn = 'Elevated background risk';
@@ -1411,12 +1391,14 @@ function assess(v){
       b.noteDe='WHO: Einmaldosis gilt als lebenslanger Schutz. STIKO empfiehlt Auffrischung nach 10 J. \u2013 erwägen.';
       b.noteEn='WHO: single dose considered lifelong. STIKO recommends booster after 10 yrs \u2014 consider.';
     } else if(b.level==='strong')status='red';
-    else if(b.level==='useful')status='yellow';
+    else if(b.level==='useful')status='violet';
+    else if(b.level==='consider')status='yellow';
     else if(b.level==='general')status='blue';
     else status='grey';
   }
   else if(b.level==='strong')status='red';
-  else if(b.level==='useful')status='yellow';
+  else if(b.level==='useful')status='violet';
+  else if(b.level==='consider')status='yellow';
   else if(b.level==='general')status='blue';
   else status='grey';
   return {status,mand:b.mand,noteDe:b.noteDe,noteEn:b.noteEn};
@@ -1750,9 +1732,9 @@ function renderVaxTable(){
       html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+mandBadge+availBadge+'</div><select class="mini" onchange="setField(\'menacwy\',\'type\',this.value)">'+typeSel+'</select></td>'+
         '<td data-label="'+t('thDone')+'">'+renderDoseChips(v.k)+'</td>'+
         '<td data-label="'+t('thLast')+'">'+yearInput('menacwy','year')+'</td>'+
-        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+(LANG==='de'?ma.noteDe:ma.noteEn)+'</div></td></tr>';return;
+        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),violet:t('lUseful'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+(LANG==='de'?ma.noteDe:ma.noteEn)+'</div></td></tr>';return;
     }
-    const a=assess(v);let badgeTxt={red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[a.status];
+    const a=assess(v);let badgeTxt={red:t('lgRed'),yellow:t('lgYellow'),violet:t('lUseful'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[a.status];
     if((v.k === 'rabies' || v.k === 'tbe') && a.status === 'red') {
       const c = conds();
       if(v.k === 'rabies' && !c.includes('animal')) {
@@ -2011,10 +1993,37 @@ async function savePatient(finish){
   if(existing){
     const touched=LOCK_SECTIONS.filter(id=>SECTION_EDIT[id]);
     if(touched.length){
+      const oldSnap = window._patientSnapshot ? JSON.parse(window._patientSnapshot) : null;
       const ts=new Date().toISOString();
-      const who=((CURRENT_PROFILE&&CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'')+((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'')).trim()||myUserKey();
-      const role=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
-      touched.forEach(id=>snap.editLog.push({ts,who,role,section:id}));
+      const title = CURRENT_PROFILE&&CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'';
+      const fName = CURRENT_PROFILE&&CURRENT_PROFILE.full_name||'';
+      const roleRaw = (CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
+      const gender = (CURRENT_PROFILE&&CURRENT_PROFILE.gender)||'';
+      const roleDisplay = typeof formatRoleTitle === 'function' ? formatRoleTitle(roleRaw, gender) : roleRaw;
+      const who = ((title + fName).trim() + (roleDisplay ? ' ('+roleDisplay+')' : '')) || myUserKey();
+      
+      const fMap = {
+        'step1': { name:'Nachname', firstname:'Vorname', dob:'Geburtsdatum', sex:'Geschlecht', phone:'Telefon', email:'E-Mail', insurance:'Versicherung', profession:'Beruf', address:'Adresse', zip:'PLZ', city:'Ort' },
+        'step2': { duration:'Reisedauer', departure:'Abreise', destinations:'Reiseziele' },
+        'step3': { pregnant:'Schwangerschaft', allergy:'Allergien', meds:'Medikamente', immuno:'Immunsuppression', recentVax:'Kürzliche Impfungen', conds:'Vorerkrankungen', acute:'Akute Erkrankung', thrombosis:'Thrombose', faint:'Ohnmachtsneigung', comment:'Kommentar' }
+      };
+      
+      touched.forEach(id=>{
+        let changed = [];
+        if(oldSnap && fMap[id]) {
+           for(const [k, lbl] of Object.entries(fMap[id])) {
+              if(JSON.stringify(oldSnap[k]) !== JSON.stringify(snap[k])) changed.push(lbl);
+           }
+        }
+        if(id==='step3' && oldSnap && oldSnap.vax && snap.vax) {
+           let vChanged=false;
+           for(const v of VACCINES) {
+             if(JSON.stringify(oldSnap.vax[v.k]) !== JSON.stringify(snap.vax[v.k])) vChanged=true;
+           }
+           if(vChanged) changed.push('Impfplan');
+        }
+        snap.editLog.push({ts,who,role:roleRaw,section:id,fields:changed});
+      });
     }
   }
   LOCK_SECTIONS.forEach(id=>SECTION_EDIT[id]=false);
@@ -2068,6 +2077,11 @@ function fuzzyNameMatch(n1, f1, n2, f2) {
 
 function loadPatient(id){
   const p=patients.find(x=>x.id===id);if(!p)return;
+  if(p.status === 'treatment' && p.claimedBy && p.claimedBy !== myUserKey()) {
+    uiAlert('Patient wird derzeit von ' + (p.claimedByName || 'anderem Personal') + ' behandelt und ist gesperrt.');
+    return;
+  }
+  window._patientSnapshot = JSON.stringify(p);
   el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
   _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');_sv('p-recentvax',p.recentVax||'');
   medsList = Array.isArray(p.meds)?[...p.meds]:(p.meds?String(p.meds).split(/,\s*/).filter(Boolean):(p.immuno?String(p.immuno).split(/,\s*/).filter(Boolean):[]));
@@ -2093,6 +2107,25 @@ function loadPatient(id){
   }
   editingId=id;el('editing-banner').classList.add('show');el('editing-text').textContent=t('editingNow')+p.name;el('save-btn').textContent=t('btnFinish');
   customSchedule=p.customSchedule?JSON.parse(JSON.stringify(p.customSchedule)):null;
+  
+  // Rendere Change Logs
+  ['step1','step2','step3'].forEach(sid=>{
+    let logEl=el('log-'+sid);
+    if(!logEl){
+      logEl=document.createElement('div');
+      logEl.id='log-'+sid;
+      logEl.className='change-log';
+      const sec=el(sid);
+      if(sec)sec.appendChild(logEl);
+    }
+    logEl.innerHTML='';
+    if(p.editLog){
+      const logs=p.editLog.filter(l=>l.section===sid&&l.fields&&l.fields.length>0);
+      if(logs.length){
+        logEl.innerHTML=logs.map(l=>'<div class="log-entry"><span class="log-ts">'+fmtDateTime(l.ts)+'</span> <span class="log-who">'+_esc(l.who)+'</span> <span class="log-fields">['+l.fields.join(', ')+']</span></div>').join('');
+      }
+    }
+  });
   
   if (p.treatmentType === 'folgeimpfung' && !p.vaxMerged) {
      const past = patients.filter(x => 
@@ -2202,24 +2235,46 @@ function patientStatus(p){return p.status||'waiting';}
 function updateLeistungen() {
    const listDiv = el('leistung-vax-list');
    if (!listDiv) return;
-   let list = [];
+
+   const planned = [];
    VACCINES.forEach(v => {
       const st = vaxState[v.k];
       if (!st) return;
       if (v.hep) {
-         if (st.plannedA) list.push({k: v.k, sub: 'plannedA', name: 'Hepatitis A'});
-         if (st.plannedB) list.push({k: v.k, sub: 'plannedB', name: 'Hepatitis B'});
-         if (st.plannedAB) list.push({k: v.k, sub: 'plannedAB', name: 'Twinrix (A+B)'});
+         if (st.plannedA) planned.push({ name: 'Hepatitis A', k: 'hepA', live: false, stKey: v.k, planField: 'plannedA' });
+         if (st.plannedB) planned.push({ name: 'Hepatitis B', k: 'hepB', live: false, stKey: v.k, planField: 'plannedB' });
+         if (st.plannedAB) planned.push({ name: 'Twinrix (A+B)', k: 'hepAB', live: false, stKey: v.k, planField: 'plannedAB' });
       } else if (v.tdap_polio) {
-         if (st.planned) list.push({k: v.k, sub: 'planned', name: 'Tetanus Diphtherie Pertussis Polio'});
-         if (st.planned_ipv) list.push({k: v.k, sub: 'planned_ipv', name: 'Polio (IPV)'});
+         if (st.planned) planned.push({ name: 'Tetanus Diphtherie Pertussis', k: 'tdap_combo', live: false, stKey: v.k, planField: 'planned' });
+         if (st.planned_ipv) planned.push({ name: 'Polio (IPV)', k: 'ipv_mono', live: false, stKey: v.k, planField: 'planned_ipv' });
       } else {
-         if (st.planned) list.push({k: v.k, sub: 'planned', name: (LANG==='de'?v.de:v.en)});
+         if (st.planned) planned.push({ name: typeof getPlanName==='function'?getPlanName(v,st):(LANG==='de'?v.de:v.en), k: v.k, live: !!v.live, stKey: v.k, planField: 'planned' });
       }
    });
+
+   let buckets = customSchedule;
+   if (!buckets && planned.length > 0) {
+      const dep = el('p-departure').value;
+      buckets = buildOptimalSchedule(planned, dep);
+   }
+
+   let todaysItems = [];
+   if (buckets && buckets.length > 0) {
+      const todayBucket = buckets.find(b => b.offset === 0 && !b.isExternal);
+      if (todayBucket && todayBucket.items) {
+         todaysItems = todayBucket.items;
+      }
+   }
+
+   let list = [];
+   todaysItems.forEach(item => {
+      // name in item.name might include " - Dosis 1", we can keep it or strip it. Let's keep it.
+      list.push({k: item.stKey, sub: item.planField || 'planned', name: item.name});
+   });
+
    let html = '';
    if (list.length === 0) {
-      html = '<div style="font-size:0.9em;color:var(--grey);">Keine Impfungen für heute geplant</div>';
+      html = '<div style="font-size:0.9em;color:var(--grey);">' + (LANG==='de'?'Keine Impfungen für heute geplant':'No vaccinations planned for today') + '</div>';
    } else {
       list.forEach(item => {
          html += `<div style="display:inline-flex;align-items:center;background:var(--grey-xl);border:1px solid var(--line);border-radius:16px;padding:4px 10px;font-size:0.9em;margin-right:8px;margin-bottom:8px;">
@@ -2263,7 +2318,18 @@ async function persistPatient(p){
   else{storeSet('charite_patients',JSON.stringify(patients));}
   return true;
 }
-function claimPatient(p,type){ p.claimedBy=myUserKey(); p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''; p.claimedByRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||''; if(!p.treatmentAt)p.treatmentAt=new Date().toISOString(); p.treatmentType=type||p.treatmentType||myTreatmentMode(); }
+function claimPatient(p,type){ 
+  p.claimedBy=myUserKey(); 
+  p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''; 
+  p.claimedByRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||''; 
+  p.claimedByGender=(CURRENT_PROFILE&&CURRENT_PROFILE.gender)||'';
+  if(!p.handlers) p.handlers = [];
+  const existing = p.handlers.findIndex(h => h.id === p.claimedBy);
+  if(existing > -1) p.handlers.splice(existing, 1);
+  p.handlers.push({id: p.claimedBy, name: p.claimedByName, role: p.claimedByRole, gender: p.claimedByGender});
+  if(!p.treatmentAt)p.treatmentAt=new Date().toISOString(); 
+  p.treatmentType=type||p.treatmentType||myTreatmentMode(); 
+}
 async function setPatientStatus(id,status,type,claim){
   const p=patients.find(x=>x.id===id);if(!p)return;
   p.status=status;
@@ -2350,7 +2416,18 @@ function groupArrowBtn(gesc){ return '<button class="amb-arrow" onclick="event.s
 function elapsedStr(iso){ if(!iso)return''; const min=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000)); if(isNaN(min))return''; if(min<1)return LANG==='de'?'gerade eben':'just now'; if(min<60)return min+' min'; const h=Math.floor(min/60),m=min%60; return h+' h'+(m?' '+m:'')+(m?' min':''); }
 function initials(name){ if(!name)return '?'; const parts=String(name).trim().split(/\s+/).filter(Boolean); if(!parts.length)return '?'; if(parts.length===1)return parts[0].slice(0,2).toUpperCase(); return (parts[0][0]+parts[parts.length-1][0]).toUpperCase(); }
 function roleColor(role){ switch(role){ case 'arzt':return '#2563eb'; case 'mfa':return '#0e9e8e'; case 'admin':return '#111827'; case 'kasse':return '#b45309'; case 'patient':return '#6b7280'; default:return '#6b7280'; } }
-function initialsCircle(name,role){ return '<span class="ini-circle" style="background:'+roleColor(role)+'" title="'+_esc(name||'')+(role?' · '+role:'')+'">'+_esc(initials(name))+'</span>'; }
+function formatRoleTitle(role, gender){
+  if(role==='arzt'){
+    if(gender==='m') return LANG==='de'?'Arzt':'Doctor';
+    if(gender==='w') return LANG==='de'?'Ärztin':'Doctor';
+    return LANG==='de'?'Arzt / Ärztin':'Doctor';
+  }
+  if(role==='mfa') return 'MFA';
+  if(role==='admin') return 'Admin';
+  if(role==='kasse') return LANG==='de'?'Kasse':'Reception';
+  return role||'';
+}
+function initialsCircle(name,role,gender){ const rTitle=formatRoleTitle(role,gender); return '<span class="ini-circle" style="background:'+roleColor(role)+'" title="'+_esc(name||'')+(rTitle?' · '+rTitle:'')+'">'+_esc(initials(name))+'</span>'; }
 function toggleCardMenu(id){ const m=el('cm-'+id); const open=m&&m.style.display==='block'; closeCardMenus(); if(m&&!open)m.style.display='block'; }
 function closeCardMenus(){ document.querySelectorAll('.card-menu').forEach(m=>m.style.display='none'); }
 document.addEventListener('click',function(e){ if(!e.target.closest('.card-menu')&&!e.target.closest('.menu-btn')) closeCardMenus(); });
@@ -2427,7 +2504,7 @@ function renderTreatPanel(){
   const docRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
   let h='';
   if(editing) h+='<button class="tp-home" onclick="showList()">&larr; '+(LANG==='de'?'Ambulanzliste':'Clinic list')+'</button>';
-  h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'In Behandlung':'In treatment')+'</span>'+(docName?initialsCircle(docName,docRole):'')+'</div>';
+  h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'In Behandlung':'In treatment')+'</span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
   if(mine.length){
     const groups={},order=[];
     mine.forEach(p=>{const g=(p.group||'').trim();const k=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[k]){groups[k]={g:g,items:[]};order.push(k);}groups[k].items.push(p);});
@@ -2452,8 +2529,12 @@ function renderSectionCards(list){
     if(grp.g&&grp.items.length>1){
       const gesc=_esc(grp.g).replace(/'/g,"\\'");
       const st=patientStatus(grp.items[0]);
+      let gIcon='';
       const claimed=grp.items.find(p=>p.claimedByName);
-      const gIcon=((st==='treatment'||st==='done')&&claimed)?initialsCircle(claimed.claimedByName,claimed.claimedByRole):'';
+      if(st==='treatment'||st==='done'){
+        if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
+        else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
+      }
       const gBehandeln=(st==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
       h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+' <span class="amb-group-hint">'+(LANG==='de'?'(ganze Gruppe ziehen)':'(drag whole group)')+'</span></span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
@@ -2552,7 +2633,14 @@ function renderPatientCard(p,inGroup){
     if(s==='waiting') timeMeta=' · '+(LANG==='de'?'wartet ':'waiting ')+elapsedStr(p.savedAt);
     else if(s==='treatment') timeMeta=(mine?' · '+(LANG==='de'?'von mir':'by me'):'')+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
     // Behandler-Icon in der Liste (damit anderes Personal sieht, wer behandelt) – bei Gruppen nur im Gruppenkopf
-    const ini=(!inGroup&&(s==='treatment'||s==='done')&&p.claimedByName)?initialsCircle(p.claimedByName,p.claimedByRole):'';
+    let ini = '';
+    if (!inGroup) {
+      if (p.handlers && p.handlers.length > 0) {
+        ini = '<div class="handlers-circles">' + p.handlers.map(h => initialsCircle(h.name, h.role, h.gender)).join('') + '</div>';
+      } else if ((s==='treatment'||s==='done')&&p.claimedByName) {
+        ini = initialsCircle(p.claimedByName, p.claimedByRole, p.claimedByGender);
+      }
+    }
     // „Behandeln"-Button bei wartenden Einzelpatienten → in eigene Behandlung übernehmen
     const behandeln=(!inGroup&&s==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
     const tt=patientTreatType(p);
@@ -2893,7 +2981,7 @@ async function renderAdminUsers(){
     if(!list.length){ html+='<div class="ab-empty">'+(pending?(LANG==='de'?'Keine offenen Registrierungen':'None'):(LANG==='de'?'Person hierher ziehen …':'Drop person here …'))+'</div>'; }
     list.forEach(u=>{
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="ab-row" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
+      html+='<div class="ab-row" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role,u.gender)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
     });
     html+='</div></div>';
   });
@@ -2903,7 +2991,7 @@ async function renderAdminUsers(){
     html+='<div class="ab-rows" style="display:none;">';
     deletedUsers.forEach(u=>{
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="ab-row" style="opacity:0.8;">'+initialsCircle(u.full_name||u.email,u.role)+'<div class="ab-main"><div class="ab-name" style="text-decoration:line-through;">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+'</div></div><span class="icon-btn del" title="Komplett löschen" onclick="adminHardDeleteUI(\''+u.id+'\')">✕</span></div>';
+      html+='<div class="ab-row" style="opacity:0.8;">'+initialsCircle(u.full_name||u.email,u.role,u.gender)+'<div class="ab-main"><div class="ab-name" style="text-decoration:line-through;">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+'</div></div><span class="icon-btn del" title="Komplett löschen" onclick="adminHardDeleteUI(\''+u.id+'\')">✕</span></div>';
     });
     html+='</div></div>';
   }
