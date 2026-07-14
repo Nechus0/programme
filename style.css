@@ -284,6 +284,13 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #notes-card, 
 .vc-abstract{font-size:12px;font-style:italic;color:#555;margin-top:3px;line-height:1.5;}
 .vc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;font-size:12px;}
 @media(max-width:640px){.vc-grid{grid-template-columns:1fr;}}
+.vc-hr{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.vc-rm{background:none;border:none;color:var(--grey);cursor:pointer;font-size:14px;font-weight:700;line-height:1;padding:0 2px;}
+.vc-rm:hover{color:var(--red);}
+.vc-card.plain{border-left-width:1px;padding:9px 13px;}
+.vc-card.plain .vc-name{font-weight:600;font-size:13.5px;}
+/* Fazit (Impfrelevanz) klar von der Medikamentenliste abgetrennt */
+#immuno-warn:not(:empty){margin-top:18px;padding-top:16px;border-top:2px solid var(--line);}
 /* Medikamenten-Autocomplete */
 .med-inp-wrap{position:relative;}
 .med-ac{display:none;position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:40;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;}
@@ -315,6 +322,15 @@ h4 .flag{width:20px;height:20px;}
 .grp-badge{display:inline-block;background:var(--violet-bg);color:var(--violet);border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin-left:8px;}
 .amb-group{border:1px dashed var(--violet);border-radius:8px;padding:8px;background:#faf7fd;display:flex;flex-direction:column;gap:8px;}
 .amb-group-h{font-size:11px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.04em;}
+.patient-item{position:relative;}
+.patient-item.mine{border-left:4px solid var(--blue);}
+.patient-item.group-target{outline:2px dashed var(--violet);outline-offset:-3px;background:#faf7fd;}
+.amb-move.primary{background:var(--black);color:#fff;border-color:var(--black);}
+.amb-move.primary:hover{background:#333;}
+.card-menu{display:none;position:absolute;right:10px;top:40px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:35;min-width:150px;overflow:hidden;}
+.card-menu button{display:block;width:100%;text-align:left;padding:10px 13px;border:none;background:none;cursor:pointer;font-size:13px;font-family:var(--font);}
+.card-menu button:hover{background:var(--grey-xl);}
+.card-menu button.danger{color:var(--red);}
 
 /* Drag and Drop styles */
 .sched-item.dragging { opacity: 0.5; background: #f9f9f9; }

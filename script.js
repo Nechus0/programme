@@ -996,21 +996,27 @@ function medIsImmuno(name){ const d=lookupDrug(name); if(d) return !!d.is_immuno
 // blockt Lebendimpfungen, wenn ein Immunsuppressivum ohne klare Lebendimpf-Freigabe eingetragen ist
 function dbImmunoBlocking(){ return medsList.some(m=>{const d=lookupDrug(m); return d && d.is_immunosuppressant && !/^\s*ja/i.test(d.live_vaccine_allowed||''); }); }
 function _esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function renderMedVacCheck(){
+// Eine einheitliche Medikamentenliste: Patient = schlichte weiße Einträge (Wirkstoff + Handelsnamen);
+// Personal = farbig kategorisiert (unkritisch / immunsuppressiv) mit VacCheck-Infos. Ersetzt die Pillen.
+function renderMedList(){
   const box=el('med-vaccheck'); if(!box) return;
+  if(!medsList.length){ box.innerHTML=''; return; }
   const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
-  if(!staff || !medsList.length){ box.innerHTML=''; return; }
-  const brands=d=>(d.brand_names&&d.brand_names.length)?' <span class="vc-brands">('+_esc(d.brand_names.slice(0,4).join(', '))+')</span>':'';
-  box.innerHTML='<div class="vc-title">'+(LANG==='de'?'Medikamenten-Übersicht (VacCheck · DTG 2026)':'Medication overview (VacCheck · DTG 2026)')+'</div>'+medsList.map(m=>{
+  const brands=d=>(d&&d.brand_names&&d.brand_names.length)?' <span class="vc-brands">('+_esc(d.brand_names.slice(0,4).join(', '))+')</span>':'';
+  const title = staff ? (LANG==='de'?'Medikamenten-Übersicht (VacCheck · DTG 2026)':'Medication overview (VacCheck · DTG 2026)') : (LANG==='de'?'Ihre Medikamente':'Your medication');
+  box.innerHTML='<div class="vc-title">'+title+'</div>'+medsList.map((m,i)=>{
     const d=lookupDrug(m);
-    if(!d) return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(m)+'</span><span class="vc-badge grey">'+(LANG==='de'?'nicht in DB':'not in DB')+'</span></div><div class="vc-note">'+(LANG==='de'?'Immunsuppressive Wirkung manuell prüfen.':'Check immunosuppressive effect manually.')+'</div></div>';
-    if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-badge green">'+(LANG==='de'?'unkritisch':'no concern')+'</span></div><div class="vc-note">'+(LANG==='de'?'Keine bekannte Kontraindikation für Lebendimpfungen (DTG 2026).':'No known contraindication for live vaccines (DTG 2026).')+'</div></div>';
-    return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-badge red">'+(LANG==='de'?'Immunsuppressivum':'Immunosuppressant')+'</span></div>'+
+    const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LANG==='de'?'Entfernen':'Remove')+'">✕</button>';
+    if(!staff){ const nm=d?d.substance:m; return '<div class="vc-card plain"><div class="vc-h"><span class="vc-name">'+_esc(nm)+brands(d)+'</span>'+rm+'</div></div>'; }
+    if(!d) return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(m)+'</span><span class="vc-hr"><span class="vc-badge grey">'+(LANG==='de'?'nicht in DB':'not in DB')+'</span>'+rm+'</span></div><div class="vc-note">'+(LANG==='de'?'Immunsuppressive Wirkung manuell prüfen.':'Check immunosuppressive effect manually.')+'</div></div>';
+    if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LANG==='de'?'unkritisch':'no concern')+'</span>'+rm+'</span></div></div>';
+    return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LANG==='de'?'Immunsuppressivum':'Immunosuppressant')+'</span>'+rm+'</span></div>'+
       (d.drug_class?'<div class="vc-row"><b>'+(LANG==='de'?'Substanzklasse':'Class')+':</b> '+_esc(d.drug_class)+'</div>':'')+
       (d.class_abstract?'<div class="vc-abstract">'+_esc(d.class_abstract)+'</div>':'')+
       '<div class="vc-grid"><div><b>'+(LANG==='de'?'Lebendimpfung':'Live vaccine')+':</b> '+_esc(d.live_vaccine_allowed||'—')+'</div><div><b>'+(LANG==='de'?'Therapiepause':'Therapy pause')+':</b> '+_esc(d.therapy_pause_needed||'—')+'</div><div><b>'+(LANG==='de'?'Totimpfstoff-Antwort':'Inactivated response')+':</b> '+_esc(d.immune_response_dead_vaccine||'—')+'</div></div></div>';
   }).join('');
 }
+function renderMedVacCheck(){ renderMedList(); }
 function medKey(e){ if(e.key==='Enter'){ e.preventDefault(); addMedFromInput(); } }
 function addMedFromInput(){
   const inp=el('p-med-input'); if(!inp) return;
@@ -1019,11 +1025,7 @@ function addMedFromInput(){
 }
 function removeMed(i){ medsList.splice(i,1); syncMeds(); }
 function syncMeds(){ const h=el('p-immuno'); if(h) h.value = medsList.join(', '); renderMedPills(); renderMedVacCheck(); recompute(); }
-function renderMedPills(){
-  const box=el('med-pills'); if(!box) return;
-  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
-  box.innerHTML = medsList.map((m,i)=>'<span class="med-pill'+(staff&&medIsImmuno(m)?' immuno':'')+'">'+_esc(m)+'<span class="mx" onclick="removeMed('+i+')" title="Entfernen">✕</span></span>').join('');
-}
+function renderMedPills(){ renderMedList(); }
 // Autocomplete (wie in der Standalone-App)
 function medAutocomplete(){
   const inp=el('p-med-input'), ac=el('med-ac'); if(!inp||!ac) return;
@@ -2005,33 +2007,61 @@ function listDayPick(v){if(v){listDay=v;renderPatients();}}
 function listDayShift(n){const d=new Date(listDay+'T00:00:00');d.setDate(d.getDate()+n);listDay=ymd(d);const i=el('list-date');if(i)i.value=listDay;renderPatients();}
 function listDayToday(){listDay=ymd(new Date());const i=el('list-date');if(i)i.value=listDay;renderPatients();}
 function listSearchChange(v){listSearch=(v||'').trim().toLowerCase();renderPatients();}
-async function setPatientStatus(id,status){
-  const p=patients.find(x=>x.id===id);if(!p)return;p.status=status;
-  if(USE_DB){const res=await dbUpdatePatient(id,p);if(res&&res.error){alert('Status speichern fehlgeschlagen: '+(res.error.message||res.error));}}
+function myUserKey(){return (CURRENT_PROFILE&&(CURRENT_PROFILE.id||CURRENT_PROFILE.full_name))||'me';}
+async function persistPatient(p){
+  if(USE_DB){const res=await dbUpdatePatient(p.id,p);if(res&&res.error){alert('Speichern fehlgeschlagen: '+(res.error.message||res.error));return false;}}
   else{storeSet('charite_patients',JSON.stringify(patients));}
-  renderPatients();
+  return true;
 }
+async function setPatientStatus(id,status){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  p.status=status;
+  if(status==='treatment'){ p.claimedBy=myUserKey(); p.claimedByName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''; if(!p.treatmentAt)p.treatmentAt=new Date().toISOString(); }
+  else if(status==='waiting'){ p.claimedBy=null; p.claimedByName=''; p.treatmentAt=null; }
+  await persistPatient(p); renderPatients();
+}
+async function startTreatment(id){ await setPatientStatus(id,'treatment'); loadPatient(id); }
 async function assignGroup(id){
+  closeCardMenus();
   const p=patients.find(x=>x.id===id);if(!p)return;
   const g=prompt(LANG==='de'?'Gruppen-/Familienname (leer = Gruppe entfernen):':'Group/family name (empty = remove):', p.group||'');
   if(g===null)return; p.group=g.trim();
-  if(USE_DB){const res=await dbUpdatePatient(id,p);if(res&&res.error){alert('Speichern fehlgeschlagen: '+(res.error.message||res.error));}}
-  else{storeSet('charite_patients',JSON.stringify(patients));}
-  renderPatients();
+  await persistPatient(p); renderPatients();
 }
+// Drag&Drop: auf eine Spalte = Status ändern; auf einen anderen Patienten = gruppieren
 let _dragPid=null;
 function pDragStart(e,id){_dragPid=id;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
 function pDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
 function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
 function pDrop(e,status){e.preventDefault();e.currentTarget.classList.remove('drag-over');let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status);}
-function statusBtns(p){
+function pCardOver(e){ if(_dragPid && _dragPid!==e.currentTarget.dataset.pid){ e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add('group-target'); } }
+function pCardLeave(e){ e.currentTarget.classList.remove('group-target'); }
+async function pCardDrop(e){
+  e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('group-target');
+  const targetId=e.currentTarget.dataset.pid; const srcId=_dragPid; _dragPid=null;
+  if(!srcId||srcId===targetId)return;
+  const src=patients.find(x=>x.id===srcId), tgt=patients.find(x=>x.id===targetId);
+  if(!src||!tgt)return;
+  const nm=(p)=>(p.firstname?p.name+', '+p.firstname:p.name);
+  if(!confirm((LANG==='de'?'„'+nm(src)+'" und „'+nm(tgt)+'" gemeinsam gruppieren (z. B. Familie)?':'Group "'+nm(src)+'" and "'+nm(tgt)+'" together?')))return;
+  const grp = (tgt.group&&tgt.group.trim()) || (src.group&&src.group.trim()) || (tgt.name||'Gruppe');
+  src.group=grp; tgt.group=grp;
+  await persistPatient(tgt); await persistPatient(src); renderPatients();
+}
+function actionBtns(p){
   const id=p.id,s=patientStatus(p);let b='';
-  const mk=(st,lbl)=>'<button class="btn sec sm amb-move" onclick="event.stopPropagation();setPatientStatus(\''+id+'\',\''+st+'\')">'+lbl+'</button>';
-  if(s==='waiting') b+=mk('treatment',LANG==='de'?'In Behandlung':'Treat');
-  else if(s==='treatment'){ b+=mk('done',LANG==='de'?'Behandelt':'Done'); b+=mk('waiting',LANG==='de'?'Wartend':'Wait'); }
-  else b+=mk('treatment',LANG==='de'?'Zurückholen':'Reopen');
+  const mk=(fn,lbl,cls)=>'<button class="btn sec sm amb-move'+(cls?' '+cls:'')+'" onclick="event.stopPropagation();'+fn+'">'+lbl+'</button>';
+  if(s==='waiting') b+=mk("startTreatment('"+id+"')",(LANG==='de'?'Behandeln':'Treat'),'primary');
+  else if(s==='treatment'){ b+=mk("loadPatient('"+id+"')",(LANG==='de'?'Öffnen':'Open'),'primary'); b+=mk("setPatientStatus('"+id+"','done')",(LANG==='de'?'Behandelt':'Done')); }
+  else b+=mk("setPatientStatus('"+id+"','treatment')",(LANG==='de'?'Zurückholen':'Reopen'));
   return b;
 }
+function elapsedStr(iso){ if(!iso)return''; const min=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000)); if(isNaN(min))return''; if(min<1)return LANG==='de'?'gerade eben':'just now'; if(min<60)return min+' min'; const h=Math.floor(min/60),m=min%60; return h+' h'+(m?' '+m:'')+(m?' min':''); }
+function toggleCardMenu(id){ const m=el('cm-'+id); const open=m&&m.style.display==='block'; closeCardMenus(); if(m&&!open)m.style.display='block'; }
+function closeCardMenus(){ document.querySelectorAll('.card-menu').forEach(m=>m.style.display='none'); }
+document.addEventListener('click',function(e){ if(!e.target.closest('.card-menu')&&!e.target.closest('.menu-btn')) closeCardMenus(); });
+let AMB_TIMER=null;
+function startAmbRefresh(){ if(AMB_TIMER)return; AMB_TIMER=setInterval(()=>{ if(USE_DB && typeof roleSeesClinic==='function' && roleSeesClinic((CURRENT_PROFILE||{}).role)) loadPatientsFromDB(); },15000); }
 function renderPatients(){
   const listEl=el('patient-list');if(!listEl)return;
   const di=el('list-date');if(di&&di.value!==listDay)di.value=listDay;
@@ -2147,7 +2177,12 @@ function renderPatientCard(p){
     const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LANG==='de'?'J.':'yrs')+')':'';
     const dispName=(p.firstname?p.name+', '+p.firstname:p.name);
     const grpBadge=p.group?' <span class="grp-badge">'+p.group+'</span>':'';
-    return '<div class="patient-item" id="pi-'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+'</span><span class="pl-spacer"></span>'+statusBtns(p)+'<span class="icon-btn" onclick="event.stopPropagation();loadPatient(\''+p.id+'\')" title="'+(LANG==='de'?'Öffnen':'Open')+'">'+PENCIL_SVG+'</span><span class="icon-btn" onclick="event.stopPropagation();assignGroup(\''+p.id+'\')" title="'+(LANG==='de'?'Gruppieren':'Group')+'">⋯</span><span class="icon-btn del" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')" title="'+t('del')+'">✕</span></div>'+
+    const s=patientStatus(p); const mine=p.claimedBy&&p.claimedBy===myUserKey();
+    let timeMeta='';
+    if(s==='waiting') timeMeta=' · '+(LANG==='de'?'wartet ':'waiting ')+elapsedStr(p.savedAt);
+    else if(s==='treatment') timeMeta=(mine?' · '+(LANG==='de'?'von mir':'by me'):(p.claimedByName?' · '+_esc(p.claimedByName):''))+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
+    const menu='<span class="icon-btn menu-btn" onclick="event.stopPropagation();toggleCardMenu(\''+p.id+'\')" title="'+(LANG==='de'?'Mehr':'More')+'">⋯</span><div class="card-menu" id="cm-'+p.id+'"><button onclick="event.stopPropagation();assignGroup(\''+p.id+'\')">'+(LANG==='de'?'Gruppieren':'Group')+'</button><button class="danger" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button></div>';
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret">▶</span><span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+actionBtns(p)+menu+'</div>'+
       '<div class="patient-body"><div class="grid g3" style="margin-top:10px;"><div><strong>'+(LANG==='de'?'Reisedauer':'Duration')+':</strong> '+durLbl+'</div><div><strong>'+(LANG==='de'?'Krankenkasse':'Insurance')+':</strong> '+(p.insurance||'—')+'</div><div><strong>'+(LANG==='de'?'Telefon':'Phone')+':</strong> '+(p.phone||'—')+'</div></div><div style="margin-top:8px;"><strong>'+(LANG==='de'?'Allergien':'Allergies')+':</strong> '+(p.allergy||'—')+' · <strong>'+(LANG==='de'?'Immunsuppression':'Immunosuppression')+':</strong> '+(p.immuno||'—')+'</div>'+statusHTML+schedBlock+cmt+stamp+'</div></div>';
 }
 
@@ -2306,7 +2341,7 @@ function applyRole(profile){
   document.body.classList.add('clinic-idle');       // Start: kein Patient gewählt → Abschnitte eingeklappt
   const npb=el('new-patient-btn'); if(npb) npb.style.display='inline-block';
   moveListToTop();
-  if(USE_DB) loadPatientsFromDB(); else renderPatients();
+  if(USE_DB){ loadPatientsFromDB(); startAmbRefresh(); } else renderPatients();
 }
 function moveListToTop(){
   const main=document.querySelector('main'); const lc=el('list-card');
