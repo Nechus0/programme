@@ -979,12 +979,38 @@ function serMeasles(){return serologyState.measles;}
 function serVZV(){return serologyState.vzv;}
 function serHBs(){return serologyState.hbs;}
 function toggleSerology(key, checked) { serologyState[key] = checked; recompute(); }
-function immunocompromised(){return hasHighImmuno()||hasImmuneDef();}
+function immunocompromised(){return hasHighImmuno()||hasImmuneDef()||(typeof dbImmunoBlocking==='function'&&dbImmunoBlocking());}
 function livesBlocked(){return isPregnant()||immunocompromised();}
 
 /* ---------- Medikamente als Pillen (ein Feld, Immunsuppressiva rot) ---------- */
 let medsList = [];
-function medIsImmuno(name){const s=(name||'').toLowerCase();return IMMUNO_DB.some(d=>s.includes(d.n));}
+// VacCheck: Wirkstoff-/Handelsnamen-Suche in der Medikamenten-DB
+function lookupDrug(name){
+  const DB=window.DRUGS_DB; if(!DB||!name) return null;
+  const s=String(name).trim().toLowerCase(); if(!s) return null;
+  for(const d of DB){ if((d.substance||'').toLowerCase()===s) return d; if((d.brand_names||[]).some(b=>b.toLowerCase()===s)) return d; }
+  if(s.length>=3){ for(const d of DB){ if((d.substance||'').toLowerCase().includes(s)) return d; if((d.brand_names||[]).some(b=>b.toLowerCase().includes(s))) return d; } }
+  return null;
+}
+function medIsImmuno(name){ const d=lookupDrug(name); if(d) return !!d.is_immunosuppressant; const s=(name||'').toLowerCase(); return IMMUNO_DB.some(k=>s.includes(k.n)); }
+// blockt Lebendimpfungen, wenn ein Immunsuppressivum ohne klare Lebendimpf-Freigabe eingetragen ist
+function dbImmunoBlocking(){ return medsList.some(m=>{const d=lookupDrug(m); return d && d.is_immunosuppressant && !/^\s*ja/i.test(d.live_vaccine_allowed||''); }); }
+function _esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function renderMedVacCheck(){
+  const box=el('med-vaccheck'); if(!box) return;
+  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  if(!staff || !medsList.length){ box.innerHTML=''; return; }
+  const brands=d=>(d.brand_names&&d.brand_names.length)?' <span class="vc-brands">('+_esc(d.brand_names.slice(0,4).join(', '))+')</span>':'';
+  box.innerHTML='<div class="vc-title">'+(LANG==='de'?'Medikamenten-Übersicht (VacCheck · DTG 2026)':'Medication overview (VacCheck · DTG 2026)')+'</div>'+medsList.map(m=>{
+    const d=lookupDrug(m);
+    if(!d) return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(m)+'</span><span class="vc-badge grey">'+(LANG==='de'?'nicht in DB':'not in DB')+'</span></div><div class="vc-note">'+(LANG==='de'?'Immunsuppressive Wirkung manuell prüfen.':'Check immunosuppressive effect manually.')+'</div></div>';
+    if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-badge green">'+(LANG==='de'?'unkritisch':'no concern')+'</span></div><div class="vc-note">'+(LANG==='de'?'Keine bekannte Kontraindikation für Lebendimpfungen (DTG 2026).':'No known contraindication for live vaccines (DTG 2026).')+'</div></div>';
+    return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-badge red">'+(LANG==='de'?'Immunsuppressivum':'Immunosuppressant')+'</span></div>'+
+      (d.drug_class?'<div class="vc-row"><b>'+(LANG==='de'?'Substanzklasse':'Class')+':</b> '+_esc(d.drug_class)+'</div>':'')+
+      (d.class_abstract?'<div class="vc-abstract">'+_esc(d.class_abstract)+'</div>':'')+
+      '<div class="vc-grid"><div><b>'+(LANG==='de'?'Lebendimpfung':'Live vaccine')+':</b> '+_esc(d.live_vaccine_allowed||'—')+'</div><div><b>'+(LANG==='de'?'Therapiepause':'Therapy pause')+':</b> '+_esc(d.therapy_pause_needed||'—')+'</div><div><b>'+(LANG==='de'?'Totimpfstoff-Antwort':'Inactivated response')+':</b> '+_esc(d.immune_response_dead_vaccine||'—')+'</div></div></div>';
+  }).join('');
+}
 function medKey(e){ if(e.key==='Enter'){ e.preventDefault(); addMedFromInput(); } }
 function addMedFromInput(){
   const inp=el('p-med-input'); if(!inp) return;
@@ -992,7 +1018,7 @@ function addMedFromInput(){
   inp.value=''; syncMeds();
 }
 function removeMed(i){ medsList.splice(i,1); syncMeds(); }
-function syncMeds(){ const h=el('p-immuno'); if(h) h.value = medsList.join(', '); renderMedPills(); recompute(); }
+function syncMeds(){ const h=el('p-immuno'); if(h) h.value = medsList.join(', '); renderMedPills(); renderMedVacCheck(); recompute(); }
 function renderMedPills(){
   const box=el('med-pills'); if(!box) return;
   box.innerHTML = medsList.map((m,i)=>'<span class="med-pill'+(medIsImmuno(m)?' immuno':'')+'">'+m.replace(/</g,'&lt;')+'<span class="mx" onclick="removeMed('+i+')" title="Entfernen">✕</span></span>').join('');
@@ -1775,6 +1801,7 @@ function renderNotes(){
 function renderImmunoWarn(){
   const box=el('immuno-warn');const recog=el('drug-recog');const drug=el('p-immuno').value.trim();
   const idr=el('immunodef-recog'); if(idr){ const s=chronicTextVal(); idr.style.color=hasImmuneDef()?'var(--red)':'var(--grey)'; idr.textContent=(s&&hasImmuneDef())?(LANG==='de'?'Hinweis auf Immundefizienz – Lebendimpfstoffe kontraindiziert/prüfen':'Possible immunodeficiency — check live vaccines'):''; }
+  if(typeof renderMedVacCheck==='function') renderMedVacCheck();
   const lives=VACCINES.filter(v=>v.live).map(v=>LANG==='de'?v.de:v.en).join(', ');
   if(!drug){recog.textContent='';}
   else if(!drugRecognized()){recog.style.color='var(--grey)';recog.textContent=(LANG==='de'?'Wirkstoff nicht in Datenbank erkannt – bitte manuell bewerten.':'Substance not recognised — assess manually.');}
@@ -1898,7 +1925,7 @@ function loadPatient(id){
   el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
   _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');_sv('p-recentvax',p.recentVax||'');
   medsList = Array.isArray(p.meds)?[...p.meds]:(p.meds?String(p.meds).split(/,\s*/).filter(Boolean):(p.immuno?String(p.immuno).split(/,\s*/).filter(Boolean):[]));
-  _sv('p-med-input',''); _sv('p-immuno',medsList.join(', ')); renderMedPills();
+  _sv('p-med-input',''); _sv('p-immuno',medsList.join(', ')); renderMedPills(); renderMedVacCheck();
   _sv('p-chronic-text', p.chronicText || (p.chronic&&!p.chronicText?'chronische Erkrankung':'') ); _sv('p-email', p.email||'');
   _sc('p-acute',!!p.acute);_sc('p-thrombosis',!!p.thrombosis);_sc('p-faint',!!p.faint);
   const ser=p.serology||{};
