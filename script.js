@@ -1901,7 +1901,7 @@ async function ungroup(id){
   await persistPatient(p); renderPatients();
 }
 let _dragPid=null, _dragGroup=null;
-function pDragStart(e,id){_dragPid=id;_dragGroup=null;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
+function pDragStart(e,id){hideTpTooltip();_dragPid=id;_dragGroup=null;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
 function gDragStart(e,g){ if(e.target.closest('.patient-item'))return; _dragGroup=g;_dragPid=null;try{e.dataTransfer.effectAllowed='move';}catch(_){}}
 function pDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');const sec=e.currentTarget.closest('.amb-section');if(sec)sec.classList.remove('collapsed');}
 function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
@@ -2016,18 +2016,42 @@ function renderPatients(){
   listEl.innerHTML=html;
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
-}
-function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
-function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
-function tpTitle(p) {
+function tpTooltipHTML(p) {
   const dest=(p.destinations||[]).map(c=>CBY[c]?(LANG==='de'?CBY[c].de:CBY[c].en):c).join(', ')||'—';
   const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
   const preg = p.pregnant==='pregnant'?(LANG==='de'?'Ja':'Yes'):(p.pregnant==='breastfeeding'?(LANG==='de'?'Stillend':'Breastfeeding'):(p.pregnant==='planned'?(LANG==='de'?'Geplant':'Planned'):(LANG==='de'?'Nein':'No')));
-  return `Reisedauer: ${durLbl}\nReiseziel(e): ${dest}\nAllergien: ${_esc(p.allergy||'—')}\nSchwangerschaft: ${preg}\nChron. Erkrankung: ${_esc(p.chronicText||'—')}\nMedikamente: ${_esc(p.meds&&p.meds.length?p.meds.join(', '):'—')}`;
+  const fld=(lbl,val)=>'<div class="pb-field"><span class="pb-lbl">'+lbl+'</span><span class="pb-val">'+val+'</span></div>';
+  return fld(LANG==='de'?'Reisedauer':'Duration', durLbl) +
+         fld(LANG==='de'?'Reiseziel(e)':'Destination(s)', dest) +
+         fld(LANG==='de'?'Allergien':'Allergies', _esc(p.allergy||'—')) +
+         fld(LANG==='de'?'Schwangerschaft':'Pregnancy', preg) +
+         fld(LANG==='de'?'Chron. Erkrankung':'Chronic Illness', _esc(p.chronicText||'—')) +
+         fld(LANG==='de'?'Medikamente':'Medication', _esc(p.meds&&p.meds.length?p.meds.join(', '):'—'));
 }
+function showTpTooltip(e, id) {
+  let tooltip = document.getElementById('tp-tooltip');
+  if(!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'tp-tooltip';
+    tooltip.className = 'tp-tooltip';
+    document.body.appendChild(tooltip);
+  }
+  const p = patients.find(x=>x.id===id);
+  if(!p) return;
+  tooltip.innerHTML = tpTooltipHTML(p);
+  const rect = e.currentTarget.getBoundingClientRect();
+  tooltip.style.top = Math.max(10, rect.top) + 'px';
+  tooltip.style.left = (rect.right + 10) + 'px';
+  tooltip.style.display = 'block';
+}
+function hideTpTooltip() {
+  const tooltip = document.getElementById('tp-tooltip');
+  if(tooltip) tooltip.style.display = 'none';
+}
+
 // Linkes Behandlungsfeld des behandelnden Arztes: eigene Patienten in Behandlung + Sektions-Navigation
-function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item'+act+'" title="'+_esc(tpTitle(p))+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></button>'; }
-function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item tp-done'+act+'" title="'+_esc(tpTitle(p))+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm" style="font-weight:400;color:var(--grey)">'+_esc(nm)+'</span></button>'; }
+function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<div class="tp-item'+act+'" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></div>'; }
+function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<div class="tp-item tp-done'+act+'" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm" style="font-weight:400;color:var(--grey)">'+_esc(nm)+'</span></div>'; }
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
 async function tpSwitch(id){ if(id===editingId){ if(document.body.classList.contains('clinic-idle')) enterPatient(); return; } if(editingId){ try{ await savePatient(false); }catch(_){} } loadPatient(id); }
 function renderTreatPanel(){
