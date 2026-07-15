@@ -2348,8 +2348,19 @@ async function setPatientStatus(id,status,type,claim){
   await persistPatient(p); renderPatients();
 }
 // Rechter Pfeil: Patient in die EIGENE Behandlung nehmen (claim) und öffnen
-async function takeIntoTreatment(id){ await setPatientStatus(id,'treatment',myTreatmentMode(),true); loadPatient(id); }
-async function takeGroupIntoTreatment(g){ await moveGroupStatus(g,'treatment',myTreatmentMode(),true); const first=patients.find(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===g.trim().toLowerCase()); if(first)loadPatient(first.id); }
+// MFA darf keine Beratung durchführen (nur Folgeimpfungen)
+function canTreatType(type){ return !((CURRENT_PROFILE||{}).role==='mfa' && type==='beratung'); }
+async function takeIntoTreatment(id){
+  const p=patients.find(x=>x.id===id); const type=p?patientTreatType(p):myTreatmentMode();
+  if(!canTreatType(type)){ uiAlert(LANG==='de'?'Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.':'As MFA you cannot take a consultation; only physicians consult.'); return; }
+  await setPatientStatus(id,'treatment',type,true); loadPatient(id);
+}
+async function takeGroupIntoTreatment(g){
+  const first=patients.find(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===g.trim().toLowerCase());
+  const type=first?patientTreatType(first):myTreatmentMode();
+  if(!canTreatType(type)){ uiAlert(LANG==='de'?'Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.':'As MFA you cannot take a consultation; only physicians consult.'); return; }
+  await moveGroupStatus(g,'treatment',type,true); if(first)loadPatient(first.id);
+}
 async function startTreatment(id){ await takeIntoTreatment(id); }
 // Behandlung abschließen (grüner Haken): aktuellen Patienten + ggf. ganze Gruppe auf „behandelt"
 async function finishTreatment(){
@@ -2389,6 +2400,8 @@ function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
 function pDrop(e,status,type){
   // Drag&Drop in „In Behandlung" übernimmt den Patienten in die eigene Behandlung (claim=true).
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  // MFA darf niemanden in „Beratung · In Behandlung" ziehen (keine Beratung durch MFA)
+  if(status==='treatment' && !canTreatType(type)){ _dragGroup=null;_dragPid=null; uiAlert(LANG==='de'?'Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.':'As MFA you cannot take a consultation; only physicians consult.'); return; }
   if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status,type,true);return; }
   let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status,type,true);
 }
@@ -2544,7 +2557,7 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      const gBehandeln=(st==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
+      const gBehandeln=(st==='waiting'&&canTreatType(patientTreatType(grp.items[0])))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
       h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+' <span class="amb-group-hint">'+(LANG==='de'?'(ganze Gruppe ziehen)':'(drag whole group)')+'</span></span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
@@ -2651,7 +2664,7 @@ function renderPatientCard(p,inGroup){
       }
     }
     // „Behandeln"-Button bei wartenden Einzelpatienten → in eigene Behandlung übernehmen
-    const behandeln=(!inGroup&&s==='waiting')?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
+    const behandeln=(!inGroup&&s==='waiting'&&canTreatType(patientTreatType(p)))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
     const tt=patientTreatType(p);
     const typeBadge='<span class="type-badge '+tt+'" title="'+(tt==='folgeimpfung'?'Folgeimpfung':'Beratung')+'">'+(tt==='folgeimpfung'?'F':'B')+'</span>';
     const actionsBtns=(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button>';
