@@ -829,6 +829,8 @@ const IMMUNODEF_KW=['hiv','aids','asplen','splenekt','milzentfern','ohne milz','
 function chronicTextVal(){const e=el('p-chronic-text');return e?e.value.trim().toLowerCase():'';}
 function hasChronic(){return chronicTextVal().length>0;}
 function hasImmuneDef(){const s=chronicTextVal();return s?IMMUNODEF_KW.some(k=>s.includes(k)):false;}
+function conds(){return [...document.querySelectorAll('.cond:checked')].map(c=>c.value);}
+function childhoodOn(){const a=ageYears(el('p-dob').value);return a!==null&&a<18;}
 // Überschneidet sich der Aufenthalt (Abreise + Dauer) mit der Meningitis-Epidemiesaison (Trockenzeit Dez–Jun)?
 // null = Abreisedatum unbekannt (Aufrufer nutzt dann Fallback auf Abreisemonat)
 function toggleSerology(key, checked) { serologyState[key] = checked; recompute(); }
