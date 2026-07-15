@@ -178,6 +178,47 @@ const INFO={
  dengue:{disease:{de:'Mückenübertragenes Fieber; Zweitinfektion kann schwer verlaufen.',en:'Mosquito-borne fever; second infection can be severe.'},epi:{de:'Tropen/Subtropen weltweit.',en:'Tropics/subtropics worldwide.'},side:{de:'Lokalreaktion. Lebendimpfstoff (Qdenga). Bei zeitgleicher Gabe mit anderen Impfstoffen an getrennten Körperstellen (anderer Arm) impfen.',en:'Local reaction. Live vaccine (Qdenga). If co-administered, use separate injection sites (different arm).'},sched:{de:'<ul style="margin:4px 0 0 20px;padding:0"><li>Qdenga: 2 Dosen (0 / 3 Mon)</li><li>Empfehlung NUR nach durchgemachter Dengue-Infektion</li><li>Risiko schwererer Verläufe bei Erstinfektion nach Impfung Seronegativer!</li></ul>',en:'<ul style="margin:4px 0 0 20px;padding:0"><li>Qdenga: 2 doses (0 / 3 mo)</li><li>Recommended ONLY after prior dengue infection</li><li>Risk of severe disease in seronegatives upon first natural infection!</li></ul>'}},
  chikungunya:{disease:{de:'Mückenübertragenes Fieber mit teils langanhaltenden Gelenkschmerzen.',en:'Mosquito-borne fever with sometimes prolonged joint pain.'},epi:{de:'Aktuelle Ausbrüche (Q2 2026): Bolivien, Franz.-Guayana, Mauritius, Mayotte, Seychellen, Suriname.',en:'Current outbreaks (Q2 2026): Bolivia, French Guiana, Mauritius, Mayotte, Seychelles, Suriname.'},side:{de:'Lokalreaktion; Vimkunya = Totimpfstoff. <strong>Wichtig:</strong> Bei zeitgleicher Gabe mit anderen Impfstoffen zwingend an getrennten Körperstellen (z.B. anderer Arm) impfen. (IXCHIQ = Lebendimpfstoff, Vorsicht ≥65 J.)',en:'Local reaction; Vimkunya = inactivated. <strong>Important:</strong> If given simultaneously with other vaccines, strictly use separate injection sites (e.g., different arm). (IXCHIQ = live, caution ≥65 yrs.)'},sched:{de:'Vimkunya: 1 Dosis. Indikation je nach Ziel/Ausbruchslage.',en:'Vimkunya: 1 dose. Indication per destination/outbreak.'}},
 };
+/* ---------- VACCINES & CHRONIC DB ---------- */
+const RECENT_VAX_DB = [
+  { disease: 'Gelbfieber', substance: 'Stamaril', live_vaccine: true },
+  { disease: 'Masern, Mumps, Röteln', substance: 'Priorix, M-M-RVAXPRO', live_vaccine: true },
+  { disease: 'Varizellen (Windpocken)', substance: 'Varilrix, Varivax', live_vaccine: true },
+  { disease: 'Dengue', substance: 'Qdenga', live_vaccine: true },
+  { disease: 'Typhus (Schluckimpfung)', substance: 'Vivotif', live_vaccine: true },
+  { disease: 'Tollwut', substance: 'Rabipur, Tollwut-Impfstoff Mérieux', live_vaccine: false },
+  { disease: 'FSME', substance: 'Encepur, FSME-Immun', live_vaccine: false },
+  { disease: 'Typhus (Spritze)', substance: 'Typhim Vi, Typherix', live_vaccine: false },
+  { disease: 'Hepatitis A', substance: 'Havrix, Avaxim', live_vaccine: false },
+  { disease: 'Hepatitis B', substance: 'Engerix-B, HBVAXPRO', live_vaccine: false },
+  { disease: 'Hepatitis A+B', substance: 'Twinrix', live_vaccine: false },
+  { disease: 'Japanische Enzephalitis', substance: 'Ixiaro', live_vaccine: false },
+  { disease: 'Pneumokokken', substance: 'Apexxnar / Prevenar 20', live_vaccine: false },
+  { disease: 'Meningokokken ACWY', substance: 'Nimenrix, Menveo', live_vaccine: false },
+  { disease: 'Meningokokken B', substance: 'Bexsero, Trumenba', live_vaccine: false },
+  { disease: 'Herpes Zoster (Gürtelrose)', substance: 'Shingrix', live_vaccine: false },
+  { disease: 'Influenza', substance: 'Vaxigrip, Efluelda, Flucelvax', live_vaccine: false },
+  { disease: 'COVID-19', substance: 'Comirnaty, Spikevax', live_vaccine: false },
+  { disease: 'Tetanus, Diphtherie, Pertussis', substance: 'Boostrix, Covaxis', live_vaccine: false },
+  { disease: 'Tetanus, Diphtherie, Pertussis, Polio', substance: 'Boostrix Polio, Repevax', live_vaccine: false },
+  { disease: 'Polio', substance: 'IPV Mérieux', live_vaccine: false },
+  { disease: 'HPV', substance: 'Gardasil 9, Cervarix', live_vaccine: false },
+  { disease: 'Cholera', substance: 'Dukoral, Vaxchora', live_vaccine: false }
+];
+
+const CHRONIC_DB = [
+  { name: 'Diabetes Mellitus Typ II', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
+  { name: 'Diabetes Mellitus Typ I', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
+  { name: 'HIV / AIDS', warning: true, context: 'CD4-Zellzahl prüfen. Lebendimpfstoffe ab <200/µl kontraindiziert.' },
+  { name: 'Leukämie', warning: true, context: 'Immunsuppression wahrscheinlich. Lebendimpfstoffe kontraindiziert. Totimpfstoff-Antwort reduziert.' },
+  { name: 'Rheumatoide Arthritis', warning: true, context: 'Immunsuppressive Therapie (Biologika/MTX) prüfen. Lebendimpfstoffe ggf. kontraindiziert.' },
+  { name: 'Chronisch entzündliche Darmerkrankung (Morbus Crohn, Colitis Ulcerosa)', warning: true, context: 'Immunsuppressive Therapie prüfen. Lebendimpfstoffe ggf. kontraindiziert.' },
+  { name: 'Asthma bronchiale', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
+  { name: 'COPD', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
+  { name: 'Niereninsuffizienz', warning: true, context: 'Immunantwort oft reduziert (v.a. Hep B). Titerkontrollen sinnvoll.' },
+  { name: 'Asplenie (fehlende/funktionslose Milz)', warning: true, context: 'Dringende Indikation für Pneumokokken, Meningokokken (ACWY+B), Haemophilus influenzae.' },
+  { name: 'Multiple Sklerose', warning: true, context: 'Krankheitsmodifizierende Therapie prüfen (z.B. Ocrelizumab). Lebendimpfstoffe ggf. kontraindiziert.' },
+  { name: 'Psoriasis', warning: true, context: 'Systemische Therapie (Biologika) prüfen. Lebendimpfstoffe ggf. kontraindiziert.' }
+];
 
 /* ---------- IMMUNO DRUG DB ---------- */
 const IMMUNO_DB=[
@@ -854,7 +895,113 @@ function medAutocomplete(){
 }
 function addMedName(name){ if(name && !medsList.some(m=>m.toLowerCase()===name.toLowerCase())) medsList.push(name); const inp=el('p-med-input'); if(inp)inp.value=''; const ac=el('med-ac'); if(ac){ac.innerHTML='';ac.style.display='none';} syncMeds(); }
 function medAcHide(){ const ac=el('med-ac'); if(ac) setTimeout(()=>{ac.style.display='none';},150); }
+/* ---------- Autocomplete: Recent Vaccines ---------- */
+let recentVaxList = [];
+let _rvAcItems=[], _rvAcIdx=-1;
+function renderRecentVaxList(){
+  const box=el('recentvax-vaccheck'); if(!box) return;
+  if(!recentVaxList.length){ box.innerHTML=''; return; }
+  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  box.innerHTML=recentVaxList.map((vax,i)=>{
+    const d=RECENT_VAX_DB.find(x=>x.disease.toLowerCase()===vax.toLowerCase() || (x.disease+' ('+x.substance+')').toLowerCase()===vax.toLowerCase() || x.substance.toLowerCase()===vax.toLowerCase());
+    const rm='<button class="vc-rm" onclick="removeRecentVax('+i+')" title="Entfernen">✕</button>';
+    const label = d ? (d.disease+' ('+d.substance+')') : vax;
+    if(!staff) return '<div class="vc-card plain"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span>'+rm+'</div></div>';
+    if(d && d.live_vaccine) {
+      return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span><span class="vc-hr"><span class="vc-badge red">Lebendimpfstoff</span>'+rm+'</span></div><div class="vc-note">Achtung: Lebendimpfstoff in den letzten 4 Wochen! Abstand zu anderen Lebendimpfstoffen (z.B. Gelbfieber, MMR, Varizellen) von mind. 4 Wochen einhalten.</div></div>';
+    }
+    return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span><span class="vc-hr"><span class="vc-badge green">Totimpfstoff / Unkritisch</span>'+rm+'</span></div></div>';
+  }).join('');
+}
+function recentVaxAcHighlight(){ const ac=el('recentvax-ac'); if(!ac)return; const items=ac.querySelectorAll('.med-ac-item'); items.forEach((it,i)=>it.classList.toggle('active', i===_rvAcIdx)); const act=ac.querySelector('.med-ac-item.active'); if(act&&act.scrollIntoView) act.scrollIntoView({block:'nearest'}); }
+function recentVaxKey(e){
+  const ac=el('recentvax-ac'); const open=ac && ac.style.display==='block' && _rvAcItems.length>0;
+  if(e.key==='ArrowDown'){ if(open){ e.preventDefault(); _rvAcIdx=Math.min(_rvAcIdx+1, _rvAcItems.length-1); recentVaxAcHighlight(); } }
+  else if(e.key==='ArrowUp'){ if(open){ e.preventDefault(); _rvAcIdx=Math.max(_rvAcIdx-1, 0); recentVaxAcHighlight(); } }
+  else if(e.key==='Enter'){ e.preventDefault(); if(open && _rvAcIdx>=0){ addRecentVaxName(_rvAcItems[_rvAcIdx].add); } else { addRecentVaxFromInput(); } }
+  else if(e.key==='Escape'){ if(ac){ ac.style.display='none'; } _rvAcIdx=-1; }
+}
+function addRecentVaxFromInput(){
+  const inp=el('p-recentvax-input'); if(!inp) return;
+  inp.value.split(',').forEach(part=>{ const n=part.trim(); if(n && !recentVaxList.some(m=>m.toLowerCase()===n.toLowerCase())) recentVaxList.push(n); });
+  inp.value=''; syncRecentVax();
+}
+function removeRecentVax(i){ recentVaxList.splice(i,1); syncRecentVax(); }
+function syncRecentVax(){ const h=el('p-recentvax'); if(h) h.value = recentVaxList.join(', '); renderRecentVaxList(); recompute(); }
+function recentVaxAutocomplete(){
+  const inp=el('p-recentvax-input'), ac=el('recentvax-ac'); if(!inp||!ac) return;
+  const v=inp.value.trim().toLowerCase();
+  if(v.length<1){ ac.innerHTML=''; ac.style.display='none'; return; }
+  const out=[];
+  for(const d of RECENT_VAX_DB){
+    const label=d.disease+' ('+d.substance+')';
+    if(label.toLowerCase().includes(v)){
+      out.push({label, add:label, starts:label.toLowerCase().startsWith(v)});
+    }
+  }
+  out.sort((a,b)=>(b.starts-a.starts)|| a.label.localeCompare(b.label));
+  const top=out.slice(0,8);
+  if(!top.length){ ac.innerHTML=''; ac.style.display='none'; _rvAcItems=[]; _rvAcIdx=-1; return; }
+  _rvAcItems=top; _rvAcIdx=-1;
+  ac.innerHTML=top.map((o,i)=>'<div class="med-ac-item" data-idx="'+i+'" onmousedown="addRecentVaxName(\''+o.add.replace(/'/g,"\\'")+'\')">'+_esc(o.label)+'</div>').join('');
+  ac.style.display='block';
+}
+function addRecentVaxName(name){ if(name && !recentVaxList.some(m=>m.toLowerCase()===name.toLowerCase())) recentVaxList.push(name); const inp=el('p-recentvax-input'); if(inp)inp.value=''; const ac=el('recentvax-ac'); if(ac){ac.innerHTML='';ac.style.display='none';} syncRecentVax(); }
+function recentVaxAcHide(){ const ac=el('recentvax-ac'); if(ac) setTimeout(()=>{ac.style.display='none';},150); }
 
+/* ---------- Autocomplete: Chronic Illnesses ---------- */
+let chronicList = [];
+let _crAcItems=[], _crAcIdx=-1;
+function renderChronicList(){
+  const box=el('chronic-vaccheck'); if(!box) return;
+  if(!chronicList.length){ box.innerHTML=''; return; }
+  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  box.innerHTML=chronicList.map((cr,i)=>{
+    const d=CHRONIC_DB.find(x=>x.name.toLowerCase()===cr.toLowerCase());
+    const rm='<button class="vc-rm" onclick="removeChronic('+i+')" title="Entfernen">✕</button>';
+    if(!staff) return '<div class="vc-card plain"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span>'+rm+'</div></div>';
+    if(d && d.warning) {
+      return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge red">Warnung</span>'+rm+'</span></div><div class="vc-note">'+_esc(d.context)+'</div></div>';
+    } else if(d && !d.warning) {
+      return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge green">Unkritisch</span>'+rm+'</span></div><div class="vc-note">'+_esc(d.context)+'</div></div>';
+    }
+    return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge grey">nicht in DB</span>'+rm+'</span></div></div>';
+  }).join('');
+}
+function chronicAcHighlight(){ const ac=el('chronic-ac'); if(!ac)return; const items=ac.querySelectorAll('.med-ac-item'); items.forEach((it,i)=>it.classList.toggle('active', i===_crAcIdx)); const act=ac.querySelector('.med-ac-item.active'); if(act&&act.scrollIntoView) act.scrollIntoView({block:'nearest'}); }
+function chronicKey(e){
+  const ac=el('chronic-ac'); const open=ac && ac.style.display==='block' && _crAcItems.length>0;
+  if(e.key==='ArrowDown'){ if(open){ e.preventDefault(); _crAcIdx=Math.min(_crAcIdx+1, _crAcItems.length-1); chronicAcHighlight(); } }
+  else if(e.key==='ArrowUp'){ if(open){ e.preventDefault(); _crAcIdx=Math.max(_crAcIdx-1, 0); chronicAcHighlight(); } }
+  else if(e.key==='Enter'){ e.preventDefault(); if(open && _crAcIdx>=0){ addChronicName(_crAcItems[_crAcIdx].add); } else { addChronicFromInput(); } }
+  else if(e.key==='Escape'){ if(ac){ ac.style.display='none'; } _crAcIdx=-1; }
+}
+function addChronicFromInput(){
+  const inp=el('p-chronic-input'); if(!inp) return;
+  inp.value.split(',').forEach(part=>{ const n=part.trim(); if(n && !chronicList.some(m=>m.toLowerCase()===n.toLowerCase())) chronicList.push(n); });
+  inp.value=''; syncChronic();
+}
+function removeChronic(i){ chronicList.splice(i,1); syncChronic(); }
+function syncChronic(){ const h=el('p-chronic-text'); if(h) h.value = chronicList.join(', '); renderChronicList(); recompute(); }
+function chronicAutocomplete(){
+  const inp=el('p-chronic-input'), ac=el('chronic-ac'); if(!inp||!ac) return;
+  const v=inp.value.trim().toLowerCase();
+  if(v.length<1){ ac.innerHTML=''; ac.style.display='none'; return; }
+  const out=[];
+  for(const d of CHRONIC_DB){
+    if(d.name.toLowerCase().includes(v)){
+      out.push({label:d.name, add:d.name, starts:d.name.toLowerCase().startsWith(v)});
+    }
+  }
+  out.sort((a,b)=>(b.starts-a.starts)|| a.label.localeCompare(b.label));
+  const top=out.slice(0,8);
+  if(!top.length){ ac.innerHTML=''; ac.style.display='none'; _crAcItems=[]; _crAcIdx=-1; return; }
+  _crAcItems=top; _crAcIdx=-1;
+  ac.innerHTML=top.map((o,i)=>'<div class="med-ac-item" data-idx="'+i+'" onmousedown="addChronicName(\''+o.add.replace(/'/g,"\\'")+'\')">'+_esc(o.label)+'</div>').join('');
+  ac.style.display='block';
+}
+function addChronicName(name){ if(name && !chronicList.some(m=>m.toLowerCase()===name.toLowerCase())) chronicList.push(name); const inp=el('p-chronic-input'); if(inp)inp.value=''; const ac=el('chronic-ac'); if(ac){ac.innerHTML='';ac.style.display='none';} syncChronic(); }
+function chronicAcHide(){ const ac=el('chronic-ac'); if(ac) setTimeout(()=>{ac.style.display='none';},150); }
 
 
 const BOOSTER={
@@ -1418,10 +1565,15 @@ function loadPatient(id){
   }
   window._patientSnapshot = JSON.stringify(p);
   el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
-  _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');_sv('p-recentvax',p.recentVax||'');
+  _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');
+  recentVaxList = p.recentVax ? String(p.recentVax).split(/,\s*/).filter(Boolean) : [];
+  _sv('p-recentvax-input',''); _sv('p-recentvax', recentVaxList.join(', ')); renderRecentVaxList();
   medsList = Array.isArray(p.meds)?[...p.meds]:(p.meds?String(p.meds).split(/,\s*/).filter(Boolean):(p.immuno?String(p.immuno).split(/,\s*/).filter(Boolean):[]));
   _sv('p-med-input',''); _sv('p-immuno',medsList.join(', ')); renderMedPills(); renderMedVacCheck();
-  _sv('p-chronic-text', p.chronicText || (p.chronic&&!p.chronicText?'chronische Erkrankung':'') ); _sv('p-email', p.email||'');
+  const cT = p.chronicText || (p.chronic&&!p.chronicText?'chronische Erkrankung':'');
+  chronicList = cT ? String(cT).split(/,\s*/).filter(Boolean) : [];
+  _sv('p-chronic-input',''); _sv('p-chronic-text', chronicList.join(', ')); renderChronicList();
+  _sv('p-email', p.email||'');
   _sc('p-acute',!!p.acute);_sc('p-thrombosis',!!p.thrombosis);_sc('p-faint',!!p.faint);
   const ser=p.serology||{};
   serologyState.measles=!!ser.measles;serologyState.vzv=!!ser.vzv;serologyState.hbs=!!ser.hbs;
@@ -1818,7 +1970,7 @@ function renderPatients(){
     cols+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment'});
     cols+='</div>';
   });
-  let html='<div class="amb-board2">'+cols+'</div>'+lane({status:'done',de:'Behandelt',en:'Treated'});
+  let html='<div class="amb-board2">'+cols+'</div>';
   // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
   if((CURRENT_PROFILE||{}).role==='admin'){
     const del=dayPats.filter(p=>p.deleted);
@@ -1837,6 +1989,7 @@ function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
 function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
 // Linkes Behandlungsfeld des behandelnden Arztes: eigene Patienten in Behandlung + Sektions-Navigation
 function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item'+act+'" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></button>'; }
+function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item tp-done'+act+'" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm" style="font-weight:400;color:var(--grey)">'+_esc(nm)+'</span></button>'; }
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
 async function tpSwitch(id){ if(id===editingId){ if(document.body.classList.contains('clinic-idle')) enterPatient(); return; } if(editingId){ try{ await savePatient(false); }catch(_){} } loadPatient(id); }
 function renderTreatPanel(){
@@ -1845,7 +1998,6 @@ function renderTreatPanel(){
   const editing=!!editingId && !document.body.classList.contains('clinic-idle');
   if(!clinic){ box.innerHTML=''; box.classList.remove('show'); return; }
   const mine=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='treatment' && p.claimedBy===myUserKey());
-  if(!mine.length && !editing){ box.innerHTML=''; box.classList.remove('show'); return; }
   const docName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';
   const docRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
   let h='';
@@ -1863,6 +2015,16 @@ function renderTreatPanel(){
   } else {
     h+='<div class="tp-empty">'+(LANG==='de'?'Kein Patient in Behandlung.':'No patient in treatment.')+'</div>';
   }
+  
+  if(!editing) {
+    const done=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='done');
+    h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px;">';
+    h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'Behandelt':'Treated')+' <span class="count-pill">'+done.length+'</span></span></div>';
+    h+='<div class="tp-list drop-zone" style="min-height:80px; padding:4px;" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)">';
+    h+= done.length ? done.map(tpItemDone).join('') : '<div class="tp-empty" style="text-align:center; padding-top:20px;">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
+    h+='</div></div>';
+  }
+
   if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
   box.innerHTML=h; box.classList.add('show');
   updateSecNav();
@@ -2093,9 +2255,11 @@ function _sv(id,v){const e=el(id);if(e)e.value=v;}
 function _sc(id,v){const e=el(id);if(e)e.checked=v;}
 function resetForm(){
   el('p-name').value='';el('p-dob').value='';el('p-sex').value='f';el('p-duration').value='<1w';el('p-departure').value='';el('p-pregnant').value='no';el('p-allergy').value='';el('p-immuno').value='';el('p-comment').value='';
-  ['p-firstname','p-email','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-chronic-text','p-med-input','p-recentvax'].forEach(id=>_sv(id,''));
+  ['p-firstname','p-email','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-chronic-text','p-chronic-input','p-med-input','p-recentvax','p-recentvax-input'].forEach(id=>_sv(id,''));
   ['p-acute','p-thrombosis','p-faint'].forEach(id=>_sc(id,false));
-  medsList=[]; renderMedPills();
+  medsList=[]; renderMedPills(); renderMedVacCheck();
+  recentVaxList=[]; renderRecentVaxList();
+  chronicList=[]; renderChronicList();
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
   destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');

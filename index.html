@@ -152,8 +152,8 @@
       <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><div class="med-inp-wrap"><input type="text" id="p-med-input" autocomplete="off" placeholder="Medikament eingeben…" oninput="medAutocomplete()" onkeydown="medKey(event)" onblur="medAcHide()"><div class="med-ac" id="med-ac"></div></div><input type="hidden" id="p-immuno"></div>
     </div>
     <div class="grid g2" style="margin-top:14px;">
-      <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><input type="text" id="p-recentvax" placeholder="—"></div>
-      <div><label class="fld" data-i18n="fChronicText">Chronische Erkrankung / Immundefizienz (welche?)</label><input type="text" id="p-chronic-text" placeholder="z. B. Diabetes, Asplenie, HIV, Rheuma …" oninput="recompute()"><div class="mini-note" id="immunodef-recog"></div></div>
+      <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><div class="med-inp-wrap"><input type="text" id="p-recentvax-input" autocomplete="off" placeholder="Impfung eingeben…" oninput="recentVaxAutocomplete()" onkeydown="recentVaxKey(event)" onblur="recentVaxAcHide()"><div class="med-ac" id="recentvax-ac"></div></div><input type="hidden" id="p-recentvax"><div id="recentvax-vaccheck" class="med-vaccheck"></div></div>
+      <div><label class="fld" data-i18n="fChronicText">Chronische Erkrankung / Immundefizienz (welche?)</label><div class="med-inp-wrap"><input type="text" id="p-chronic-input" autocomplete="off" placeholder="z. B. Diabetes, Asplenie, HIV, Rheuma …" oninput="chronicAutocomplete()" onkeydown="chronicKey(event)" onblur="chronicAcHide()"><div class="med-ac" id="chronic-ac"></div></div><input type="hidden" id="p-chronic-text"><div id="chronic-vaccheck" class="med-vaccheck"></div><div class="mini-note" id="immunodef-recog"></div></div>
     </div>
     <div class="chk-row" style="margin-top:14px;">
       <label class="chk-chip"><input type="checkbox" id="p-acute" onchange="recompute()"> <span data-i18n="fAcute">Akute Erkrankung</span></label>
