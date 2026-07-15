@@ -2019,9 +2019,15 @@ function renderPatients(){
 }
 function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
 function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
+function tpTitle(p) {
+  const dest=(p.destinations||[]).map(c=>CBY[c]?(LANG==='de'?CBY[c].de:CBY[c].en):c).join(', ')||'—';
+  const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
+  const preg = p.pregnant==='pregnant'?(LANG==='de'?'Ja':'Yes'):(p.pregnant==='breastfeeding'?(LANG==='de'?'Stillend':'Breastfeeding'):(p.pregnant==='planned'?(LANG==='de'?'Geplant':'Planned'):(LANG==='de'?'Nein':'No')));
+  return `Reisedauer: ${durLbl}\nReiseziel(e): ${dest}\nAllergien: ${_esc(p.allergy||'—')}\nSchwangerschaft: ${preg}\nChron. Erkrankung: ${_esc(p.chronicText||'—')}\nMedikamente: ${_esc(p.meds&&p.meds.length?p.meds.join(', '):'—')}`;
+}
 // Linkes Behandlungsfeld des behandelnden Arztes: eigene Patienten in Behandlung + Sektions-Navigation
-function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item'+act+'" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></button>'; }
-function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item tp-done'+act+'" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm" style="font-weight:400;color:var(--grey)">'+_esc(nm)+'</span></button>'; }
+function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item'+act+'" title="'+_esc(tpTitle(p))+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></button>'; }
+function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<button class="tp-item tp-done'+act+'" title="'+_esc(tpTitle(p))+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm" style="font-weight:400;color:var(--grey)">'+_esc(nm)+'</span></button>'; }
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
 async function tpSwitch(id){ if(id===editingId){ if(document.body.classList.contains('clinic-idle')) enterPatient(); return; } if(editingId){ try{ await savePatient(false); }catch(_){} } loadPatient(id); }
 function renderTreatPanel(){
@@ -2050,9 +2056,9 @@ function renderTreatPanel(){
   
   if(!editing) {
     const done=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='done');
-    h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px;">';
+    h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px; flex:1; display:flex; flex-direction:column; min-height:0;">';
     h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'Behandelt':'Treated')+' <span class="count-pill">'+done.length+'</span></span></div>';
-    h+='<div class="tp-list drop-zone" style="min-height:80px; padding:4px;" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)">';
+    h+='<div class="tp-list drop-zone" style="min-height:80px; padding:4px; overflow-y:auto; flex:1;" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)">';
     h+= done.length ? done.map(tpItemDone).join('') : '<div class="tp-empty" style="text-align:center; padding-top:20px;">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
     h+='</div></div>';
   }
