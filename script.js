@@ -1809,7 +1809,9 @@ window.quickFillTdap = function(raw) {
     if(full && full >= 1900 && full <= cur) {
         vaxState.tdap_polio.y_td = String(full);
         vaxState.tdap_polio.y_ap = String(full);
-        if (type === 'tdap_ipv') vaxState.tdap_polio.y_ipv = String(full);
+        // Ein dokumentierter Booster setzt eine abgeschlossene Grundimmunisierung voraus (überschreibbar via Checkbox)
+        vaxState.tdap_polio.gi_tdap = true;
+        if (type === 'tdap_ipv') { vaxState.tdap_polio.y_ipv = String(full); vaxState.tdap_polio.gi_ipv = true; }
         renderVaxTable();
     }
 };
@@ -2283,12 +2285,10 @@ function updateLeistungen() {
 
    let html = '';
    if (list.length === 0) {
-      html = '<div style="font-size:0.9em;color:var(--grey);">' + (LANG==='de'?'Keine Impfungen für heute geplant':'No vaccinations planned for today') + '</div>';
+      html = '<div class="leistung-empty">' + (LANG==='de'?'Keine Impfungen für heute geplant.':'No vaccinations planned for today.') + '</div>';
    } else {
       list.forEach(item => {
-         html += `<div style="display:inline-flex;align-items:center;background:var(--grey-xl);border:1px solid var(--line);border-radius:16px;padding:4px 10px;font-size:0.9em;margin-right:8px;margin-bottom:8px;">
-           ${item.name} <span style="margin-left:8px;cursor:pointer;color:var(--grey);font-weight:bold" onclick="removeLeistungVax('${item.k}', '${item.sub}')">✕</span>
-         </div>`;
+         html += '<span class="leistung-chip">'+_esc(item.name)+'<span class="lc-x" title="'+(LANG==='de'?'Entfernen':'Remove')+'" onclick="removeLeistungVax(\''+item.k+'\', \''+item.sub+'\')">✕</span></span>';
       });
    }
    listDiv.innerHTML = html;
@@ -2762,6 +2762,10 @@ function resetForm(){
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
   destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');
+  // Leistungen zurücksetzen; MFA startet mit „Keine Beratung"
+  const bDefault=((CURRENT_PROFILE||{}).role==='mfa')?'none':'1';
+  const bRad=document.querySelector('input[name="leistung_beratung"][value="'+bDefault+'"]'); if(bRad) bRad.checked=true;
+  ['leistung_folge','leistung_bescheinigung'].forEach(id=>_sc(id,false));
   renderDestChips();recompute();
 }
 
