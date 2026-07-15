@@ -162,6 +162,8 @@ const INFO={
  tdap_polio:{disease:{de:'Tetanus (Wundstarrkrampf), Diphtherie, Pertussis (Keuchhusten), Poliomyelitis (Kinderlähmung).',en:'Tetanus, diphtheria, pertussis, poliomyelitis.'},epi:{de:'Pertussis zirkuliert weltweit. Polio endemisch in AF/PK (WPV1); cVDPV in Afrika/Asien.',en:'Pertussis circulates worldwide. Polio endemic in AF/PK (WPV1); cVDPV in Africa/Asia.'},side:{de:'Lokalreaktion, gelegentlich Fieber.',en:'Local reaction, occasional fever.'},sched:{de:'<ul style="margin:4px 0 0 20px;padding:0"><li>Säuglinge: hexavalent 2+1 oder 3+1 Schema</li><li>Auffrischung alle 10 J. (Td)</li><li>1× Pertussis als Erwachsener und in jeder Schwangerschaft</li><li>Polio Auffrischung (IPV) bei Reise in Polio-Risikoländer (WHO verlangt Dosis 4 Wo–12 Mon vor Ausreise bei Aufenthalt >4 Wochen in Kat-1-Land)</li></ul>',en:'<ul style="margin:4px 0 0 20px;padding:0"><li>Infants: hexavalent 2+1 or 3+1 schedule</li><li>Booster every 10 yrs (Td)</li><li>Pertussis once as adult and each pregnancy</li><li>Polio booster (IPV) for travel to polio-risk countries (WHO requires dose 4 wks–12 mo before exit for stay >4 weeks in cat 1 country)</li></ul>'}},
  mmr:{disease:{de:'Masern (hochansteckend), Röteln in SS teratogen.',en:'Measles (highly contagious), rubella teratogenic in pregnancy.'},epi:{de:'Weltweite Ausbrüche, auch Europa.',en:'Outbreaks worldwide incl. Europe.'},side:{de:'Leichte „Impfmasern" 5–12 Tage möglich.',en:'Mild fever/rash 5–12 days possible.'},sched:{de:'2 Dosen (Mindestabstand 4 Wochen – Schnellschema möglich). Vor 1971 Geborene i.d.R. immun. Durchgemachte Masern = Immunität.',en:'2 doses (min. 4 weeks apart—rapid possible). Born before 1971 usually immune. Prior measles = immunity.'}},
  hepatitis:{disease:{de:'Hep A: Leberentzündung über Wasser/Nahrung. Hep B: über Blut/Sexualkontakt, kann chronisch werden.',en:'Hep A: hepatitis via water/food. Hep B: via blood/sexual contact, can become chronic.'},epi:{de:'Hep A erhöht außerhalb West-/Nordeuropas; Hep B höhere Prävalenz Afrika/Asien.',en:'Hep A elevated outside W/N Europe; Hep B higher prevalence Africa/Asia.'},side:{de:'Lokalreaktion, gelegentlich Kopfschmerz.',en:'Local reaction, occasional headache.'},sched:{de:'<strong>Hep A (mono, Avaxim/Havrix)</strong><br>• 1 Dosis → ~1 Jahr Schutz<br>• 2 Dosen (0 / 6–12 Mon) → Langzeitschutz<br>• bei fortbestehender Exposition Auffrischung ~alle 10 Jahre<br><br><strong>Hep B (mono, Engerix)</strong><br>• 3 Dosen (0 / 1 / 6 Mon)<br>• nach erfolgreicher Grundimmunisierung (Anti-HBs &gt;100) keine Auffrischung<br><br><strong>Twinrix (Hep A + B)</strong><br>• Grundimmunisierung: 3 Dosen (0 / 1 / 6 Mon)<br>• Schnellschema: 0 / 7 / 21 Tage + Auffrischung nach 12 Mon<br>• <strong>1× Twinrix reicht für Hep A NICHT</strong> (halbe A-Antigenmenge)<br>• Kinder 1–15 J. / Erwachsene ≥16 J. – Formulierung beachten',en:'<strong>Hep A (mono, Avaxim/Havrix)</strong><br>• 1 dose → ~1 year protection<br>• 2 doses (0 / 6–12 mo) → long-term<br>• booster ~every 10 years if ongoing exposure<br><br><strong>Hep B (mono, Engerix)</strong><br>• 3 doses (0 / 1 / 6 mo)<br>• after successful primary series (anti-HBs &gt;100) no booster<br><br><strong>Twinrix (Hep A + B)</strong><br>• primary series: 3 doses (0 / 1 / 6 mo)<br>• Rapid schedule: 0 / 7 / 21 days + booster at 12 mo<br>• <strong>a single Twinrix is NOT enough for Hep A</strong> (half the A antigen)<br>• paediatric 1–15 yrs / adult ≥16 yrs — mind the formulation'}},
+ hepA:{disease:{de:'Leberentzündung über verunreinigtes Wasser/Nahrung.',en:'Hepatitis via contaminated water/food.'},epi:{de:'Erhöht außerhalb West-/Nordeuropas.',en:'Elevated outside W/N Europe.'},side:{de:'Lokalreaktion, gelegentlich Kopfschmerz.',en:'Local reaction, occasional headache.'},sched:{de:'<strong>Hep A (mono, Avaxim/Havrix)</strong><br>• 1 Dosis → ~1 Jahr Schutz<br>• 2 Dosen (0 / 6–12 Mon) → Langzeitschutz<br>• bei fortbestehender Exposition Auffrischung ~alle 10 Jahre<br><br><strong>Twinrix (Hep A + B)</strong><br>• Grundimmunisierung: 3 Dosen (0 / 1 / 6 Mon)<br>• Schnellschema: 0 / 7 / 21 Tage + Auffrischung nach 12 Mon<br>• <strong>1× Twinrix reicht für Hep A NICHT</strong> (halbe A-Antigenmenge)<br>• Kinder 1–15 J. / Erwachsene ≥16 J. – Formulierung beachten',en:'<strong>Hep A (mono, Avaxim/Havrix)</strong><br>• 1 dose → ~1 year protection<br>• 2 doses (0 / 6–12 mo) → long-term<br>• booster ~every 10 years if ongoing exposure<br><br><strong>Twinrix (Hep A + B)</strong><br>• primary series: 3 doses (0 / 1 / 6 mo)<br>• Rapid schedule: 0 / 7 / 21 days + booster at 12 mo<br>• <strong>a single Twinrix is NOT enough for Hep A</strong> (half the A antigen)<br>• paediatric 1–15 yrs / adult ≥16 yrs — mind the formulation'}},
+ hepB:{disease:{de:'Über Blut/Sexualkontakt, kann chronisch werden.',en:'Via blood/sexual contact, can become chronic.'},epi:{de:'Höhere Prävalenz in Afrika/Asien.',en:'Higher prevalence in Africa/Asia.'},side:{de:'Lokalreaktion, gelegentlich Kopfschmerz.',en:'Local reaction, occasional headache.'},sched:{de:'<strong>Hep B (mono, Engerix)</strong><br>• 3 Dosen (0 / 1 / 6 Mon)<br>• nach erfolgreicher Grundimmunisierung (Anti-HBs &gt;100) keine Auffrischung<br><br><strong>Twinrix (Hep A + B)</strong><br>• Grundimmunisierung: 3 Dosen (0 / 1 / 6 Mon)<br>• Schnellschema: 0 / 7 / 21 Tage + Auffrischung nach 12 Mon<br>• Kinder 1–15 J. / Erwachsene ≥16 J. – Formulierung beachten',en:'<strong>Hep B (mono, Engerix)</strong><br>• 3 doses (0 / 1 / 6 mo)<br>• after successful primary series (anti-HBs &gt;100) no booster<br><br><strong>Twinrix (Hep A + B)</strong><br>• primary series: 3 doses (0 / 1 / 6 mo)<br>• Rapid schedule: 0 / 7 / 21 days + booster at 12 mo<br>• paediatric 1–15 yrs / adult ≥16 yrs — mind the formulation'}},
  typhoid:{disease:{de:'Bakterielle Darminfektion über Wasser/Nahrung.',en:'Bacterial gut infection via water/food.'},epi:{de:'Höchstes Risiko Südasien.',en:'Highest risk South Asia.'},side:{de:'Injektion: Lokalreaktion.',en:'Injectable: local reaction.'},sched:{de:'Typhim Vi: 1 Dosis, ~3 Jahre. Schutz nach ~1–2 Wochen.',en:'Typhim Vi: 1 dose, ~3 years. Protection after ~1–2 weeks.'}},
  menacwy:{disease:{de:'Bakterielle Hirnhautentzündung/Sepsis, rasch lebensbedrohlich.',en:'Bacterial meningitis/sepsis, rapidly life-threatening.'},epi:{de:'Afrik. Meningitisgürtel; ACWY-Nachweis Pflicht für Hajj/Umrah.',en:'African meningitis belt; ACWY proof mandatory for Hajj/Umrah.'},side:{de:'Lokalreaktion, Fieber möglich.',en:'Local reaction, fever possible.'},sched:{de:'Nimenrix (konjugiert): 1 Dosis, Schutz nach ~10–14 Tagen, Auffrischung nach 10 J. Ältere Polysaccharid- oder reine C-Impfungen decken ACWY nicht vollständig.',en:'Nimenrix (conjugate): 1 dose, protection after ~10–14 days, booster after 10 yrs. Older polysaccharide or C-only vaccines do not fully cover ACWY.'}},
  menb:{disease:{de:'Meningokokken B – Hirnhautentzündung/Sepsis.',en:'Meningococcal B — meningitis/sepsis.'},epi:{de:'Häufigste Serogruppe in Europa; höchstes Risiko Säuglinge/Kleinkinder.',en:'Most common serogroup in Europe; highest risk infants/toddlers.'},side:{de:'Ausgeprägte Lokalreaktion und Fieber v.a. bei Säuglingen. <strong>Wichtig:</strong> Bei zeitgleicher Gabe mit anderen Impfstoffen zwingend an getrennten Körperstellen (z.B. anderer Arm) impfen.',en:'Marked local reaction and fever esp. in infants. <strong>Important:</strong> If given simultaneously with other vaccines, strictly use separate injection sites (e.g., different arm).'},sched:{de:'Bexsero: Säuglinge 2+1 (bzw. 3+1), ab 2 J. 2 Dosen. STIKO-Standard für Säuglinge, sonst Indikationsimpfung.',en:'Bexsero: infants 2+1 (or 3+1), from 2 yrs 2 doses. STIKO standard for infants, otherwise indication.'}},
@@ -1205,6 +1207,9 @@ function renderVaxTable(){
         '<div class="reason">'+(LANG==='de'?ha.bNote.de:ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
+      const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">K</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info">i</button>';
+      const infoBtnB='<button class="info-btn" onclick="showInfo(\'hepB\')" title="Info">i</button>';
+      
       function yrSel(f){return yearInput('hepatitis',f);}
       
       html+=`<tr>
@@ -1213,7 +1218,7 @@ function renderVaxTable(){
         </td>
         <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'aMono')}</div></div></td>
         <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('aYear')}</div></div></td>
-        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtn}</div>
+        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtnA}</div>
           ${aBadge}
         </td>
       </tr>`;
@@ -1224,7 +1229,7 @@ function renderVaxTable(){
         </td>
         <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'bMono')}</div></div></td>
         <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('bYear')}</div></div></td>
-        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtn}</div>
+        <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtnB}</div>
           ${bBadge}
         </td>
       </tr>`;
@@ -1411,13 +1416,17 @@ function renderContraWarn(){
 }
 
 const DISEASE_MAPS = {
-  yellowfever:'yellowfever.png', tdap_polio:'polio.png', hepatitis:'hepatitis_a.png',
+  yellowfever:'yellowfever.png', tdap_polio:'polio.png', hepatitis:'hepatitis_a.png', hepA:'hepatitis_a.png',
   menacwy:'menacwy.png', jev:'jev.png', rabies:'rabies.png', tbe:'tbe.png',
   dengue:'dengue.png', influenza:'influenza.png'
 };
 const PENCIL_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z"></path></svg>';
 function showInfo(k){
-  const v=VACCINES.find(x=>x.k===k);const inf=INFO[k];const a=AVAIL[k];
+  let v=VACCINES.find(x=>x.k===k);
+  let a=AVAIL[k];
+  if(k==='hepA'){ v={de:'Hepatitis A',en:'Hepatitis A',live:false}; a=AVAIL['hepatitis']; }
+  if(k==='hepB'){ v={de:'Hepatitis B',en:'Hepatitis B',live:false}; a=AVAIL['hepatitis']; }
+  const inf=INFO[k];
   const availHtml=a?('<div class="m-sec"><h4>'+(LANG==='de'?'Verfügbarkeit & Alter (Ambulanz)':'Availability & age (clinic)')+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
   const mapBtn=DISEASE_MAPS[k]?'<button class="m-mapbtn" onclick="showMap(\''+k+'\')">'+(LANG==='de'?'Verbreitungskarte ansehen':'View distribution map')+'</button>':'';
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
@@ -1692,13 +1701,15 @@ function loadPatient(id){
               setTimeout(() => uiAlert('Achtung: Der Patient erscheint deutlich zu früh für mindestens eine geplante Impfung!'), 500);
            }
         }
-        
-        setTimeout(() => {
-           const rad = document.querySelector('input[name="leistung_beratung"][value="none"]');
-           if (rad) rad.checked = true;
-           updateLeistungen();
-        }, 100);
      }
+  }
+
+  if (p.treatmentType === 'folgeimpfung') {
+     setTimeout(() => {
+        const rad = document.querySelector('input[name="leistung_beratung"][value="none"]');
+        if (rad) rad.checked = true;
+        updateLeistungen();
+     }, 100);
   }
 
   renderDestChips();recompute();
@@ -1977,6 +1988,7 @@ function renderPatients(){
   const filt=q?dayPats.filter(p=>((p.name||'')+' '+(p.firstname||'')).toLowerCase().includes(q)||((p.firstname||'')+' '+(p.name||'')).toLowerCase().includes(q)):dayPats;
   // Offene Schnellansichten merken, damit sie beim Neu-Rendern (Auto-Refresh) nicht zuklappen
   const openIds=Array.from(listEl.querySelectorAll('.patient-item.open')).map(e=>e.dataset.pid);
+  hideTpTooltip();
   // Eine Sektion (Lane) rendern: Wartend / In Behandlung / Behandelt
   const lane=(s)=>{
     const inSec=filt.filter(p=>{ if(p.deleted)return false; if(patientStatus(p)!==s.status)return false; if(s.type)return patientTreatType(p)===s.type; return true; });
@@ -2019,7 +2031,16 @@ function renderPatients(){
         '</div></div>';
     }
   }
+  const scrollTops = {};
+  if(listEl) listEl.querySelectorAll('.drop-zone').forEach(z => {
+    const key = z.dataset.status + '|' + z.dataset.type;
+    scrollTops[key] = z.scrollTop;
+  });
   listEl.innerHTML=html;
+  listEl.querySelectorAll('.drop-zone').forEach(z => {
+    const key = z.dataset.status + '|' + z.dataset.type;
+    if (scrollTops[key]) z.scrollTop = scrollTops[key];
+  });
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
 }
