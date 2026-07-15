@@ -1791,19 +1791,19 @@ function renderPatients(){
   const lane=(s)=>{
     const inSec=filt.filter(p=>{ if(p.deleted)return false; if(patientStatus(p)!==s.status)return false; if(s.type)return patientTreatType(p)===s.type; return true; });
     const key=secKey(s);
-    let collapsed;
-    if(key in SEC_COLLAPSE){ collapsed=SEC_COLLAPSE[key]; }
-    else {
-      const myRole=(CURRENT_PROFILE||{}).role;
-      collapsed=false;
-      if(s.status==='done') collapsed=true;
-      else if(s.type==='beratung') collapsed=(myRole==='mfa');
-      else if(s.type==='folgeimpfung') collapsed=(myRole!=='mfa');
+    let collapsed=false;
+    let clickAttr='';
+    let toggleArrow='';
+    if(s.status==='done'){
+      if(key in SEC_COLLAPSE) collapsed=SEC_COLLAPSE[key];
+      else collapsed=true;
+      clickAttr=' onclick="toggleSection(\''+key+'\',this)"';
+      toggleArrow='<span class="amb-toggle">▾</span>';
     }
     const dropAttr='data-status="'+s.status+'"'+(s.type?' data-type="'+s.type+'"':'');
     const typeArg=s.type?("'"+s.type+"'"):'null';
     let h='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-lane':'')+'" '+dropAttr+'>';
-    h+='<div class="amb-sec-h" onclick="toggleSection(\''+key+'\',this)" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span><span class="amb-toggle">▾</span></div>';
+    h+='<div class="amb-sec-h"'+clickAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span>'+toggleArrow+'</div>';
     h+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
     h+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
     h+='</div></div>';
