@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Engine Unit Tests</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; padding: 20px; line-height: 1.5; }
+    h1 { margin-bottom: 5px; }
+    #stats { margin-bottom: 20px; font-weight: bold; padding: 10px; border-radius: 4px; }
+    .pass-all { background-color: #e6f4ea; color: #1e8e3e; }
+    .fail-some { background-color: #fce8e6; color: #d93025; }
+    .test-case { border: 1px solid #ddd; margin-bottom: 8px; border-radius: 4px; overflow: hidden; }
+    .test-header { padding: 10px; font-weight: 600; cursor: pointer; background: #f8f9fa; display: flex; justify-content: space-between; }
+    .test-header.pass { border-left: 5px solid #34a853; }
+    .test-header.fail { border-left: 5px solid #ea4335; }
+    .test-details { padding: 10px; display: none; font-family: monospace; white-space: pre-wrap; background: #fff; }
+    .test-case.open .test-details { display: block; }
+    .error { color: #d93025; }
+    .success { color: #1e8e3e; }
+  </style>
+</head>
+<body>
+  <h1>Engine Unit Tests</h1>
+  <div id="stats">Running tests...</div>
+  <div id="results"></div>
+
+  <!-- STUB DOM FOR SCRIPT.JS INITIALIZATION -->
+  <div id="stub" style="display:none;">
+    <input id="p-dob"><input id="p-pregnant"><input id="p-duration"><input id="p-chronic-text"><input id="p-allergy"><input id="p-departure"><input id="p-immuno">
+    <div id="p-cond"></div>
+    <div id="med-vaccheck"></div>
+    <div id="leistung-vax-list"></div>
+  </div>
+
+  <!-- LOAD APP DATA & ENGINE -->
+  <script>
+    // Global mocks before loading
+    window.LANG = 'de';
+    window.I18N = {};
+    window.serologyState = {};
+    window.vaxState = {};
+    window.destinations = [];
+    window.medsList = [];
+    window.CURRENT_PROFILE = { role: 'arzt', gender: 'w' };
+  </script>
+  <script src="../data/country_data.js"></script>
+  <script src="../data/drugs_db.js"></script>
+  <script src="../engine.js"></script>
+  <script src="../script.js"></script>
+
+  <!-- TEST FRAMEWORK & SUITE -->
+  <script src="test_engine.js"></script>
+</body>
+</html>

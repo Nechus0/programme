@@ -18,9 +18,9 @@ header{background:#fff;border-bottom:2px solid var(--black);padding:14px 28px;di
 .login-box{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;}
 .login-box input{width:180px;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:12px;}
 .login-box input:focus{outline:none;border-color:var(--black);}
-.lang-toggle{display:flex;border:1px solid var(--black);border-radius:20px;overflow:hidden;}
-.lang-toggle button{border:none;background:#fff;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--black);}
-.lang-toggle button.active{background:var(--black);color:#fff;}
+.lang-toggle{display:flex;gap:6px;}
+.lang-toggle button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 13px;font-weight:700;font-size:13px;cursor:pointer;color:var(--grey);font-family:var(--font);transition:background .12s,color .12s,border-color .12s;}
+.lang-toggle button.active{background:var(--black);color:#fff;border-color:var(--black);}
 .shell{max-width:1560px;margin:0 auto;padding:0 20px;display:flex;align-items:flex-start;gap:22px;}
 main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90px;}
 .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:22px;scroll-margin-top:78px;}
