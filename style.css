@@ -186,8 +186,9 @@ body.clinic:not(.clinic-idle) #list-card{display:none !important;}
 /* Linkes Behandlungsfeld des Arztes (Patienten in Behandlung + Sektions-Navigation) */
 .treat-panel{position:sticky;top:80px;flex:0 0 208px;display:none;flex-direction:column;gap:6px;
   padding:14px;margin-top:24px;background:#fff;border:1px solid var(--line);border-radius:10px;
-  height:calc(100vh - 104px);overflow:hidden;}
+  height:auto;overflow:hidden;}
 .treat-panel.show{display:flex;}
+body.clinic-idle .treat-panel { margin-bottom: 20px; }
 .tp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
 .tp-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);}
 .tp-list{display:flex;flex-direction:column;gap:4px;}

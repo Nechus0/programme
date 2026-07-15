@@ -2073,8 +2073,8 @@ function renderTreatPanel(){
   const docName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';
   const docRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
   let h='';
-  if(editing) h+='<button class="tp-home" onclick="showList()">&larr; '+(LANG==='de'?'Ambulanzliste':'Clinic list')+'</button>';
   h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'In Behandlung':'In treatment')+'</span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
+  if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top: 8px;">&larr; '+(LANG==='de'?'Ambulanzliste':'Clinic list')+'</button>';
   if(mine.length){
     const groups={},order=[];
     mine.forEach(p=>{const g=(p.group||'').trim();const k=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[k]){groups[k]={g:g,items:[]};order.push(k);}groups[k].items.push(p);});
