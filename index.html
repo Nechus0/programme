@@ -252,9 +252,11 @@
 </div>
 
 <!-- KIOSK-Leiste (Patientenaccount) -->
-<div class="kiosk-bar" id="kiosk-bar">
-  <div class="kiosk-hint" data-i18n="kioskHint">Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.</div>
-  <button class="btn" id="kiosk-submit" onclick="kioskSubmit()" data-i18n="kioskSubmit">Daten absenden</button>
+<div class="kiosk-bar" id="kiosk-bar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+  <button class="btn sec" id="kiosk-prev" onclick="kioskPrev()" style="display:none">Zurück</button>
+  <div class="kiosk-hint" id="kiosk-hint" data-i18n="kioskHint" style="flex-grow: 1; text-align: center;">Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.</div>
+  <button class="btn" id="kiosk-next" onclick="kioskNext()">Weiter</button>
+  <button class="btn" id="kiosk-submit" onclick="kioskSubmit()" data-i18n="kioskSubmit" style="display:none">Daten absenden</button>
 </div>
 
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal-content"></div></div>

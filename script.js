@@ -228,22 +228,27 @@ const IMMUNO_DB=[
  {n:'vedolizumab',g:'high'},{n:'natalizumab',g:'high'},{n:'abatacept',g:'high'},{n:'belimumab',g:'high'},{n:'anakinra',g:'high'},{n:'canakinumab',g:'high'},
  {n:'tofacitinib',g:'high'},{n:'baricitinib',g:'high'},{n:'upadacitinib',g:'high'},{n:'filgotinib',g:'high'},{n:'fingolimod',g:'high'},{n:'alemtuzumab',g:'high'},
  {n:'azathioprin',g:'high'},{n:'mycophenolat',g:'high'},{n:'mmf',g:'high'},{n:'tacrolimus',g:'high'},{n:'cyclophosphamid',g:'high'},{n:'ciclosporin',g:'dose'},{n:'cyclosporin',g:'dose'},{n:'leflunomid',g:'high'},{n:'sirolimus',g:'high'},{n:'everolimus',g:'high'},{n:'mercaptopurin',g:'high'},
- {n:'methotrexat',g:'dose'},{n:'mtx',g:'dose'},
+{n:'methotrexat',g:'dose'},{n:'mtx',g:'dose'},
  {n:'prednisolon',g:'dose'},{n:'prednison',g:'dose'},{n:'methylprednisolon',g:'dose'},{n:'dexamethason',g:'dose'},{n:'cortison',g:'dose'},{n:'kortison',g:'dose'},{n:'hydrocortison',g:'dose'},
  {n:'hydroxychloroquin',g:'low'},{n:'plaquenil',g:'low'},{n:'quensyl',g:'low'},{n:'sulfasalazin',g:'low'},{n:'azulfidine',g:'low'},{n:'mesalazin',g:'low'},{n:'apremilast',g:'low'},{n:'dimethylfumarat',g:'low'},{n:'glatiramer',g:'low'},{n:'interferon',g:'low'},{n:'dupilumab',g:'low'},
 ];
 
 /* ---------- STATE ---------- */
-let destinations=[];
-const vaxState={};
-let serologyState = { measles: false, vzv: false, hbs: false };
+var destinations=[];
+var vaxState = typeof freshVaxState === "function" ? freshVaxState() : {};
+var serologyState = typeof freshSerologyState === "function" ? freshSerologyState() : { measles: false, vzv: false, hbs: false };
+var medsList=[];
 
-function freshVaxState(){VACCINES.forEach(v=>{
-  if(v.tdap_polio)vaxState[v.k]={gi_tdap:false,gi_ipv:false,y_td:'',y_ap:'',y_ipv:'',doses_hexa:'',y_hexa:'',planned_prod:'',planned:false,prov:'charite'};
-  else if(v.hep)vaxState[v.k]={aMono:'',aYear:'',bMono:'',bYear:'',twin:'',twYear:'',plannedA:false,plannedB:false,plannedAB:false,provA:'charite',provB:'charite',provAB:'charite'};
-  else if(v.menacwy)vaxState[v.k]={done:'',type:'acwy',year:'',planned:false,prov:'charite'};
-  else vaxState[v.k]={done:'',year:'',disease:false,dengueHad:false,planned:false,prov:'charite'};
-});}
+function freshVaxState(){
+  let vs = {};
+  VACCINES.forEach(v=>{
+    if(v.tdap_polio)vs[v.k]={gi_tdap:false,gi_ipv:false,y_td:"",y_ap:"",y_ipv:"",doses_hexa:"",y_hexa:"",planned_prod:"",planned:false,prov:"charite"};
+    else if(v.hep)vs[v.k]={aMono:"",aYear:"",bMono:"",bYear:"",twin:"",twYear:"",plannedA:false,plannedB:false,plannedAB:false,provA:"charite",provB:"charite",provAB:"charite"};
+    else if(v.menacwy)vs[v.k]={done:"",type:"acwy",year:"",planned:false,prov:"charite"};
+    else vs[v.k]={done:"",year:"",disease:false,dengueHad:false,planned:false,prov:"charite"};
+  });
+  return vs;
+}
 const APPTS=['today','t2','t3','far'];
 const APPT_LABEL={today:{de:'Heute',en:'Today'},t2:{de:'2. Termin',en:'2nd appt.'},t3:{de:'3. Termin',en:'3rd appt.'},far:{de:'Späterer Termin',en:'Later appt.'}};
 const APPT_SHORT={today:{de:'Heute',en:'Today'},t2:{de:'2.',en:'2nd'},t3:{de:'3.',en:'3rd'},far:{de:'Später',en:'Later'}};
@@ -836,7 +841,7 @@ function childhoodOn(){const a=ageYears(el('p-dob').value);return a!==null&&a<18
 function toggleSerology(key, checked) { serologyState[key] = checked; recompute(); }
 
 /* ---------- Medikamente als Pillen (ein Feld, Immunsuppressiva rot) ---------- */
-let medsList = [];
+var medsList = [];
 // VacCheck: Wirkstoff-/Handelsnamen-Suche in der Medikamenten-DB
 // blockt Lebendimpfungen, wenn ein Immunsuppressivum ohne klare Lebendimpf-Freigabe eingetragen ist
 function _esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -848,10 +853,18 @@ function renderMedList(){
   const staff=document.body.classList.contains('clinic');
   const brands=d=>(d&&d.brand_names&&d.brand_names.length)?' <span class="vc-brands">('+_esc(d.brand_names.slice(0,4).join(', '))+')</span>':'';
   const title = staff ? (LANG==='de'?'Medikamenten-Übersicht (VacCheck · DTG 2026)':'Medication overview (VacCheck · DTG 2026)') : (LANG==='de'?'Ihre Medikamente':'Your medication');
+  if(!staff){
+    box.innerHTML = '<div class="white-pill-wrap">' + medsList.map((m,i)=>{
+      const d=lookupDrug(m);
+      const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LANG==='de'?'Entfernen':'Remove')+'">✕</button>';
+      const nm=d?d.substance:m;
+      return '<div class="white-pill"><span class="vc-name">'+_esc(nm)+brands(d)+'</span>'+rm+'</div>';
+    }).join('') + '</div>';
+    return;
+  }
   box.innerHTML='<div class="vc-title">'+title+'</div>'+medsList.map((m,i)=>{
     const d=lookupDrug(m);
     const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LANG==='de'?'Entfernen':'Remove')+'">✕</button>';
-    if(!staff){ const nm=d?d.substance:m; return '<div class="vc-card plain"><div class="vc-h"><span class="vc-name">'+_esc(nm)+brands(d)+'</span>'+rm+'</div></div>'; }
     if(!d) return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(m)+'</span><span class="vc-hr"><span class="vc-badge grey">'+(LANG==='de'?'nicht in DB':'not in DB')+'</span>'+rm+'</span></div><div class="vc-note">'+(LANG==='de'?'Immunsuppressive Wirkung manuell prüfen.':'Check immunosuppressive effect manually.')+'</div></div>';
     if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LANG==='de'?'unkritisch':'no concern')+'</span>'+rm+'</span></div></div>';
     return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LANG==='de'?'Immunsuppressivum':'Immunosuppressant')+'</span>'+rm+'</span></div>'+
@@ -907,11 +920,19 @@ function renderRecentVaxList(){
   const box=el('recentvax-vaccheck'); if(!box) return;
   if(!recentVaxList.length){ box.innerHTML=''; return; }
   const staff=document.body.classList.contains('clinic');
+  if(!staff){
+    box.innerHTML = '<div class="white-pill-wrap">' + recentVaxList.map((vax,i)=>{
+      const d=RECENT_VAX_DB.find(x=>x.disease.toLowerCase()===vax.toLowerCase() || (x.disease+' ('+x.substance+')').toLowerCase()===vax.toLowerCase() || x.substance.toLowerCase()===vax.toLowerCase());
+      const rm='<button class="vc-rm" onclick="removeRecentVax('+i+')" title="Entfernen">✕</button>';
+      const label = d ? (d.disease+' ('+d.substance+')') : vax;
+      return '<div class="white-pill"><span class="vc-name">'+_esc(label)+'</span>'+rm+'</div>';
+    }).join('') + '</div>';
+    return;
+  }
   box.innerHTML=recentVaxList.map((vax,i)=>{
     const d=RECENT_VAX_DB.find(x=>x.disease.toLowerCase()===vax.toLowerCase() || (x.disease+' ('+x.substance+')').toLowerCase()===vax.toLowerCase() || x.substance.toLowerCase()===vax.toLowerCase());
     const rm='<button class="vc-rm" onclick="removeRecentVax('+i+')" title="Entfernen">✕</button>';
     const label = d ? (d.disease+' ('+d.substance+')') : vax;
-    if(!staff) return '<div class="vc-card plain"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span>'+rm+'</div></div>';
     if(d && d.live_vaccine) {
       return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span><span class="vc-hr"><span class="vc-badge red">Lebendimpfstoff</span>'+rm+'</span></div><div class="vc-note">Achtung: Lebendimpfstoff in den letzten 4 Wochen! Abstand zu anderen Lebendimpfstoffen (z.B. Gelbfieber, MMR, Varizellen) von mind. 4 Wochen einhalten.</div></div>';
     }
@@ -961,10 +982,16 @@ function renderChronicList(){
   const box=el('chronic-vaccheck'); if(!box) return;
   if(!chronicList.length){ box.innerHTML=''; return; }
   const staff=document.body.classList.contains('clinic');
+  if(!staff){
+    box.innerHTML = '<div class="white-pill-wrap">' + chronicList.map((cr,i)=>{
+      const rm='<button class="vc-rm" onclick="removeChronic('+i+')" title="Entfernen">✕</button>';
+      return '<div class="white-pill"><span class="vc-name">'+_esc(cr)+'</span>'+rm+'</div>';
+    }).join('') + '</div>';
+    return;
+  }
   box.innerHTML=chronicList.map((cr,i)=>{
     const d=CHRONIC_DB.find(x=>x.name.toLowerCase()===cr.toLowerCase());
     const rm='<button class="vc-rm" onclick="removeChronic('+i+')" title="Entfernen">✕</button>';
-    if(!staff) return '<div class="vc-card plain"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span>'+rm+'</div></div>';
     if(d && d.warning) {
       return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge red">Warnung</span>'+rm+'</span></div><div class="vc-note">'+_esc(d.context)+'</div></div>';
     } else if(d && !d.warning) {
@@ -2164,10 +2191,10 @@ function renderPatientCard(p,inGroup){
       +'<div class="pb-grid">'
         +fld(LANG==='de'?'Reisedauer':'Duration', durLbl)
         +fld(LANG==='de'?'Reiseziel(e)':'Destination(s)', dest)
-        +fld(LANG==='de'?'Krankenkasse':'Insurance', _esc(p.insurance||'—'))
-        +fld(LANG==='de'?'Telefon':'Phone', _esc(p.phone||'—'))
         +fld(LANG==='de'?'Allergien':'Allergies', _esc(p.allergy||'—'))
-        +fld(LANG==='de'?'Immunsuppression':'Immunosuppression', _esc(p.immuno||'—'))
+        +fld(LANG==='de'?'Schwangerschaft':'Pregnancy', p.pregnant==='pregnant'?(LANG==='de'?'Ja':'Yes'):(p.pregnant==='breastfeeding'?(LANG==='de'?'Stillend':'Breastfeeding'):(p.pregnant==='planned'?(LANG==='de'?'Geplant':'Planned'):(LANG==='de'?'Nein':'No'))))
+        +fld(LANG==='de'?'Chron. Erkrankung':'Chronic Illness', _esc(p.chronicText||'—'))
+        +fld(LANG==='de'?'Medikamente':'Medication', _esc(p.meds&&p.meds.length?p.meds.join(', '):'—'))
       +'</div>'
       +statusHTML+schedBlock+cmt+editLogHtml(p)
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
@@ -2268,6 +2295,7 @@ function resetForm(){
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
   destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');
+  if(typeof kioskUpdateView === 'function'){ kioskStep=1; kioskUpdateView(); }
   // Leistungen zurücksetzen; MFA startet mit „Keine Beratung"
   const bDefault=((CURRENT_PROFILE||{}).role==='mfa')?'none':'1';
   const bRad=document.querySelector('input[name="leistung_beratung"][value="'+bDefault+'"]'); if(bRad) bRad.checked=true;
@@ -2320,7 +2348,8 @@ function applyRole(profile){
   if(role==='patient'){
     document.body.classList.add('kiosk');
     ['step4','step5','step6','list-card','kasse-card'].forEach(id=>show(id,false));
-    ['step1','step2','step3'].forEach(id=>show(id,true));
+    kioskStep = 1;
+    kioskUpdateView();
     show('notes-block',false);   // Länder-/Gesundheitshinweise nur für Personal, nicht auf dem Patienten-Tablet
     if(ub) ub.style.display='none';
     const kb=el('kiosk-bar'); if(kb) kb.classList.add('show');
@@ -2447,6 +2476,25 @@ function updateSecNav(){
 window.addEventListener('scroll',()=>{ updateSecNav(); },{passive:true});
 
 /* ---------- Kiosk (Patientenaccount) ---------- */
+var kioskStep = 1;
+function kioskUpdateView(){
+  if(document.body.classList.contains('clinic')) return;
+  ['step1','step2','step3'].forEach((id,idx)=>{
+    const e = document.getElementById(id);
+    if(e) e.style.display = (idx+1 === kioskStep) ? 'block' : 'none';
+  });
+  const prev = document.getElementById('kiosk-prev');
+  const next = document.getElementById('kiosk-next');
+  const sub = document.getElementById('kiosk-submit');
+  const hint = document.getElementById('kiosk-hint');
+  if(prev) prev.style.display = (kioskStep > 1) ? 'block' : 'none';
+  if(next) next.style.display = (kioskStep < 3) ? 'block' : 'none';
+  if(sub) sub.style.display = (kioskStep === 3) ? 'block' : 'none';
+  if(hint) hint.style.display = (kioskStep === 1) ? 'block' : 'none';
+}
+function kioskNext(){ if(kioskStep < 3){ kioskStep++; kioskUpdateView(); window.scrollTo({top:0,behavior:'smooth'}); } }
+function kioskPrev(){ if(kioskStep > 1){ kioskStep--; kioskUpdateView(); window.scrollTo({top:0,behavior:'smooth'}); } }
+
 async function kioskSubmit(){
   const ok = await savePatient();
   if(ok){
@@ -2551,4 +2599,4 @@ async function adminHardDeleteUI(uid){
 }
 
 /* ---------- INIT ---------- */
-buildDestSelect();setLang('de');recompute();renderPatients();
+buildDestSelect();freshVaxState();setLang('de');recompute();renderPatients();

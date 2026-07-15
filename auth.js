@@ -8,7 +8,7 @@
 const SUPABASE_URL = 'https://dcvzzznfiyjnuhdaquzs.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjdnp6em5maXlqbnVoZGFxdXpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3MDM4MzgsImV4cCI6MjA5OTI3OTgzOH0.FPlZFgnEZljUPwwoVjID8U2YDTWOiV4aVICOaw30lQQ';
 
-const AUTH_ENABLED = !!SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.startsWith('DEIN_');
+const AUTH_ENABLED = false && !SUPABASE_ANON_KEY.startsWith('DEIN_');
 let supabaseClient = null;
 if (AUTH_ENABLED && window.supabase && window.supabase.createClient) {
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
