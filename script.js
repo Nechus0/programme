@@ -1901,6 +1901,10 @@ async function ungroup(id){
   await persistPatient(p); renderPatients();
 }
 let _dragPid=null, _dragGroup=null;
+document.addEventListener('dragend', () => {
+  document.querySelectorAll('.drag-over, .group-target').forEach(el => el.classList.remove('drag-over', 'group-target'));
+  hideTpTooltip();
+});
 function pDragStart(e,id){hideTpTooltip();_dragPid=id;_dragGroup=null;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
 function gDragStart(e,g){ if(e.target.closest('.patient-item'))return; _dragGroup=g;_dragPid=null;try{e.dataTransfer.effectAllowed='move';}catch(_){}}
 function pDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');const sec=e.currentTarget.closest('.amb-section');if(sec)sec.classList.remove('collapsed');}
@@ -2226,7 +2230,6 @@ function renderPatientCard(p,inGroup){
         +fld(LANG==='de'?'Chron. Erkrankung':'Chronic Illness', _esc(p.chronicText||'—'))
         +fld(LANG==='de'?'Medikamente':'Medication', _esc(p.meds&&p.meds.length?p.meds.join(', '):'—'))
       +'</div>'
-      +statusHTML+schedBlock+cmt+editLogHtml(p)
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
       +'</div>';
     return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
