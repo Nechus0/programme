@@ -2648,8 +2648,8 @@ function renderPatientCard(p,inGroup){
     const upd=(p.updatedAt&&p.updatedAt!==p.savedAt)?' · '+(LANG==='de'?'geändert':'edited')+' '+fmtDateTime(p.updatedAt):'';
     const stampTxt=t('savedStamp')+': '+fmtDateTime(p.savedAt)+upd+' · '+t('physicianLbl')+': '+_esc(p.physician||'—');
     const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LANG==='de'?'J.':'yrs')+')':'';
-    const dispName=(p.firstname?p.name+', '+p.firstname:p.name);
-    const grpBadge=(p.group&&!inGroup)?' <span class="grp-badge">'+p.group+'</span>':'';
+    const dispName=_esc(p.firstname?p.name+', '+p.firstname:p.name);
+    const grpBadge=(p.group&&!inGroup)?' <span class="grp-badge">'+_esc(p.group)+'</span>':'';
     const s=patientStatus(p); const mine=p.claimedBy&&p.claimedBy===myUserKey();
     let timeMeta='';
     if(s==='waiting') timeMeta=' · '+(LANG==='de'?'wartet ':'waiting ')+elapsedStr(p.savedAt);
