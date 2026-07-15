@@ -826,6 +826,9 @@ const PROVIDERS=[['charite','provCharite'],['gp','provGP'],['paed','provPaed']];
 function el(id){return document.getElementById(id);}
 
 const IMMUNODEF_KW=['hiv','aids','asplen','splenekt','milzentfern','ohne milz','leukämie','leukamie','lymphom','myelom','transplant','stammzell','knochenmark','chemo','angeboren','kongenital','immundefekt','immundefizienz','scid','agammaglobulin','neutropenie','ctla','komplementdefekt','digeorge','di-george','sichelzell','graft'];
+function chronicTextVal(){const e=el('p-chronic-text');return e?e.value.trim().toLowerCase():'';}
+function hasChronic(){return chronicTextVal().length>0;}
+function hasImmuneDef(){const s=chronicTextVal();return s?IMMUNODEF_KW.some(k=>s.includes(k)):false;}
 // Überschneidet sich der Aufenthalt (Abreise + Dauer) mit der Meningitis-Epidemiesaison (Trockenzeit Dez–Jun)?
 // null = Abreisedatum unbekannt (Aufrufer nutzt dann Fallback auf Abreisemonat)
 function toggleSerology(key, checked) { serologyState[key] = checked; recompute(); }
@@ -840,7 +843,7 @@ function _esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,
 function renderMedList(){
   const box=el('med-vaccheck'); if(!box) return;
   if(!medsList.length){ box.innerHTML=''; return; }
-  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  const staff=document.body.classList.contains('clinic');
   const brands=d=>(d&&d.brand_names&&d.brand_names.length)?' <span class="vc-brands">('+_esc(d.brand_names.slice(0,4).join(', '))+')</span>':'';
   const title = staff ? (LANG==='de'?'Medikamenten-Übersicht (VacCheck · DTG 2026)':'Medication overview (VacCheck · DTG 2026)') : (LANG==='de'?'Ihre Medikamente':'Your medication');
   box.innerHTML='<div class="vc-title">'+title+'</div>'+medsList.map((m,i)=>{
@@ -901,7 +904,7 @@ let _rvAcItems=[], _rvAcIdx=-1;
 function renderRecentVaxList(){
   const box=el('recentvax-vaccheck'); if(!box) return;
   if(!recentVaxList.length){ box.innerHTML=''; return; }
-  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  const staff=document.body.classList.contains('clinic');
   box.innerHTML=recentVaxList.map((vax,i)=>{
     const d=RECENT_VAX_DB.find(x=>x.disease.toLowerCase()===vax.toLowerCase() || (x.disease+' ('+x.substance+')').toLowerCase()===vax.toLowerCase() || x.substance.toLowerCase()===vax.toLowerCase());
     const rm='<button class="vc-rm" onclick="removeRecentVax('+i+')" title="Entfernen">✕</button>';
@@ -955,7 +958,7 @@ let _crAcItems=[], _crAcIdx=-1;
 function renderChronicList(){
   const box=el('chronic-vaccheck'); if(!box) return;
   if(!chronicList.length){ box.innerHTML=''; return; }
-  const staff=(typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{role:'arzt'}).role);
+  const staff=document.body.classList.contains('clinic');
   box.innerHTML=chronicList.map((cr,i)=>{
     const d=CHRONIC_DB.find(x=>x.name.toLowerCase()===cr.toLowerCase());
     const rm='<button class="vc-rm" onclick="removeChronic('+i+')" title="Entfernen">✕</button>';
