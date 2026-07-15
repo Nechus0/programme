@@ -548,7 +548,7 @@ function renderApptOverview() {
       if (!st) return;
       
       const renderPill = (name, status, subKey, plannedStatus) => {
-         if (!status || !['green','red','yellow','grey','blue'].includes(status)) return '';
+         if (!status || !['green','red','yellow','grey','blue','violet'].includes(status)) return '';
          let isPlanned = st[plannedStatus] ? true : false;
          let bg = 'var(--grey-xl)', fg = 'var(--text)', border = 'var(--line)';
          if (isPlanned) { bg = '#f3e5f5'; fg = '#6a1b9a'; border = '#ce93d8'; }
@@ -557,6 +557,7 @@ function renderApptOverview() {
              else if(status === 'green') { bg = '#e8f5e9'; fg = '#2e7d32'; border = '#c8e6c9'; }
              else if(status === 'yellow') { bg = '#fff8e1'; fg = '#f57f17'; border = '#ffecb3'; }
              else if(status === 'blue') { bg = '#e3f2fd'; fg = '#1565c0'; border = '#90caf9'; }
+             else if(status === 'violet') { bg = '#f2e9fb'; fg = '#6a1b9a'; border = '#e1bee7'; }
          }
          let checkIcon = isPlanned ? `<span style="font-size:10px;margin-right:2px;font-weight:bold">✓</span>` : `<div style="width:6px;height:6px;border-radius:50%;background:${fg};margin-right:2px;"></div>`;
          return `<div class="plan-pill" onclick="togglePillPlan('${v.k}', '${plannedStatus}')" style="font-size:12px;padding:6px 12px;border-radius:14px;background:${bg};color:${fg};border:1px solid ${border};display:flex;align-items:center;gap:4px;cursor:pointer;transition:all 0.2s;user-select:none;">
@@ -590,7 +591,7 @@ function renderApptOverview() {
             
             // IPV mono Pill
             let ipvStt = a.IPV;
-            if (['green','red','yellow','grey','blue'].includes(ipvStt)) {
+            if (['green','red','yellow','grey','blue','violet'].includes(ipvStt)) {
                 quickHTML += renderPill('Polio (IPV)', ipvStt, 'planned_ipv', 'planned_ipv');
             }
             return;
@@ -600,7 +601,7 @@ function renderApptOverview() {
         if (v.menacwy) stt = menacwyAssess().status;
         else stt = assess(v).status;
         
-        if (!['green','red','yellow','grey','blue'].includes(stt)) return;
+        if (!['green','red','yellow','grey','blue','violet'].includes(stt)) return;
         let isPlanned = st.planned ? true : false;
         let bg = 'var(--grey-xl)', fg = 'var(--text)', border = 'var(--line)';
         if (isPlanned) { bg = '#f3e5f5'; fg = '#6a1b9a'; border = '#ce93d8'; }
@@ -609,6 +610,7 @@ function renderApptOverview() {
             else if(stt === 'green') { bg = '#e8f5e9'; fg = '#2e7d32'; border = '#c8e6c9'; }
             else if(stt === 'yellow') { bg = '#fff8e1'; fg = '#f57f17'; border = '#ffecb3'; }
             else if(stt === 'blue') { bg = '#e3f2fd'; fg = '#1565c0'; border = '#90caf9'; }
+            else if(stt === 'violet') { bg = '#f2e9fb'; fg = '#6a1b9a'; border = '#e1bee7'; }
         }
         let name = (LANG==='de'?v.de:v.en);
         if (v.k === 'mmr') name = (LANG==='de'?'Masern, Mumps, Röteln':'Measles, Mumps, Rubella');
@@ -1966,7 +1968,7 @@ function toggleCardMenu(id){ const m=el('cm-'+id); const open=m&&m.style.display
 function closeCardMenus(){ document.querySelectorAll('.card-menu').forEach(m=>m.style.display='none'); }
 document.addEventListener('click',function(e){ if(!e.target.closest('.card-menu')&&!e.target.closest('.menu-btn')) closeCardMenus(); });
 let AMB_TIMER=null;
-function startAmbRefresh(){ if(AMB_TIMER)return; AMB_TIMER=setInterval(()=>{ if(USE_DB && typeof roleSeesClinic==='function' && roleSeesClinic((CURRENT_PROFILE||{}).role)) loadPatientsFromDB(); },15000); }
+function startAmbRefresh(){ if(AMB_TIMER)return; AMB_TIMER=setInterval(()=>{ if(USE_DB && typeof roleSeesClinic==='function' && roleSeesClinic((CURRENT_PROFILE||{}).role)) loadPatientsFromDB(); },5000); }
 function renderPatients(){
   const listEl=el('patient-list');if(!listEl)return;
   const di=el('list-date');if(di&&di.value!==listDay)di.value=listDay;
@@ -2135,7 +2137,7 @@ function renderPatientCard(p,inGroup){
          ['T','D','aP','IPV'].forEach(c => {
              statusHTML += `<span class="comp ${svSt.comps[c]||'grey'}">${c}</span>`;
          });
-      } else if (['green','red','yellow','blue'].includes(svSt.status)) {
+      } else if (['green','red','yellow','blue','violet'].includes(svSt.status)) {
          hasStatus = true;
          let name = (LANG==='de'?sv.de:sv.en);
          if(sv.hep && (svSt.plannedA || (svSt.done && svSt.done.includes('A')))) name = 'Hepatitis A';
@@ -2494,7 +2496,8 @@ const SEC_NAV_ITEMS=[
   {id:'step2',label:'2',de:'Reise',en:'Travel'},
   {id:'step3',label:'3',de:'Immunstatus',en:'Immune status'},
   {id:'step4',label:'4',de:'Impfstatus',en:'Vaccination status'},
-  {id:'step5',label:'5',de:'Geplante Impfungen',en:'Planned'}
+  {id:'step5',label:'5',de:'Geplante Impfungen',en:'Planned'},
+  {id:'step6',label:'6',de:'Leistungen',en:'Services'}
 ];
 function secNavHtml(){
   const vis=SEC_NAV_ITEMS.filter(it=>{const e=el(it.id); return e && e.offsetParent!==null;});
