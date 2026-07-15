@@ -2020,6 +2020,10 @@ function renderPatients(){
   listEl.innerHTML=html;
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
+}
+function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
+function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
+
 function tpTooltipHTML(p) {
   const dest=(p.destinations||[]).map(c=>CBY[c]?(LANG==='de'?CBY[c].de:CBY[c].en):c).join(', ')||'—';
   const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
