@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=4">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=4">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png?v=4">
-<link rel="shortcut icon" href="assets/favicon.ico?v=4">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png?v=4">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=7">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png?v=7">
+<link rel="shortcut icon" href="assets/favicon.ico?v=7">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png?v=7">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/style.css?v=8">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -201,7 +201,7 @@
   <!-- STEP 6: Leistungen -->
   <section class="card" id="step6" style="display:none">
     <button class="lock-btn" id="lock-step6" onclick="toggleLock('step6')" title="Bearbeiten" aria-label="Bearbeiten" style="display:none">✎</button>
-    <h2><span class="step-badge">6</span><span data-i18n="s6Title">Leistungen</span></h2>
+    <h2 style="display:flex;align-items:center;"><span class="step-badge">6</span><span data-i18n="s6Title">Leistungen</span><span style="flex:1"></span><button class="price-info-btn" onclick="showPriceInfo()" title="Preise / Prices / Prix" aria-label="Preise">P</button></h2>
     <div class="card-desc" data-i18n="s6Desc">Dokumentation der heute erbrachten Leistungen für die Abrechnung.</div>
 
     <div class="card-sub" data-i18n="leistVaxToday" style="margin-top:16px;">Impfungen heute</div>
@@ -247,6 +247,7 @@
     <div id="patient-list"></div>
   </section>
 </main>
+<aside class="shift-panel" id="shift-panel" aria-label="Im Dienst"></aside>
 </div>
 
 <!-- Generischer Dialog (Bestätigen / Eingabe) im App-Design -->
@@ -275,13 +276,13 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=6"></script>
+<script src="js/auth.js?v=8"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=6"></script>
-<script src="js/engine.js?v=6"></script>
-<script src="js/script.js?v=6"></script>
+<script src="js/engine_rules.js?v=8"></script>
+<script src="js/engine.js?v=8"></script>
+<script src="js/script.js?v=8"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){

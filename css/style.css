@@ -657,3 +657,38 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .card.locked .kasse-billing .chk-chip{ background:#fff !important; border-color:var(--line) !important; color:var(--text) !important; }
 .card.locked .kasse-billing .chk-chip:has(input:checked){ border-color:var(--black) !important; background:var(--grey-xl) !important; }
 .card.locked .kasse-billing input[type=radio]{ opacity:1 !important; }
+
+/* === Kasse-Verfeinerungen === */
+/* 1: Age-Box im eingeklappten Abschnitt ausblenden */
+.card.folded .age-box{ display:none !important; }
+/* 6: Leistungen kompakter nebeneinander */
+.leistung-group{ flex-direction:row; flex-wrap:wrap; align-items:stretch; }
+.leistung-group .chk-chip{ flex:0 1 auto; }
+/* 5: P-Preis-Button + Preisübersicht-Modal */
+.price-info-btn{ width:26px;height:26px;border-radius:50%;border:1.5px solid var(--black);background:#fff;color:var(--black);font-weight:800;font-size:13px;cursor:pointer;font-family:var(--font);line-height:1;flex:none; }
+.price-info-btn:hover{ background:var(--black);color:#fff; }
+.pi-h{ margin:0 0 14px;font-size:17px; }
+.pi-grid{ display:grid;grid-template-columns:1fr 1fr;gap:6px 26px; }
+.pi-sub{ font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);margin-bottom:6px;border-bottom:1px solid var(--line);padding-bottom:4px; }
+.pi-row{ display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:2px 0;border-bottom:1px solid #f0f0f0; }
+.pi-row span:last-child{ font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap; }
+@media(max-width:560px){ .pi-grid{ grid-template-columns:1fr; } }
+/* 7+8: Behandler-Icon + Zahlungs-Badge in der Behandelt-Liste */
+.tp-item.tp-done{ display:flex;align-items:center; }
+.tp-item.tp-done .tp-nm{ flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.tp-icons{ display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding-left:6px; }
+.pay-badge{ display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:11px;border:1px solid; }
+.pay-badge.paid{ background:var(--green-bg);color:var(--green);border-color:#bfe0c2; }
+.pay-badge.unpaid{ background:var(--grey-xl);color:var(--grey);border-color:var(--line); }
+/* 11a: Bezahlt/Nicht bezahlt farbige Auswahl */
+.kb-paid-paid:has(input:checked){ border-color:var(--green)!important;background:var(--green-bg)!important; }
+.kb-paid-unpaid:has(input:checked){ border-color:var(--grey)!important; }
+/* 11b: Rechte Spalte „Im Dienst" */
+.shift-panel{ display:none; }
+body.clinic-idle .shell{ max-width:1340px; }
+body.clinic-idle .shift-panel.show{ display:flex;flex-direction:column;flex:0 0 190px;background:#fff;border:1px solid var(--line);border-radius:10px;margin:24px 0 20px 16px;padding:16px 14px;overflow-y:auto; }
+.shift-group{ margin-bottom:14px; }
+.shift-role{ font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);padding-bottom:5px;margin-bottom:6px;border-bottom:1px solid var(--line); }
+.shift-person{ display:flex;align-items:center;gap:8px;padding:3px 0; }
+.shift-nm{ font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.shift-empty{ font-size:12px;color:var(--grey);padding:2px 0; }

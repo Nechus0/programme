@@ -28,7 +28,7 @@ const I18N={
  leistVaxToday:{de:'Impfungen heute',en:'Vaccinations today'},leistBeratHead:{de:'Beratung & Untersuchung',en:'Consultation & examination'},leistWeitereHead:{de:'Weitere Leistungen',en:'Other services'},
  leistBeratplan:{de:'Beratung mit Impfplan & Impftauglichkeit',en:'Consultation with vaccination plan & fitness'},leistBeratRezept:{de:'Beratung, ggf. mit Rezept',en:'Consultation, possibly with prescription'},leistBeratLang:{de:'Ausführliche Beratung > 20 min',en:'Detailed consultation > 20 min'},leistKeineBerat:{de:'Keine Beratung',en:'No consultation'},
  leistFolge:{de:'Folgeverordnung',en:'Follow-up prescription'},leistBescheinigung:{de:'Bescheinigung – Impfheft / Impfbefreiung',en:'Certificate – vaccination record / exemption'},leistImpf:{de:'Impfleistung',en:'Vaccination service'},leistWarn:{de:'Keine Leistung erfasst',en:'No service recorded'},
- kasseBillTitle:{de:'Abrechnung',en:'Billing'},kasseNoItems:{de:'Noch keine abrechenbaren Leistungen.',en:'No billable services yet.'},kassePriceManual:{de:'Preis manuell (Aushang)',en:'price manual (see notice)'},kasseTotal:{de:'Gesamtbetrag',en:'Total amount'},kasseUnpricedNote:{de:'Für mit „+" markierte Leistungen ist kein Festpreis hinterlegt – bitte Aushang/Homepage prüfen.',en:'Services marked "+" have no fixed price on file — please check the notice/homepage.'},kassePayTitle:{de:'Zahlungsart',en:'Payment method'},kasseSection:{de:'Kasse',en:'Billing'},kasseSignoff:{de:'Zahlung bestätigen & abschließen',en:'Confirm payment & complete'},kassePayRequired:{de:'Bitte zuerst eine Zahlungsart wählen.',en:'Please select a payment method first.'},toKasseConfirm:{de:'Behandlung abschließen und Patient an die Kasse übergeben?',en:'Complete treatment and hand the patient over to billing?'},toKasseBtn:{de:'An Kasse übergeben',en:'Hand over to billing'},
+ kasseBillTitle:{de:'Abrechnung',en:'Billing'},kasseNoItems:{de:'Noch keine abrechenbaren Leistungen.',en:'No billable services yet.'},kassePriceManual:{de:'Preis manuell (Aushang)',en:'price manual (see notice)'},kasseTotal:{de:'Gesamtbetrag',en:'Total amount'},kasseUnpricedNote:{de:'Für mit „+" markierte Leistungen ist kein Festpreis hinterlegt – bitte Aushang/Homepage prüfen.',en:'Services marked "+" have no fixed price on file — please check the notice/homepage.'},kassePayTitle:{de:'Zahlungsart',en:'Payment method'},kassePaidTitle:{de:'Zahlungsstatus',en:'Payment status'},kassePaid:{de:'Bezahlt',en:'Paid'},kasseUnpaid:{de:'Nicht bezahlt',en:'Not paid'},priceInfoTitle:{de:'Preisübersicht (Anmeldebogen)',en:'Price list (registration form)'},priceInfoLeist:{de:'Leistungen',en:'Services'},priceInfoVax:{de:'Impfstoffe (Preis je Injektion)',en:'Vaccines (price per injection)'},priceInfoBtn:{de:'Preise',en:'Prices'},shiftTitle:{de:'Im Dienst',en:'On shift'},kasseSection:{de:'Kasse',en:'Billing'},kasseSignoff:{de:'Zahlung bestätigen & abschließen',en:'Confirm payment & complete'},kassePayRequired:{de:'Bitte zuerst eine Zahlungsart wählen.',en:'Please select a payment method first.'},toKasseConfirm:{de:'Behandlung abschließen und Patient an die Kasse übergeben?',en:'Complete treatment and hand the patient over to billing?'},toKasseBtn:{de:'An Kasse übergeben',en:'Hand over to billing'},
  adminUsersTitle:{de:'Nutzerverwaltung',en:'User management'},adminUsersDesc:{de:'Neue Registrierungen erscheinen unter „Wartet auf Freischaltung". Ziehe eine Person in eine Funktion, um ihr die entsprechenden Rechte zu geben. Das ✕ deaktiviert den Zugang sofort – der Datensatz bleibt 30 Tage erhalten.',en:'New registrations appear under "Awaiting approval". Drag a person into a role to grant the corresponding rights. The ✕ disables access immediately — the record is kept for 30 days.'},
  phAllergy:{de:'z.B. Hühnereiweiß, Neomycin',en:'e.g. egg protein, neomycin'},phMed:{de:'Medikament eingeben…',en:'Enter medication…'},phRecentVax:{de:'Impfung eingeben…',en:'Enter vaccination…'},phChronic:{de:'z. B. Diabetes, Asplenie, HIV, Rheuma …',en:'e.g. diabetes, asplenia, HIV, rheuma …'},
  kioskPrev:{de:'Zurück',en:'Back'},kioskNext:{de:'Weiter',en:'Next'},
@@ -99,7 +99,7 @@ const I18N_FR={
  leistVaxToday:"Vaccins aujourd'hui", leistBeratHead:'Consultation et examen', leistWeitereHead:'Autres prestations',
  leistBeratplan:"Consultation avec plan vaccinal et aptitude à la vaccination", leistBeratRezept:'Consultation, éventuellement avec ordonnance', leistBeratLang:'Consultation détaillée > 20 min', leistKeineBerat:'Aucune consultation',
  leistFolge:'Prescription de suivi', leistBescheinigung:'Attestation – carnet de vaccination / dispense', leistImpf:'Acte de vaccination', leistWarn:'Aucune prestation saisie',
- kasseBillTitle:'Facturation', kasseNoItems:'Aucune prestation facturable pour le moment.', kassePriceManual:'prix manuel (affichage)', kasseTotal:'Montant total', kasseUnpricedNote:'Les prestations marquées « + » n\'ont pas de prix fixe enregistré — veuillez vérifier l\'affichage/le site.', kassePayTitle:'Mode de paiement', kasseSection:'Caisse', kasseSignoff:'Confirmer le paiement et clôturer', kassePayRequired:'Veuillez d\'abord choisir un mode de paiement.', toKasseConfirm:'Terminer la prise en charge et transférer le patient à la caisse ?', toKasseBtn:'Transférer à la caisse',
+ kasseBillTitle:'Facturation', kasseNoItems:'Aucune prestation facturable pour le moment.', kassePriceManual:'prix manuel (affichage)', kasseTotal:'Montant total', kasseUnpricedNote:'Les prestations marquées « + » n\'ont pas de prix fixe enregistré — veuillez vérifier l\'affichage/le site.', kassePayTitle:'Mode de paiement', kassePaidTitle:'Statut de paiement', kassePaid:'Payé', kasseUnpaid:'Non payé', priceInfoTitle:'Tarifs (formulaire d\'inscription)', priceInfoLeist:'Prestations', priceInfoVax:'Vaccins (prix par injection)', priceInfoBtn:'Tarifs', shiftTitle:'De service', kasseSection:'Caisse', kasseSignoff:'Confirmer le paiement et clôturer', kassePayRequired:'Veuillez d\'abord choisir un mode de paiement.', toKasseConfirm:'Terminer la prise en charge et transférer le patient à la caisse ?', toKasseBtn:'Transférer à la caisse',
  adminUsersTitle:'Gestion des utilisateurs', adminUsersDesc:"Les nouvelles inscriptions apparaissent sous « En attente d'activation ». Faites glisser une personne dans une fonction pour lui accorder les droits correspondants. Le ✕ désactive l'accès immédiatement – l'enregistrement est conservé 30 jours.",
  phAllergy:"p. ex. blanc d'œuf, néomycine", phMed:'Saisir un médicament…', phRecentVax:'Saisir une vaccination…', phChronic:'p. ex. diabète, asplénie, VIH, rhumatisme …',
  kioskPrev:'Retour', kioskNext:'Suivant',
@@ -1696,7 +1696,7 @@ async function savePatient(finish){
     comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
     leistungen: document.body.classList.contains('clinic') ? readLeistungen() : ((existing&&existing.leistungen)||undefined),
-    payment: (function(){ const m=paymentMethod(); return m?{method:m,label:payMethodLabel(m)}:((existing&&existing.payment)||undefined); })(),
+    payment: (function(){ const m=paymentMethod(); const pd=paidStatus(); if(!m && !pd) return (existing&&existing.payment)||undefined; return {method:m,label:payMethodLabel(m),paid:pd==='paid'}; })(),
     billing: (finish && roleIsKasse() && document.body.classList.contains('clinic')) ? {total:computeBilling().total, method:paymentMethod(), methodLabel:payMethodLabel(paymentMethod()), at:new Date().toISOString(), by:((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||myUserKey())} : ((existing&&existing.billing)||undefined),
     // Medizin-Personal schließt ab → 'kasse' (Übergabe an die Kasse); die Kasse schließt ab → 'done'
     status: ((finish && document.body.classList.contains('clinic')) ? (roleIsKasse() ? 'done' : 'kasse') : ((existing&&existing.status)||(document.body.classList.contains('clinic')?'treatment':'waiting'))),
@@ -1745,8 +1745,8 @@ async function savePatient(finish){
            if(vChanged) changed.push('Impfungen/Impfplan');
         }
         if(id==='step6') {
+           // Nur inhaltliche Leistungsänderungen protokollieren – NICHT die Zahlungsart/-status (Kasse-Routine)
            if(JSON.stringify(oldSnap.leistungen) !== JSON.stringify(snap.leistungen)) changed.push('Leistungen');
-           if(((oldSnap.payment||{}).method||'') !== ((snap.payment||{}).method||'')) changed.push('Zahlungsart');
         }
         if(changed.length) snap.editLog.push({ts,who,role:roleRaw,section:id,fields:changed});
       });
@@ -1921,6 +1921,7 @@ function loadPatient(id){
   }
   // Sektion 6 + Zahlungsart wiederherstellen (damit die Kasse die Auswahl des Personals sieht)
   _loadedPayment = (p.payment && p.payment.method) || '';
+  _loadedPaid = p.payment ? (p.payment.paid?'paid':'unpaid') : '';
   if(p.leistungen) applyLeistungen(p.leistungen);
 
   renderDestChips();recompute();
@@ -2009,10 +2010,11 @@ function computeBilling(){
   const vax = getTodaysLeistungVax();
   vax.forEach(it=>{
     const unit = vaxUnitPrice(it.priceKey);
-    const priced = (typeof unit==='number');
-    if(priced){ rows.push({label:it.name+' + '+L2(I18N.leistImpf), price:unit+PRICE_IMPFLEISTUNG, vax:true}); total+=unit+PRICE_IMPFLEISTUNG; }
-    else { rows.push({label:it.name+' + '+L2(I18N.leistImpf), price:null, vax:true, unpriced:true}); hasUnpriced=true; }
+    if(typeof unit==='number'){ rows.push({label:it.name, price:unit, vax:true}); total+=unit; }
+    else { rows.push({label:it.name, price:null, vax:true, unpriced:true}); hasUnpriced=true; }
   });
+  // Impfleistung (GOÄ 375) je Injektion – eigene, klar summierte Position
+  if(vax.length){ const impf=vax.length*PRICE_IMPFLEISTUNG; rows.push({label:L2(I18N.leistImpf)+' · '+vax.length+' ×', price:impf}); total+=impf; }
   return { rows, total, hasUnpriced, count:rows.length };
 }
 // Beratungs-Labels für die Abrechnung (Kurzform)
@@ -2045,6 +2047,39 @@ function applyLeistungen(L){
   if(el('leistung_folge')) el('leistung_folge').checked = !!L.folge;
   if(el('leistung_bescheinigung')) el('leistung_bescheinigung').checked = !!L.bescheinigung;
 }
+let _loadedPaid='';
+const PAID_OPTIONS=[{v:'paid',key:'kassePaid'},{v:'unpaid',key:'kasseUnpaid'}];
+function paidStatus(){ const r=document.querySelector('input[name="kasse_paid"]:checked'); return r?r.value:(_loadedPaid||''); }
+// Zahlungs-Badge (Behandelt-Liste): € = Direktzahlung, Beleg = Rechnung; grün wenn bezahlt
+function payBadge(p){
+  if(!p || !p.payment || !p.payment.method) return '';
+  const m=p.payment.method, paid=!!p.payment.paid;
+  const sym = (m==='sofort') ? '<b>€</b>' : '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M14 3H7v18h11V8z"/><path d="M14 3v5h5"/></svg>';
+  const title = payMethodLabel(m)+' · '+(paid?L2(I18N.kassePaid):L2(I18N.kasseUnpaid));
+  return '<span class="pay-badge '+(paid?'paid':'unpaid')+'" title="'+_esc(title)+'">'+sym+'</span>';
+}
+// Preisübersicht (kompakt, ohne Scrollen) – für alle Rollen
+const PRICE_VAX_LIST=[
+  ['Chikungunya',163.04],['Dengue (Qdenga)',112.54],['FSME/TBE (Erw.)',57.86],['Gelbfieber',72.15],
+  ['Hepatitis A (Erw.)',65.68],['Hepatitis A (Kinder)',43.97],['Hepatitis A+B (Erw.)',88.27],['Hepatitis B',69.38],
+  ['HPV (Gardasil 9)',209.62],['Influenza',24.64],['Japan. Enzephalitis',121.84],['MMR',49.12],
+  ['Meningokokken ACWY',61.23],['Meningokokken B',122.56],['Poliomyelitis',28.87],['Tdap-IPV',44.82],
+  ['Tollwut (Rabipur)',86.54],['Tollwut (Verorab)',80.02],['Typhus',37.98]
+];
+function showPriceInfo(){
+  const box=el('modal-content'); if(!box) return;
+  const leist=[
+    [L2(BERAT_LABEL['1']),PRICE_BERATUNG['1']],[L2(BERAT_LABEL['3']),PRICE_BERATUNG['3']],[L2(BERAT_LABEL['A34']),PRICE_BERATUNG['A34']],
+    [L2(I18N.leistFolge),PRICE_FOLGE],[L2(I18N.leistBescheinigung),PRICE_BESCHEINIGUNG],[L2(I18N.leistImpf)+' (375)',PRICE_IMPFLEISTUNG]
+  ];
+  const rowsL=leist.map(r=>'<div class="pi-row"><span>'+_esc(r[0])+'</span><span>'+eur(r[1])+'</span></div>').join('');
+  const rowsV=PRICE_VAX_LIST.map(r=>'<div class="pi-row"><span>'+_esc(r[0])+'</span><span>'+eur(r[1])+'</span></div>').join('');
+  box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
+    '<h3 class="pi-h">'+L2(I18N.priceInfoTitle)+'</h3>'+
+    '<div class="pi-grid"><div class="pi-col"><div class="pi-sub">'+L2(I18N.priceInfoLeist)+'</div>'+rowsL+'</div>'+
+    '<div class="pi-col pi-col-vax"><div class="pi-sub">'+L2(I18N.priceInfoVax)+'</div>'+rowsV+'</div></div>';
+  const bg=el('modal-bg'); if(bg) bg.classList.add('show');
+}
 // Abrechnungsblock (Sektion 6) rendern – zentrale Ansicht der Kasse
 function renderKasseBilling(){
   const box=el('kasse-billing'); if(!box) return;
@@ -2063,8 +2098,13 @@ function renderKasseBilling(){
     h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
     PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
     h+='</div>';
+    // Zahlungsstatus: Bezahlt / Nicht bezahlt
+    const curPaid=paidStatus()||_loadedPaid;
+    h+='<div class="kb-pay-title">'+L2(I18N.kassePaidTitle)+'</div><div class="kb-pay">';
+    PAID_OPTIONS.forEach(o=>{ h+='<label class="chk-chip kb-paid-'+o.v+'"><input type="radio" name="kasse_paid" value="'+o.v+'" '+(curPaid===o.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(I18N[o.key])+'</span></label>'; });
+    h+='</div>';
   } else if(_loadedPayment){
-    h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-row"><span class="kb-l">'+_esc(payMethodLabel(_loadedPayment))+'</span></div>';
+    h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-row"><span class="kb-l">'+_esc(payMethodLabel(_loadedPayment))+(_loadedPaid?' · '+(_loadedPaid==='paid'?L2(I18N.kassePaid):L2(I18N.kasseUnpaid)):'')+'</span></div>';
   }
   box.innerHTML=h;
 }
@@ -2356,6 +2396,7 @@ function renderPatients(){
   });
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
+  renderShiftPanel();
 }
 function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
 function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
@@ -2395,7 +2436,7 @@ function hideTpTooltip() {
 
 // Linkes Behandlungsfeld des behandelnden Arztes: eigene Patienten in Behandlung + Sektions-Navigation
 function tpItem(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<div class="tp-item'+act+'" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm">'+_esc(nm)+'</span></div>'; }
-function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; return '<div class="tp-item tp-done'+act+'" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm" style="font-weight:400;color:var(--grey)">'+_esc(nm)+'</span></div>'; }
+function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); const act=(p.id===editingId)?' active':''; const doc=p.claimedByName?initialsCircle(p.claimedByName,p.claimedByRole||'arzt',p.claimedByGender||''):''; const icons=payBadge(p)+doc; return '<div class="tp-item tp-done'+act+'" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tp-nm" style="font-weight:400;color:var(--grey)">'+_esc(nm)+'</span>'+(icons?'<span class="tp-icons">'+icons+'</span>':'')+'</div>'; }
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
 async function tpSwitch(id){ if(id===editingId){ if(document.body.classList.contains('clinic-idle')) enterPatient(); return; } if(editingId){ try{ await savePatient(false); }catch(_){} } loadPatient(id); }
 function tpItemStatic(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); return '<div class="tp-item tp-static" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()"><span class="tp-nm">'+_esc(nm)+'</span></div>'; }
@@ -2415,7 +2456,7 @@ function renderTreatPanel(){
     // Rolle Kasse: oben die Warteschlange „Kasse" (klickbar), unten „Behandelt"
     h+='<div class="tp-head"><span class="tp-title">'+L2(I18N.kasseSection)+' <span class="count-pill">'+kassePats.length+'</span></span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
     if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top:8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
-    h+='<div class="tp-list">'+(kassePats.length?kassePats.map(tpItem).join(''):'<div class="tp-empty">'+L2(I18N.kasseNoItems)+'</div>')+'</div>';
+    h+='<div class="tp-list drop-zone" data-status="kasse" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'kasse\',null)">'+(kassePats.length?kassePats.map(tpItem).join(''):'<div class="tp-empty">'+L2(I18N.kasseNoItems)+'</div>')+'</div>';
     if(!editing){
       h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px; flex:1; display:flex; flex-direction:column; min-height:0;">';
       h+='<div class="tp-head"><span class="tp-title">'+(LX('Behandelt','Treated'))+' <span class="count-pill">'+donePats.length+'</span></span></div>';
@@ -2456,6 +2497,27 @@ function renderTreatPanel(){
   if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
   box.innerHTML=h; box.classList.add('show');
   updateSecNav();
+}
+// Rechte Spalte: wer ist heute im Dienst (aus Behandlern/Abrechnungen des Tages + aktueller Nutzer), Admin ausgenommen
+function renderShiftPanel(){
+  const box=el('shift-panel'); if(!box) return;
+  if(!document.body.classList.contains('clinic')){ box.innerHTML=''; box.classList.remove('show'); return; }
+  const people={};
+  const add=(name,role,gender)=>{ if(!name||!role||role==='admin') return; const k=(role+'|'+name).toLowerCase(); if(!people[k]) people[k]={name:name,role:role,gender:gender||''}; };
+  patients.filter(p=>patientDay(p)===listDay && !p.deleted).forEach(p=>{
+    (p.handlers||[]).forEach(h=>add(h.name,h.role,h.gender));
+    if(p.billing && p.billing.by) add(p.billing.by,'kasse','');
+  });
+  if(CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin') add(CURRENT_PROFILE.full_name,CURRENT_PROFILE.role,CURRENT_PROFILE.gender);
+  const lang=(LANG==='de'?'de':'en');
+  let h='<div class="tp-head"><span class="tp-title">'+L2(I18N.shiftTitle)+'</span></div>';
+  ['arzt','mfa','kasse'].forEach(r=>{
+    const list=Object.values(people).filter(pp=>pp.role===r);
+    h+='<div class="shift-group"><div class="shift-role">'+_esc(roleLabel(r,lang))+'</div>';
+    h+= list.length ? list.map(pp=>'<div class="shift-person">'+initialsCircle(pp.name,pp.role,pp.gender)+'<span class="shift-nm">'+_esc(pp.name)+'</span></div>').join('') : '<div class="shift-empty">—</div>';
+    h+='</div>';
+  });
+  box.innerHTML=h; box.classList.add('show');
 }
 function renderSectionCards(list){
   const groups={},order=[];
@@ -2695,7 +2757,7 @@ function resetForm(){
   const bDefault=((CURRENT_PROFILE||{}).role==='mfa')?'none':'1';
   const bRad=document.querySelector('input[name="leistung_beratung"][value="'+bDefault+'"]'); if(bRad) bRad.checked=true;
   ['leistung_folge','leistung_bescheinigung'].forEach(id=>_sc(id,false));
-  _loadedPayment=''; clearFolds();
+  _loadedPayment=''; _loadedPaid=''; clearFolds();
   const kb=el('kasse-billing'); if(kb) kb.innerHTML='';
   renderDestChips();recompute();
 }
@@ -2762,6 +2824,7 @@ function applyRole(profile){
   document.body.classList.add('clinic-idle');       // Start: kein Patient gewählt → Abschnitte eingeklappt
   document.body.classList.toggle('role-kasse', role==='kasse');
   const npb=el('new-patient-btn'); if(npb) npb.style.display=(role==='kasse')?'none':'inline-block';   // Kasse nimmt keine Patienten auf
+  const tm=el('treatmode-sec'); if(tm) tm.style.display=(role==='mfa'||role==='kasse')?'none':'';   // Standard-Behandlungsart nur für Arzt/Admin
   loadSecCollapse();   // gemerkten Auf-/Zuklapp-Zustand wiederherstellen (bleibt auch bei manuellem Refresh)
   moveListToTop();
   if(USE_DB){ loadPatientsFromDB(); startAmbRefresh(); } else renderPatients();
