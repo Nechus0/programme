@@ -1,10 +1,10 @@
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
   <rect width="64" height="64" rx="15" fill="#2b2f36"/>
-  <!-- paper plane (travel) -->
   <g fill="#ffffff">
-    <path d="M12 30 L50 14 L40 52 L31 37 Z"/>
+    <rect x="7.5" y="24" width="49" height="16" rx="3"/>
+    <rect x="24" y="7.5" width="16" height="49" rx="3"/>
   </g>
-  <path d="M50 14 L31 37" stroke="#2b2f36" stroke-width="2.4" fill="none" stroke-linejoin="round"/>
-  <!-- pulse / health contrail -->
-  <path d="M9 44 h7 l3 -7 4 13 3 -6 h6" fill="none" stroke="#9aa4b2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#2b2f36">
+    <circle cx="33.09" cy="14.45" r="0.92"/><circle cx="35.27" cy="14.45" r="0.92"/><circle cx="37.45" cy="14.45" r="0.92"/><circle cx="30.91" cy="18.09" r="0.92"/><circle cx="33.09" cy="18.09" r="0.92"/><circle cx="35.27" cy="18.09" r="0.92"/><circle cx="37.45" cy="18.09" r="0.92"/><circle cx="39.64" cy="18.09" r="0.92"/><circle cx="30.91" cy="21.73" r="0.92"/><circle cx="33.09" cy="21.73" r="0.92"/><circle cx="35.27" cy="21.73" r="0.92"/><circle cx="37.45" cy="21.73" r="0.92"/><circle cx="39.64" cy="21.73" r="0.92"/><circle cx="15.64" cy="25.36" r="0.92"/><circle cx="17.82" cy="25.36" r="0.92"/><circle cx="30.91" cy="25.36" r="0.92"/><circle cx="33.09" cy="25.36" r="0.92"/><circle cx="35.27" cy="25.36" r="0.92"/><circle cx="37.45" cy="25.36" r="0.92"/><circle cx="41.82" cy="25.36" r="0.92"/><circle cx="44.00" cy="25.36" r="0.92"/><circle cx="46.18" cy="25.36" r="0.92"/><circle cx="48.36" cy="25.36" r="0.92"/><circle cx="15.64" cy="29.00" r="0.92"/><circle cx="30.91" cy="29.00" r="0.92"/><circle cx="33.09" cy="29.00" r="0.92"/><circle cx="35.27" cy="29.00" r="0.92"/><circle cx="37.45" cy="29.00" r="0.92"/><circle cx="44.00" cy="29.00" r="0.92"/><circle cx="46.18" cy="29.00" r="0.92"/><circle cx="48.36" cy="29.00" r="0.92"/><circle cx="15.64" cy="32.64" r="0.92"/><circle cx="17.82" cy="32.64" r="0.92"/><circle cx="30.91" cy="32.64" r="0.92"/><circle cx="33.09" cy="32.64" r="0.92"/><circle cx="35.27" cy="32.64" r="0.92"/><circle cx="37.45" cy="32.64" r="0.92"/><circle cx="46.18" cy="32.64" r="0.92"/><circle cx="48.36" cy="32.64" r="0.92"/><circle cx="15.64" cy="36.27" r="0.92"/><circle cx="17.82" cy="36.27" r="0.92"/><circle cx="20.00" cy="36.27" r="0.92"/><circle cx="30.91" cy="36.27" r="0.92"/><circle cx="33.09" cy="36.27" r="0.92"/><circle cx="35.27" cy="36.27" r="0.92"/><circle cx="37.45" cy="36.27" r="0.92"/><circle cx="15.64" cy="39.91" r="0.92"/><circle cx="17.82" cy="39.91" r="0.92"/><circle cx="30.91" cy="39.91" r="0.92"/><circle cx="33.09" cy="39.91" r="0.92"/><circle cx="35.27" cy="39.91" r="0.92"/><circle cx="44.00" cy="39.91" r="0.92"/><circle cx="46.18" cy="39.91" r="0.92"/><circle cx="48.36" cy="39.91" r="0.92"/>
+  </g>
 </svg>
