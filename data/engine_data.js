@@ -227,7 +227,7 @@ window.ENGINE_DATA = {
    "name": "Bolivia",
    "region": "South America",
    "who_region": "",
-   "yf_cert": true,
+   "yf_cert": false,
    "polio_category": "",
    "mening_belt": ""
   },
@@ -353,7 +353,7 @@ window.ENGINE_DATA = {
    "name": "Central African Rep.",
    "region": "Africa",
    "who_region": "",
-   "yf_cert": false,
+   "yf_cert": true,
    "polio_category": "2",
    "mening_belt": "December–June"
   },
@@ -578,7 +578,7 @@ window.ENGINE_DATA = {
    "name": "Equatorial Guinea",
    "region": "Africa",
    "who_region": "",
-   "yf_cert": true,
+   "yf_cert": false,
    "polio_category": "3",
    "mening_belt": "December–June"
   },
@@ -803,7 +803,7 @@ window.ENGINE_DATA = {
    "name": "Guinea",
    "region": "Africa",
    "who_region": "",
-   "yf_cert": true,
+   "yf_cert": false,
    "polio_category": "1|3",
    "mening_belt": "December–June"
   },
@@ -1397,7 +1397,7 @@ window.ENGINE_DATA = {
    "name": "Nigeria",
    "region": "Africa",
    "who_region": "",
-   "yf_cert": true,
+   "yf_cert": false,
    "polio_category": "2",
    "mening_belt": "December–June"
   },
@@ -1505,7 +1505,7 @@ window.ENGINE_DATA = {
    "name": "Papua New Guinea",
    "region": "Oceania",
    "who_region": "",
-   "yf_cert": true,
+   "yf_cert": false,
    "polio_category": "2",
    "mening_belt": "December–June"
   },
