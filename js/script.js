@@ -1628,7 +1628,7 @@ function showInfo(k){
     availHtml+mapBtn;
   el('modal-bg').classList.add('show');
 }
-function closeModal(){el('modal-bg').classList.remove('show');}
+function closeModal(){el('modal-bg').classList.remove('show');const mc=el('modal-content');if(mc)mc.classList.remove('pi-modal');}
 function showMap(k){
   const f=DISEASE_MAPS[k];if(!f)return;
   const v=VACCINES.find(x=>x.k===k);
@@ -1696,7 +1696,7 @@ async function savePatient(finish){
     comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
     leistungen: document.body.classList.contains('clinic') ? readLeistungen() : ((existing&&existing.leistungen)||undefined),
-    payment: (function(){ const m=paymentMethod(); const pd=paidStatus(); if(!m && !pd) return (existing&&existing.payment)||undefined; return {method:m,label:payMethodLabel(m),paid:pd==='paid'}; })(),
+    payment: (function(){ const m=paymentMethod(); const finalizing=(finish && roleIsKasse() && document.body.classList.contains('clinic')); const prevPaid=!!(existing&&existing.payment&&existing.payment.paid); if(!m && !(existing&&existing.payment)) return undefined; return {method:m||((existing&&existing.payment&&existing.payment.method)||''), label:payMethodLabel(m), paid: finalizing?true:prevPaid}; })(),
     billing: (finish && roleIsKasse() && document.body.classList.contains('clinic')) ? {total:computeBilling().total, method:paymentMethod(), methodLabel:payMethodLabel(paymentMethod()), at:new Date().toISOString(), by:((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||myUserKey())} : ((existing&&existing.billing)||undefined),
     // Medizin-Personal schließt ab → 'kasse' (Übergabe an die Kasse); die Kasse schließt ab → 'done'
     status: ((finish && document.body.classList.contains('clinic')) ? (roleIsKasse() ? 'done' : 'kasse') : ((existing&&existing.status)||(document.body.classList.contains('clinic')?'treatment':'waiting'))),
@@ -2013,8 +2013,8 @@ function computeBilling(){
     if(typeof unit==='number'){ rows.push({label:it.name, price:unit, vax:true}); total+=unit; }
     else { rows.push({label:it.name, price:null, vax:true, unpriced:true}); hasUnpriced=true; }
   });
-  // Impfleistung (GOÄ 375) je Injektion – eigene, klar summierte Position
-  if(vax.length){ const impf=vax.length*PRICE_IMPFLEISTUNG; rows.push({label:L2(I18N.leistImpf)+' · '+vax.length+' ×', price:impf}); total+=impf; }
+  // Impfleistung (GOÄ 375) – einmal pro Besuch (nicht je Injektion)
+  if(vax.length){ rows.push({label:L2(I18N.leistImpf), price:PRICE_IMPFLEISTUNG}); total+=PRICE_IMPFLEISTUNG; }
   return { rows, total, hasUnpriced, count:rows.length };
 }
 // Beratungs-Labels für die Abrechnung (Kurzform)
@@ -2047,14 +2047,12 @@ function applyLeistungen(L){
   if(el('leistung_folge')) el('leistung_folge').checked = !!L.folge;
   if(el('leistung_bescheinigung')) el('leistung_bescheinigung').checked = !!L.bescheinigung;
 }
-let _loadedPaid='';
-const PAID_OPTIONS=[{v:'paid',key:'kassePaid'},{v:'unpaid',key:'kasseUnpaid'}];
-function paidStatus(){ const r=document.querySelector('input[name="kasse_paid"]:checked'); return r?r.value:(_loadedPaid||''); }
+let _loadedPaid='';   // 'paid' sobald ein finalisierter (bezahlter) Patient geladen ist
 // Zahlungs-Badge (Behandelt-Liste): € = Direktzahlung, Beleg = Rechnung; grün wenn bezahlt
 function payBadge(p){
   if(!p || !p.payment || !p.payment.method) return '';
   const m=p.payment.method, paid=!!p.payment.paid;
-  const sym = (m==='sofort') ? '<b>€</b>' : '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M14 3H7v18h11V8z"/><path d="M14 3v5h5"/></svg>';
+  const sym = (m==='sofort') ? '<b>€</b>' : '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M14 3H7v18h11V8z"/><path d="M14 3v5h5"/></svg>';
   const title = payMethodLabel(m)+' · '+(paid?L2(I18N.kassePaid):L2(I18N.kasseUnpaid));
   return '<span class="pay-badge '+(paid?'paid':'unpaid')+'" title="'+_esc(title)+'">'+sym+'</span>';
 }
@@ -2072,40 +2070,38 @@ function showPriceInfo(){
     [L2(BERAT_LABEL['1']),PRICE_BERATUNG['1']],[L2(BERAT_LABEL['3']),PRICE_BERATUNG['3']],[L2(BERAT_LABEL['A34']),PRICE_BERATUNG['A34']],
     [L2(I18N.leistFolge),PRICE_FOLGE],[L2(I18N.leistBescheinigung),PRICE_BESCHEINIGUNG],[L2(I18N.leistImpf)+' (375)',PRICE_IMPFLEISTUNG]
   ];
-  const rowsL=leist.map(r=>'<div class="pi-row"><span>'+_esc(r[0])+'</span><span>'+eur(r[1])+'</span></div>').join('');
-  const rowsV=PRICE_VAX_LIST.map(r=>'<div class="pi-row"><span>'+_esc(r[0])+'</span><span>'+eur(r[1])+'</span></div>').join('');
+  const mkRows=(arr)=>arr.map(r=>'<div class="pi-row"><span>'+_esc(r[0])+'</span><span>'+eur(r[1])+'</span></div>').join('');
+  const half=Math.ceil(PRICE_VAX_LIST.length/2);
+  const vaxA=PRICE_VAX_LIST.slice(0,half), vaxB=PRICE_VAX_LIST.slice(half);
+  box.classList.add('pi-modal');
   box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3 class="pi-h">'+L2(I18N.priceInfoTitle)+'</h3>'+
-    '<div class="pi-grid"><div class="pi-col"><div class="pi-sub">'+L2(I18N.priceInfoLeist)+'</div>'+rowsL+'</div>'+
-    '<div class="pi-col pi-col-vax"><div class="pi-sub">'+L2(I18N.priceInfoVax)+'</div>'+rowsV+'</div></div>';
+    '<div class="pi-grid">'+
+      '<div class="pi-col"><div class="pi-sub">'+L2(I18N.priceInfoLeist)+'</div>'+mkRows(leist)+'</div>'+
+      '<div class="pi-col pi-col-vax"><div class="pi-sub">'+L2(I18N.priceInfoVax)+'</div>'+mkRows(vaxA)+'</div>'+
+      '<div class="pi-col pi-col-vax"><div class="pi-sub">&nbsp;</div>'+mkRows(vaxB)+'</div>'+
+    '</div>';
   const bg=el('modal-bg'); if(bg) bg.classList.add('show');
 }
 // Abrechnungsblock (Sektion 6) rendern – zentrale Ansicht der Kasse
 function renderKasseBilling(){
   const box=el('kasse-billing'); if(!box) return;
-  if(!isKasseView()){ box.innerHTML=''; return; }   // Abrechnung nur in der Kasse-Ansicht
+  // Grünes „Bezahlt"-Feld, sobald der Patient finalisiert wurde – in jeder Rolle sichtbar
+  const paidField = (_loadedPaid==='paid') ? '<div class="kb-paid-field">'+L2(I18N.kassePaid)+'</div>' : '';
+  if(!isKasseView()){ box.innerHTML = paidField; return; }   // Nicht-Kasse: nur „Bezahlt" bei finalisiertem Patienten
   const b=computeBilling();
   let h='<div class="kb-title">'+L2(I18N.kasseBillTitle)+'</div>';
-  if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'; return; }
+  if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'+paidField; return; }
   h+='<div class="kb-rows">';
   b.rows.forEach(r=>{ h+='<div class="kb-row'+(r.vax?' kb-vax':'')+'"><span class="kb-l">'+_esc(r.label)+'</span><span class="kb-p">'+(r.unpriced?('<span class="kb-manual">'+L2(I18N.kassePriceManual)+'</span>'):eur(r.price))+'</span></div>'; });
   h+='</div>';
   h+='<div class="kb-total"><span>'+L2(I18N.kasseTotal)+'</span><span class="kb-total-val">'+eur(b.total)+(b.hasUnpriced?' +':'')+'</span></div>';
   if(b.hasUnpriced) h+='<div class="kb-note">'+L2(I18N.kasseUnpricedNote)+'</div>';
-  // Zahlungsart nur in der Kasse-Ansicht auswählbar (Personal sieht nur die Summe)
-  if(isKasseView()){
-    const cur=paymentMethod()||_loadedPayment;
-    h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
-    PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
-    h+='</div>';
-    // Zahlungsstatus: Bezahlt / Nicht bezahlt
-    const curPaid=paidStatus()||_loadedPaid;
-    h+='<div class="kb-pay-title">'+L2(I18N.kassePaidTitle)+'</div><div class="kb-pay">';
-    PAID_OPTIONS.forEach(o=>{ h+='<label class="chk-chip kb-paid-'+o.v+'"><input type="radio" name="kasse_paid" value="'+o.v+'" '+(curPaid===o.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(I18N[o.key])+'</span></label>'; });
-    h+='</div>';
-  } else if(_loadedPayment){
-    h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-row"><span class="kb-l">'+_esc(payMethodLabel(_loadedPayment))+(_loadedPaid?' · '+(_loadedPaid==='paid'?L2(I18N.kassePaid):L2(I18N.kasseUnpaid)):'')+'</span></div>';
-  }
+  const cur=paymentMethod()||_loadedPayment;
+  h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
+  PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
+  h+='</div>';
+  h+=paidField;
   box.innerHTML=h;
 }
 // Heute zu verabreichende Impfungen (Bucket offset 0) als [{k:stKey, sub:planField, name, priceKey}]
@@ -2456,7 +2452,7 @@ function renderTreatPanel(){
     // Rolle Kasse: oben die Warteschlange „Kasse" (klickbar), unten „Behandelt"
     h+='<div class="tp-head"><span class="tp-title">'+L2(I18N.kasseSection)+' <span class="count-pill">'+kassePats.length+'</span></span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
     if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top:8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
-    h+='<div class="tp-list drop-zone" data-status="kasse" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'kasse\',null)">'+(kassePats.length?kassePats.map(tpItem).join(''):'<div class="tp-empty">'+L2(I18N.kasseNoItems)+'</div>')+'</div>';
+    h+='<div class="tp-list drop-zone tp-kasse-list" data-status="kasse" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'kasse\',null)">'+(kassePats.length?kassePats.map(tpItem).join(''):'<div class="tp-empty">'+L2(I18N.kasseNoItems)+'</div>')+'</div>';
     if(!editing){
       h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px; flex:1; display:flex; flex-direction:column; min-height:0;">';
       h+='<div class="tp-head"><span class="tp-title">'+(LX('Behandelt','Treated'))+' <span class="count-pill">'+donePats.length+'</span></span></div>';

@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=10">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=10">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=10">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=10">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=11">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=11">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=11">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=11">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=9">
+<link rel="stylesheet" href="css/style.css?v=11">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -173,7 +173,8 @@
   <!-- STEP 4: Impfstatus -->
   <section class="card" id="step4">
     <button class="lock-btn" id="lock-step4" onclick="toggleLock('step4')" title="Bearbeiten" aria-label="Bearbeiten" style="display:none">✎</button>
-    <h2 style="display:flex;align-items:center;"><span class="step-badge">4</span><span data-i18n="s4Title">Impfstatus</span><span style="flex:1"></span><div class="age-box empty" id="age-box" data-i18n="ageEmpty">Alter: bitte Geburtsdatum eingeben</div></h2>
+    <h2 class="sec-h"><span class="step-badge">4</span><span data-i18n="s4Title">Impfstatus</span></h2>
+    <div class="s4-agebar"><div class="age-box empty" id="age-box" data-i18n="ageEmpty">Alter: bitte Geburtsdatum eingeben</div></div>
     <div class="today-warn" id="today-warn"></div>
     <div class="table-container">
       <table class="vax"><thead><tr>
@@ -200,7 +201,7 @@
   <!-- STEP 6: Leistungen -->
   <section class="card" id="step6" style="display:none">
     <button class="lock-btn" id="lock-step6" onclick="toggleLock('step6')" title="Bearbeiten" aria-label="Bearbeiten" style="display:none">✎</button>
-    <h2 style="display:flex;align-items:center;"><span class="step-badge">6</span><span data-i18n="s6Title">Leistungen</span><span style="flex:1"></span><button class="price-info-btn" onclick="showPriceInfo()" title="Preise / Prices / Prix" aria-label="Preise">P</button></h2>
+    <h2 style="display:flex;align-items:center;"><span class="step-badge">6</span><span data-i18n="s6Title">Leistungen</span><button class="price-info-btn" onclick="showPriceInfo()" title="Preise / Prices / Prix" aria-label="Preise" style="margin-left:10px">P</button></h2>
     <div class="card-desc" data-i18n="s6Desc">Dokumentation der heute erbrachten Leistungen für die Abrechnung.</div>
 
     <div class="card-sub" data-i18n="leistVaxToday" style="margin-top:16px;">Impfungen heute</div>
@@ -275,13 +276,13 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=9"></script>
+<script src="js/auth.js?v=11"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=9"></script>
-<script src="js/engine.js?v=9"></script>
-<script src="js/script.js?v=9"></script>
+<script src="js/engine_rules.js?v=11"></script>
+<script src="js/engine.js?v=11"></script>
+<script src="js/script.js?v=11"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){

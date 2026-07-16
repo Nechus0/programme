@@ -692,3 +692,31 @@ body.clinic-idle .shift-panel.show{ display:flex;flex-direction:column;flex:0 0 
 .shift-person{ display:flex;align-items:center;gap:8px;padding:3px 0; }
 .shift-nm{ font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .shift-empty{ font-size:12px;color:var(--grey);padding:2px 0; }
+
+/* === Kasse/Layout Feinschliff v2 === */
+/* Kasse-Warteschlange darf nicht wachsen (sonst „zu lang"), Behandelt bekommt den Platz */
+.tp-kasse-list{ flex:0 0 auto !important; min-height:48px; max-height:36%; }
+/* Zahlungs-/Behandler-Icons gleich groß wie das Personal-Icon (26px) */
+.pay-badge{ width:26px; height:26px; font-size:13px; }
+.pay-badge b{ font-size:14px; }
+/* Grünes „Bezahlt"-Feld unten rechts in Sektion 6 */
+.kb-paid-field{ display:block; width:fit-content; margin:16px 0 0 auto; background:var(--green); color:#fff; border-radius:8px; padding:9px 20px; font-weight:700; font-size:14px; letter-spacing:.02em; }
+/* Rechte Spalte „Im Dienst" an die Ambulanzliste andocken (nicht mehr freistehend) */
+body.clinic-idle #list-card{ border-top-right-radius:0; border-bottom-right-radius:0; }
+body.clinic-idle .shift-panel.show{ margin:24px 0 20px 0; border-left:none; border-top-left-radius:0; border-bottom-left-radius:0; padding:20px 16px; }
+/* „Im Dienst" klar vom ersten Rollen-Header trennen */
+.shift-panel .tp-head{ margin-bottom:18px; padding-bottom:10px; }
+.shift-panel .tp-title{ font-size:13px; color:var(--text); }
+.shift-group{ margin-bottom:22px; }
+.shift-role{ margin-bottom:9px; }
+/* Preisliste etwas größer + dreispaltig */
+.modal.pi-modal{ max-width:840px; }
+.pi-h{ font-size:19px; margin-bottom:16px; }
+.pi-grid{ grid-template-columns:1.05fr 1fr 1fr; gap:8px 30px; }
+.pi-row{ font-size:13.5px; padding:3px 0; }
+.pi-sub{ font-size:12px; }
+/* Sektion 4: Altersfeld in eigener Zeile unter der Überschrift (kein Kollidieren mit Stift/Caret) */
+.s4-agebar{ display:flex; justify-content:flex-end; margin:0 0 18px; }
+.s4-agebar .age-box{ margin-top:0; }
+/* Etwas mehr Luft zwischen Überschrift+Nummer und Inhalt in allen Abschnitten */
+.card h2{ margin-bottom:12px; }
