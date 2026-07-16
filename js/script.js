@@ -233,6 +233,9 @@ const MENHEP_FR={
  'Langzeit/Exposition – Grundimmunisierung':'Long séjour/exposition – primovaccination'
 };
 function frNote(de,en){ return LANG==='de'?de:(LANG==='fr'?(MENHEP_FR[de]||en):en); }
+// FR vaccine names (keyed by vaccine key). vName() picks by LANG with EN fallback.
+const VAX_FR={tdap_polio:'Tétanos Diphtérie Coqueluche Polio',mmr:'Rougeole, oreillons, rubéole',varicella:'Varicelle (varicelle)',hepatitis:'Hépatite A + B',tbe:'Encéphalite à tiques (FSME)',menacwy:'Méningocoque ACWY',menb:'Méningocoque B',yellowfever:'Fièvre jaune',typhoid:'Typhoïde',rabies:'Rage',jev:'Encéphalite japonaise',dengue:'Dengue',chikungunya:'Chikungunya',cholera:'Choléra',influenza:'Grippe',covid:'COVID-19',pneumo:'Pneumocoque',hpv:'HPV',zoster:'Zona',mpox:'Mpox'};
+function vName(v){ if(!v) return ''; return LANG==='de'?v.de:(LANG==='fr'?(VAX_FR[v.k]||v.en):v.en); }
 const PROD_COMPS={tdap_ipv:['T','D','aP','IPV'],tdap:['T','D','aP'],td_ipv:['T','D','IPV'],td:['T','D'],t:['T'],hexa:['T','D','aP','IPV'],penta:['T','D','aP','IPV']};
 
 /* ---------- AVAILABILITY (min = Jahre, präzise auf den Monat) ---------- */
@@ -627,7 +630,7 @@ function autoTdapProduct(st, a) {
 }
 
 function getPlanName(v, st) {
-    let planName = (LANG==='de'?v.de:v.en);
+    let planName = (vName(v));
     if (v.k === 'tdap_polio') {
        let prod = autoTdapProduct(st, tdapPolioAssess());
        if (prod === 'tdap_ipv') planName = 'Tetanus Diphtherie Pertussis Polio (Repevax)';
@@ -742,7 +745,7 @@ function renderApptOverview() {
             else if(stt === 'blue') { bg = '#e3f2fd'; fg = '#1565c0'; border = '#90caf9'; }
             else if(stt === 'violet') { bg = '#f2e9fb'; fg = '#6a1b9a'; border = '#e1bee7'; }
         }
-        let name = (LANG==='de'?v.de:v.en);
+        let name = (vName(v));
         if (v.k === 'mmr') name = (LX('Masern, Mumps, Röteln','Measles, Mumps, Rubella'));
         let checkIcon = isPlanned ? `<span style="font-size:10px;margin-right:2px;font-weight:bold">✓</span>` : `<div style="width:6px;height:6px;border-radius:50%;background:${fg};margin-right:2px;"></div>`;
         quickHTML += `<div class="plan-pill" onclick="togglePillPlan('${v.k}', 'planned')" style="font-size:12px;padding:6px 12px;border-radius:14px;background:${bg};color:${fg};border:1px solid ${border};display:flex;align-items:center;gap:4px;cursor:pointer;transition:all 0.2s;user-select:none;">
@@ -1309,7 +1312,7 @@ function renderVaxTable(){
                    '<div class="yr-row"><span>'+(LX('Letzte IPV','Last IPV'))+'</span>'+yrIn('y_ipv')+'</div>'+
                  '</div>';
 
-      html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+availBadge+'</div><div class="vsub">'+(LX('Basis-Impfschutz','Core vaccines'))+'</div></td>'+
+      html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(vName(v))+availBadge+'</div><div class="vsub">'+(LX('Basis-Impfschutz','Core vaccines'))+'</div></td>'+
         '<td data-label="'+t('thDone')+'">'+col2+'</td>'+
         '<td data-label="'+t('thLast')+'">'+col3+'</td>'+
         '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><div style="min-height:48px;">'+compBadges+(a.ipvNote&&a.ipvNote.de?'<div class="reason" style="margin-top:6px;border-top:1px solid var(--line);padding-top:4px"><b>Polio:</b> '+(LANG==='de'?a.ipvNote.de:a.ipvNote.en)+'</div>':'')+'</div></td></tr>';return;
@@ -1330,9 +1333,9 @@ function renderVaxTable(){
       }
 
       const aBadge='<div class="hep-stat"><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
-        '<div class="reason">'+(LANG==='de'?ha.aNote.de:ha.aNote.en)+'</div>';
+        '<div class="reason">'+frNote(ha.aNote.de,ha.aNote.en)+'</div>';
       const bBadge='<div class="hep-stat"><span class="badge '+ha.B+'">'+bBadgeTxt+'</span></div>'+
-        '<div class="reason">'+(LANG==='de'?ha.bNote.de:ha.bNote.en)+'</div>';
+        '<div class="reason">'+frNote(ha.bNote.de,ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
       const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info">i</button>';
@@ -1376,7 +1379,7 @@ function renderVaxTable(){
       const typeOpts=[['','— Typ —'],['acwy','ACWY'],['c','C']];
       const typeSel=typeOpts.map(o=>'<option value="'+o[0]+'"'+(st.type===o[0]?' selected':'')+'>'+o[1]+'</option>').join('');
       const mandBadge=ma.mand?'<span class="badge mand">'+t('mandatory')+'</span>':'';
-      html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+mandBadge+availBadge+'</div><select class="mini" onchange="setField(\'menacwy\',\'type\',this.value)">'+typeSel+'</select></td>'+
+      html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(vName(v))+mandBadge+availBadge+'</div><select class="mini" onchange="setField(\'menacwy\',\'type\',this.value)">'+typeSel+'</select></td>'+
         '<td data-label="'+t('thDone')+'">'+renderDoseChips(v.k)+'</td>'+
         '<td data-label="'+t('thLast')+'">'+yearInput('menacwy','year')+'</td>'+
         '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),violet:t('lUseful'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+frNote(ma.noteDe,ma.noteEn)+'</div></td></tr>';return;
@@ -1409,7 +1412,7 @@ function renderVaxTable(){
     } else if (v.k === 'varicella') {
       mmrChk = '<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.vzv?'checked':'')+' onchange="toggleSerology(\'vzv\', this.checked)"> <span style="flex:1; line-height:1.3">Varizellen-IgG ausreichend</span></label></div>';
     }
-    html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+liveBadge+mandBadge+availBadge+'</div>'+(note?'<div class="reason"'+noteStyle+'>'+note+'</div>':'')+liveNote+availNote+alNote+mmrChk+extraChk+'</td>'+
+    html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(vName(v))+liveBadge+mandBadge+availBadge+'</div>'+(note?'<div class="reason"'+noteStyle+'>'+note+'</div>':'')+liveNote+availNote+alNote+mmrChk+extraChk+'</td>'+
       '<td data-label="'+t('thDone')+'">'+renderDoseChips(v.k)+'</td>'+
       '<td data-label="'+t('thLast')+'">'+yearInput(v.k,'year')+'</td>'+
       '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+a.status+'">'+badgeTxt+'</span></td></tr>';
@@ -1499,7 +1502,7 @@ function renderImmunoWarn(){
   }
   if(!box) return;
   if(!staff || !livesBlocked()){ box.innerHTML=''; return; }
-  const lives=VACCINES.filter(v=>v.live).map(v=>LANG==='de'?v.de:v.en).join(', ');
+  const lives=VACCINES.filter(v=>v.live).map(v=>vName(v)).join(', ');
   const immunoStr=immunoMeds.join(', ');
   const reason=isPregnant()?(LX('Schwangerschaft','Pregnancy')):((hasImmuneDef()&&!immunoStr)?(LX('Immundefizienz','Immunodeficiency')):(LANG==='de'?('Immunsuppression'+(immunoStr?' ('+immunoStr+')':'')):('Immunosuppression'+(immunoStr?' ('+immunoStr+')':''))));
   box.innerHTML='<div class="warn-box"><h4>'+(LX('Lebendimpfstoffe – kontraindiziert / Vorsicht','Live vaccines — contraindicated / caution'))+'</h4><p>'+(LANG==='de'?('Wegen '+reason+' sind Lebendimpfstoffe kontraindiziert bzw. nur nach individueller Abwägung: '):('Because of '+reason+', live vaccines are contraindicated or only after individual assessment: '))+'<strong>'+lives+'</strong>.</p><p class="mini-note">'+(LX('Falls indiziert: Lebendimpfung möglichst ≥4 Wochen vor Therapiebeginn; Details je Substanz siehe Medikamenten-Übersicht.','If indicated: complete live vaccination ≥4 weeks before therapy; per-drug details see the medication overview.'))+'</p></div>';
@@ -1560,7 +1563,7 @@ function showInfo(k){
   const availHtml=a?('<div class="m-sec"><h4>'+(LX('Verfügbarkeit & Alter (Ambulanz)','Availability & age (clinic)'))+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
   const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
-    '<h3>'+(LANG==='de'?v.de:v.en)+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
+    '<h3>'+(vName(v))+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
     '<div class="m-sub">'+(LX('Vereinfachte Kurzinformation für das Patientengespräch','Simplified summary for the patient conversation'))+'</div>'+
     '<div class="m-sec"><h4>'+t('mDisease')+'</h4><p>'+(inf.disease[LANG]||inf.disease.en)+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mEpi')+'</h4><p>'+(inf.epi[LANG]||inf.epi.en)+'</p></div>'+
@@ -1573,7 +1576,7 @@ function closeModal(){el('modal-bg').classList.remove('show');}
 function showMap(k){
   const f=DISEASE_MAPS[k];if(!f)return;
   const v=VACCINES.find(x=>x.k===k);
-  const name=(MAP_NAME[k]?MAP_NAME[k][LANG==='de'?'de':'en']:(v?(LANG==='de'?v.de:v.en):''));
+  const name=(MAP_NAME[k]?MAP_NAME[k][LANG==='de'?'de':'en']:(v?(vName(v)):''));
   const src=(MAP_SOURCE[k]?MAP_SOURCE[k]:{de:'Quelle: RKI, Epidemiologisches Bulletin 14/2025',en:'Source: RKI, Epidemiological Bulletin 14/2025'})[LANG==='de'?'de':'en'];
   const missMsg=(LX('Karte noch nicht hinterlegt.','Map not yet available.'));
   el('map-bg').innerHTML='<button class="map-close" onclick="closeMap()" title="Schließen">×</button>'+
@@ -1889,7 +1892,7 @@ const AMB_SECTIONS=[
   {status:'treatment', type:'beratung',     de:'Beratung · In Behandlung',  en:'Consultation · In treatment'},
   {status:'waiting',   type:'folgeimpfung', de:'Folgeimpfung · Wartend',    en:'Follow-up · Waiting'},
   {status:'treatment', type:'folgeimpfung', de:'Folgeimpfung · In Behandlung', en:'Follow-up · In treatment'},
-  {status:'done', de:'Behandelt', en:'Treated'}
+  {status:'done', de:'Behandelt', en:'Treated', fr:'Traité'}
 ];
 function myTreatmentMode(){ let m=null; try{m=localStorage.getItem('charite_treatmentmode');}catch(e){} if(m==='beratung'||m==='folgeimpfung')return m; return ((CURRENT_PROFILE||{}).role==='mfa')?'folgeimpfung':'beratung'; }
 function setMyTreatmentMode(m){ if(m!=='beratung'&&m!=='folgeimpfung')return; try{localStorage.setItem('charite_treatmentmode',m);}catch(e){} }
@@ -1913,7 +1916,7 @@ function updateLeistungen() {
          if (st.planned) planned.push({ name: 'Tetanus Diphtherie Pertussis', k: 'tdap_combo', live: false, stKey: v.k, planField: 'planned' });
          if (st.planned_ipv) planned.push({ name: 'Polio (IPV)', k: 'ipv_mono', live: false, stKey: v.k, planField: 'planned_ipv' });
       } else {
-         if (st.planned) planned.push({ name: typeof getPlanName==='function'?getPlanName(v,st):(LANG==='de'?v.de:v.en), k: v.k, live: !!v.live, stKey: v.k, planField: 'planned' });
+         if (st.planned) planned.push({ name: typeof getPlanName==='function'?getPlanName(v,st):(vName(v)), k: v.k, live: !!v.live, stKey: v.k, planField: 'planned' });
       }
    });
 
@@ -2138,19 +2141,19 @@ function renderPatients(){
     const dropAttr='data-status="'+s.status+'"'+(s.type?' data-type="'+s.type+'"':'');
     const typeArg=s.type?("'"+s.type+"'"):'null';
     let h='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-lane':'')+'" '+dropAttr+'>';
-    h+='<div class="amb-sec-h"'+clickAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span>'+toggleArrow+'</div>';
+    h+='<div class="amb-sec-h"'+clickAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:(LANG==='fr'?(s.fr||s.en):s.en))+' <span class="count-pill">'+inSec.length+'</span></span>'+toggleArrow+'</div>';
     h+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
     h+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LX('Hierher ziehen …','Drop here …'))+'</div>';
     h+='</div></div>';
     return h;
   };
   let cols='';
-  [{type:'beratung',de:'Beratung',en:'Consultation'},{type:'folgeimpfung',de:'Folgeimpfung',en:'Follow-up'}].forEach(g=>{
+  [{type:'beratung',de:'Beratung',en:'Consultation',fr:'Consultation'},{type:'folgeimpfung',de:'Folgeimpfung',en:'Follow-up',fr:'Suivi'}].forEach(g=>{
     const wCount=filt.filter(p=>patientStatus(p)==='waiting'&&patientTreatType(p)===g.type).length;
     const tCount=filt.filter(p=>patientStatus(p)==='treatment'&&patientTreatType(p)===g.type).length;
-    cols+='<div class="amb-typegroup '+g.type+'"><div class="amb-tg-h"><span class="type-badge '+g.type+'">'+(g.type==='folgeimpfung'?'F':'B')+'</span>'+(LANG==='de'?g.de:g.en)+'<span class="amb-tg-count">'+(wCount+tCount)+'</span></div>';
-    cols+=lane({status:'waiting',type:g.type,de:'Wartend',en:'Waiting'});
-    cols+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment'});
+    cols+='<div class="amb-typegroup '+g.type+'"><div class="amb-tg-h"><span class="type-badge '+g.type+'">'+(g.type==='folgeimpfung'?'F':'B')+'</span>'+(LANG==='de'?g.de:(LANG==='fr'?g.fr:g.en))+'<span class="amb-tg-count">'+(wCount+tCount)+'</span></div>';
+    cols+=lane({status:'waiting',type:g.type,de:'Wartend',en:'Waiting',fr:'En attente'});
+    cols+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment',fr:'En traitement'});
     cols+='</div>';
   });
   let html='<div class="amb-board2">'+cols+'</div>';
@@ -2585,7 +2588,7 @@ function showList(){
 
 /* ---------- Bearbeitungssperre + Änderungsprotokoll (Abschnitte 1–3) ---------- */
 const LOCK_SECTIONS=['step1','step2','step3'];
-const SECTION_TITLES={step1:{de:'Stammdaten',en:'Master data'},step2:{de:'Reise',en:'Travel'},step3:{de:'Immunstatus',en:'Immune status'}};
+const SECTION_TITLES={step1:{de:'Stammdaten',en:'Master data',fr:'Données personnelles'},step2:{de:'Reise',en:'Travel',fr:'Voyage'},step3:{de:'Immunstatus',en:'Immune status',fr:'Statut immunitaire'}};
 let SECTION_LOCKED={}, SECTION_EDIT={}, LOCK_LISTENERS=false;
 function isStaff(){ return (typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{}).role); }
 function lockAllSections(){ LOCK_SECTIONS.forEach(id=>{SECTION_LOCKED[id]=true;SECTION_EDIT[id]=false;}); applyLocks(); }
