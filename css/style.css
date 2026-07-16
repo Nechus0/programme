@@ -27,7 +27,7 @@ header{background:#fff;border-bottom:2px solid var(--black);padding:14px 28px;di
 .shell{max-width:1560px;margin:0 auto;padding:0 20px;display:flex;align-items:flex-start;gap:22px;}
 body.clinic-idle { overflow: hidden; }
 body.clinic-idle .shell { align-items: stretch; height: calc(100vh - 80px); }
-body.clinic-idle main { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 20px; }
+body.clinic-idle main { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 20px; max-width: none; margin: 0; flex: 1; min-width: 0; }
 body.clinic-idle #list-card { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 0; }
 body.clinic-idle #patient-list { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90px;}
