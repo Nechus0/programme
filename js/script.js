@@ -152,6 +152,9 @@ const TERRITORIES=[
 ];
 const ALL_COUNTRIES=[...COUNTRIES.map(c=>({code:c[0],de:c[1],en:c[2],region:c[3],terr:false})),...TERRITORIES.map(c=>({code:c[0],de:c[1],en:c[2],region:c[3],terr:true}))];
 const CBY={}; ALL_COUNTRIES.forEach(c=>CBY[c.code]=c);
+/* French country names (destination picker / chips). cName() picks by LANG with EN fallback. */
+const COUNTRY_FR={AT:'Autriche',BE:'Belgique',CH:'Suisse',DE:'Allemagne',DK:'Danemark',ES:'Espagne',FI:'Finlande',FR:'France',GB:'Royaume-Uni',GR:'Grèce',IE:'Irlande',IS:'Islande',IT:'Italie',LU:'Luxembourg',MT:'Malte',NL:'Pays-Bas',NO:'Norvège',PT:'Portugal',SE:'Suède',CY:'Chypre',AL:'Albanie',AM:'Arménie',AZ:'Azerbaïdjan',BA:'Bosnie-Herzégovine',BG:'Bulgarie',BY:'Biélorussie',CZ:'Tchéquie',EE:'Estonie',GE:'Géorgie',HR:'Croatie',HU:'Hongrie',KZ:'Kazakhstan',KG:'Kirghizistan',LT:'Lituanie',LV:'Lettonie',MD:'Moldavie',ME:'Monténégro',MK:'Macédoine du Nord',PL:'Pologne',RO:'Roumanie',RS:'Serbie',RU:'Russie',SI:'Slovénie',SK:'Slovaquie',TJ:'Tadjikistan',TM:'Turkménistan',UA:'Ukraine',UZ:'Ouzbékistan',XK:'Kosovo',AE:'Émirats arabes unis',BH:'Bahreïn',DZ:'Algérie',EG:'Égypte',IL:'Israël',IQ:'Irak',IR:'Iran',JO:'Jordanie',KW:'Koweït',LB:'Liban',LY:'Libye',MA:'Maroc',OM:'Oman',PS:'Palestine',QA:'Qatar',SA:'Arabie saoudite',SY:'Syrie',TN:'Tunisie',TR:'Turquie',YE:'Yémen',AO:'Angola',BF:'Burkina Faso',BI:'Burundi',BJ:'Bénin',BW:'Botswana',CD:'RD Congo',CF:'Rép. centrafricaine',CG:'Congo',CI:'Côte d\'Ivoire',CM:'Cameroun',CV:'Cap-Vert',DJ:'Djibouti',ER:'Érythrée',ET:'Éthiopie',GA:'Gabon',GH:'Ghana',GM:'Gambie',GN:'Guinée',GQ:'Guinée équatoriale',GW:'Guinée-Bissau',KE:'Kenya',KM:'Comores',LR:'Liberia',LS:'Lesotho',MG:'Madagascar',ML:'Mali',MR:'Mauritanie',MU:'Maurice',MW:'Malawi',MZ:'Mozambique',NA:'Namibie',NE:'Niger',NG:'Nigeria',RW:'Rwanda',SC:'Seychelles',SD:'Soudan',SL:'Sierra Leone',SN:'Sénégal',SO:'Somalie',SS:'Soudan du Sud',ST:'Sao Tomé-et-Principe',SZ:'Eswatini',TD:'Tchad',TG:'Togo',TZ:'Tanzanie',UG:'Ouganda',ZA:'Afrique du Sud',ZM:'Zambie',ZW:'Zimbabwe',AF:'Afghanistan',BD:'Bangladesh',BT:'Bhoutan',IN:'Inde',LK:'Sri Lanka',MV:'Maldives',NP:'Népal',PK:'Pakistan',BN:'Brunei',ID:'Indonésie',KH:'Cambodge',LA:'Laos',MM:'Birmanie',MY:'Malaisie',PH:'Philippines',SG:'Singapour',TH:'Thaïlande',TL:'Timor oriental',VN:'Viêt Nam',CN:'Chine',JP:'Japon',KP:'Corée du Nord',KR:'Corée du Sud',MN:'Mongolie',TW:'Taïwan',CA:'Canada',US:'États-Unis',BS:'Bahamas',BZ:'Belize',CR:'Costa Rica',CU:'Cuba',DO:'République dominicaine',GT:'Guatemala',HN:'Honduras',HT:'Haïti',JM:'Jamaïque',MX:'Mexique',NI:'Nicaragua',PA:'Panama',SV:'Salvador',TT:'Trinité-et-Tobago',BB:'Barbade',LC:'Sainte-Lucie',GD:'Grenade',DM:'Dominique',AR:'Argentine',BO:'Bolivie',BR:'Brésil',CL:'Chili',CO:'Colombie',EC:'Équateur',GY:'Guyana',PE:'Pérou',PY:'Paraguay',SR:'Suriname',UY:'Uruguay',VE:'Venezuela',AU:'Australie',FJ:'Fidji',NZ:'Nouvelle-Zélande',PG:'Papouasie-Nouvelle-Guinée',SB:'Îles Salomon',VU:'Vanuatu',WS:'Samoa',TO:'Tonga',KI:'Kiribati',FM:'Micronésie',GF:'Guyane française',MQ:'Martinique',GP:'Guadeloupe',RE:'La Réunion',YT:'Mayotte',PF:'Polynésie française',NC:'Nouvelle-Calédonie',PR:'Porto Rico',VI:'Îles Vierges américaines',AW:'Aruba',CW:'Curaçao',KY:'Îles Caïmans',GU:'Guam',HK:'Hong Kong',MO:'Macao',GL:'Groenland',BM:'Bermudes',CK:'Îles Cook',AD:'Andorre',AG:'Antigua-et-Barbuda',AI:'Anguilla',AS:'Samoa américaines',AX:'Îles Åland',BL:'Saint-Barthélemy',BQ:'Bonaire, Saint-Eustache et Saba',CC:'Îles Cocos',CX:'Île Christmas',EH:'Sahara occidental',FK:'Îles Malouines',FO:'Îles Féroé',GG:'Guernesey',GI:'Gibraltar',IM:'Île de Man',JE:'Jersey',KN:'Saint-Kitts-et-Nevis',LI:'Liechtenstein',MC:'Monaco',MF:'Saint-Martin',MH:'Îles Marshall',MP:'Îles Mariannes du Nord',MS:'Montserrat',NF:'Île Norfolk',NR:'Nauru',NU:'Niue',PM:'Saint-Pierre-et-Miquelon',PN:'Pitcairn',PW:'Palaos',SH:'Sainte-Hélène',SJ:'Svalbard et Jan Mayen',SM:'Saint-Marin',SX:'Sint Maarten',TC:'Îles Turques-et-Caïques',TK:'Tokelau',TV:'Tuvalu',VA:'Saint-Siège (Vatican)',VC:'Saint-Vincent-et-les-Grenadines',VG:'Îles Vierges britanniques',WF:'Wallis-et-Futuna'};
+function cName(c){ if(!c) return ''; return LANG==='de'?c.de:(LANG==='fr'?(COUNTRY_FR[c.code]||c.en):c.en); }
 
 /* ---------- RISK SETS ---------- */
 window.countryData = window.countryData || {};
@@ -1194,9 +1197,9 @@ function buildDestSelect(){
   const sel=el('dest-select');const list=[...ALL_COUNTRIES].sort((a,b)=>(LANG==='de'?a.de.localeCompare(b.de,'de'):a.en.localeCompare(b.en,'en')));
   const countries=list.filter(c=>!c.terr),terrs=list.filter(c=>c.terr);
   let html='<option value="">— '+(LANG==='de'?'Land wählen':'Select country')+' —</option><optgroup label="'+(LANG==='de'?'Länder':'Countries')+'">';
-  countries.forEach(c=>html+='<option value="'+c.code+'">'+(LANG==='de'?c.de:c.en)+'</option>');
+  countries.forEach(c=>html+='<option value="'+c.code+'">'+cName(c)+'</option>');
   html+='</optgroup><optgroup label="'+(LANG==='de'?'Überseegebiete':'Overseas territories')+'">';
-  terrs.forEach(c=>html+='<option value="'+c.code+'">'+(LANG==='de'?c.de:c.en)+'</option>');
+  terrs.forEach(c=>html+='<option value="'+c.code+'">'+cName(c)+'</option>');
   html+='</optgroup>';sel.innerHTML=html;
 }
 function addDest(code){
@@ -1213,7 +1216,7 @@ function addDest(code){
 }
 function removeDest(code){destinations=destinations.filter(c=>c!==code);renderDestChips();recompute();}
 function flagImg(code){return '<img class="flag" src="https://flagcdn.com/w40/'+code.toLowerCase()+'.png" onerror="this.remove()" alt="" loading="lazy">';}
-function renderDestChips(){el('dest-chips').innerHTML=destinations.map(code=>{const c=CBY[code];const d=window.countryData[code] ? window.countryData[code].diseases : null;const isYFMand = d && d.yellow_fever && d.yellow_fever.risk_level === 'mandatory_all';const isMenMand = (code === 'SA');const mand = isYFMand || isMenMand;return '<div class="chip'+(mand?' mand':'')+'">'+flagImg(code)+(LANG==='de'?c.de:c.en)+(c.terr?' *':'')+' <span onclick="removeDest(\''+code+'\')">×</span></div>';}).join('');}
+function renderDestChips(){el('dest-chips').innerHTML=destinations.map(code=>{const c=CBY[code];const d=window.countryData[code] ? window.countryData[code].diseases : null;const isYFMand = d && d.yellow_fever && d.yellow_fever.risk_level === 'mandatory_all';const isMenMand = (code === 'SA');const mand = isYFMand || isMenMand;return '<div class="chip'+(mand?' mand':'')+'">'+flagImg(code)+cName(c)+(c.terr?' *':'')+' <span onclick="removeDest(\''+code+'\')">×</span></div>';}).join('');}
 
 // Baut die Dosis-Chips. Endet die Liste auf eine „>N"-Option, wird sie mit der
 // exakten N-Option zu EINEM Umschalt-Chip zusammengefasst: Klick zyklisch  „—“ → N → >N → „—“.
@@ -1448,7 +1451,7 @@ function countToday(){let n=0;VACCINES.forEach(v=>{const st=vaxState[v.k];if(v.h
 function renderNotes(){
   const box=el('country-notes');if(!destinations.length){box.innerHTML='<div class="empty">'+t('noDest')+'</div>';return;}
   let html='';
-  destinations.forEach(code=>{const c=CBY[code];const name=(LANG==='de'?c.de:c.en);let items=[];
+  destinations.forEach(code=>{const c=CBY[code];const name=cName(c);let items=[];
     const data = window.countryData[code] || {};
     const d = data.diseases || {};
     
@@ -2175,7 +2178,7 @@ function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
 function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
 
 function tpTooltipHTML(p) {
-  const dest=(p.destinations||[]).map(c=>CBY[c]?(LANG==='de'?CBY[c].de:CBY[c].en):c).join(', ')||'—';
+  const dest=(p.destinations||[]).map(c=>CBY[c]?cName(CBY[c]):c).join(', ')||'—';
   const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
   const preg = p.pregnant==='pregnant'?(LANG==='de'?'Ja':'Yes'):(p.pregnant==='breastfeeding'?(LANG==='de'?'Stillend':'Breastfeeding'):(p.pregnant==='planned'?(LANG==='de'?'Geplant':'Planned'):(LANG==='de'?'Nein':'No')));
   const fld=(lbl,val)=>'<div class="pb-field"><span class="pb-lbl">'+lbl+'</span><span class="pb-val">'+val+'</span></div>';
@@ -2271,7 +2274,7 @@ function renderSectionCards(list){
   return h;
 }
 function renderPatientCard(p,inGroup){
-    const dest=(p.destinations||[]).map(c=>CBY[c]?(LANG==='de'?CBY[c].de:CBY[c].en):c).join(', ')||'—';
+    const dest=(p.destinations||[]).map(c=>CBY[c]?cName(CBY[c]):c).join(', ')||'—';
     const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
     const vax=p.vax||{};
     // Impfstatus (Sektion 3)
