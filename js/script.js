@@ -24,6 +24,13 @@ const I18N={
  s1Title:{de:'Stammdaten',en:'Master data'},s1Desc:{de:'Persönliche Daten und Kontakt.',en:'Personal details and contact.'},
  s2Title:{de:'Reise',en:'Travel'},s2Desc:{de:'Reiseziel(e), Aufenthaltsdauer und besondere Bedingungen.',en:'Destination(s), duration and special conditions.'},
  s5Title:{de:'Geplante Impfungen',en:'Planned vaccinations'},s5Desc:{de:'Termine für die ausgewählten Impfungen festlegen.',en:'Set appointments for the selected vaccinations.'},
+ s6Title:{de:'Leistungen',en:'Services'},s6Desc:{de:'Dokumentation der heute erbrachten Leistungen für die Abrechnung.',en:'Documentation of services provided today for billing.'},
+ leistVaxToday:{de:'Impfungen heute',en:'Vaccinations today'},leistBeratHead:{de:'Beratung & Untersuchung',en:'Consultation & examination'},leistWeitereHead:{de:'Weitere Leistungen',en:'Other services'},
+ leistBeratplan:{de:'Beratung mit Impfplan & Impftauglichkeit',en:'Consultation with vaccination plan & fitness'},leistBeratRezept:{de:'Beratung, ggf. mit Rezept',en:'Consultation, possibly with prescription'},leistBeratLang:{de:'Ausführliche Beratung > 20 min',en:'Detailed consultation > 20 min'},leistKeineBerat:{de:'Keine Beratung',en:'No consultation'},
+ leistFolge:{de:'Folgeverordnung',en:'Follow-up prescription'},leistBescheinigung:{de:'Bescheinigung – Impfheft / Impfbefreiung',en:'Certificate – vaccination record / exemption'},leistImpf:{de:'Impfleistung',en:'Vaccination service'},leistWarn:{de:'Keine Leistung erfasst',en:'No service recorded'},
+ adminUsersTitle:{de:'Nutzerverwaltung',en:'User management'},adminUsersDesc:{de:'Neue Registrierungen erscheinen unter „Wartet auf Freischaltung". Ziehe eine Person in eine Funktion, um ihr die entsprechenden Rechte zu geben. Das ✕ deaktiviert den Zugang sofort – der Datensatz bleibt 30 Tage erhalten.',en:'New registrations appear under "Awaiting approval". Drag a person into a role to grant the corresponding rights. The ✕ disables access immediately — the record is kept for 30 days.'},
+ phAllergy:{de:'z.B. Hühnereiweiß, Neomycin',en:'e.g. egg protein, neomycin'},phMed:{de:'Medikament eingeben…',en:'Enter medication…'},phRecentVax:{de:'Impfung eingeben…',en:'Enter vaccination…'},phChronic:{de:'z. B. Diabetes, Asplenie, HIV, Rheuma …',en:'e.g. diabetes, asplenia, HIV, rheuma …'},
+ kioskPrev:{de:'Zurück',en:'Back'},kioskNext:{de:'Weiter',en:'Next'},
  fName:{de:'Nachname',en:'Last name'},fDob:{de:'Geburtsdatum',en:'Date of birth'},ageEmpty:{de:'Alter: bitte Geburtsdatum eingeben',en:'Age: please enter date of birth'},
  fSex:{de:'Geschlecht',en:'Sex'},sexF:{de:'weiblich',en:'female'},sexM:{de:'männlich',en:'male'},sexD:{de:'divers',en:'diverse'},
  fDuration:{de:'Aufenthaltsdauer',en:'Duration of stay'},fDeparture:{de:'Abreisedatum',en:'Departure date'},fDest:{de:'Reiseziel(e) hinzufügen',en:'Add destination(s)'},
@@ -87,6 +94,13 @@ const I18N_FR={
  s1Title:'Données personnelles', s1Desc:'Coordonnées et contact.',
  s2Title:'Voyage', s2Desc:'Destination(s), durée du séjour et conditions particulières.',
  s5Title:'Vaccinations planifiées', s5Desc:'Définir les rendez-vous pour les vaccinations sélectionnées.',
+ s6Title:'Prestations', s6Desc:"Documentation des prestations fournies aujourd'hui pour la facturation.",
+ leistVaxToday:"Vaccins aujourd'hui", leistBeratHead:'Consultation et examen', leistWeitereHead:'Autres prestations',
+ leistBeratplan:"Consultation avec plan vaccinal et aptitude à la vaccination", leistBeratRezept:'Consultation, éventuellement avec ordonnance', leistBeratLang:'Consultation détaillée > 20 min', leistKeineBerat:'Aucune consultation',
+ leistFolge:'Prescription de suivi', leistBescheinigung:'Attestation – carnet de vaccination / dispense', leistImpf:'Acte de vaccination', leistWarn:'Aucune prestation saisie',
+ adminUsersTitle:'Gestion des utilisateurs', adminUsersDesc:"Les nouvelles inscriptions apparaissent sous « En attente d'activation ». Faites glisser une personne dans une fonction pour lui accorder les droits correspondants. Le ✕ désactive l'accès immédiatement – l'enregistrement est conservé 30 jours.",
+ phAllergy:"p. ex. blanc d'œuf, néomycine", phMed:'Saisir un médicament…', phRecentVax:'Saisir une vaccination…', phChronic:'p. ex. diabète, asplénie, VIH, rhumatisme …',
+ kioskPrev:'Retour', kioskNext:'Suivant',
  fName:'Nom', fDob:'Date de naissance', ageEmpty:'Âge : veuillez saisir la date de naissance',
  fSex:'Sexe', sexF:'féminin', sexM:'masculin', sexD:'divers',
  fDuration:'Durée du séjour', fDeparture:'Date de départ', fDest:'Ajouter une/des destination(s)',
@@ -378,6 +392,19 @@ const CHRONIC_DB = [
   { name: 'Multiple Sklerose', warning: true, context: 'Krankheitsmodifizierende Therapie prüfen (z.B. Ocrelizumab). Lebendimpfstoffe ggf. kontraindiziert.' },
   { name: 'Psoriasis', warning: true, context: 'Systemische Therapie (Biologika) prüfen. Lebendimpfstoffe ggf. kontraindiziert.' }
 ];
+/* Übersetzung der Kontext-Hinweise (EN/FR) für die chronischen Erkrankungen */
+const CTX_TR={
+ 'Unkritisch. Empfehlung Pneumokokken prüfen.':{en:'No concern. Consider pneumococcal vaccination.',fr:'Non critique. Envisager la vaccination antipneumococcique.'},
+ 'CD4-Zellzahl prüfen. Lebendimpfstoffe ab <200/µl kontraindiziert.':{en:'Check CD4 count. Live vaccines contraindicated below <200/µl.',fr:'Vérifier le taux de CD4. Vaccins vivants contre-indiqués en dessous de <200/µl.'},
+ 'Immunsuppression wahrscheinlich. Lebendimpfstoffe kontraindiziert. Totimpfstoff-Antwort reduziert.':{en:'Immunosuppression likely. Live vaccines contraindicated. Reduced response to inactivated vaccines.',fr:'Immunosuppression probable. Vaccins vivants contre-indiqués. Réponse réduite aux vaccins inactivés.'},
+ 'Immunsuppressive Therapie (Biologika/MTX) prüfen. Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check immunosuppressive therapy (biologics/MTX). Live vaccines possibly contraindicated.',fr:'Vérifier le traitement immunosuppresseur (biothérapies/MTX). Vaccins vivants éventuellement contre-indiqués.'},
+ 'Immunsuppressive Therapie prüfen. Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check immunosuppressive therapy. Live vaccines possibly contraindicated.',fr:'Vérifier le traitement immunosuppresseur. Vaccins vivants éventuellement contre-indiqués.'},
+ 'Immunantwort oft reduziert (v.a. Hep B). Titerkontrollen sinnvoll.':{en:'Immune response often reduced (esp. Hep B). Titre checks advisable.',fr:'Réponse immunitaire souvent réduite (surtout hép. B). Contrôles de titre conseillés.'},
+ 'Dringende Indikation für Pneumokokken, Meningokokken (ACWY+B), Haemophilus influenzae.':{en:'Urgent indication for pneumococcal, meningococcal (ACWY+B), Haemophilus influenzae.',fr:'Indication urgente pour le pneumocoque, le méningocoque (ACWY+B), Haemophilus influenzae.'},
+ 'Krankheitsmodifizierende Therapie prüfen (z.B. Ocrelizumab). Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check disease-modifying therapy (e.g. ocrelizumab). Live vaccines possibly contraindicated.',fr:'Vérifier le traitement de fond (p. ex. ocrélizumab). Vaccins vivants éventuellement contre-indiqués.'},
+ 'Systemische Therapie (Biologika) prüfen. Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check systemic therapy (biologics). Live vaccines possibly contraindicated.',fr:'Vérifier le traitement systémique (biothérapies). Vaccins vivants éventuellement contre-indiqués.'}
+};
+function ctxT(de){const m=CTX_TR[de]; if(!m)return de||''; return LANG==='de'?de:(LANG==='fr'?m.fr:m.en);}
 
 /* ---------- IMMUNO DRUG DB ---------- */
 const IMMUNO_DB=[
@@ -1095,9 +1122,9 @@ function renderRecentVaxList(){
     const rm='<button class="vc-rm" onclick="removeRecentVax('+i+')" title="Entfernen">✕</button>';
     const label = d ? (d.disease+' ('+d.substance+')') : vax;
     if(d && d.live_vaccine) {
-      return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span><span class="vc-hr"><span class="vc-badge red">Lebendimpfstoff</span>'+rm+'</span></div><div class="vc-note">Achtung: Lebendimpfstoff in den letzten 4 Wochen! Abstand zu anderen Lebendimpfstoffen (z.B. Gelbfieber, MMR, Varizellen) von mind. 4 Wochen einhalten.</div></div>';
+      return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LANG==='de'?'Lebendimpfstoff':(LANG==='fr'?'Vaccin vivant':'Live vaccine'))+'</span>'+rm+'</span></div><div class="vc-note">'+(LANG==='de'?'Achtung: Lebendimpfstoff in den letzten 4 Wochen! Abstand zu anderen Lebendimpfstoffen (z.B. Gelbfieber, MMR, Varizellen) von mind. 4 Wochen einhalten.':(LANG==='fr'?'Attention : vaccin vivant au cours des 4 dernières semaines ! Respecter un intervalle d\'au moins 4 semaines avec d\'autres vaccins vivants (p. ex. fièvre jaune, ROR, varicelle).':'Caution: live vaccine within the last 4 weeks! Keep at least 4 weeks apart from other live vaccines (e.g. yellow fever, MMR, varicella).'))+'</div></div>';
     }
-    return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span><span class="vc-hr"><span class="vc-badge green">Totimpfstoff / Unkritisch</span>'+rm+'</span></div></div>';
+    return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(label)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LANG==='de'?'Totimpfstoff / Unkritisch':(LANG==='fr'?'Vaccin inactivé / non critique':'Inactivated / no concern'))+'</span>'+rm+'</span></div></div>';
   }).join('');
 }
 function recentVaxAcHighlight(){ const ac=el('recentvax-ac'); if(!ac)return; const items=ac.querySelectorAll('.med-ac-item'); items.forEach((it,i)=>it.classList.toggle('active', i===_rvAcIdx)); const act=ac.querySelector('.med-ac-item.active'); if(act&&act.scrollIntoView) act.scrollIntoView({block:'nearest'}); }
@@ -1154,11 +1181,11 @@ function renderChronicList(){
     const d=CHRONIC_DB.find(x=>x.name.toLowerCase()===cr.toLowerCase());
     const rm='<button class="vc-rm" onclick="removeChronic('+i+')" title="Entfernen">✕</button>';
     if(d && d.warning) {
-      return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge red">Warnung</span>'+rm+'</span></div><div class="vc-note">'+_esc(d.context)+'</div></div>';
+      return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LANG==='de'?'Warnung':(LANG==='fr'?'Avertissement':'Warning'))+'</span>'+rm+'</span></div><div class="vc-note">'+_esc(ctxT(d.context))+'</div></div>';
     } else if(d && !d.warning) {
-      return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge green">Unkritisch</span>'+rm+'</span></div><div class="vc-note">'+_esc(d.context)+'</div></div>';
+      return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LANG==='de'?'Unkritisch':(LANG==='fr'?'Non critique':'No concern'))+'</span>'+rm+'</span></div><div class="vc-note">'+_esc(ctxT(d.context))+'</div></div>';
     }
-    return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge grey">nicht in DB</span>'+rm+'</span></div></div>';
+    return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(cr)+'</span><span class="vc-hr"><span class="vc-badge grey">'+(LX('nicht in DB','not in DB'))+'</span>'+rm+'</span></div></div>';
   }).join('');
 }
 function chronicAcHighlight(){ const ac=el('chronic-ac'); if(!ac)return; const items=ac.querySelectorAll('.med-ac-item'); items.forEach((it,i)=>it.classList.toggle('active', i===_crAcIdx)); const act=ac.querySelector('.med-ac-item.active'); if(act&&act.scrollIntoView) act.scrollIntoView({block:'nearest'}); }
@@ -1273,7 +1300,8 @@ function renderDoseChips(k){
   const cur=vaxState[k].done||'';const spec=DOSE_MAP[k]||DEFAULT_DOSE;
   return buildDoseChips(spec,cur,(val)=>'onclick="setDose(\''+k+'\',\''+val+'\')"');}
 function setDose(k,val){vaxState[k].done=(vaxState[k].done===val)?'':val;renderVaxTable();}
-function yearInput(k,field){const y=vaxState[k][field];return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" value="'+(y||'')+'" onchange="setYear(\''+k+'\',\''+field+'\',this.value)">';}
+function yrPh(){return LANG==='fr'?'AAAA':(LANG==='en'?'YYYY':'JJJJ');}
+function yearInput(k,field){const y=vaxState[k][field];return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="'+yrPh()+'" value="'+(y||'')+'" onchange="setYear(\''+k+'\',\''+field+'\',this.value)">';}
 function setYear(k,field,raw){const s=(raw||'').replace(/\D/g,'');const cur=new Date().getFullYear();let full='';
   if(s.length===0)full='';
   else if(s.length<=2){const yy=parseInt(s,10);const curYY=cur%100;full=(yy<=curYY?2000+yy:1900+yy);}
@@ -1314,7 +1342,7 @@ function renderVaxTable(){
       const dOpts=[['0','0'],['1','1'],['2','2'],['3','3'],['>3','>3']];
       const dSel=dOpts.map(o=>'<option value="'+o[0]+'"'+(st.doses_hexa===o[0]?' selected':'')+'>'+o[1]+'</option>').join('');
 
-      function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)">';}
+      function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="'+yrPh()+'" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)">';}
 
       let col2 = '<div class="ctrl-box" style="margin-bottom:6px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_tdap?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_tdap\',this.checked)"> '+(LX('GI TDaP komplett','Primary TDaP complete'))+'</label></div>'+
                  '<div class="ctrl-box" style="margin-bottom:10px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_ipv?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_ipv\',this.checked)"> '+(LX('GI IPV komplett','Primary IPV complete'))+'</label></div>'+
@@ -1328,7 +1356,7 @@ function renderVaxTable(){
                    '<div style="display:flex; flex-direction:column; margin-bottom:6px; padding-bottom:8px; border-bottom:1px dashed var(--line);">'+
                      '<div style="font-size:10px; color:var(--grey); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.05em;">'+(LX('Kombi-Schnelleingabe','Quick-Fill Combo'))+'</div>'+
                      '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">'+
-                       '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" id="quick_tdap_yr" onchange="quickFillTdap(this.value)">'+
+                       '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="'+yrPh()+'" id="quick_tdap_yr" onchange="quickFillTdap(this.value)">'+
                        '<button class="ext-btn'+(st.quick_type==='tdap_ipv'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap_ipv\')">Tdap-IPV</button>'+
                        '<button class="ext-btn'+(st.quick_type==='tdap'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap\')">Tdap</button>'+
                      '</div>'+
@@ -2538,6 +2566,7 @@ function setLang(l){
   LANG=l;document.documentElement.lang=l;
   ['de','en','fr'].forEach(x=>{const b=el('lang-'+x);if(b)b.classList.toggle('active',l===x);});
   document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(I18N[k])e.textContent=(I18N[k][l]||I18N[k].en||I18N[k].de);});
+  document.querySelectorAll('[data-i18n-ph]').forEach(e=>{const k=e.getAttribute('data-i18n-ph');if(I18N[k])e.placeholder=(I18N[k][l]||I18N[k].en||I18N[k].de);});
   const dTag=(l==='de'?'Tage':l==='fr'?'jours':'days'), mTag=(l==='de'?'Monate':l==='fr'?'mois':'months');
   const durLabels={'0-7':'0–7 '+dTag,'7-14':'7–14 '+dTag,'14-21':'14–21 '+dTag,'21-28':'21–28 '+dTag,'1-3m':'1–3 '+mTag,'3-6m':'3–6 '+mTag,'>6m':'>6 '+mTag};
   [...el('p-duration').options].forEach(o=>{if(durLabels[o.value])o.textContent=durLabels[o.value];});

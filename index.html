@@ -51,8 +51,8 @@
     </section>
     <div id="admin-only">
     <section class="card">
-      <h2>Nutzerverwaltung</h2>
-      <div class="card-desc">Neue Registrierungen erscheinen unter „Wartet auf Freischaltung". Ziehe eine Person in eine Funktion, um ihr die entsprechenden Rechte zu geben. Das ✕ deaktiviert den Zugang sofort – der Datensatz bleibt 30 Tage erhalten.</div>
+      <h2 data-i18n="adminUsersTitle">Nutzerverwaltung</h2>
+      <div class="card-desc" data-i18n="adminUsersDesc">Neue Registrierungen erscheinen unter „Wartet auf Freischaltung". Ziehe eine Person in eine Funktion, um ihr die entsprechenden Rechte zu geben. Das ✕ deaktiviert den Zugang sofort – der Datensatz bleibt 30 Tage erhalten.</div>
       <div id="admin-msg"></div>
       <div id="admin-users" class="admin-board"></div>
     </section>
@@ -154,12 +154,12 @@
     <h2 class="sec-h"><span class="step-badge">3</span><span data-i18n="s3Title">Immunstatus</span></h2>
     <div class="grid g3">
       <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillzeit</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="pregnant" data-i18n="optPregnant">schwanger</option><option value="breastfeeding" data-i18n="optBreastfeeding">stillend</option><option value="planned" data-i18n="optPlanned">Schwangerschaft geplant</option></select></div>
-      <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" oninput="recompute()"></div>
-      <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><div class="med-inp-wrap"><input type="text" id="p-med-input" autocomplete="off" placeholder="Medikament eingeben…" oninput="medAutocomplete()" onkeydown="medKey(event)" onblur="medAcHide()"><div class="med-ac" id="med-ac"></div></div><input type="hidden" id="p-immuno"></div>
+      <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z.B. Hühnereiweiß, Neomycin" data-i18n-ph="phAllergy" oninput="recompute()"></div>
+      <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><div class="med-inp-wrap"><input type="text" id="p-med-input" autocomplete="off" placeholder="Medikament eingeben…" data-i18n-ph="phMed" oninput="medAutocomplete()" onkeydown="medKey(event)" onblur="medAcHide()"><div class="med-ac" id="med-ac"></div></div><input type="hidden" id="p-immuno"></div>
     </div>
     <div class="grid g2" style="margin-top:14px;">
-      <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><div class="med-inp-wrap"><input type="text" id="p-recentvax-input" autocomplete="off" placeholder="Impfung eingeben…" oninput="recentVaxAutocomplete()" onkeydown="recentVaxKey(event)" onblur="recentVaxAcHide()"><div class="med-ac" id="recentvax-ac"></div></div><input type="hidden" id="p-recentvax"><div id="recentvax-vaccheck" class="med-vaccheck"></div></div>
-      <div><label class="fld" data-i18n="fChronicText">Chronische Erkrankung / Immundefizienz (welche?)</label><div class="med-inp-wrap"><input type="text" id="p-chronic-input" autocomplete="off" placeholder="z. B. Diabetes, Asplenie, HIV, Rheuma …" oninput="chronicAutocomplete()" onkeydown="chronicKey(event)" onblur="chronicAcHide()"><div class="med-ac" id="chronic-ac"></div></div><input type="hidden" id="p-chronic-text"><div id="chronic-vaccheck" class="med-vaccheck"></div><div class="mini-note" id="immunodef-recog"></div></div>
+      <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><div class="med-inp-wrap"><input type="text" id="p-recentvax-input" autocomplete="off" placeholder="Impfung eingeben…" data-i18n-ph="phRecentVax" oninput="recentVaxAutocomplete()" onkeydown="recentVaxKey(event)" onblur="recentVaxAcHide()"><div class="med-ac" id="recentvax-ac"></div></div><input type="hidden" id="p-recentvax"><div id="recentvax-vaccheck" class="med-vaccheck"></div></div>
+      <div><label class="fld" data-i18n="fChronicText">Chronische Erkrankung / Immundefizienz (welche?)</label><div class="med-inp-wrap"><input type="text" id="p-chronic-input" autocomplete="off" placeholder="z. B. Diabetes, Asplenie, HIV, Rheuma …" data-i18n-ph="phChronic" oninput="chronicAutocomplete()" onkeydown="chronicKey(event)" onblur="chronicAcHide()"><div class="med-ac" id="chronic-ac"></div></div><input type="hidden" id="p-chronic-text"><div id="chronic-vaccheck" class="med-vaccheck"></div><div class="mini-note" id="immunodef-recog"></div></div>
     </div>
     <div class="chk-row" style="margin-top:14px;">
       <label class="chk-chip"><input type="checkbox" id="p-acute" onchange="recompute()"> <span data-i18n="fAcute">Akute Erkrankung</span></label>
@@ -198,28 +198,28 @@
 
   <!-- STEP 6: Leistungen -->
   <section class="card" id="step6" style="display:none">
-    <h2><span class="step-badge">6</span>Leistungen</h2>
-    <div class="card-desc">Dokumentation der heute erbrachten Leistungen für die Abrechnung.</div>
+    <h2><span class="step-badge">6</span><span data-i18n="s6Title">Leistungen</span></h2>
+    <div class="card-desc" data-i18n="s6Desc">Dokumentation der heute erbrachten Leistungen für die Abrechnung.</div>
 
-    <div class="card-sub" style="margin-top:16px;">Impfungen heute</div>
+    <div class="card-sub" data-i18n="leistVaxToday" style="margin-top:16px;">Impfungen heute</div>
     <div id="leistung-vax-list" class="leistung-vax"></div>
 
-    <div class="card-sub" style="margin-top:20px;">Beratung &amp; Untersuchung</div>
+    <div class="card-sub" data-i18n="leistBeratHead" style="margin-top:20px;">Beratung &amp; Untersuchung</div>
     <div class="leistung-group">
-      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="1" checked onchange="updateLeistungen()"> <span>Beratung mit Impfplan &amp; Impftauglichkeit <em>(1 · A76 · 5)</em></span></label>
-      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="3" onchange="updateLeistungen()"> <span>Beratung, ggf. mit Rezept <em>(3)</em></span></label>
-      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="A34" onchange="updateLeistungen()"> <span>Ausführliche Beratung &gt; 20 min <em>(A34)</em></span></label>
-      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="none" onchange="updateLeistungen()"> <span>Keine Beratung</span></label>
+      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="1" checked onchange="updateLeistungen()"> <span><span data-i18n="leistBeratplan">Beratung mit Impfplan &amp; Impftauglichkeit</span> <em>(1 · A76 · 5)</em></span></label>
+      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="3" onchange="updateLeistungen()"> <span><span data-i18n="leistBeratRezept">Beratung, ggf. mit Rezept</span> <em>(3)</em></span></label>
+      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="A34" onchange="updateLeistungen()"> <span><span data-i18n="leistBeratLang">Ausführliche Beratung &gt; 20 min</span> <em>(A34)</em></span></label>
+      <label class="chk-chip"><input type="radio" name="leistung_beratung" value="none" onchange="updateLeistungen()"> <span data-i18n="leistKeineBerat">Keine Beratung</span></label>
     </div>
 
-    <div class="card-sub" style="margin-top:20px;">Weitere Leistungen</div>
+    <div class="card-sub" data-i18n="leistWeitereHead" style="margin-top:20px;">Weitere Leistungen</div>
     <div class="leistung-group">
-      <label class="chk-chip"><input type="checkbox" id="leistung_folge" onchange="updateLeistungen()"> <span>Folgeverordnung <em>(2)</em></span></label>
-      <label class="chk-chip"><input type="checkbox" id="leistung_bescheinigung" onchange="updateLeistungen()"> <span>Bescheinigung – Impfheft / Impfbefreiung <em>(70)</em></span></label>
-      <label class="chk-chip leistung-auto"><input type="checkbox" id="leistung_impf" disabled> <span>Impfleistung <em>(375 · automatisch)</em></span></label>
+      <label class="chk-chip"><input type="checkbox" id="leistung_folge" onchange="updateLeistungen()"> <span><span data-i18n="leistFolge">Folgeverordnung</span> <em>(2)</em></span></label>
+      <label class="chk-chip"><input type="checkbox" id="leistung_bescheinigung" onchange="updateLeistungen()"> <span><span data-i18n="leistBescheinigung">Bescheinigung – Impfheft / Impfbefreiung</span> <em>(70)</em></span></label>
+      <label class="chk-chip leistung-auto"><input type="checkbox" id="leistung_impf" disabled> <span><span data-i18n="leistImpf">Impfleistung</span> <em>(375 · automatisch)</em></span></label>
     </div>
 
-    <div id="leistung-warning" class="leistung-warn" style="display:none;">Keine Leistung erfasst</div>
+    <div id="leistung-warning" class="leistung-warn" data-i18n="leistWarn" style="display:none;">Keine Leistung erfasst</div>
   </section>
 
 
@@ -259,9 +259,9 @@
 
 <!-- KIOSK-Leiste (Patientenaccount) -->
 <div class="kiosk-bar" id="kiosk-bar">
-  <button class="btn sec" id="kiosk-prev" onclick="kioskPrev()" style="display:none">Zurück</button>
+  <button class="btn sec" id="kiosk-prev" onclick="kioskPrev()" data-i18n="kioskPrev" style="display:none">Zurück</button>
   <div class="kiosk-hint" id="kiosk-hint" data-i18n="kioskHint" style="flex-grow: 1; text-align: center;">Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.</div>
-  <button class="btn" id="kiosk-next" onclick="kioskNext()">Weiter</button>
+  <button class="btn" id="kiosk-next" onclick="kioskNext()" data-i18n="kioskNext">Weiter</button>
   <button class="btn" id="kiosk-submit" onclick="kioskSubmit()" data-i18n="kioskSubmit" style="display:none">Daten absenden</button>
 </div>
 
@@ -270,13 +270,13 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js"></script>
+<script src="js/auth.js?v=5"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js"></script>
-<script src="js/engine.js"></script>
-<script src="js/script.js"></script>
+<script src="js/engine_rules.js?v=5"></script>
+<script src="js/engine.js?v=5"></script>
+<script src="js/script.js?v=5"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){
