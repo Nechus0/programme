@@ -66,7 +66,71 @@ const I18N={
  printCharite:{de:'Mit „Charité" gekennzeichnete Impfungen werden in der Reisemedizinischen Ambulanz durchgeführt.',en:'Vaccinations marked “Charité” are administered at the Travel Medicine Clinic.'},
  printChildhood:{de:'Standard-/Grundimmunisierung laut STIKO-Impfkalender – bitte beim Kinderarzt fortführen.',en:'Standard/primary immunisation per STIKO schedule — please continue at the paediatrician.'},
 };
-function t(k){const e=I18N[k];return e?e[LANG]:k;}
+/* ---- Français (FR) — overlay, merged into I18N below. Untranslated keys fall back to EN via t(). ---- */
+const I18N_FR={
+ appTitle:'Consultation de médecine des voyages', appSub:'Institut de Santé Internationale · Assistant de vaccination du voyageur',
+ fFirstname:'Prénom', fPhone:'Téléphone', fInsurance:'Assurance maladie', fProfession:'Profession (facultatif)', fAddress:'Adresse', fZip:'Code postal', fCity:'Ville',
+ fMeds:'Médicaments actuels (lesquels ?)', fRecentVax:'Vaccination/injection au cours des 4 dernières semaines (laquelle, quand ?)', fAcute:'Maladie aiguë (p. ex. infection fébrile)', fThrombosis:'Antécédent de thrombose', fFaint:"Faiblesse/évanouissement lors d'une vaccination/prise de sang",
+ adminBack:'Retour', adminTitle:'Gestion des utilisateurs', settingsTitle:'Paramètres', setGeneral:'Général', setTreatModeDesc:'Type de prise en charge par défaut lorsque vous prenez un patient en charge.', treatBeratung:'Consultation', treatFolge:'Vaccination de suivi', adminNewUser:'Créer un utilisateur', adminNewDesc:"L'utilisateur obtient l'accès dès qu'il définit un mot de passe avec cet e-mail via la page d'inscription.", adminUserList:'Utilisateurs créés',
+ fEmail:'E-mail', fTitle:'Titre', fRole:'Fonction', fFullname:'Nom (prénom et nom)', fGender:'Sexe', btnCreateUser:"Créer l'utilisateur",
+ thName:'Nom', thTitle:'Titre', thGender:'Sexe', thRole:'Fonction', thStatusReg:'Statut',
+ kasseTitle:'Accueil / Facturation', kasseDesc:"Aucune fonction n'est encore associée au rôle « Accueil/Facturation ».",
+ kioskHint:'Veuillez remplir vos informations et les envoyer.', kioskSubmit:'Envoyer les données',
+ subMasterData:'Données personnelles', subTravel:'Données de voyage',
+ fEmailAddr:'E-mail', fChronicText:'Maladie chronique / immunodéficience (laquelle ?)',
+ fMedication:'Médicaments actuels', optPregnant:'enceinte', optBreastfeeding:'allaitement', optPlanned:'grossesse planifiée',
+ btnNewPatient:'+ Nouveau patient', backToList:'Retour à la liste', btnToday:"Aujourd'hui", btnFinish:'Terminer la prise en charge', adminUserListDesc:'Groupés par fonction.', adminTabletTitle:'Tablette patient (auto-enregistrement)', adminTabletDesc:"La tablette ne nécessite pas de compte. Sur la page de connexion, choisissez « Ouvrir la tablette patient » — l'appareil se connecte de façon anonyme et les patients saisissent eux-mêmes leurs données (sections 1 et 2), qui apparaissent ensuite dans la liste.",
+ disclaimer:"Maquette de démonstration. Les recommandations suivent la méthodologie STIKO et ne remplacent pas l'évaluation médicale. Vérifier les alertes épidémiques et de voyage (RKI, ministère des Affaires étrangères) avant chaque consultation ; la consultation en direct nécessite un serveur.",
+ s1Title:'Données personnelles', s1Desc:'Coordonnées et contact.',
+ s2Title:'Voyage', s2Desc:'Destination(s), durée du séjour et conditions particulières.',
+ s5Title:'Vaccinations planifiées', s5Desc:'Définir les rendez-vous pour les vaccinations sélectionnées.',
+ fName:'Nom', fDob:'Date de naissance', ageEmpty:'Âge : veuillez saisir la date de naissance',
+ fSex:'Sexe', sexF:'féminin', sexM:'masculin', sexD:'divers',
+ fDuration:'Durée du séjour', fDeparture:'Date de départ', fDest:'Ajouter une/des destination(s)',
+ fDestHint:"Plusieurs destinations possibles. Territoires d'outre-mer séparés (*).",
+ fConditions:'Conditions particulières / exposition',
+ condRural:'Rural / hébergement sommaire', condAnimal:'Contact animal / grottes / chauves-souris', condHealth:'Santé / contact sanguin', condHajj:'Hajj / Omra (Arabie saoudite)',
+ childhoodToggle:'Poursuivre les autres vaccinations standard du calendrier STIKO chez le pédiatre (apparaît dans le plan)',
+ s3Title:'Statut immunitaire', s3Desc:"Allergies, grossesse et médicaments pertinents pour l'immunité. Le médicament est vérifié dans une base de données de substances.",
+ fPregnant:'Grossesse / allaitement', optNo:'non', optYes:'oui', optPlanning:'planifiée (<3 mois)', optWish:'désir de grossesse (>3 mois)',
+ fAllergy:'Allergies', fImmuno:'Traitement immunosuppresseur',
+ notesTitle:'Informations pays & santé', notesDesc:'Vaccinations obligatoires, épidémies et conseils sanitaires du ministère des Affaires étrangères (lien par pays).',
+ noDest:'Aucune destination sélectionnée.',
+ s4Title:'Statut vaccinal', s4Desc:"Saisir les vaccinations antérieures d'un clic (année seulement). Couleur = action requise. Cliquer sur « Planifier » pour les vaccinations à venir.",
+ noPlan:'Aucune vaccination planifiée pour le moment.',
+ lgRed:'Fortement recommandé', lgYellow:'À envisager', lUseful:'Recommandé (voyage)',
+ lGeneral:'Généralement recommandé (STIKO)', lgGreen:'Protégé', lgBlue:'Généralement recommandé', lgGrey:'Non pertinent', lgPlan:'Planifié (pas encore protégé)',
+ fChronic:'Maladie chronique', fImmunodef:'Immunodéficience', travelWarn:'Avertissement de voyage du ministère des Affaires étrangères — voyage déconseillé.', sourcesLbl:'Sources :',
+ loggedIn:'Connecté :', savedStamp:'Enregistré', physicianLbl:'Praticien',
+ serLabel:'Sérologie (titre connu et suffisant / immun)', serMeasles:'IgG rougeole suffisantes', serVzv:'IgG varicelle suffisantes', serHbs:'Anti-HBs suffisants', serHint:'Non coché = inconnu ou insuffisant → vacciner si indiqué.',
+ thVax:'Vaccin', thDone:'Vaccinations antérieures', thLast:'Dernière vaccination (année)', thStatus:'Recommandation', thPlan:'Planifier', thSchedule:'Rendez-vous & lieu', thInfo:'Info',
+ fComment:'Commentaire / note sur le patient',
+ btnReset:'Réinitialiser le formulaire', btnSave:'Enregistrer le patient', btnSaveEdit:'Enregistrer les modifications', btnPrint:'Imprimer le plan', btnCancelEdit:'Annuler la modification',
+ listTitle:'Liste de la consultation', listDesc:'', emptyList:'Aucun patient enregistré.',
+ icTitle:'Bienvenue à la consultation de médecine des voyages',
+ icSub:'Veuillez choisir le motif de votre visite.',
+ icBeratung:'Consultation voyage',
+ icBeratungDesc:'Pour un conseil en médecine des voyages : vous planifiez un voyage et souhaitez des recommandations sur les vaccinations et les mesures de protection.',
+ icFolge:'Vaccination de suivi',
+ icFolgeDesc:'Pour les patients déjà conseillés avec rendez-vous : vous venez uniquement pour la prochaine dose de votre série en cours.',
+ del:'Supprimer', edit:'Modifier', mandatory:'Obligatoire', live:'Vaccin vivant',
+ planToday:"aujourd'hui", planFuture:'planifié',
+ mDisease:'Tableau clinique', mEpi:'Épidémiologie', mSide:'Effets indésirables (simplifiés)', mSchedInfo:'Schéma vaccinal (y c. schéma rapide)',
+ confirmDel:'Supprimer ce patient ?', needName:'Veuillez saisir le nom et la date de naissance.',
+ giLabel:'Primovaccination complète', diseaseLabel:'Maladie contractée', dengueHadLabel:'Dengue antérieure confirmée',
+ warnToday3:"Remarque : plus de 3 vaccinations prévues aujourd'hui — tenir compte de la tolérance/de l'ordre.",
+ warnToday5:"Remarque : nombreuses (≥5) vaccinations aujourd'hui — envisager de les répartir sur plusieurs rendez-vous.",
+ editingNow:'Modification du patient : ', aaLinkTxt:'Conseils voyage & santé (min. Affaires étrangères) ↗',
+ healthLive:'Consultation santé en direct : intégration serveur requise.',
+ provCharite:'Charité Médecine des voyages', provGP:'Médecin traitant', provPaed:'Pédiatre',
+ hepA:'Hép A', hepB:'Hép B',
+ printTitle:'Plan de vaccination', printToday:"Administré aujourd'hui", printFuture:'Rendez-vous de suivi planifiés', printNone:'Aucune entrée.',
+ printDoctolib:'Veuillez réserver vous-même vos rendez-vous de suivi via Doctolib.',
+ printCharite:'Les vaccinations marquées « Charité » sont réalisées à la consultation de médecine des voyages.',
+ printChildhood:'Vaccinations standard/primovaccination selon le calendrier STIKO — à poursuivre chez le pédiatre.'
+};
+for(const k in I18N_FR){ if(I18N[k]) I18N[k].fr=I18N_FR[k]; }
+function t(k){const e=I18N[k];return e?(e[LANG]||e.en||e.de):k;}
 
 /* ---------- COUNTRIES ---------- */
 const COUNTRIES=[
@@ -132,13 +196,13 @@ const VACCINES=[
 ];
 // Recommendation-category labels (engine categories -> badge text). FR falls back to EN for now.
 const CATLBL={
- 'Pflicht':{de:'Pflicht',en:'Mandatory'},
- 'Dringend empfohlen':{de:'Dringend empfohlen',en:'Strongly recommended'},
- 'Empfohlen':{de:'Empfohlen',en:'Recommended'},
- 'Generell empfohlen':{de:'Generell empfohlen',en:'Generally recommended'},
- 'Erwägen':{de:'Erwägen',en:'Consider'},
- 'geschützt':{de:'Geschützt',en:'Protected'},
- 'nicht indiziert':{de:'Nicht indiziert',en:'Not indicated'}
+ 'Pflicht':{de:'Pflicht',en:'Mandatory',fr:'Obligatoire'},
+ 'Dringend empfohlen':{de:'Dringend empfohlen',en:'Strongly recommended',fr:'Fortement recommandé'},
+ 'Empfohlen':{de:'Empfohlen',en:'Recommended',fr:'Recommandé'},
+ 'Generell empfohlen':{de:'Generell empfohlen',en:'Generally recommended',fr:'Généralement recommandé'},
+ 'Erwägen':{de:'Erwägen',en:'Consider',fr:'À envisager'},
+ 'geschützt':{de:'Geschützt',en:'Protected',fr:'Protégé'},
+ 'nicht indiziert':{de:'Nicht indiziert',en:'Not indicated',fr:'Non indiqué'}
 };
 const PROD_COMPS={tdap_ipv:['T','D','aP','IPV'],tdap:['T','D','aP'],td_ipv:['T','D','IPV'],td:['T','D'],t:['T'],hexa:['T','D','aP','IPV'],penta:['T','D','aP','IPV']};
 
@@ -1264,7 +1328,7 @@ function renderVaxTable(){
         '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),violet:t('lUseful'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+(LANG==='de'?ma.noteDe:ma.noteEn)+'</div></td></tr>';return;
     }
     const a=assess(v);
-    let badgeTxt = (a.category&&CATLBL[a.category]) ? CATLBL[a.category][LANG==='de'?'de':'en'] : ({red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey'),'red-strong':t('lgRed')}[a.status]);
+    let badgeTxt = (a.category&&CATLBL[a.category]) ? (CATLBL[a.category][LANG]||CATLBL[a.category].en) : ({red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey'),'red-strong':t('lgRed')}[a.status]);
     if (a.status === 'green') {
       let lifelong = false;
       const st = vaxState[v.k];
@@ -1422,7 +1486,7 @@ const DISEASE_MAPS = {
   menacwy:'menacwy.png', jev:'jev.png', rabies:'rabies.png', tbe:'tbe.png',
   dengue:'dengue.png', influenza:'influenza.png',
   // new (CDC Yellow Book 2026 maps – drop the PNGs into assets/karten to enable)
-  typhoid:'typhoid.png', cholera:'cholera.png', chikungunya:'chikungunya.png', hepatitis_b:'hepb.png'
+  typhoid:'typhoid.png', chikungunya:'chikungunya.png', hepatitis_b:'hepb.png'
 };
 // map name + source overrides (keys without a VACCINES entry, and non-RKI sources)
 const MAP_NAME = { hepatitis_b:{de:'Hepatitis B',en:'Hepatitis B'} };
@@ -1440,7 +1504,7 @@ function showInfo(k){
   if(k==='hepB'){ v={de:'Hepatitis B',en:'Hepatitis B',live:false}; a=AVAIL['hepatitis']; }
   const inf=INFO[k];
   const availHtml=a?('<div class="m-sec"><h4>'+(LANG==='de'?'Verfügbarkeit & Alter (Ambulanz)':'Availability & age (clinic)')+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
-  const mapBtn=DISEASE_MAPS[k]?'<button class="m-mapbtn" onclick="showMap(\''+k+'\')">'+(LANG==='de'?'Verbreitungskarte ansehen':'View distribution map')+'</button>':'';
+  const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3>'+(LANG==='de'?v.de:v.en)+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
     '<div class="m-sub">'+(LANG==='de'?'Vereinfachte Kurzinformation für das Patientengespräch':'Simplified summary for the patient conversation')+'</div>'+
@@ -1763,7 +1827,7 @@ let SEC_COLLAPSE={};   // gemerkter Auf-/Zuklapp-Zustand der Ambulanz-Sektionen
 function loadSecCollapse(){ try{ const s=localStorage.getItem('charite_seccollapse'); SEC_COLLAPSE=s?JSON.parse(s):{}; }catch(e){ SEC_COLLAPSE={}; } }
 function saveSecCollapse(){ try{ localStorage.setItem('charite_seccollapse', JSON.stringify(SEC_COLLAPSE)); }catch(e){} }
 let INTAKE_TYPE=null;  // Kiosk-Auswahl: 'beratung' | 'folgeimpfung'
-function icLang(l){ if(typeof setLang==='function') setLang(l); const de=el('ic-de'),en=el('ic-en'); if(de)de.classList.toggle('active',l==='de'); if(en)en.classList.toggle('active',l==='en'); }
+function icLang(l){ if(typeof setLang==='function') setLang(l); ['de','en','fr'].forEach(x=>{const b=el('ic-'+x);if(b)b.classList.toggle('active',l===x);}); }
 function showIntakeChoice(){ INTAKE_TYPE=null; const o=el('intake-choice'); if(o)o.classList.add('show'); icLang(typeof LANG!=='undefined'?LANG:'de'); }
 function chooseIntake(t){ INTAKE_TYPE=t; const o=el('intake-choice'); if(o)o.classList.remove('show'); try{window.scrollTo({top:0});}catch(e){} }
 const AMB_SECTIONS=[
@@ -2381,9 +2445,10 @@ function resetForm(){
 /* ---------- LANGUAGE ---------- */
 function setLang(l){
   LANG=l;document.documentElement.lang=l;
-  el('lang-de').classList.toggle('active',l==='de');el('lang-en').classList.toggle('active',l==='en');
-  document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(I18N[k])e.textContent=I18N[k][l];});
-  const durLabels={'0-7':'0–7 '+(l==='de'?'Tage':'days'),'7-14':'7–14 '+(l==='de'?'Tage':'days'),'14-21':'14–21 '+(l==='de'?'Tage':'days'),'21-28':'21–28 '+(l==='de'?'Tage':'days'),'1-3m':'1–3 '+(l==='de'?'Monate':'months'),'3-6m':'3–6 '+(l==='de'?'Monate':'months'),'>6m':'>6 '+(l==='de'?'Monate':'months')};
+  ['de','en','fr'].forEach(x=>{const b=el('lang-'+x);if(b)b.classList.toggle('active',l===x);});
+  document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(I18N[k])e.textContent=(I18N[k][l]||I18N[k].en||I18N[k].de);});
+  const dTag=(l==='de'?'Tage':l==='fr'?'jours':'days'), mTag=(l==='de'?'Monate':l==='fr'?'mois':'months');
+  const durLabels={'0-7':'0–7 '+dTag,'7-14':'7–14 '+dTag,'14-21':'14–21 '+dTag,'21-28':'21–28 '+dTag,'1-3m':'1–3 '+mTag,'3-6m':'3–6 '+mTag,'>6m':'>6 '+mTag};
   [...el('p-duration').options].forEach(o=>{if(durLabels[o.value])o.textContent=durLabels[o.value];});
   if(editingId)el('save-btn').textContent=t('btnFinish');
   buildDestSelect();renderDestChips();recompute();renderPatients();
