@@ -204,6 +204,29 @@ const CATLBL={
  'geschützt':{de:'Geschützt',en:'Protected',fr:'Protégé'},
  'nicht indiziert':{de:'Nicht indiziert',en:'Not indicated',fr:'Non indiqué'}
 };
+// FR overlay for the Meningokokken/Hepatitis assessor notes (keyed by German). Falls back to EN.
+const MENHEP_FR={
+ 'ACWY aktuell – Nachweis für Hajj/Umrah':'ACWY à jour – certificat pour Hajj/Omra',
+ 'ACWY Pflicht für Hajj/Umrah':'ACWY obligatoire pour Hajj/Omra',
+ 'Meningitisgürtel – Reise fällt in die Epidemiesaison (Trockenzeit Dez–Jun, höchstes Risiko): dringend empfohlen.':'Ceinture de la méningite – le voyage tombe en saison épidémique (saison sèche déc.–juin, risque maximal) : fortement recommandé.',
+ 'Meningitisgürtel – nur erwogen: gesamter Aufenthalt außerhalb der Epidemiesaison (Trockenzeit Dez–Jun). In der Trockenzeit dringend empfohlen.':'Ceinture de la méningite – à envisager seulement : séjour entièrement hors saison épidémique (saison sèche déc.–juin). Fortement recommandé en saison sèche.',
+ 'Früher ACWY geimpft (>10 J.) – Auffrischung nur bei Reiseindikation nötig':"ACWY administré il y a >10 ans – rappel nécessaire uniquement en cas d'indication de voyage",
+ 'Nur MenC dokumentiert – ACWY empfohlen':'Seul MenC documenté – ACWY recommandé',
+ 'Alte Polysaccharid-Impfung – Konjugat (ACWY) empfohlen':'Ancien vaccin polyosidique – vaccin conjugué (ACWY) recommandé',
+ 'STIKO: Standardimpfung 12–14 J.':'STIKO : vaccination standard 12–14 ans',
+ 'STIKO: Nachholimpfung bis <25 J.':"STIKO : rattrapage jusqu'à <25 ans",
+ 'STIKO-Standard (ab 12 J.) – vorgezogene Impfung erwägen':'Standard STIKO (dès 12 ans) – envisager une vaccination anticipée',
+ 'Indikation bei Risiko/Labor/Ausland':'Indication en cas de risque/laboratoire/voyage',
+ 'Serie vollständig, aber letzte Dosis >10 J. – Auffrischung bei fortbestehender Exposition':'Série complète, mais dernière dose >10 ans – rappel si exposition persistante',
+ 'Langzeitschutz (vollständige Serie)':'Protection à long terme (série complète)',
+ '2. Dosis überfällig (Erstschutz ~1 Jahr)':'2ᵉ dose en retard (protection initiale ~1 an)',
+ '1 Dosis: ~1 Jahr Schutz; 2. Dosis für Langzeitschutz':'1 dose : ~1 an de protection ; 2ᵉ dose pour une protection durable',
+ '1× Twinrix reicht für Hep A NICHT (halbe Antigenmenge) – Serie vervollständigen':"1× Twinrix ne suffit PAS pour l'hép A (moitié de l'antigène) – compléter la série",
+ 'Dringend empfohlen für die meisten Reiseziele':'Fortement recommandé pour la plupart des destinations',
+ 'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig':'Immun – anti-HBs suffisants, aucune vaccination supplémentaire nécessaire',
+ 'Langzeit/Exposition – Grundimmunisierung':'Long séjour/exposition – primovaccination'
+};
+function frNote(de,en){ return LANG==='de'?de:(LANG==='fr'?(MENHEP_FR[de]||en):en); }
 const PROD_COMPS={tdap_ipv:['T','D','aP','IPV'],tdap:['T','D','aP'],td_ipv:['T','D','IPV'],td:['T','D'],t:['T'],hexa:['T','D','aP','IPV'],penta:['T','D','aP','IPV']};
 
 /* ---------- AVAILABILITY (min = Jahre, präzise auf den Monat) ---------- */
@@ -1263,16 +1286,16 @@ function renderVaxTable(){
     if(v.hep){
       const ha=hepAssess();
       const hepLbl=(s)=>{
-        if(s==='green') return LANG==='de'?'Geschützt':'Protected';
-        if(s==='yellow') return LANG==='de'?'Unvollständig':'Incomplete';
-        if(s==='blue') return LANG==='de'?'Empfohlen':'Recommended';
-        if(s==='red') return LANG==='de'?'Empfohlen':'Recommended';
-        return LANG==='de'?'Nicht relevant':'Not relevant';
+        if(s==='green') return LANG==='de'?'Geschützt':(LANG==='fr'?'Protégé':'Protected');
+        if(s==='yellow') return LANG==='de'?'Unvollständig':(LANG==='fr'?'Incomplet':'Incomplete');
+        if(s==='blue') return LANG==='de'?'Empfohlen':(LANG==='fr'?'Recommandé':'Recommended');
+        if(s==='red') return LANG==='de'?'Empfohlen':(LANG==='fr'?'Recommandé':'Recommended');
+        return LANG==='de'?'Nicht relevant':(LANG==='fr'?'Non pertinent':'Not relevant');
       };
       const aBadgeTxt = hepLbl(ha.A);
       let bBadgeTxt = hepLbl(ha.B);
       if (ha.B === 'red' && conds().includes('health')) {
-          bBadgeTxt = LANG === 'de' ? 'Dringend empfohlen' : 'Strongly recommended';
+          bBadgeTxt = LANG === 'de' ? 'Dringend empfohlen' : (LANG === 'fr' ? 'Fortement recommandé' : 'Strongly recommended');
       }
 
       const aBadge='<div class="hep-stat"><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
@@ -1325,7 +1348,7 @@ function renderVaxTable(){
       html+='<tr><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+mandBadge+availBadge+'</div><select class="mini" onchange="setField(\'menacwy\',\'type\',this.value)">'+typeSel+'</select></td>'+
         '<td data-label="'+t('thDone')+'">'+renderDoseChips(v.k)+'</td>'+
         '<td data-label="'+t('thLast')+'">'+yearInput('menacwy','year')+'</td>'+
-        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),violet:t('lUseful'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+(LANG==='de'?ma.noteDe:ma.noteEn)+'</div></td></tr>';return;
+        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><span class="badge '+ma.status+'">'+({red:t('lgRed'),yellow:t('lgYellow'),violet:t('lUseful'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey')}[ma.status])+'</span><div class="reason">'+frNote(ma.noteDe,ma.noteEn)+'</div></td></tr>';return;
     }
     const a=assess(v);
     let badgeTxt = (a.category&&CATLBL[a.category]) ? (CATLBL[a.category][LANG]||CATLBL[a.category].en) : ({red:t('lgRed'),yellow:t('lgYellow'),green:t('lgGreen'),blue:t('lgBlue'),grey:t('lgGrey'),'red-strong':t('lgRed')}[a.status]);
