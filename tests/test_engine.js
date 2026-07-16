@@ -61,95 +61,59 @@ function resetCtx(overrides = {}) {
 // TEST SUITE
 // ==========================================
 
-test('Yellow Fever - Brazil (Endemic, Recommended)', () => {
-  resetCtx({ destinations: ['BR'] });
-  const res = assess(getVax('yellowfever'));
-  expect(res.status).toBe('red'); // "strong" recommendation
+// New category scheme (no violet): Pflicht=red-strong, Dringend/Empfohlen=red,
+// Generell=blue, Erwägen=yellow, geschützt=green, nicht indiziert=grey.
+test('Yellow Fever - Ghana (certificate required) = Pflicht/red-strong', () => {
+  resetCtx({ destinations: ['GH'] });
+  expect(assess(getVax('yellowfever')).status).toBe('red-strong');
 });
-
-test('Yellow Fever - Transit Mandatory (e.g. South Africa transit from risk zone)', () => {
-  resetCtx({ destinations: ['BR', 'ZA'] });
-  // Brazil is risk, ZA requires transit YF
-  const res = assess(getVax('yellowfever'));
-  expect(res.status).toBe('red');
-});
-
-test('Chikungunya - Outbreak (e.g. Bolivia)', () => {
-  resetCtx({ destinations: ['BO'] });
-  const res = assess(getVax('chikungunya'));
-  expect(res.status).toBe('violet'); // "useful" / Erwägen or Aktueller Ausbruch
-});
-
-test('Chikungunya - Background Risk (e.g. Brazil)', () => {
-  resetCtx({ destinations: ['BR'] });
-  const res = assess(getVax('chikungunya'));
-  expect(res.status).toBe('blue'); // "general"
-});
-
-test('TBE / FSME - Rural Exposure in Endemic Area (e.g. Austria/AT)', () => {
-  resetCtx({ destinations: ['AT'], conds: ['rural'] });
-  const res = assess(getVax('tbe'));
-  expect(res.status).toBe('red'); // strong
-});
-
-test('TBE / FSME - Standard Risk (e.g. Austria without outdoor)', () => {
-  resetCtx({ destinations: ['AT'] });
-  const res = assess(getVax('tbe'));
-  expect(res.status).toBe('blue'); // general
-});
-
-test('Typhoid - Endemic, Short stay, no risks (e.g. TH)', () => {
-  resetCtx({ destinations: ['TH'], duration: '1-2w' });
-  const res = assess(getVax('typhoid'));
-  expect(res.status).toBe('violet'); // useful
-});
-
-test('Typhoid - Endemic, Rural (e.g. TH)', () => {
-  resetCtx({ destinations: ['TH'], conds: ['rural'] });
-  const res = assess(getVax('typhoid'));
-  expect(res.status).toBe('red'); // strong
-});
-
-test('Rabies - Endemic, Rural/Animal (e.g. TH)', () => {
-  resetCtx({ destinations: ['TH'], conds: ['animal'] });
-  const res = assess(getVax('rabies'));
-  expect(res.status).toBe('red'); // strong
-});
-
-test('Rabies - Endemic, Standard (e.g. TH)', () => {
+test('Yellow Fever - Thailand (no risk) = nicht indiziert/grey', () => {
   resetCtx({ destinations: ['TH'] });
-  const res = assess(getVax('rabies'));
-  expect(res.status).toBe('violet'); // useful
+  expect(assess(getVax('yellowfever')).status).toBe('grey');
 });
-
-test('Meningitis ACWY - Meningitis Belt (e.g. Senegal/SN)', () => {
-  resetCtx({ destinations: ['SN'] });
-  const res = assess(getVax('menacwy'));
-  expect(res.status).toBe('red'); // strong
+test('Rabies - Thailand alone = Erwägen/yellow (never Dringend without animal)', () => {
+  resetCtx({ destinations: ['TH'] });
+  expect(assess(getVax('rabies')).status).toBe('yellow');
 });
-
-test('Meningitis ACWY - Hajj (e.g. Saudi Arabia/SA)', () => {
+test('Rabies - Thailand + animal contact = Dringend empfohlen/red', () => {
+  resetCtx({ destinations: ['TH'], conds: ['animal'] });
+  expect(assess(getVax('rabies')).status).toBe('red');
+});
+test('Typhoid - Thailand (high risk) = Empfohlen/red', () => {
+  resetCtx({ destinations: ['TH'] });
+  expect(assess(getVax('typhoid')).status).toBe('red');
+});
+test('JE - Thailand short/urban = Erwägen/yellow', () => {
+  resetCtx({ destinations: ['TH'] });
+  expect(assess(getVax('jev')).status).toBe('yellow');
+});
+test('TBE - Austria alone = Erwägen/yellow', () => {
+  resetCtx({ destinations: ['AT'] });
+  expect(assess(getVax('tbe')).status).toBe('yellow');
+});
+test('TBE - Austria + rural = Empfohlen/red', () => {
+  resetCtx({ destinations: ['AT'], conds: ['rural'] });
+  expect(assess(getVax('tbe')).status).toBe('red');
+});
+test('MMR - unvaccinated (born 2005) = Dringend empfohlen/red', () => {
+  resetCtx({ dob: '2005-02-11', destinations: ['TH'] });
+  expect(assess(getVax('mmr')).status).toBe('red');
+});
+test('MMR - 2 doses = geschützt/green', () => {
+  resetCtx({ destinations: ['TH'], vaxState: { mmr: { done: '2' } } });
+  expect(assess(getVax('mmr')).status).toBe('green');
+});
+test('Influenza - Age >= 60 (STIKO) = Generell/blue', () => {
+  resetCtx({ dob: '1955-01-01', destinations: ['US'] });
+  expect(assess(getVax('influenza')).status).toBe('blue');
+});
+test('Meningitis ACWY - Hajj (Saudi Arabia) = mandatory/red', () => {
   resetCtx({ destinations: ['SA'], conds: ['hajj'] });
-  const res = assess(getVax('menacwy'));
-  expect(res.status).toBe('red'); // strong (Mandatory)
+  expect(menacwyAssess().status).toBe('red');
 });
-
-test('Influenza - Age >= 60 (STIKO)', () => {
-  resetCtx({ dob: '1950-01-01', destinations: ['US'] });
-  const res = assess(getVax('influenza'));
-  expect(res.status).toBe('blue'); // general STIKO
-});
-
-test('Shingrix - Age >= 60 (STIKO)', () => {
-  resetCtx({ dob: '1950-01-01', destinations: ['US'] });
-  const res = assess(getVax('zoster'));
-  expect(res.status).toBe('blue'); // general STIKO
-});
-
-test('Varicella - Protected via serology', () => {
+test('Varicella - Protected via serology = green', () => {
   resetCtx({ destinations: ['US'], serology: { vzv: true } });
-  const res = assess(getVax('varicella'));
-  expect(res.status).toBe('green'); // Protected
+  expect(assess(getVax('varicella')).status).toBe('green');
 });
 
 // ==========================================

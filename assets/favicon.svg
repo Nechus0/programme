@@ -1,0 +1,10 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="15" fill="#2b2f36"/>
+  <!-- paper plane (travel) -->
+  <g fill="#ffffff">
+    <path d="M12 30 L50 14 L40 52 L31 37 Z"/>
+  </g>
+  <path d="M50 14 L31 37" stroke="#2b2f36" stroke-width="2.4" fill="none" stroke-linejoin="round"/>
+  <!-- pulse / health contrail -->
+  <path d="M9 44 h7 l3 -7 4 13 3 -6 h6" fill="none" stroke="#9aa4b2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

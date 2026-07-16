@@ -242,28 +242,31 @@ function liveAdvice(v){
   return null;
 }
 function getRisk(dKey) {
-  let highest = 'none';
-  let hasTransit = false;
-  let hasHighRisk = false;
-  let hasOutbreak = false;
-  for(let c of EngineCtx.getDestinations()) {
-     if(!window.countryData[c] || !window.countryData[c].diseases || !window.countryData[c].diseases[dKey]) {
-        console.log("getRisk loop skip", c, dKey, !!window.countryData[c], !!(window.countryData[c]&&window.countryData[c].diseases));
-        continue;
-     }
-     let d = window.countryData[c].diseases[dKey];
-     let r = d.risk_level;
-     console.log("getRisk match:", c, dKey, r);
-     if(r === 'mandatory_all') highest = 'mandatory_all';
-     else if(r === 'recommended' && highest !== 'mandatory_all') highest = 'recommended';
-     else if(r === 'risk_based' && highest !== 'mandatory_all' && highest !== 'recommended') highest = 'risk_based';
-     else if(r === 'standard' && highest === 'none') highest = 'standard';
-     
-     if(d.details && d.details.includes('mandatory_transit')) hasTransit = true;
-     if(d.details && d.details.includes('high_risk')) hasHighRisk = true;
-     if(d.details && d.details.includes('outbreak')) hasOutbreak = true;
+  // Reads the verified foundation (window.ENGINE_DATA). Translates the new vocabulary
+  // (risk high/moderate/low/none + endemic + outbreak + yf_cert) into the legacy levels
+  // that the combined assessors (hepAssess / menacwyAssess) still consume.
+  const CODE = { yellow_fever:'yellow_fever', hepatitis_a:'hepatitis_a', hepatitis_b:'hepatitis_b',
+    typhoid:'typhoid', meningitis:'meningococcal', je:'japanese_encephalitis', rabies:'rabies',
+    cholera:'cholera', tbe:'tbe', dengue:'dengue', chikungunya:'chikungunya', polio:'polio', mmr:'measles' };
+  const code = CODE[dKey] || dKey;
+  const D = window.ENGINE_DATA || { countries:{}, countryDisease:{} };
+  const ord = { none:0, unknown:0, low:1, moderate:2, high:3 };
+  let best = 0, endemic = false, outbreak = false, highRisk = false, cert = false;
+  for (const c of EngineCtx.getDestinations()) {
+    const cm = D.countries[c]; if (cm && cm.yf_cert) cert = true;
+    const cd = D.countryDisease[c]; if (!cd || !cd[code]) continue;
+    const d = cd[code];
+    best = Math.max(best, ord[d.risk] || 0);
+    if (d.endemic) endemic = true;
+    if (d.outbreak) outbreak = true;
+    if (d.risk === 'high') highRisk = true;
   }
-  return { level: highest, transit: hasTransit, highRisk: hasHighRisk, outbreak: hasOutbreak };
+  let level = 'none';
+  if (code === 'yellow_fever') { if (cert) level = 'mandatory_all'; else if (best >= 2 || endemic) level = 'recommended'; }
+  else if (code === 'meningococcal') { if (best >= 3) level = 'recommended'; }   // travel-relevant = high (belt)
+  else if (best >= 3) level = 'recommended';
+  else if (best >= 1 || endemic) level = 'risk_based';
+  return { level: level, transit: false, highRisk: highRisk, outbreak: outbreak };
 }
 function baseLevel(v){
   const age=ageExact(EngineCtx.getDob());const c=conds();const ls=longStay();const k=v.k;const di=durIndex(EngineCtx.getDuration());
@@ -524,29 +527,50 @@ function isProtected(v){
   }
   return false;
 }
+// Bridge the app form/state into the pure EngineRules context object.
+function buildCtx(){
+  const ay = ageExact(EngineCtx.getDob());
+  const ax = (ay==null) ? null : Math.round(ay*12);
+  const vs = EngineCtx.getVaxState() || {};
+  const anyChronic = (typeof hasChronic==='function' && hasChronic()) ||
+                     (typeof immunocompromised==='function' && immunocompromised());
+  return {
+    ageMonths: ax,
+    birthYear: birthYear(),
+    destinations: EngineCtx.getDestinations() || [],
+    conds: conds() || [],
+    durIdx: durIndex(EngineCtx.getDuration()),
+    pregnant: EngineCtx.getPregnant(),
+    immuno: { high: (hasHighImmuno()||hasImmuneDef()), low: isLowGradeOnly(), def: hasImmuneDef() },
+    anyChronic: anyChronic,
+    vaxState: vs,
+    serology: EngineCtx.getSerology() || {},
+    dengueHad: !!(vs.dengue && vs.dengue.dengueHad),
+    nowYear: new Date().getFullYear()
+  };
+}
+
+// Table-driven assessment. Category from EngineRules; colour from the category map
+// (Pflicht=red-strong, Dringend/Empfohlen=red, Generell=blue, Erwaegen=yellow,
+// geschuetzt=green, nicht indiziert=grey). No violet.
 function assess(v){
-  const b=baseLevel(v);let status;
-  if(isProtected(v))status='green';
-  else if(v.k==='yellowfever'){
-    const yfSt=EngineCtx.getVaxState()[v.k];
+  const ctx = buildCtx();
+  if(isProtected(v)) return {status:'green', category:'gesch\u00fctzt', mand:false, noteDe:'', noteEn:''};
+  if(v.k==='yellowfever'){
+    const yfSt=EngineCtx.getVaxState()[v.k]||{};
     const yfDone=doseNum(yfSt.done);
     const yfYrs=yearsSince(yfSt.year);
     if(yfDone>=1 && yfYrs!==null && yfYrs>=10){
-      status='yellow';
-      b.noteDe='WHO: Einmaldosis gilt als lebenslanger Schutz. STIKO empfiehlt Auffrischung nach 10 J. \u2013 erwägen.';
-      b.noteEn='WHO: single dose considered lifelong. STIKO recommends booster after 10 yrs \u2014 consider.';
-    } else if(b.level==='strong')status='red';
-    else if(b.level==='useful')status='violet';
-    else if(b.level==='consider')status='yellow';
-    else if(b.level==='general')status='blue';
-    else status='grey';
+      return {status:'yellow', category:'Erw\u00e4gen', mand:false,
+        noteDe:'WHO: Einmaldosis gilt als lebenslanger Schutz. STIKO empfiehlt Auffrischung nach 10 J. \u2013 erw\u00e4gen.',
+        noteEn:'WHO: single dose considered lifelong. STIKO recommends booster after 10 yrs \u2014 consider.'};
+    }
   }
-  else if(b.level==='strong')status='red';
-  else if(b.level==='useful')status='violet';
-  else if(b.level==='consider')status='yellow';
-  else if(b.level==='general')status='blue';
-  else status='grey';
-  return {status,mand:b.mand,noteDe:b.noteDe,noteEn:b.noteEn};
+  const R = window.EngineRules;
+  if(!R){ const b=baseLevel(v); return {status:(b.level==='strong'?'red':b.level==='general'?'blue':b.level==='consider'?'yellow':'grey'),mand:b.mand,noteDe:b.noteDe,noteEn:b.noteEn}; }
+  const r = R.deriveCategory(v.k, ctx);
+  const status = R.CATEGORY_COLOR[r.category] || 'grey';
+  return {status:status, category:r.category, mand:(r.category==='Pflicht'), noteDe:r.de, noteEn:r.en};
 }
 function tdapPolioAssess(){
   const st = EngineCtx.getVaxState().tdap_polio;

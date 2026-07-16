@@ -80,7 +80,7 @@ table.vax input[type=text],table.vax input[type=number],table.vax select{height:
 table.vax .age-box{max-width:none;}
 .combo-row{background:#fafafa;}
 .badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;}
-.badge.red{background:var(--red-bg);color:var(--red);} .badge.yellow{background:var(--yellow-bg);color:var(--yellow);} .badge.green{background:var(--green-bg);color:var(--green);} .badge.grey{background:var(--neutral-bg);color:#666;} .badge.blue{background:var(--blue-bg);color:var(--blue);} .badge.violet{background:var(--violet-bg);color:var(--violet);}
+.badge.red{background:var(--red-bg);color:var(--red);} .badge.yellow{background:var(--yellow-bg);color:var(--yellow);} .badge.green{background:var(--green-bg);color:var(--green);} .badge.grey{background:var(--neutral-bg);color:#666;} .badge.blue{background:var(--blue-bg);color:var(--blue);} .badge.violet{background:var(--violet-bg);color:var(--violet);} .badge.red-strong{background:var(--red);color:#fff;}
 .badge.mand{background:var(--red);color:#fff;margin-left:5px;} .badge.live{background:#efe6fb;color:#5b2a9e;margin-left:5px;}
 .badge.plan{border:1px dashed var(--violet);color:var(--violet);background:#fff;margin-left:5px;}
 .badge.plan.today{border-color:var(--green);color:var(--green);}
