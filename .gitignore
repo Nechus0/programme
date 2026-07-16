@@ -1,2 +1,18 @@
+# OS / editor junk
 .DS_Store
 **/.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local env / secrets (never commit)
+.env
+.env.*
+
+# Source material / large binaries (kept in the workspace, not the deploy repo)
+*.pdf
+
+# Python dev artefacts
+__pycache__/
+*.pyc
+venv/

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Charité · Reiseimpf-Assistent · Registrierung</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/style.css">
 <style>
   body{background:#fff;}
   .auth-top{padding:22px 28px;border-bottom:1px solid var(--line);}
@@ -89,7 +89,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="auth.js"></script>
+<script src="js/auth.js"></script>
 <script>
 let RECOVERY = false; // Passwort-Reset-Flow (via E-Mail-Link)
 function showMsg(text, type){ document.getElementById('msg-slot').innerHTML = text ? ('<div class="msg '+(type||'err')+'">'+text+'</div>') : ''; }
