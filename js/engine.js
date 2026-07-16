@@ -197,8 +197,8 @@ function hasChronic(){return chronicTextVal().length>0;}
 function hasImmuneDef(){const s=chronicTextVal();return s?IMMUNODEF_KW.some(k=>s.includes(k)):false;}
 function allergyEgg(){const s=(EngineCtx.getAllergyText()||'').toLowerCase();return /h(ü|ue)hnerei|hühnereiwei|huehnereiwei|\begg\b|eiwei|ovalbumin|eiklar/.test(s);}
 function allergyNote(v){
-  if(v.k==='yellowfever'&&allergyEgg())return {de:'Hühnereiweißallergie: Gelbfieber ist hühnerei-basiert – bei schwerer Allergie kontraindiziert, Rücksprache.',en:'Egg allergy: yellow fever is egg-based — contraindicated if severe; seek advice.'};
-  if(v.k==='influenza'&&allergyEgg())return {de:'Bei schwerer Hühnereiweißallergie Vorsicht (Influenza).',en:'Caution in severe egg allergy (influenza).'};
+  if(v.k==='yellowfever'&&allergyEgg())return {de:'Hühnereiweißallergie: Gelbfieber ist hühnerei-basiert – bei schwerer Allergie kontraindiziert, Rücksprache.',en:'Egg allergy: yellow fever is egg-based — contraindicated if severe; seek advice.',fr:"Allergie à l'œuf : le vaccin fièvre jaune est à base d'œuf — contre-indiqué si allergie sévère ; demander avis."};
+  if(v.k==='influenza'&&allergyEgg())return {de:'Bei schwerer Hühnereiweißallergie Vorsicht (Influenza).',en:'Caution in severe egg allergy (influenza).',fr:"Prudence en cas d'allergie sévère à l'œuf (grippe)."};
   return null;
 }
 function departureMonth(){const d=EngineCtx.getDeparture();return d?new Date(d).getMonth():null;}
@@ -226,19 +226,19 @@ function medIsImmuno(name){ const d=lookupDrug(name); if(d) return !!d.is_immuno
 function dbImmunoBlocking(){ return EngineCtx.getMedsList().some(m=>{const d=lookupDrug(m); return d && d.is_immunosuppressant && !/^\s*ja/i.test(d.live_vaccine_allowed||''); }); }
 function availability(v){
   const a=AVAIL[v.k];const age=ageExact(EngineCtx.getDob());
-  if(!a)return {flag:'ok',noteDe:'',noteEn:''};
-  if(a.avail===false)return {flag:'na',badgeDe:'nicht vorrätig',badgeEn:'not stocked',noteDe:a.de,noteEn:a.en};
-  if(age!==null&&a.min!==undefined&&age<a.min)return {flag:'age',badgeDe:'Alter zu jung',badgeEn:'below min. age',noteDe:'Noch nicht zugelassen. '+a.de,noteEn:'Not yet licensed. '+a.en};
-  if(v.k==='yellowfever'&&age!==null&&age>60)return {flag:'caution',badgeDe:'>60 J.',badgeEn:'>60 yrs',noteDe:a.de,noteEn:a.en};
-  if(v.k==='jev'&&age!==null&&age<3)return {flag:'caution',badgeDe:'0,25 ml',badgeEn:'0.25 ml',noteDe:a.de,noteEn:a.en};
-  if(v.k==='jev'&&age!==null&&age>65)return {flag:'caution',badgeDe:'>65 J.',badgeEn:'>65 yrs',noteDe:a.de,noteEn:a.en};
-  return {flag:'ok',noteDe:a.de,noteEn:a.en};
+  if(!a)return {flag:'ok',noteDe:'',noteEn:'',noteFr:''};
+  if(a.avail===false)return {flag:'na',badgeDe:'nicht vorrätig',badgeEn:'not stocked',badgeFr:'non disponible',noteDe:a.de,noteEn:a.en,noteFr:a.en};
+  if(age!==null&&a.min!==undefined&&age<a.min)return {flag:'age',badgeDe:'Alter zu jung',badgeEn:'below min. age',badgeFr:'âge trop jeune',noteDe:'Noch nicht zugelassen. '+a.de,noteEn:'Not yet licensed. '+a.en,noteFr:'Pas encore autorisé. '+a.en};
+  if(v.k==='yellowfever'&&age!==null&&age>60)return {flag:'caution',badgeDe:'>60 J.',badgeEn:'>60 yrs',badgeFr:'>60 ans',noteDe:a.de,noteEn:a.en,noteFr:a.en};
+  if(v.k==='jev'&&age!==null&&age<3)return {flag:'caution',badgeDe:'0,25 ml',badgeEn:'0.25 ml',badgeFr:'0,25 ml',noteDe:a.de,noteEn:a.en,noteFr:a.en};
+  if(v.k==='jev'&&age!==null&&age>65)return {flag:'caution',badgeDe:'>65 J.',badgeEn:'>65 yrs',badgeFr:'>65 ans',noteDe:a.de,noteEn:a.en,noteFr:a.en};
+  return {flag:'ok',noteDe:a.de,noteEn:a.en,noteFr:a.en};
 }
 function liveAdvice(v){
   if(!v.live)return null;
-  if(isPregnant())return {level:'block',de:'In Schwangerschaft/Stillzeit Vorsicht – Lebendimpfstoff (Gelbfieber: Nutzen-Risiko abwägen).',en:'Caution in pregnancy/breastfeeding — live vaccine (yellow fever: weigh risk-benefit).'};
-  if(hasHighImmuno()||hasImmuneDef())return {level:'block',de:'Bei relevanter Immunsuppression/Immundefizienz kontraindiziert. Falls möglich ≥4 Wochen vor Therapiebeginn impfen.',en:'Contraindicated under relevant immunosuppression/immune deficiency. If feasible, vaccinate ≥4 weeks before therapy.'};
-  if(isLowGradeOnly())return {level:'caution',de:'Niedriggradige Immunsuppression – i.d.R. möglich; ≥4 Wochen vor Therapiebeginn.',en:'Low-grade immunosuppression — usually possible; ≥4 weeks before therapy.'};
+  if(isPregnant())return {level:'block',de:'In Schwangerschaft/Stillzeit Vorsicht – Lebendimpfstoff (Gelbfieber: Nutzen-Risiko abwägen).',en:'Caution in pregnancy/breastfeeding — live vaccine (yellow fever: weigh risk-benefit).',fr:'Prudence pendant la grossesse/allaitement — vaccin vivant (fièvre jaune : évaluer le rapport bénéfice-risque).'};
+  if(hasHighImmuno()||hasImmuneDef())return {level:'block',de:'Bei relevanter Immunsuppression/Immundefizienz kontraindiziert. Falls möglich ≥4 Wochen vor Therapiebeginn impfen.',en:'Contraindicated under relevant immunosuppression/immune deficiency. If feasible, vaccinate ≥4 weeks before therapy.',fr:'Contre-indiqué en cas d\'immunosuppression/immunodéficience pertinente. Si possible, vacciner ≥4 semaines avant le début du traitement.'};
+  if(isLowGradeOnly())return {level:'caution',de:'Niedriggradige Immunsuppression – i.d.R. möglich; ≥4 Wochen vor Therapiebeginn.',en:'Low-grade immunosuppression — usually possible; ≥4 weeks before therapy.',fr:'Immunosuppression de bas grade — généralement possible ; ≥4 semaines avant le début du traitement.'};
   return null;
 }
 function getRisk(dKey) {

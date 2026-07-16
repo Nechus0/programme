@@ -1270,11 +1270,11 @@ function renderVaxTable(){
     const st=vaxState[v.k];const av=availability(v);const la=liveAdvice(v);
     const liveBadge=v.live?'<span class="live-dot" title="'+t('live')+'">L</span>':'';
     let availBadge='';
-    if(av.flag==='na')availBadge='<span class="badge grey">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
-    else if(av.flag==='age')availBadge='<span class="badge red">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
-    else if(av.flag==='caution')availBadge='<span class="badge yellow">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
-    const availNote=(av.flag==='na'||av.flag==='age')?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':(av.flag==='caution'?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':'');
-    const liveNote=la?'<div class="reason" style="color:'+(la.level==='block'?'var(--red)':'var(--yellow)')+';font-weight:600">'+(LANG==='de'?la.de:la.en)+'</div>':'';
+    if(av.flag==='na')availBadge='<span class="badge grey">'+(LANG==='de'?av.badgeDe:(LANG==='fr'?(av.badgeFr||av.badgeEn):av.badgeEn))+'</span>';
+    else if(av.flag==='age')availBadge='<span class="badge red">'+(LANG==='de'?av.badgeDe:(LANG==='fr'?(av.badgeFr||av.badgeEn):av.badgeEn))+'</span>';
+    else if(av.flag==='caution')availBadge='<span class="badge yellow">'+(LANG==='de'?av.badgeDe:(LANG==='fr'?(av.badgeFr||av.badgeEn):av.badgeEn))+'</span>';
+    const availNote=(av.flag==='na'||av.flag==='age')?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:(LANG==='fr'?(av.noteFr||av.noteEn):av.noteEn))+'</div>':(av.flag==='caution'?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:(LANG==='fr'?(av.noteFr||av.noteEn):av.noteEn))+'</div>':'');
+    const liveNote=la?'<div class="reason" style="color:'+(la.level==='block'?'var(--red)':'var(--yellow)')+';font-weight:600">'+L2(la)+'</div>':'';
     const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>';
 
     if(v.tdap_polio){
@@ -1403,7 +1403,7 @@ function renderVaxTable(){
     let note=(LANG==='de'?a.noteDe:(LANG==='fr'?(a.noteFr||a.noteEn):a.noteEn));let noteStyle='';
     if(a.status==='green'&&BOOSTER[v.k]){note=(LANG==='de'?BOOSTER[v.k].de:BOOSTER[v.k].en);noteStyle=' style="color:var(--green)"';}
     const mandBadge=a.mand?'<span class="badge mand">'+t('mandatory')+'</span>':'';
-    const alN=allergyNote(v);const alNote=alN?'<div class="reason" style="color:var(--red);font-weight:600">'+(LANG==='de'?alN.de:alN.en)+'</div>':'';
+    const alN=allergyNote(v);const alNote=alN?'<div class="reason" style="color:var(--red);font-weight:600">'+L2(alN)+'</div>':'';
     let extraChk='';
     if(v.disease)extraChk+='<div class="ctrl-box"><label class="chk-line" style="margin-top:0"><input type="checkbox" '+(st.disease?'checked':'')+' onchange="setField(\''+v.k+'\',\'disease\',this.checked)"> '+t('diseaseLabel')+'</label></div>';
     if(v.dengue)extraChk+='<div class="ctrl-box"><label class="chk-line" style="margin-top:0"><input type="checkbox" '+(st.dengueHad?'checked':'')+' onchange="setField(\''+v.k+'\',\'dengueHad\',this.checked)"> '+t('dengueHadLabel')+'</label></div>';
