@@ -720,3 +720,11 @@ body.clinic-idle .shift-panel.show{ margin:24px 0 20px 0; border-left:none; bord
 .s4-agebar .age-box{ margin-top:0; }
 /* Etwas mehr Luft zwischen Überschrift+Nummer und Inhalt in allen Abschnitten */
 .card h2{ margin-bottom:12px; }
+
+/* === „Im Dienst" jetzt unten in der linken Spalte (rechte Spalte entfernt) === */
+.tp-shift-zone{ flex:0 0 auto; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+.tp-shift-zone .tp-head{ margin-bottom:14px; }
+.tp-shift-zone .tp-title{ font-size:13px; color:var(--text); }
+/* Ohne rechte Spalte: Liste wieder schmaler + rechte Ecken der Ambulanzliste gerundet */
+body.clinic-idle .shell{ max-width:1180px; }
+body.clinic-idle #list-card{ border-top-right-radius:8px; border-bottom-right-radius:8px; }

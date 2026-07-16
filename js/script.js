@@ -2392,7 +2392,6 @@ function renderPatients(){
   });
   openIds.forEach(id=>{ const e=el('pi-'+id); if(e) e.classList.add('open'); });   // Schnellansichten wiederherstellen
   renderTreatPanel();
-  renderShiftPanel();
 }
 function secKey(s){ return s.status+(s.type?'·'+s.type:''); }
 function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle('collapsed'); SEC_COLLAPSE[key]=sec.classList.contains('collapsed'); saveSecCollapse(); }
@@ -2457,6 +2456,7 @@ function renderTreatPanel(){
       h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px; flex:1; display:flex; flex-direction:column; min-height:0;">';
       h+='<div class="tp-head"><span class="tp-title">'+(LX('Behandelt','Treated'))+' <span class="count-pill">'+donePats.length+'</span></span></div>';
       h+='<div class="tp-list drop-zone" style="min-height:80px; padding:4px; overflow-y:auto; flex:1;" data-status="done">'+(donePats.length?donePats.map(tpItemDone).join(''):'<div class="tp-empty" style="text-align:center;padding-top:20px;">—</div>')+'</div></div>';
+      h+='<div class="tp-shift-zone">'+shiftPanelHtml()+'</div>';
     }
     if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
     box.innerHTML=h; box.classList.add('show'); updateSecNav(); return;
@@ -2488,16 +2488,16 @@ function renderTreatPanel(){
     h+='<div class="tp-list drop-zone" style="min-height:60px; padding:4px; overflow-y:auto; flex:1;" data-status="done">';
     h+= donePats.length ? donePats.map(tpItemDone).join('') : '<div class="tp-empty" style="text-align:center; padding-top:16px;">'+(LX('Hierher ziehen …','Drop here …'))+'</div>';
     h+='</div></div>';
+    h+='<div class="tp-shift-zone">'+shiftPanelHtml()+'</div>';
   }
 
   if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
   box.innerHTML=h; box.classList.add('show');
   updateSecNav();
 }
-// Rechte Spalte: wer ist heute im Dienst (aus Behandlern/Abrechnungen des Tages + aktueller Nutzer), Admin ausgenommen
-function renderShiftPanel(){
-  const box=el('shift-panel'); if(!box) return;
-  if(!document.body.classList.contains('clinic')){ box.innerHTML=''; box.classList.remove('show'); return; }
+// „Im Dienst": wer ist heute da (aus Behandlern/Abrechnungen des Tages + aktueller Nutzer), Admin ausgenommen.
+// Wird unten in die linke Spalte eingehängt (kein rechtes Panel mehr).
+function shiftPanelHtml(){
   const people={};
   const add=(name,role,gender)=>{ if(!name||!role||role==='admin') return; const k=(role+'|'+name).toLowerCase(); if(!people[k]) people[k]={name:name,role:role,gender:gender||''}; };
   patients.filter(p=>patientDay(p)===listDay && !p.deleted).forEach(p=>{
@@ -2513,7 +2513,7 @@ function renderShiftPanel(){
     h+= list.length ? list.map(pp=>'<div class="shift-person">'+initialsCircle(pp.name,pp.role,pp.gender)+'<span class="shift-nm">'+_esc(pp.name)+'</span></div>').join('') : '<div class="shift-empty">—</div>';
     h+='</div>';
   });
-  box.innerHTML=h; box.classList.add('show');
+  return h;
 }
 function renderSectionCards(list){
   const groups={},order=[];
