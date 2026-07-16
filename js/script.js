@@ -389,15 +389,15 @@ const APPT_LABEL={today:{de:'Heute',en:'Today'},t2:{de:'2. Termin',en:'2nd appt.
 const APPT_SHORT={today:{de:'Heute',en:'Today'},t2:{de:'2.',en:'2nd'},t3:{de:'3.',en:'3rd'},far:{de:'Später',en:'Later'}};
 const APPT_COLOR={today:'#2e7d32',t2:'#1565c0',t3:'#6a1b9a',far:'#b26a00'};
 function gapText(d){
-  if(d<=1)return {de:'gleicher Termin möglich',en:'same visit possible'};
-  if(d<=7)return {de:'Mindestabstand 1 Woche',en:'min. interval 1 week'};
-  if(d<=14)return {de:'Mindestabstand 2 Wochen',en:'min. 2 weeks'};
-  if(d<=21)return {de:'Mindestabstand 3 Wochen',en:'min. 3 weeks'};
-  if(d<=31)return {de:'Mindestabstand 1 Monat',en:'min. 1 month'};
-  if(d<=62)return {de:'Mindestabstand 2 Monate',en:'min. 2 months'};
-  if(d<=100)return {de:'Mindestabstand 3 Monate',en:'min. 3 months'};
-  if(d<=200)return {de:'Mindestabstand ca. 6 Monate',en:'min. ~6 months'};
-  return {de:'Mindestabstand ca. '+Math.round(d/30)+' Monate',en:'min. ~'+Math.round(d/30)+' months'};
+  if(d<=1)return {de:'gleicher Termin möglich',en:'same visit possible',fr:'même rendez-vous possible'};
+  if(d<=7)return {de:'Mindestabstand 1 Woche',en:'min. interval 1 week',fr:'intervalle min. 1 semaine'};
+  if(d<=14)return {de:'Mindestabstand 2 Wochen',en:'min. 2 weeks',fr:'intervalle min. 2 semaines'};
+  if(d<=21)return {de:'Mindestabstand 3 Wochen',en:'min. 3 weeks',fr:'intervalle min. 3 semaines'};
+  if(d<=31)return {de:'Mindestabstand 1 Monat',en:'min. 1 month',fr:'intervalle min. 1 mois'};
+  if(d<=62)return {de:'Mindestabstand 2 Monate',en:'min. 2 months',fr:'intervalle min. 2 mois'};
+  if(d<=100)return {de:'Mindestabstand 3 Monate',en:'min. 3 months',fr:'intervalle min. 3 mois'};
+  if(d<=200)return {de:'Mindestabstand ca. 6 Monate',en:'min. ~6 months',fr:'intervalle min. ~6 mois'};
+  return {de:'Mindestabstand ca. '+Math.round(d/30)+' Monate',en:'min. ~'+Math.round(d/30)+' months',fr:'intervalle min. ~'+Math.round(d/30)+' mois'};
 }
 let _planDob=null;
 function ctxDob(){return _planDob!==null?_planDob:el('p-dob').value;}
@@ -648,7 +648,7 @@ function getPlanName(v, st) {
        else planName += ' (Ixiaro 0.5ml)';
     } else if (v.k === 'tbe') {
        let tF = tbeForm();
-       if (tF) planName += ' (' + (LANG==='de'?tF.de:tF.en).split('(')[0].trim() + ')';
+       if (tF) planName += ' (' + L2(tF).split('(')[0].trim() + ')';
      } else if (v.k === 'mmr') { planName = (LX('Masern, Mumps, Röteln','Measles, Mumps, Rubella')) + ' (MMRvaxPro)';
      } else if (v.k === 'rabies') { planName += ' (Rabipur / Verorab)';
      } else if (v.k === 'yellowfever') { planName += ' (Stamaril)';
@@ -857,9 +857,9 @@ function renderApptOverview() {
             let reasonHtml = '';
             if (b.reason) {
                 if (b.reason.type === 'live') {
-                    reasonHtml = LANG==='de' ? '2 Lebendimpfstoffe: mind. 4 Wochen Abstand' : '2 live vaccines: min. 4 weeks apart';
+                    reasonHtml = LANG==='de' ? '2 Lebendimpfstoffe: mind. 4 Wochen Abstand' : (LANG==='fr' ? '2 vaccins vivants : min. 4 semaines d\'écart' : '2 live vaccines: min. 4 weeks apart');
                 } else {
-                    let gt = gapText(b.reason.gap); gt = LANG==='de'?gt.de:gt.en;
+                    let gt = gapText(b.reason.gap); gt = L2(gt);
                     let prevIdx = buckets.findIndex(bb => bb.offset === b.reason.prevOffset);
                     let prevLbl = prevIdx >= 0 ? ((LX('Termin ','Appt '))+(prevIdx+1)) : '';
                     reasonHtml = `${b.reason.name}: ${gt} ${LX('nach vorheriger Dosis','after previous dose')}${prevLbl?` (${prevLbl})`:''}`;
@@ -1174,26 +1174,26 @@ function chronicAcHide(){ const ac=el('chronic-ac'); if(ac) setTimeout(()=>{ac.s
 
 
 const BOOSTER={
- yellowfever:{de:'1 Dosis: WHO betrachtet als lebenslangen Schutz. STIKO empfiehlt Auffrischung nach 10 J. ≥2 Dosen: lebenslanger Schutz.',en:'1 dose: WHO considers lifelong. STIKO recommends booster after 10 yrs. ≥2 doses: lifelong protection.'},
- mmr:{de:'2 Dosen lebenslang – kein Booster',en:'2 doses lifelong — no booster'},
- varicella:{de:'2 Dosen lebenslang – kein Booster',en:'2 doses lifelong — no booster'},
- typhoid:{de:'Schutz ~3 Jahre – Wiederholung nur bei erneuter Reiseindikation',en:'~3 years — repeat only on renewed travel indication'},
- jev:{de:'Nach Booster (12–24 M) ~10 Jahre; nach Grundimmunisierung 1–2 Jahre',en:'~10 yrs after booster (12–24 mo); 1–2 yrs after primary series'},
- rabies:{de:'Grundimmunisiert – lebenslang „primed", kein routinemäßiger Booster (bei Biss 2 Dosen PEP, kein Immunglobulin)',en:'Primed for life — no routine booster (2-dose PEP if bitten, no immunoglobulin)'},
- tbe:{de:'Auffrischung alle 3–5 Jahre (>50 J.: alle 3 J.) bei fortbestehender Exposition',en:'Booster every 3–5 yrs (>50: every 3) with ongoing exposure'},
- hpv:{de:'Serie abgeschlossen – kein Booster',en:'Series complete — no booster'},
- influenza:{de:'Jährlich (saisonal)',en:'Annually (seasonal)'},
- covid:{de:'Saisonal / risikoabhängig (STIKO)',en:'Seasonal / risk-based (STIKO)'},
- zoster:{de:'2 Dosen – kein Booster',en:'2 doses — no booster'},
- pneumo:{de:'PCV20 einmalig – kein routinemäßiger Booster',en:'PCV20 once — no routine booster'},
- mpox:{de:'2 Dosen – kein etablierter Booster',en:'2 doses — no established booster'},
- dengue:{de:'2 Dosen – keine Booster-Daten',en:'2 doses — no booster data'},
- chikungunya:{de:'1 Dosis – keine Booster-Daten',en:'1 dose — no booster data'},
- menb:{de:'Serie abgeschlossen – kein routinemäßiger Booster',en:'Series complete — no routine booster'},
- cholera:{de:'Schutz ~2 Jahre – Auffrischung nur bei erneuter Exposition',en:'~2 years — booster only on renewed exposure'},
- polio:{de:'Grundimmunisierung + 1 Auffrischung: lebenslang. Für Risikoländer Auffrischung alle 10 J.',en:'Primary series + 1 booster: lifelong. Booster every 10 yrs for risk countries.'},
+ yellowfever:{de:'1 Dosis: WHO betrachtet als lebenslangen Schutz. STIKO empfiehlt Auffrischung nach 10 J. ≥2 Dosen: lebenslanger Schutz.',en:'1 dose: WHO considers lifelong. STIKO recommends booster after 10 yrs. ≥2 doses: lifelong protection.',fr:'1 dose : l\'OMS considère la protection comme à vie. La STIKO recommande un rappel après 10 ans. ≥2 doses : protection à vie.'},
+ mmr:{de:'2 Dosen lebenslang – kein Booster',en:'2 doses lifelong — no booster',fr:'2 doses à vie – pas de rappel'},
+ varicella:{de:'2 Dosen lebenslang – kein Booster',en:'2 doses lifelong — no booster',fr:'2 doses à vie – pas de rappel'},
+ typhoid:{de:'Schutz ~3 Jahre – Wiederholung nur bei erneuter Reiseindikation',en:'~3 years — repeat only on renewed travel indication',fr:'~3 ans – répéter uniquement en cas de nouvelle indication de voyage'},
+ jev:{de:'Nach Booster (12–24 M) ~10 Jahre; nach Grundimmunisierung 1–2 Jahre',en:'~10 yrs after booster (12–24 mo); 1–2 yrs after primary series',fr:'~10 ans après rappel (12–24 mois) ; 1–2 ans après primovaccination'},
+ rabies:{de:'Grundimmunisiert – lebenslang „primed", kein routinemäßiger Booster (bei Biss 2 Dosen PEP, kein Immunglobulin)',en:'Primed for life — no routine booster (2-dose PEP if bitten, no immunoglobulin)',fr:'Primo-immunisé à vie – pas de rappel de routine (2 doses PPE en cas de morsure, sans immunoglobuline)'},
+ tbe:{de:'Auffrischung alle 3–5 Jahre (>50 J.: alle 3 J.) bei fortbestehender Exposition',en:'Booster every 3–5 yrs (>50: every 3) with ongoing exposure',fr:'Rappel tous les 3–5 ans (>50 ans : tous les 3 ans) en cas d\'exposition persistante'},
+ hpv:{de:'Serie abgeschlossen – kein Booster',en:'Series complete — no booster',fr:'Série terminée – pas de rappel'},
+ influenza:{de:'Jährlich (saisonal)',en:'Annually (seasonal)',fr:'Annuel (saisonnier)'},
+ covid:{de:'Saisonal / risikoabhängig (STIKO)',en:'Seasonal / risk-based (STIKO)',fr:'Saisonnier / selon le risque (STIKO)'},
+ zoster:{de:'2 Dosen – kein Booster',en:'2 doses — no booster',fr:'2 doses – pas de rappel'},
+ pneumo:{de:'PCV20 einmalig – kein routinemäßiger Booster',en:'PCV20 once — no routine booster',fr:'PCV20 en une fois – pas de rappel de routine'},
+ mpox:{de:'2 Dosen – kein etablierter Booster',en:'2 doses — no established booster',fr:'2 doses – pas de rappel établi'},
+ dengue:{de:'2 Dosen – keine Booster-Daten',en:'2 doses — no booster data',fr:'2 doses – pas de données de rappel'},
+ chikungunya:{de:'1 Dosis – keine Booster-Daten',en:'1 dose — no booster data',fr:'1 dose – pas de données de rappel'},
+ menb:{de:'Serie abgeschlossen – kein routinemäßiger Booster',en:'Series complete — no routine booster',fr:'Série terminée – pas de rappel de routine'},
+ cholera:{de:'Schutz ~2 Jahre – Auffrischung nur bei erneuter Exposition',en:'~2 years — booster only on renewed exposure',fr:'~2 ans – rappel uniquement en cas de nouvelle exposition'},
+ polio:{de:'Grundimmunisierung + 1 Auffrischung: lebenslang. Für Risikoländer Auffrischung alle 10 J.',en:'Primary series + 1 booster: lifelong. Booster every 10 yrs for risk countries.',fr:'Primovaccination + 1 rappel : à vie. Rappel tous les 10 ans pour les pays à risque.'},
 };
-function tbeForm(){const a=ageExact(el('p-dob').value);if(a===null||a<1)return null;return a<12?{de:'Encepur Kinder (0,25 ml)',en:'Encepur paediatric (0.25 ml)'}:{de:'Encepur Erwachsene (0,5 ml)',en:'Encepur adult (0.5 ml)'};}
+function tbeForm(){const a=ageExact(el('p-dob').value);if(a===null||a<1)return null;return a<12?{de:'Encepur Kinder (0,25 ml)',en:'Encepur paediatric (0.25 ml)',fr:'Encepur enfant (0,25 ml)'}:{de:'Encepur Erwachsene (0,5 ml)',en:'Encepur adult (0.5 ml)',fr:'Encepur adulte (0,5 ml)'};}
 function hepForm(kind){
   const age=ageExact(el('p-dob').value);const child=age!==null&&age<16;const infant=age!==null&&age<1;
   if(kind==='a')return child?(infant?'Havrix (Säugling – FI)':'Havrix 720 Kinder'):'Avaxim (Erw.)';

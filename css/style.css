@@ -201,15 +201,14 @@ body.clinic-idle .treat-panel { margin-bottom: 20px; }
    white list. Treating-patient view keeps the free-standing left column. */
 body.clinic-idle .shell { gap: 0; max-width: 1180px; }
 body.clinic-idle .treat-panel {
-  margin-top: 0; margin-bottom: 0;
+  margin: 24px 0 20px;          /* matches main's 24px top / 20px bottom so both boxes align */
   flex: 0 0 212px;
   padding: 20px 16px;
-  background: var(--grey-xl);
+  background: #fff;
   border-right: none;
   border-top-right-radius: 0; border-bottom-right-radius: 0;
 }
-body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radius: 0; }
-body.clinic-idle .tp-item:hover { background: #fff; }
+body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-top: 0; }
 .tp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
 .tp-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);}
 .tp-list{display:flex;flex-direction:column;gap:4px;}
