@@ -148,7 +148,8 @@ body.clinic:not(.clinic-idle) .finish-treat{display:flex;}
 /* Locked forms */
 .card.locked { opacity: 0.95; }
 .card.locked .fld { color: var(--text-light); }
-.card.locked input, .card.locked select, .card.locked textarea, .card.locked .chk-chip, .card.locked .radio-group, .card.locked .icon-btn, .card.locked .vname {
+.card.locked input, .card.locked select, .card.locked textarea, .card.locked .chk-chip, .card.locked .radio-group, .card.locked .icon-btn, .card.locked .vname,
+.card.locked label, .card.locked .chk-line, .card.locked .chk-grid, .card.locked .chk-row, .card.locked .ctrl-box, .card.locked .chip, .card.locked .age-box {
   pointer-events: none !important;
 }
 .card.locked input, .card.locked select, .card.locked textarea {
@@ -156,6 +157,10 @@ body.clinic:not(.clinic-idle) .finish-treat{display:flex;}
   border-color: transparent !important;
   color: var(--text) !important;
 }
+/* tick-box fields: grey them out like the text fields until the pencil is clicked */
+.card.locked .chk-chip, .card.locked .chk-line, .card.locked label, .card.locked .ctrl-box { color: var(--text-light) !important; }
+.card.locked .chk-chip { background-color: var(--grey-xl) !important; border-color: transparent !important; }
+.card.locked input[type=checkbox], .card.locked input[type=radio] { opacity: .45; }
 .lock-btn {
   position: absolute;
   top: 20px;
