@@ -831,7 +831,7 @@ function renderApptOverview() {
         let delBtn = `<span style="cursor:pointer;color:var(--red);margin-left:16px;font-weight:600;" onclick="window.hRemoveBucket(${idx})">✕ ${LX('Termin löschen','Delete Appt')}</span>`;
         let doneBtn = `<span style="cursor:pointer;color:var(--primary);margin-left:16px;font-weight:600;text-decoration:underline" onclick="window.toggleBucketEdit(${idx})">${LX('Fertig','Done')}</span>`;
         let minW = b.minAllowedOffset !== undefined ? Math.round(b.minAllowedOffset/7) : 0;
-        let minText = minW > 0 ? (LANG==='de'?`${minW} Wochen ab heute`:`${minW} weeks from today`) : (LX('Unabhängig','Independent'));
+        let minText = minW > 0 ? (LANG==='de'?`${minW} Wochen ab heute`:(LANG==='fr'?`${minW} semaines à partir d'aujourd'hui`:`${minW} weeks from today`)) : (LX('Unabhängig','Independent'));
         let minHtml = `<div style="font-size:11px;color:var(--grey);margin-bottom:4px;display:inline-block;margin-right:12px">${LX('Mindestabstand:','Minimum interval:')} <span style="font-weight:600">${minText}</span></div>`;
         subtitle = `<div>${minHtml}</div><div style="font-size:12px;color:var(--text);display:flex;align-items:center;">${LX('Abstand (Wochen):','Interval (weeks):')}${inputHtml} ${delBtn} ${doneBtn}</div>`;
     } else {
@@ -846,8 +846,8 @@ function renderApptOverview() {
             let absText = '';
             if (offset === 0) absText = LX('Heute','Today');
             else {
-                let amTxt = absM === 1 ? (LX('1 Monat','1 month')) : (absM > 1 ? (LANG==='de'?`${absM} Monaten`:`${absM} months`) : '');
-                let awTxt = absRem === 1 ? (LX('1 Woche','1 week')) : (absRem > 1 ? (LANG==='de'?`${absRem} Wochen`:`${absRem} weeks`) : '');
+                let amTxt = absM === 1 ? (LX('1 Monat','1 month')) : (absM > 1 ? (LANG==='de'?`${absM} Monaten`:(LANG==='fr'?`${absM} mois`:`${absM} months`)) : '');
+                let awTxt = absRem === 1 ? (LX('1 Woche','1 week')) : (absRem > 1 ? (LANG==='de'?`${absRem} Wochen`:(LANG==='fr'?`${absRem} semaines`:`${absRem} weeks`)) : '');
                 if (absM > 0 && absRem > 0) absText = `In ${amTxt} + ${awTxt}`;
                 else if (absM > 0) absText = `In ${amTxt}`;
                 else if (absRem > 0) absText = `In ${awTxt}`;
@@ -916,7 +916,7 @@ function renderApptOverview() {
               '</div>';
   } else if (maxItems >= 3) {
       html += '<div class="warn-box amber" style="margin-top:12px;margin-bottom:0"><strong>Hinweis:</strong> ' + 
-              (LANG==='de'?`${maxItems} Impfungen an einem Tag geplant. Es wird empfohlen, die Impfungen ggf. besser aufzuteilen.`:`${maxItems} vaccinations planned for one day. It is recommended to split them up if possible.`) + 
+              (LANG==='de'?`${maxItems} Impfungen an einem Tag geplant. Es wird empfohlen, die Impfungen ggf. besser aufzuteilen.`:(LANG==='fr'?`${maxItems} vaccins prévus le même jour. Il est recommandé de mieux les répartir si possible.`:`${maxItems} vaccinations planned for one day. It is recommended to split them up if possible.`)) +
               '</div>';
   }
 
@@ -1239,7 +1239,7 @@ function buildDoseChips(spec, cur, mkClick){
     const isEx=cur===combo.ex[0], isGt=cur===combo.gt[0], sel=isEx||isGt;
     const next=isEx?combo.gt[0]:(isGt?'':combo.ex[0]);
     const label=isGt?combo.gt[1]:combo.ex[1];
-    const tip=isGt?(LANG==='de'?'mehr als '+combo.ex[1]+' – erneut klicken zum Abwählen':'more than '+combo.ex[1]):(LANG==='de'?'genau '+combo.ex[1]+' – erneut klicken für „>'+combo.ex[1]+'“':'exactly '+combo.ex[1]+' – click again for ">'+combo.ex[1]+'"');
+    const tip=isGt?(LANG==='de'?'mehr als '+combo.ex[1]+' – erneut klicken zum Abwählen':(LANG==='fr'?'plus de '+combo.ex[1]+' – recliquer pour désélectionner':'more than '+combo.ex[1])):(LANG==='de'?'genau '+combo.ex[1]+' – erneut klicken für „>'+combo.ex[1]+'“':(LANG==='fr'?'exactement '+combo.ex[1]+' – recliquer pour « >'+combo.ex[1]+' »':'exactly '+combo.ex[1]+' – click again for ">'+combo.ex[1]+'"'));
     h+='<span class="dose-chip combo'+(sel?' selected':'')+(isGt?' gt':'')+'" '+mkClick(next)+' title="'+tip+'">'+label+'</span>';
   }
   return h+'</div>';
@@ -1507,7 +1507,7 @@ function renderImmunoWarn(){
   const lives=VACCINES.filter(v=>v.live).map(v=>vName(v)).join(', ');
   const immunoStr=immunoMeds.join(', ');
   const reason=isPregnant()?(LX('Schwangerschaft','Pregnancy')):((hasImmuneDef()&&!immunoStr)?(LX('Immundefizienz','Immunodeficiency')):(LANG==='de'?('Immunsuppression'+(immunoStr?' ('+immunoStr+')':'')):('Immunosuppression'+(immunoStr?' ('+immunoStr+')':''))));
-  box.innerHTML='<div class="warn-box"><h4>'+(LX('Lebendimpfstoffe – kontraindiziert / Vorsicht','Live vaccines — contraindicated / caution'))+'</h4><p>'+(LANG==='de'?('Wegen '+reason+' sind Lebendimpfstoffe kontraindiziert bzw. nur nach individueller Abwägung: '):('Because of '+reason+', live vaccines are contraindicated or only after individual assessment: '))+'<strong>'+lives+'</strong>.</p><p class="mini-note">'+(LX('Falls indiziert: Lebendimpfung möglichst ≥4 Wochen vor Therapiebeginn; Details je Substanz siehe Medikamenten-Übersicht.','If indicated: complete live vaccination ≥4 weeks before therapy; per-drug details see the medication overview.'))+'</p></div>';
+  box.innerHTML='<div class="warn-box"><h4>'+(LX('Lebendimpfstoffe – kontraindiziert / Vorsicht','Live vaccines — contraindicated / caution'))+'</h4><p>'+(LANG==='de'?('Wegen '+reason+' sind Lebendimpfstoffe kontraindiziert bzw. nur nach individueller Abwägung: '):(LANG==='fr'?('En raison de '+reason+', les vaccins vivants sont contre-indiqués ou possibles uniquement après évaluation individuelle : '):('Because of '+reason+', live vaccines are contraindicated or only after individual assessment: ')))+'<strong>'+lives+'</strong>.</p><p class="mini-note">'+(LX('Falls indiziert: Lebendimpfung möglichst ≥4 Wochen vor Therapiebeginn; Details je Substanz siehe Medikamenten-Übersicht.','If indicated: complete live vaccination ≥4 weeks before therapy; per-drug details see the medication overview.'))+'</p></div>';
 }
 
 function renderAge(){
@@ -2028,7 +2028,7 @@ async function finishTreatment(){
   const grp=(cur&&cur.group)?cur.group.trim().toLowerCase():'';
   const isGrp=!!grp && patients.filter(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===grp).length>1;
   const msg=isGrp
-    ? (LANG==='de'?'Behandlung der ganzen Gruppe „'+(cur.group)+'" abschließen und nach „Behandelt" verschieben?':'Complete treatment for the whole group and move to "Treated"?')
+    ? (LANG==='de'?'Behandlung der ganzen Gruppe „'+(cur.group)+'" abschließen und nach „Behandelt" verschieben?':(LANG==='fr'?'Terminer la prise en charge de tout le groupe « '+(cur.group)+' » et le déplacer vers « Traité » ?':'Complete treatment for the whole group and move to "Treated"?'))
     : (LX('Behandlung abschließen und Patient nach „Behandelt" verschieben?','Complete treatment and move patient to "Treated"?'));
   if(!(await uiConfirm(msg,{title:LX('Behandlung abschließen','Complete treatment'),ok:LX('Abschließen','Complete')}))) return;
   const ok=await savePatient();   // speichert aktuellen Patienten als „done" + exitToList()
@@ -2090,7 +2090,7 @@ async function pCardDrop(e){
   const src=patients.find(x=>x.id===srcId), tgt=patients.find(x=>x.id===targetId);
   if(!src||!tgt)return;
   const nm=(p)=>(p.firstname?p.name+', '+p.firstname:p.name);
-  if(!(await uiConfirm((LANG==='de'?'„'+nm(src)+'" zur Gruppe „'+(tgt.name||'')+'" hinzufügen?':'Add "'+nm(src)+'" to group "'+(tgt.name||'')+'"?'),{title:LX('Gruppieren','Group')})))return;
+  if(!(await uiConfirm((LANG==='de'?'„'+nm(src)+'" zur Gruppe „'+(tgt.name||'')+'" hinzufügen?':(LANG==='fr'?'Ajouter « '+nm(src)+' » au groupe « '+(tgt.name||'')+' » ?':'Add "'+nm(src)+'" to group "'+(tgt.name||'')+'"?')),{title:LX('Gruppieren','Group')})))return;
   const grp=(tgt.name||'Gruppe').trim();   // Gruppenname = Nachname des Ziels
   src.group=grp; tgt.group=grp;
   await persistPatient(tgt); await persistPatient(src); renderPatients();
@@ -2466,10 +2466,10 @@ function printSchedule() {
 
     const lives = planned.filter(p => p.live);
     if (lives.length >= 2) {
-      h += '<div class="box" style="border-color:#f5c2c2;background:#fdecec"><strong>'+(LANG==='de'?'Bei Lebendimpfstoffen (z.B. '+lives.map(l=>l.name).join(', ')+') gilt: Entweder am selben Tag impfen oder mind. 4 Wochen Abstand einhalten.':'Live vaccines must be given on the same day or ≥4 weeks apart.')+'</strong></div>';
+      h += '<div class="box" style="border-color:#f5c2c2;background:#fdecec"><strong>'+(LANG==='de'?'Bei Lebendimpfstoffen (z.B. '+lives.map(l=>l.name).join(', ')+') gilt: Entweder am selben Tag impfen oder mind. 4 Wochen Abstand einhalten.':(LANG==='fr'?'Pour les vaccins vivants (p. ex. '+lives.map(l=>l.name).join(', ')+') : soit le même jour, soit un intervalle d\'au moins 4 semaines.':'Live vaccines must be given on the same day or ≥4 weeks apart.'))+'</strong></div>';
     }
 
-    h += '<div class="box"><strong>'+(LANG==='de'?'Benötigte Zeit vor Ort (ohne späteren Termin): ca. '+nearDays+' Tage.':'Time needed on site (excl. later appt): ~'+nearDays+' days.')+'</strong>'+(daysDep!==null?' '+(LANG==='de'?'Tage bis Abreise: '+daysDep+'.':'Days to departure: '+daysDep+'.')+(daysDep<nearDays?' <span style="color:#b00">'+(LX('Zeit reicht evtl. nicht – Schnellschema/Priorisierung prüfen.','May be insufficient — consider rapid schedule.'))+'</span>':''):'')+'</div>';
+    h += '<div class="box"><strong>'+(LANG==='de'?'Benötigte Zeit vor Ort (ohne späteren Termin): ca. '+nearDays+' Tage.':(LANG==='fr'?'Temps nécessaire sur place (hors rendez-vous ultérieur) : env. '+nearDays+' jours.':'Time needed on site (excl. later appt): ~'+nearDays+' days.'))+'</strong>'+(daysDep!==null?' '+(LANG==='de'?'Tage bis Abreise: '+daysDep+'.':(LANG==='fr'?'Jours avant le départ : '+daysDep+'.':'Days to departure: '+daysDep+'.'))+(daysDep<nearDays?' <span style="color:#b00">'+(LX('Zeit reicht evtl. nicht – Schnellschema/Priorisierung prüfen.','May be insufficient — consider rapid schedule.'))+'</span>':''):'')+'</div>';
   }
 
   if (childhoodOn && childhoodOn()) h += '<div class="box"><strong>'+t('provPaed')+':</strong> '+t('printChildhood')+'</div>';
