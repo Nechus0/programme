@@ -236,6 +236,8 @@ function frNote(de,en){ return LANG==='de'?de:(LANG==='fr'?(MENHEP_FR[de]||en):e
 // FR vaccine names (keyed by vaccine key). vName() picks by LANG with EN fallback.
 const VAX_FR={tdap_polio:'Tétanos Diphtérie Coqueluche Polio',mmr:'Rougeole, oreillons, rubéole',varicella:'Varicelle (varicelle)',hepatitis:'Hépatite A + B',tbe:'Encéphalite à tiques (FSME)',menacwy:'Méningocoque ACWY',menb:'Méningocoque B',yellowfever:'Fièvre jaune',typhoid:'Typhoïde',rabies:'Rage',jev:'Encéphalite japonaise',dengue:'Dengue',chikungunya:'Chikungunya',cholera:'Choléra',influenza:'Grippe',covid:'COVID-19',pneumo:'Pneumocoque',hpv:'HPV',zoster:'Zona',mpox:'Mpox'};
 function vName(v){ if(!v) return ''; return LANG==='de'?v.de:(LANG==='fr'?(VAX_FR[v.k]||v.en):v.en); }
+// Generic de/en(/fr) object label picker (EN fallback if no fr present).
+function L2(o){ return o?(LANG==='de'?o.de:(LANG==='fr'?(o.fr||o.en):o.en)):''; }
 const PROD_COMPS={tdap_ipv:['T','D','aP','IPV'],tdap:['T','D','aP'],td_ipv:['T','D','IPV'],td:['T','D'],t:['T'],hexa:['T','D','aP','IPV'],penta:['T','D','aP','IPV']};
 
 /* ---------- AVAILABILITY (min = Jahre, präzise auf den Monat) ---------- */
@@ -2613,7 +2615,7 @@ function editLogHtml(p){
   if(!log.length && !del) return '';
   let h='<div class="pb-log"><div class="pb-lbl">'+(LX('Änderungsprotokoll','Change log'))+'</div>';
   if(del) h+='<div class="pb-log-row del"><b>'+(LX('Gelöscht','Deleted'))+'</b> · '+_esc(del.who||'—')+' · '+fmtDateTime(del.ts)+'</div>';
-  log.slice(0,12).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(LANG==='de'?SECTION_TITLES[e.section].de:SECTION_TITLES[e.section].en):e.section; const flds=(e.fields&&e.fields.length)?' · '+e.fields.join(', '):''; h+='<div class="pb-log-row">'+fmtDateTime(e.ts)+' · '+_esc(e.who||'—')+' · '+_esc(sn)+_esc(flds)+'</div>'; });
+  log.slice(0,12).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(L2(SECTION_TITLES[e.section])):e.section; const flds=(e.fields&&e.fields.length)?' · '+e.fields.join(', '):''; h+='<div class="pb-log-row">'+fmtDateTime(e.ts)+' · '+_esc(e.who||'—')+' · '+_esc(sn)+_esc(flds)+'</div>'; });
   return h+'</div>';
 }
 function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LX('Neuer Patient','New patient')); enterPatient(); }
