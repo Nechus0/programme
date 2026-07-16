@@ -4,6 +4,9 @@
    RKI Immunsuppression · CDC Chikungunya Q2/2026 · AA Deep-Links
    ============================================================ */
 let LANG='de';
+const IL_FR={"Masern, Mumps, Röteln": "Rougeole, oreillons, rubéole", "Klicken Sie auf Impfstoffe, um sie in den Terminplan aufzunehmen.": "Cliquez sur les vaccins pour les ajouter au calendrier.", "Noch keine Impfungen zur Planung markiert.": "Aucun vaccin marqué pour la planification.", "Zeit reicht evtl. nicht!": "Le temps est peut-être insuffisant !", "Benötigte Zeit vor Ort: ca.": "Temps nécessaire sur place : env.", "Tage": "jours", "Wochen": "semaines", "Termin löschen": "Supprimer le rendez-vous", "Fertig": "Terminé", "Unabhängig": "Indépendant", "Mindestabstand:": "Intervalle minimal :", "Abstand (Wochen):": "Intervalle (semaines) :", "Heute (0 Wochen)": "Aujourd'hui (0 semaine)", "Heute": "Aujourd'hui", "1 Monat": "1 mois", "1 Woche": "1 semaine", "In Kürze": "Prochainement", "Termin ": "Rendez-vous ", "nach vorheriger Dosis": "après la dose précédente", "Flexibel terminierbar": "Planifiable librement", "Bearbeiten": "Modifier", "Impfung entfernen": "Retirer le vaccin", "Impfungen hierhin ziehen": "Glisser les vaccins ici", "Charité-Termin": "Rendez-vous Charité", "Externer Termin": "Rendez-vous externe", "Viele (≥5) Impfungen an einem Tag geplant. Es wird empfohlen, die Impfungen besser aufzuteilen.": "De nombreux (≥5) vaccins prévus le même jour. Il est recommandé de mieux les répartir.", "Bei Lebendimpfstoffen gilt: Entweder am selben Tag impfen oder mind. 4 Wochen Abstand einhalten.": "Pour les vaccins vivants : soit le même jour, soit un intervalle d'au moins 4 semaines.", "Medikamenten-Übersicht (VacCheck · DTG 2026)": "Aperçu des médicaments (VacCheck · DTG 2026)", "Ihre Medikamente": "Vos médicaments", "Entfernen": "Retirer", "nicht in DB": "absent de la base", "Immunsuppressive Wirkung manuell prüfen.": "Vérifier manuellement l'effet immunosuppresseur.", "unkritisch": "non critique", "Immunsuppressivum": "Immunosuppresseur", "Substanzklasse": "Classe de substance", "Lebendimpfung": "Vaccin vivant", "Therapiepause": "Pause thérapeutique", "Totimpfstoff-Antwort": "Réponse au vaccin inactivé", "Land wählen": "Choisir un pays", "Länder": "Pays", "Überseegebiete": "Territoires d'outre-mer", "nur „zuletzt geimpft\" →": "seulement « dernière vaccination » →", "Extern: ": "Externe : ", "Extern": "Externe", "Verbreitungskarte": "Carte de répartition", "K": "C", "Dringend empfohlen": "Fortement recommandé", "Bisher keine Impfung erfolgt": "Aucune vaccination effectuée à ce jour", "Altersgerechte, laufende Grundimmunisierung": "Primovaccination en cours, adaptée à l'âge", "GI TDaP komplett": "Primovacc. TDaP complète", "GI IPV komplett": "Primovacc. VPI complète", "Hexavalent-Dosen (Kindheit):": "Doses hexavalentes (enfance) :", "Jahr": "Année", "Kombi-Schnelleingabe": "Saisie rapide combinée", "Letzte Td": "Dernier Td", "Letzte aP": "Dernier aP", "Letzte IPV": "Dernier VPI", "Basis-Impfschutz": "Protection vaccinale de base", "Vorimpfungen": "Vaccinations antérieures", "Hinweis auf Immundefizienz – Lebendimpfstoffe kontraindiziert/prüfen": "Signe d'immunodéficience – vaccins vivants contre-indiqués/à vérifier", "Immunsuppressiv: ": "Immunosuppresseur : ", "Keine immunsuppressiven Medikamente erkannt.": "Aucun médicament immunosuppresseur détecté.", "Schwangerschaft": "Grossesse", "Immundefizienz": "Immunodéficience", "Lebendimpfstoffe – kontraindiziert / Vorsicht": "Vaccins vivants – contre-indiqués / prudence", "Falls indiziert: Lebendimpfung möglichst ≥4 Wochen vor Therapiebeginn; Details je Substanz siehe Medikamenten-Übersicht.": "Si indiqué : vaccin vivant de préférence ≥4 semaines avant le début du traitement ; détails par substance dans l'aperçu des médicaments.", "Mon.": "mois", "J.": "ans", "Jahre": "ans", "geb.": "né(e)", "Tage bis Abreise: ": "Jours avant le départ : ", "<b>Akute Erkrankung:</b> Impfung bei behandlungsbedürftiger akuter Erkrankung (≥38,5 °C) verschieben; leichte Infekte ohne Fieber sind i. d. R. kein Hindernis.": "<b>Maladie aiguë :</b> reporter la vaccination en cas de maladie aiguë nécessitant un traitement (≥38,5 °C) ; les infections légères sans fièvre ne sont généralement pas un obstacle.", "<b>Thrombose / Antikoagulation:</b> i. m. Injektion mit sehr feiner Kanüle, danach ≥2 Min. komprimieren; ggf. Rücksprache bei hoher Blutungsneigung.": "<b>Thrombose / anticoagulation :</b> injection i.m. avec une aiguille très fine, puis comprimer ≥2 min ; consulter en cas de tendance hémorragique élevée.", "<b>Ohnmachtsneigung:</b> im Liegen impfen und anschließend ≥15 Min. nachbeobachten.": "<b>Tendance à l'évanouissement :</b> vacciner en position allongée puis surveiller ≥15 min.", "Hinweise zur Durchführung": "Consignes de réalisation", "Verfügbarkeit & Alter (Ambulanz)": "Disponibilité et âge (consultation)", "Vereinfachte Kurzinformation für das Patientengespräch": "Information brève simplifiée pour l'entretien avec le patient", "de": "fr", "Karte noch nicht hinterlegt.": "Carte pas encore disponible.", "Geografische Verbreitung": "Répartition géographique", "Änderungsprotokoll": "Journal des modifications", "Patient löschen": "Supprimer le patient", "Löschen": "Supprimer", "Keine Impfungen für heute geplant.": "Aucun vaccin prévu aujourd'hui.", "Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.": "En tant qu'AM, vous ne pouvez pas prendre en charge une consultation. Seuls les médecins réalisent les consultations.", "Behandlung abschließen und Patient nach „Behandelt\" verschieben?": "Terminer la prise en charge et déplacer le patient vers « Traité » ?", "Behandlung abschließen": "Terminer la prise en charge", "Abschließen": "Terminer", "Gruppen-/Familienname (leer = Gruppe entfernen):": "Nom de groupe/famille (vide = retirer le groupe) :", "Gruppe": "Groupe", "Gruppieren": "Grouper", "In Behandlung nehmen": "Prendre en charge", "Gruppe in Behandlung nehmen": "Prendre le groupe en charge", "gerade eben": "à l'instant", "Arzt": "Médecin", "Ärztin": "Médecin", "Arzt / Ärztin": "Médecin", "Kasse": "Accueil/Facturation", "Hierher ziehen …": "Glisser ici …", "Gelöscht": "Supprimé", "gelöscht von ": "supprimé par ", "Wiederherstellen": "Restaurer", "Woche": "semaine", "Mon": "mois", "Ja": "Oui", "Stillend": "Allaitement", "Geplant": "Planifié", "Nein": "Non", "Reisedauer": "Durée du voyage", "Reiseziel(e)": "Destination(s)", "Allergien": "Allergies", "Chron. Erkrankung": "Maladie chron.", "Medikamente": "Médicaments", "In Behandlung": "En traitement", "Ambulanzliste": "Liste de la consultation", "Gruppe: ": "Groupe : ", "Kein Patient in Behandlung.": "Aucun patient en traitement.", "Behandelt": "Traité", "Behandeln": "Traiter", "(ganze Gruppe ziehen)": "(glisser tout le groupe)", "Impfstatus": "Statut vaccinal", "Kein Impfstatus erfasst.": "Aucun statut vaccinal saisi.", "Geplante Impfungen": "Vaccins planifiés", "Keine Impfungen": "Aucun vaccin", "Keine Impfungen geplant.": "Aucun vaccin planifié.", "Kommentar": "Commentaire", "geändert": "modifié", "wartet ": "en attente ", "von mir": "par moi", "Entgruppieren": "Dégrouper", "Schnellansicht": "Aperçu rapide", "geb. ": "né(e) ", "Uhr": "h", "Abreise": "Départ", "Erstellt": "Créé", "Hausarzt/Extern": "Médecin traitant/externe", "Keine Impfungen zugeordnet": "Aucun vaccin attribué", "Zeit reicht evtl. nicht – Schnellschema/Priorisierung prüfen.": "Temps peut-être insuffisant – vérifier schéma rapide/priorisation.", "Angegeben sind Mindestabstände, keine festen Termine. Bitte Folgetermine selbst über Doctolib buchen.": "Ce sont des intervalles minimaux, pas des rendez-vous fixes. Veuillez réserver les rendez-vous de suivi via Doctolib.", "Bitte Pop-ups erlauben, um den Impfplan zu drucken.": "Veuillez autoriser les fenêtres pop-up pour imprimer le plan de vaccination.", "Bearbeitung aktiv": "Modification active", "Neuer Patient": "Nouveau patient", "Bearbeitung wirklich abbrechen? Nicht gespeicherte Änderungen gehen verloren.": "Vraiment annuler la modification ? Les changements non enregistrés seront perdus.", "Bearbeitung abbrechen": "Annuler la modification", "Verwerfen": "Abandonner", "Abbrechen": "Annuler", "Bestätigen": "Confirmer", "Hinweis": "Remarque", "Vielen Dank! Ihre Angaben wurden übermittelt.": "Merci ! Vos informations ont été transmises.", "Übermittelt": "Transmis", "Keine offenen Registrierungen": "Aucune inscription en attente", "Person hierher ziehen …": "Glisser une personne ici …"};
+function LX(de,en){return LANG==='de'?de:(LANG==='fr'?(IL_FR[de]||en):en);}
+
 const I18N={
  appTitle:{de:'Reisemedizinische Ambulanz',en:'Travel Medicine Clinic'},appSub:{de:'Institut für Internationale Gesundheit · Reiseimpf-Assistent',en:'Institute of International Health · Travel Vaccination Assistant'},
  fFirstname:{de:'Vorname',en:'First name'},fPhone:{de:'Telefon',en:'Phone'},fInsurance:{de:'Krankenkasse',en:'Health insurance'},fProfession:{de:'Beruf (freiwillig)',en:'Profession (optional)'},fAddress:{de:'Anschrift',en:'Address'},fZip:{de:'PLZ',en:'Postal code'},fCity:{de:'Wohnort',en:'City'},
@@ -641,7 +644,7 @@ function getPlanName(v, st) {
     } else if (v.k === 'tbe') {
        let tF = tbeForm();
        if (tF) planName += ' (' + (LANG==='de'?tF.de:tF.en).split('(')[0].trim() + ')';
-     } else if (v.k === 'mmr') { planName = (LANG==='de'?'Masern, Mumps, Röteln':'Measles, Mumps, Rubella') + ' (MMRvaxPro)';
+     } else if (v.k === 'mmr') { planName = (LX('Masern, Mumps, Röteln','Measles, Mumps, Rubella')) + ' (MMRvaxPro)';
      } else if (v.k === 'rabies') { planName += ' (Rabipur / Verorab)';
      } else if (v.k === 'yellowfever') { planName += ' (Stamaril)';
      } else if (v.k === 'hepA') { planName += ' (Avaxim / Havrix 720)';
@@ -668,7 +671,7 @@ function renderApptOverview() {
   const container = el('appt-overview');
   if (!container) return;
 
-  let quickHTML = '<div class="card-desc" style="margin-bottom:12px;font-weight:600">' + (LANG==='de'?'Klicken Sie auf Impfstoffe, um sie in den Terminplan aufzunehmen.':'Click vaccines to add them to the schedule.') + '</div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line);">';
+  let quickHTML = '<div class="card-desc" style="margin-bottom:12px;font-weight:600">' + (LX('Klicken Sie auf Impfstoffe, um sie in den Terminplan aufzunehmen.','Click vaccines to add them to the schedule.')) + '</div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line);">';
   
   VACCINES.forEach(v => {
       const st = vaxState[v.k];
@@ -740,7 +743,7 @@ function renderApptOverview() {
             else if(stt === 'violet') { bg = '#f2e9fb'; fg = '#6a1b9a'; border = '#e1bee7'; }
         }
         let name = (LANG==='de'?v.de:v.en);
-        if (v.k === 'mmr') name = (LANG==='de'?'Masern, Mumps, Röteln':'Measles, Mumps, Rubella');
+        if (v.k === 'mmr') name = (LX('Masern, Mumps, Röteln','Measles, Mumps, Rubella'));
         let checkIcon = isPlanned ? `<span style="font-size:10px;margin-right:2px;font-weight:bold">✓</span>` : `<div style="width:6px;height:6px;border-radius:50%;background:${fg};margin-right:2px;"></div>`;
         quickHTML += `<div class="plan-pill" onclick="togglePillPlan('${v.k}', 'planned')" style="font-size:12px;padding:6px 12px;border-radius:14px;background:${bg};color:${fg};border:1px solid ${border};display:flex;align-items:center;gap:4px;cursor:pointer;transition:all 0.2s;user-select:none;">
              ${checkIcon} ${name}
@@ -767,7 +770,7 @@ function renderApptOverview() {
   });
 
   if (planned.length === 0) {
-    container.innerHTML = quickHTML + '<div class="empty" data-i18n="noPlan">'+(LANG==='de'?'Noch keine Impfungen zur Planung markiert.':'No vaccinations planned yet.')+'</div>';
+    container.innerHTML = quickHTML + '<div class="empty" data-i18n="noPlan">'+(LX('Noch keine Impfungen zur Planung markiert.','No vaccinations planned yet.'))+'</div>';
     customSchedule = null;
     return;
   }
@@ -799,11 +802,11 @@ function renderApptOverview() {
       if (daysDep !== null) {
           depAlert = LANG==='de' ? ` | Tage bis Abreise: ${daysDep}` : ` | Days to departure: ${daysDep}`;
           if (daysDep < nearDays) {
-              depAlert += ` <span style="color:var(--red);font-weight:bold;margin-left:8px;">${LANG==='de'?'Zeit reicht evtl. nicht!':'May be insufficient!'}</span>`;
+              depAlert += ` <span style="color:var(--red);font-weight:bold;margin-left:8px;">${LX('Zeit reicht evtl. nicht!','May be insufficient!')}</span>`;
           }
       }
       html += `<div style="padding:10px 14px; background:var(--grey-xl); border:1px solid var(--line); border-radius:6px; margin-bottom:16px; font-size:13px; color:var(--text);display:flex;align-items:center;justify-content:center;">
-        <strong>${LANG==='de'?'Benötigte Zeit vor Ort: ca.':'Time needed on site: ~'} ${nearDays} ${LANG==='de'?'Tage':'days'}</strong>${depAlert}
+        <strong>${LX('Benötigte Zeit vor Ort: ca.','Time needed on site: ~')} ${nearDays} ${LX('Tage','days')}</strong>${depAlert}
       </div>`;
   }
   
@@ -819,16 +822,16 @@ function renderApptOverview() {
     let diffW = Math.round((offset - prevOffset)/7);
     
     if (isEdit) {
-        let inputHtml = ` <input type="number" value="${diffW}" min="0" max="150" style="width:45px;height:20px;font-size:11px;text-align:center;border:1px solid var(--line);border-radius:3px;margin:0 4px;" title="${LANG==='de'?'Wochen':'Weeks'}" onchange="window.hUpdateBucketOffset(this, ${idx}, ${prevOffset})"> <span style="font-weight:normal">${LANG==='de'?'Wochen':'weeks'}</span>`;
-        let delBtn = `<span style="cursor:pointer;color:var(--red);margin-left:16px;font-weight:600;" onclick="window.hRemoveBucket(${idx})">✕ ${LANG==='de'?'Termin löschen':'Delete Appt'}</span>`;
-        let doneBtn = `<span style="cursor:pointer;color:var(--primary);margin-left:16px;font-weight:600;text-decoration:underline" onclick="window.toggleBucketEdit(${idx})">${LANG==='de'?'Fertig':'Done'}</span>`;
+        let inputHtml = ` <input type="number" value="${diffW}" min="0" max="150" style="width:45px;height:20px;font-size:11px;text-align:center;border:1px solid var(--line);border-radius:3px;margin:0 4px;" title="${LX('Wochen','Weeks')}" onchange="window.hUpdateBucketOffset(this, ${idx}, ${prevOffset})"> <span style="font-weight:normal">${LX('Wochen','weeks')}</span>`;
+        let delBtn = `<span style="cursor:pointer;color:var(--red);margin-left:16px;font-weight:600;" onclick="window.hRemoveBucket(${idx})">✕ ${LX('Termin löschen','Delete Appt')}</span>`;
+        let doneBtn = `<span style="cursor:pointer;color:var(--primary);margin-left:16px;font-weight:600;text-decoration:underline" onclick="window.toggleBucketEdit(${idx})">${LX('Fertig','Done')}</span>`;
         let minW = b.minAllowedOffset !== undefined ? Math.round(b.minAllowedOffset/7) : 0;
-        let minText = minW > 0 ? (LANG==='de'?`${minW} Wochen ab heute`:`${minW} weeks from today`) : (LANG==='de'?'Unabhängig':'Independent');
-        let minHtml = `<div style="font-size:11px;color:var(--grey);margin-bottom:4px;display:inline-block;margin-right:12px">${LANG==='de'?'Mindestabstand:':'Minimum interval:'} <span style="font-weight:600">${minText}</span></div>`;
-        subtitle = `<div>${minHtml}</div><div style="font-size:12px;color:var(--text);display:flex;align-items:center;">${LANG==='de'?'Abstand (Wochen):':'Interval (weeks):'}${inputHtml} ${delBtn} ${doneBtn}</div>`;
+        let minText = minW > 0 ? (LANG==='de'?`${minW} Wochen ab heute`:`${minW} weeks from today`) : (LX('Unabhängig','Independent'));
+        let minHtml = `<div style="font-size:11px;color:var(--grey);margin-bottom:4px;display:inline-block;margin-right:12px">${LX('Mindestabstand:','Minimum interval:')} <span style="font-weight:600">${minText}</span></div>`;
+        subtitle = `<div>${minHtml}</div><div style="font-size:12px;color:var(--text);display:flex;align-items:center;">${LX('Abstand (Wochen):','Interval (weeks):')}${inputHtml} ${delBtn} ${doneBtn}</div>`;
     } else {
         if (offset === 0 && idx === 0) {
-            subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${LANG==='de'?'Heute (0 Wochen)':'Today (0 weeks)'}</div>`;
+            subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${LX('Heute (0 Wochen)','Today (0 weeks)')}</div>`;
         } else {
             // Absolute Zeit ab heute – Monate als echte Kalendermonate (~30,44 Tage),
             // damit z. B. 180 Tage = 6 Monate (nicht 6 Monate + 2 Wochen).
@@ -836,14 +839,14 @@ function renderApptOverview() {
             let absRem = Math.round((offset - Math.round(absM * 30.44)) / 7);
             if (absRem >= 4) { absM += 1; absRem -= 4; }   // fast voller Monat -> aufrunden
             let absText = '';
-            if (offset === 0) absText = LANG==='de'?'Heute':'Today';
+            if (offset === 0) absText = LX('Heute','Today');
             else {
-                let amTxt = absM === 1 ? (LANG==='de'?'1 Monat':'1 month') : (absM > 1 ? (LANG==='de'?`${absM} Monaten`:`${absM} months`) : '');
-                let awTxt = absRem === 1 ? (LANG==='de'?'1 Woche':'1 week') : (absRem > 1 ? (LANG==='de'?`${absRem} Wochen`:`${absRem} weeks`) : '');
+                let amTxt = absM === 1 ? (LX('1 Monat','1 month')) : (absM > 1 ? (LANG==='de'?`${absM} Monaten`:`${absM} months`) : '');
+                let awTxt = absRem === 1 ? (LX('1 Woche','1 week')) : (absRem > 1 ? (LANG==='de'?`${absRem} Wochen`:`${absRem} weeks`) : '');
                 if (absM > 0 && absRem > 0) absText = `In ${amTxt} + ${awTxt}`;
                 else if (absM > 0) absText = `In ${amTxt}`;
                 else if (absRem > 0) absText = `In ${awTxt}`;
-                else absText = LANG==='de'?'In Kürze':'Soon';
+                else absText = LX('In Kürze','Soon');
             }
             // Bindende Ursache: Abstand zur vorherigen DOSIS derselben Impfung (nicht zum vorherigen Termin)
             let reasonHtml = '';
@@ -853,34 +856,34 @@ function renderApptOverview() {
                 } else {
                     let gt = gapText(b.reason.gap); gt = LANG==='de'?gt.de:gt.en;
                     let prevIdx = buckets.findIndex(bb => bb.offset === b.reason.prevOffset);
-                    let prevLbl = prevIdx >= 0 ? ((LANG==='de'?'Termin ':'Appt ')+(prevIdx+1)) : '';
-                    reasonHtml = `${b.reason.name}: ${gt} ${LANG==='de'?'nach vorheriger Dosis':'after previous dose'}${prevLbl?` (${prevLbl})`:''}`;
+                    let prevLbl = prevIdx >= 0 ? ((LX('Termin ','Appt '))+(prevIdx+1)) : '';
+                    reasonHtml = `${b.reason.name}: ${gt} ${LX('nach vorheriger Dosis','after previous dose')}${prevLbl?` (${prevLbl})`:''}`;
                 }
             }
             if (reasonHtml) {
                 subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${reasonHtml} <span style="color:var(--text);font-weight:bold;margin-left:8px">• ${absText}</span></div>`;
             } else {
                 // Flexibel = keine feste Zeitvorgabe → keine widersprüchliche "In X"-Angabe
-                subtitle = `<div style="font-size:13px;color:var(--grey);font-style:italic;">${LANG==='de'?'Flexibel terminierbar':'Flexible'}</div>`;
+                subtitle = `<div style="font-size:13px;color:var(--grey);font-style:italic;">${LX('Flexibel terminierbar','Flexible')}</div>`;
             }
         }
     }
     
-    let editIcon = !isEdit ? `<span class="icon-btn" onclick="window.toggleBucketEdit(${idx})" title="${LANG==='de'?'Bearbeiten':'Edit'}">${PENCIL_SVG}</span>` : '';
+    let editIcon = !isEdit ? `<span class="icon-btn" onclick="window.toggleBucketEdit(${idx})" title="${LX('Bearbeiten','Edit')}">${PENCIL_SVG}</span>` : '';
     let dateAlert = (daysDep !== null && offset > daysDep) ? '<span style="color:var(--red);font-weight:bold;font-size:12px;margin-left:8px">Nach Abreise</span>' : '';
 
     let itemsHtml = b.items.map(it => {
        return `<div class="sched-item" id="${it.id}" draggable="true" ondragstart="hDragStart(event)" ondragend="hDragEnd(event)" data-name="${it.name}" data-k="${it.k}" data-stkey="${it.stKey}" data-planfield="${it.planField}" data-live="${it.live}" data-reacto="${it.isReacto}">
          <div style="cursor:grab;flex:1;"><b>${it.displayName}</b> ${it.live ? '<span class="live-dot" title="Lebendimpfstoff">L</span>' : ''}</div>
          <div style="display:flex; gap:12px; align-items:center;">
-            <span class="icon-btn del" onclick="hRemoveItem('${it.id}'); event.stopPropagation();" title="${LANG==='de'?'Impfung entfernen':'Remove vaccine'}">✕</span>
+            <span class="icon-btn del" onclick="hRemoveItem('${it.id}'); event.stopPropagation();" title="${LX('Impfung entfernen','Remove vaccine')}">✕</span>
             <div style="color:var(--grey);font-size:14px;cursor:grab;">☰</div>
          </div>
        </div>`;
     }).join('');
 
     if (itemsHtml === '') {
-       itemsHtml = `<div style="color:var(--grey);font-size:12px;text-align:center;padding:10px;">${LANG==='de'?'Impfungen hierhin ziehen':'Drag vaccinations here'}</div>`;
+       itemsHtml = `<div style="color:var(--grey);font-size:12px;text-align:center;padding:10px;">${LX('Impfungen hierhin ziehen','Drag vaccinations here')}</div>`;
     }
 
     html += `<div class="sched-bucket" data-offset="${offset}" data-external="${!!b.isExternal}">
@@ -896,15 +899,15 @@ function renderApptOverview() {
   });
 
   html += `<div style="display:flex;gap:12px;margin-bottom:16px;">
-    <button class="btn sec" style="flex:1;border:1px dashed var(--line);font-size:12px;padding:6px" onclick="hAddAppt(false)">+ ${LANG==='de'?'Charité-Termin':'Add Appt'}</button>
-    <button class="btn sec" style="flex:1;border:1px dashed var(--line);font-size:12px;padding:6px" onclick="hAddAppt(true)">+ ${LANG==='de'?'Externer Termin':'Add Ext. Appt'}</button>
+    <button class="btn sec" style="flex:1;border:1px dashed var(--line);font-size:12px;padding:6px" onclick="hAddAppt(false)">+ ${LX('Charité-Termin','Add Appt')}</button>
+    <button class="btn sec" style="flex:1;border:1px dashed var(--line);font-size:12px;padding:6px" onclick="hAddAppt(true)">+ ${LX('Externer Termin','Add Ext. Appt')}</button>
   </div>`;
 
   let maxItems = 0;
   buckets.forEach(b => { if(b.items.length > maxItems) maxItems = b.items.length; });
   if (maxItems >= 5) {
       html += '<div class="warn-box red" style="margin-top:12px;margin-bottom:0"><strong>Achtung:</strong> ' + 
-              (LANG==='de'?'Viele (≥5) Impfungen an einem Tag geplant. Es wird empfohlen, die Impfungen besser aufzuteilen.':'Warning: Many (≥5) vaccinations planned for one day. It is recommended to split them up.') + 
+              (LX('Viele (≥5) Impfungen an einem Tag geplant. Es wird empfohlen, die Impfungen besser aufzuteilen.','Warning: Many (≥5) vaccinations planned for one day. It is recommended to split them up.')) + 
               '</div>';
   } else if (maxItems >= 3) {
       html += '<div class="warn-box amber" style="margin-top:12px;margin-bottom:0"><strong>Hinweis:</strong> ' + 
@@ -915,7 +918,7 @@ function renderApptOverview() {
   const lives = planned.filter(p => p.live);
   if (lives.length >= 2) {
      html += '<div class="warn-box info" style="margin-top:12px;margin-bottom:0">' + 
-             (LANG==='de'?'Bei Lebendimpfstoffen gilt: Entweder am selben Tag impfen oder mind. 4 Wochen Abstand einhalten.':'Live vaccines must be given on the same day or ≥4 weeks apart.') + 
+             (LX('Bei Lebendimpfstoffen gilt: Entweder am selben Tag impfen oder mind. 4 Wochen Abstand einhalten.','Live vaccines must be given on the same day or ≥4 weeks apart.')) + 
              '</div>';
   }
   if (childhoodOn && childhoodOn()) {
@@ -981,11 +984,11 @@ function renderMedList(){
   if(!medsList.length){ box.innerHTML=''; return; }
   const staff=document.body.classList.contains('clinic');
   const brands=d=>(d&&d.brand_names&&d.brand_names.length)?' <span class="vc-brands">('+_esc(d.brand_names.slice(0,4).join(', '))+')</span>':'';
-  const title = staff ? (LANG==='de'?'Medikamenten-Übersicht (VacCheck · DTG 2026)':'Medication overview (VacCheck · DTG 2026)') : (LANG==='de'?'Ihre Medikamente':'Your medication');
+  const title = staff ? (LX('Medikamenten-Übersicht (VacCheck · DTG 2026)','Medication overview (VacCheck · DTG 2026)')) : (LX('Ihre Medikamente','Your medication'));
   if(!staff){
     box.innerHTML = '<div class="white-pill-wrap">' + medsList.map((m,i)=>{
       const d=lookupDrug(m);
-      const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LANG==='de'?'Entfernen':'Remove')+'">✕</button>';
+      const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LX('Entfernen','Remove'))+'">✕</button>';
       const nm=d?d.substance:m;
       return '<div class="white-pill"><span class="vc-name">'+_esc(nm)+brands(d)+'</span>'+rm+'</div>';
     }).join('') + '</div>';
@@ -993,13 +996,13 @@ function renderMedList(){
   }
   box.innerHTML='<div class="vc-title">'+title+'</div>'+medsList.map((m,i)=>{
     const d=lookupDrug(m);
-    const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LANG==='de'?'Entfernen':'Remove')+'">✕</button>';
-    if(!d) return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(m)+'</span><span class="vc-hr"><span class="vc-badge grey">'+(LANG==='de'?'nicht in DB':'not in DB')+'</span>'+rm+'</span></div><div class="vc-note">'+(LANG==='de'?'Immunsuppressive Wirkung manuell prüfen.':'Check immunosuppressive effect manually.')+'</div></div>';
-    if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LANG==='de'?'unkritisch':'no concern')+'</span>'+rm+'</span></div></div>';
-    return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LANG==='de'?'Immunsuppressivum':'Immunosuppressant')+'</span>'+rm+'</span></div>'+
-      (d.drug_class?'<div class="vc-row"><b>'+(LANG==='de'?'Substanzklasse':'Class')+':</b> '+_esc(d.drug_class)+'</div>':'')+
+    const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LX('Entfernen','Remove'))+'">✕</button>';
+    if(!d) return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(m)+'</span><span class="vc-hr"><span class="vc-badge grey">'+(LX('nicht in DB','not in DB'))+'</span>'+rm+'</span></div><div class="vc-note">'+(LX('Immunsuppressive Wirkung manuell prüfen.','Check immunosuppressive effect manually.'))+'</div></div>';
+    if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LX('unkritisch','no concern'))+'</span>'+rm+'</span></div></div>';
+    return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LX('Immunsuppressivum','Immunosuppressant'))+'</span>'+rm+'</span></div>'+
+      (d.drug_class?'<div class="vc-row"><b>'+(LX('Substanzklasse','Class'))+':</b> '+_esc(d.drug_class)+'</div>':'')+
       (d.class_abstract?'<div class="vc-abstract">'+_esc(d.class_abstract)+'</div>':'')+
-      '<div class="vc-grid"><div><b>'+(LANG==='de'?'Lebendimpfung':'Live vaccine')+':</b> '+_esc(d.live_vaccine_allowed||'—')+'</div><div><b>'+(LANG==='de'?'Therapiepause':'Therapy pause')+':</b> '+_esc(d.therapy_pause_needed||'—')+'</div><div><b>'+(LANG==='de'?'Totimpfstoff-Antwort':'Inactivated response')+':</b> '+_esc(d.immune_response_dead_vaccine||'—')+'</div></div></div>';
+      '<div class="vc-grid"><div><b>'+(LX('Lebendimpfung','Live vaccine'))+':</b> '+_esc(d.live_vaccine_allowed||'—')+'</div><div><b>'+(LX('Therapiepause','Therapy pause'))+':</b> '+_esc(d.therapy_pause_needed||'—')+'</div><div><b>'+(LX('Totimpfstoff-Antwort','Inactivated response'))+':</b> '+_esc(d.immune_response_dead_vaccine||'—')+'</div></div></div>';
   }).join('');
 }
 function renderMedVacCheck(){ renderMedList(); }
@@ -1196,9 +1199,9 @@ function hepForm(kind){
 function buildDestSelect(){
   const sel=el('dest-select');const list=[...ALL_COUNTRIES].sort((a,b)=>(LANG==='de'?a.de.localeCompare(b.de,'de'):a.en.localeCompare(b.en,'en')));
   const countries=list.filter(c=>!c.terr),terrs=list.filter(c=>c.terr);
-  let html='<option value="">— '+(LANG==='de'?'Land wählen':'Select country')+' —</option><optgroup label="'+(LANG==='de'?'Länder':'Countries')+'">';
+  let html='<option value="">— '+(LX('Land wählen','Select country'))+' —</option><optgroup label="'+(LX('Länder','Countries'))+'">';
   countries.forEach(c=>html+='<option value="'+c.code+'">'+cName(c)+'</option>');
-  html+='</optgroup><optgroup label="'+(LANG==='de'?'Überseegebiete':'Overseas territories')+'">';
+  html+='</optgroup><optgroup label="'+(LX('Überseegebiete','Overseas territories'))+'">';
   terrs.forEach(c=>html+='<option value="'+c.code+'">'+cName(c)+'</option>');
   html+='</optgroup>';sel.innerHTML=html;
 }
@@ -1237,7 +1240,7 @@ function buildDoseChips(spec, cur, mkClick){
   return h+'</div>';
 }
 function renderDoseChips(k){
-  if(YEAR_ONLY.includes(k))return '<span class="mini-note">'+(LANG==='de'?'nur „zuletzt geimpft" →':'only “last vaccinated” →')+'</span>';
+  if(YEAR_ONLY.includes(k))return '<span class="mini-note">'+(LX('nur „zuletzt geimpft" →','only “last vaccinated” →'))+'</span>';
   const cur=vaxState[k].done||'';const spec=DOSE_MAP[k]||DEFAULT_DOSE;
   return buildDoseChips(spec,cur,(val)=>'onclick="setDose(\''+k+'\',\''+val+'\')"');}
 function setDose(k,val){vaxState[k].done=(vaxState[k].done===val)?'':val;renderVaxTable();}
@@ -1250,7 +1253,7 @@ function setYear(k,field,raw){const s=(raw||'').replace(/\D/g,'');const cur=new 
   if(full&&(full<1900||full>cur))full='';
   vaxState[k][field]=full?String(full):'';renderVaxTable();}
 function providerSelect(k,field){field=field||'prov';const on=(vaxState[k][field]&&vaxState[k][field]!=='charite');const who=t(provResolve('ext')==='paed'?'provPaed':'provGP');
-  return '<button class="ext-btn'+(on?' on':'')+'" onclick="toggleExtern(\''+k+'\',\''+field+'\')">'+(on?'✓ '+(LANG==='de'?'Extern: ':'External: ')+who:(LANG==='de'?'Extern':'External'))+'</button>';}
+  return '<button class="ext-btn'+(on?' on':'')+'" onclick="toggleExtern(\''+k+'\',\''+field+'\')">'+(on?'✓ '+(LX('Extern: ','External: '))+who:(LX('Extern','External')))+'</button>';}
 function toggleExtern(k,field){field=field||'prov';vaxState[k][field]=(vaxState[k][field]&&vaxState[k][field]!=='charite')?'charite':'ext';renderVaxTable();renderApptOverview();}
 function provResolve(prov){if(prov==='charite')return 'charite';if(prov==='gp')return 'gp';if(prov==='paed')return 'paed';const a=ageYears(ctxDob());return (a!==null&&a<18)?'paed':'gp';}
 function setField(k,f,val){vaxState[k][f]=val;renderVaxTable();}
@@ -1267,7 +1270,7 @@ function renderVaxTable(){
     else if(av.flag==='caution')availBadge='<span class="badge yellow">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
     const availNote=(av.flag==='na'||av.flag==='age')?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':(av.flag==='caution'?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':'');
     const liveNote=la?'<div class="reason" style="color:'+(la.level==='block'?'var(--red)':'var(--yellow)')+';font-weight:600">'+(LANG==='de'?la.de:la.en)+'</div>':'';
-    const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">'+(LANG==='de'?'K':'M')+'</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>';
+    const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>';
 
     if(v.tdap_polio){
       const a = tdapPolioAssess();
@@ -1276,37 +1279,37 @@ function renderVaxTable(){
       
       const lbls={T:t('T'),D:t('D'),aP:t('aP'),IPV:'IPV'};
       const compBadges='<div class="comp-badges" style="margin-bottom:8px;">'+['T','D','aP','IPV'].map(cc=>'<span class="comp '+a[cc]+'">'+lbls[cc]+'</span>').join('')+'</div>'+
-        (a.unvaxxed?'<div class="reason"><span class="badge red" style="margin-bottom:4px;display:inline-block">'+(LANG==='de'?'Dringend empfohlen':'Strongly recommended')+'</span><br>'+(LANG==='de'?'Bisher keine Impfung erfolgt':'No prior vaccination')+'</div>':'')+
-        (a.infantOngoing?'<div class="reason">'+(LANG==='de'?'Altersgerechte, laufende Grundimmunisierung':'Age-appropriate, ongoing primary series')+'</div>':'');
+        (a.unvaxxed?'<div class="reason"><span class="badge red" style="margin-bottom:4px;display:inline-block">'+(LX('Dringend empfohlen','Strongly recommended'))+'</span><br>'+(LX('Bisher keine Impfung erfolgt','No prior vaccination'))+'</div>':'')+
+        (a.infantOngoing?'<div class="reason">'+(LX('Altersgerechte, laufende Grundimmunisierung','Age-appropriate, ongoing primary series'))+'</div>':'');
 
       const dOpts=[['0','0'],['1','1'],['2','2'],['3','3'],['>3','>3']];
       const dSel=dOpts.map(o=>'<option value="'+o[0]+'"'+(st.doses_hexa===o[0]?' selected':'')+'>'+o[1]+'</option>').join('');
 
       function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)">';}
 
-      let col2 = '<div class="ctrl-box" style="margin-bottom:6px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_tdap?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_tdap\',this.checked)"> '+(LANG==='de'?'GI TDaP komplett':'Primary TDaP complete')+'</label></div>'+
-                 '<div class="ctrl-box" style="margin-bottom:10px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_ipv?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_ipv\',this.checked)"> '+(LANG==='de'?'GI IPV komplett':'Primary IPV complete')+'</label></div>'+
-                 '<div style="margin-bottom:4px;font-size:11px;color:var(--grey)">'+(LANG==='de'?'Hexavalent-Dosen (Kindheit):':'Hexavalent doses (childhood):')+'</div>'+
+      let col2 = '<div class="ctrl-box" style="margin-bottom:6px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_tdap?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_tdap\',this.checked)"> '+(LX('GI TDaP komplett','Primary TDaP complete'))+'</label></div>'+
+                 '<div class="ctrl-box" style="margin-bottom:10px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_ipv?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_ipv\',this.checked)"> '+(LX('GI IPV komplett','Primary IPV complete'))+'</label></div>'+
+                 '<div style="margin-bottom:4px;font-size:11px;color:var(--grey)">'+(LX('Hexavalent-Dosen (Kindheit):','Hexavalent doses (childhood):'))+'</div>'+
                  '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
                    '<select class="hexa-sel" onchange="setField(\'tdap_polio\',\'doses_hexa\',this.value)"><option value="">—</option>'+dSel+'</select>'+
-                   '<span style="font-size:11px;color:var(--grey)">'+(LANG==='de'?'Jahr':'Year')+'</span>'+yrIn('y_hexa')+
+                   '<span style="font-size:11px;color:var(--grey)">'+(LX('Jahr','Year'))+'</span>'+yrIn('y_hexa')+
                  '</div>';
 
       let col3 = '<div style="display:flex; flex-direction:column; gap:6px; font-size:11px;">'+
                    '<div style="display:flex; flex-direction:column; margin-bottom:6px; padding-bottom:8px; border-bottom:1px dashed var(--line);">'+
-                     '<div style="font-size:10px; color:var(--grey); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.05em;">'+(LANG==='de'?'Kombi-Schnelleingabe':'Quick-Fill Combo')+'</div>'+
+                     '<div style="font-size:10px; color:var(--grey); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.05em;">'+(LX('Kombi-Schnelleingabe','Quick-Fill Combo'))+'</div>'+
                      '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">'+
                        '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="JJJJ" id="quick_tdap_yr" onchange="quickFillTdap(this.value)">'+
                        '<button class="ext-btn'+(st.quick_type==='tdap_ipv'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap_ipv\')">Tdap-IPV</button>'+
                        '<button class="ext-btn'+(st.quick_type==='tdap'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap\')">Tdap</button>'+
                      '</div>'+
                    '</div>'+
-                   '<div class="yr-row"><span>'+(LANG==='de'?'Letzte Td':'Last Td')+'</span>'+yrIn('y_td')+'</div>'+
-                   '<div class="yr-row"><span>'+(LANG==='de'?'Letzte aP':'Last aP')+'</span>'+yrIn('y_ap')+'</div>'+
-                   '<div class="yr-row"><span>'+(LANG==='de'?'Letzte IPV':'Last IPV')+'</span>'+yrIn('y_ipv')+'</div>'+
+                   '<div class="yr-row"><span>'+(LX('Letzte Td','Last Td'))+'</span>'+yrIn('y_td')+'</div>'+
+                   '<div class="yr-row"><span>'+(LX('Letzte aP','Last aP'))+'</span>'+yrIn('y_ap')+'</div>'+
+                   '<div class="yr-row"><span>'+(LX('Letzte IPV','Last IPV'))+'</span>'+yrIn('y_ipv')+'</div>'+
                  '</div>';
 
-      html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+availBadge+'</div><div class="vsub">'+(LANG==='de'?'Basis-Impfschutz':'Core vaccines')+'</div></td>'+
+      html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(LANG==='de'?v.de:v.en)+availBadge+'</div><div class="vsub">'+(LX('Basis-Impfschutz','Core vaccines'))+'</div></td>'+
         '<td data-label="'+t('thDone')+'">'+col2+'</td>'+
         '<td data-label="'+t('thLast')+'">'+col3+'</td>'+
         '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><div style="min-height:48px;">'+compBadges+(a.ipvNote&&a.ipvNote.de?'<div class="reason" style="margin-top:6px;border-top:1px solid var(--line);padding-top:4px"><b>Polio:</b> '+(LANG==='de'?a.ipvNote.de:a.ipvNote.en)+'</div>':'')+'</div></td></tr>';return;
@@ -1332,8 +1335,8 @@ function renderVaxTable(){
         '<div class="reason">'+(LANG==='de'?ha.bNote.de:ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
-      const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">'+(LANG==='de'?'K':'M')+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info">i</button>';
-      const infoBtnB=(DISEASE_MAPS['hepatitis_b']?'<button class="map-btn" onclick="showMap(\'hepatitis_b\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">'+(LANG==='de'?'K':'M')+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepB\')" title="Info">i</button>';
+      const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info">i</button>';
+      const infoBtnB=(DISEASE_MAPS['hepatitis_b']?'<button class="map-btn" onclick="showMap(\'hepatitis_b\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepB\')" title="Info">i</button>';
       
       function yrSel(f){return yearInput('hepatitis',f);}
       
@@ -1341,8 +1344,8 @@ function renderVaxTable(){
         <td data-label="${t('thVax')}">
           <div class="vname" style="display:flex; align-items:center;">Hepatitis A</div>
         </td>
-        <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'aMono')}</div></div></td>
-        <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('aYear')}</div></div></td>
+        <td data-label="${LX('Vorimpfungen','Previous doses')}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'aMono')}</div></div></td>
+        <td data-label="${LX('Jahr','Year')}"><div class="hep-group-row"><div class="hep-year">${yrSel('aYear')}</div></div></td>
         <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtnA}</div>
           ${aBadge}
         </td>
@@ -1352,8 +1355,8 @@ function renderVaxTable(){
           <div class="vname" style="display:flex; align-items:center;">Hepatitis B</div>
           ${hbsChk}
         </td>
-        <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'bMono')}</div></div></td>
-        <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('bYear')}</div></div></td>
+        <td data-label="${LX('Vorimpfungen','Previous doses')}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'bMono')}</div></div></td>
+        <td data-label="${LX('Jahr','Year')}"><div class="hep-group-row"><div class="hep-year">${yrSel('bYear')}</div></div></td>
         <td class="status" data-label="${t('thStatus')}"><div class="row-info">${infoBtnB}</div>
           ${bBadge}
         </td>
@@ -1362,8 +1365,8 @@ function renderVaxTable(){
         <td data-label="${t('thVax')}">
           <div class="vname" style="display:flex; align-items:center;">Hepatitis A+B</div>
         </td>
-        <td data-label="${LANG==='de'?'Vorimpfungen':'Previous doses'}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'twin')}</div></div></td>
-        <td data-label="${LANG==='de'?'Jahr':'Year'}"><div class="hep-group-row"><div class="hep-year">${yrSel('twYear')}</div></div></td>
+        <td data-label="${LX('Vorimpfungen','Previous doses')}"><div class="hep-group-row"><div class="hep-doses">${renderDoseChips2(v.k, 'twin')}</div></div></td>
+        <td data-label="${LX('Jahr','Year')}"><div class="hep-group-row"><div class="hep-year">${yrSel('twYear')}</div></div></td>
         <td class="status" data-label="${t('thStatus')}"></td>
       </tr>`;
       return;
@@ -1487,19 +1490,19 @@ function renderImmunoWarn(){
   if(typeof renderMedVacCheck==='function') renderMedVacCheck();
   const immunoMeds=medsList.filter(medIsImmuno);
   // Immundefizienz-Hinweis (nur Personal)
-  if(idr){ idr.style.color=hasImmuneDef()?'var(--red)':'var(--grey)'; idr.textContent=(staff && chronicTextVal() && hasImmuneDef())?(LANG==='de'?'Hinweis auf Immundefizienz – Lebendimpfstoffe kontraindiziert/prüfen':'Possible immunodeficiency — check live vaccines'):''; }
+  if(idr){ idr.style.color=hasImmuneDef()?'var(--red)':'var(--grey)'; idr.textContent=(staff && chronicTextVal() && hasImmuneDef())?(LX('Hinweis auf Immundefizienz – Lebendimpfstoffe kontraindiziert/prüfen','Possible immunodeficiency — check live vaccines')):''; }
   // Medikamenten-Hinweis (nur Personal, nur die immunsuppressiven)
   if(recog){
     if(!staff || !medsList.length) recog.textContent='';
-    else if(immunoMeds.length){ recog.style.color='var(--red)'; recog.textContent=(LANG==='de'?'Immunsuppressiv: ':'Immunosuppressive: ')+immunoMeds.join(', '); }
-    else { recog.style.color='var(--green)'; recog.textContent=(LANG==='de'?'Keine immunsuppressiven Medikamente erkannt.':'No immunosuppressive medication detected.'); }
+    else if(immunoMeds.length){ recog.style.color='var(--red)'; recog.textContent=(LX('Immunsuppressiv: ','Immunosuppressive: '))+immunoMeds.join(', '); }
+    else { recog.style.color='var(--green)'; recog.textContent=(LX('Keine immunsuppressiven Medikamente erkannt.','No immunosuppressive medication detected.')); }
   }
   if(!box) return;
   if(!staff || !livesBlocked()){ box.innerHTML=''; return; }
   const lives=VACCINES.filter(v=>v.live).map(v=>LANG==='de'?v.de:v.en).join(', ');
   const immunoStr=immunoMeds.join(', ');
-  const reason=isPregnant()?(LANG==='de'?'Schwangerschaft':'Pregnancy'):((hasImmuneDef()&&!immunoStr)?(LANG==='de'?'Immundefizienz':'Immunodeficiency'):(LANG==='de'?('Immunsuppression'+(immunoStr?' ('+immunoStr+')':'')):('Immunosuppression'+(immunoStr?' ('+immunoStr+')':''))));
-  box.innerHTML='<div class="warn-box"><h4>'+(LANG==='de'?'Lebendimpfstoffe – kontraindiziert / Vorsicht':'Live vaccines — contraindicated / caution')+'</h4><p>'+(LANG==='de'?('Wegen '+reason+' sind Lebendimpfstoffe kontraindiziert bzw. nur nach individueller Abwägung: '):('Because of '+reason+', live vaccines are contraindicated or only after individual assessment: '))+'<strong>'+lives+'</strong>.</p><p class="mini-note">'+(LANG==='de'?'Falls indiziert: Lebendimpfung möglichst ≥4 Wochen vor Therapiebeginn; Details je Substanz siehe Medikamenten-Übersicht.':'If indicated: complete live vaccination ≥4 weeks before therapy; per-drug details see the medication overview.')+'</p></div>';
+  const reason=isPregnant()?(LX('Schwangerschaft','Pregnancy')):((hasImmuneDef()&&!immunoStr)?(LX('Immundefizienz','Immunodeficiency')):(LANG==='de'?('Immunsuppression'+(immunoStr?' ('+immunoStr+')':'')):('Immunosuppression'+(immunoStr?' ('+immunoStr+')':''))));
+  box.innerHTML='<div class="warn-box"><h4>'+(LX('Lebendimpfstoffe – kontraindiziert / Vorsicht','Live vaccines — contraindicated / caution'))+'</h4><p>'+(LANG==='de'?('Wegen '+reason+' sind Lebendimpfstoffe kontraindiziert bzw. nur nach individueller Abwägung: '):('Because of '+reason+', live vaccines are contraindicated or only after individual assessment: '))+'<strong>'+lives+'</strong>.</p><p class="mini-note">'+(LX('Falls indiziert: Lebendimpfung möglichst ≥4 Wochen vor Therapiebeginn; Details je Substanz siehe Medikamenten-Übersicht.','If indicated: complete live vaccination ≥4 weeks before therapy; per-drug details see the medication overview.'))+'</p></div>';
 }
 
 function renderAge(){
@@ -1508,14 +1511,14 @@ function renderAge(){
   const yr=new Date(dob).getFullYear();const det=ageDetail(dob);
   let txt;
   if(ex<5){
-    if(ex<1)txt=det.m+' '+(LANG==='de'?'Mon.':'mo')+' '+det.d+' '+(LANG==='de'?'Tage':'d');
-    else txt=det.y+' '+(LANG==='de'?'J.':'yr')+' '+det.m+' '+(LANG==='de'?'Mon.':'mo');
+    if(ex<1)txt=det.m+' '+(LX('Mon.','mo'))+' '+det.d+' '+(LX('Tage','d'));
+    else txt=det.y+' '+(LX('J.','yr'))+' '+det.m+' '+(LX('Mon.','mo'));
     box.className='age-box child';
-  } else {txt=det.y+' '+(LANG==='de'?'Jahre':'years');box.className='age-box';}
-  box.innerHTML='<span>'+txt+'</span><span class="yob">('+(LANG==='de'?'geb.':'b.')+' '+yr+')</span>';
+  } else {txt=det.y+' '+(LX('Jahre','years'));box.className='age-box';}
+  box.innerHTML='<span>'+txt+'</span><span class="yob">('+(LX('geb.','b.'))+' '+yr+')</span>';
 }
 function updatePregVisibility(){const male=el('p-sex').value==='m';const f=el('preg-field');if(f)f.style.display=male?'none':'';if(male)el('p-pregnant').value='no';}
-function updateDepartureHint(){const d=el('p-departure').value;const h=el('departure-hint');if(!h)return;h.textContent=d?((LANG==='de'?'Tage bis Abreise: ':'Days to departure: ')+Math.round((new Date(d)-new Date())/86400000)):'';}
+function updateDepartureHint(){const d=el('p-departure').value;const h=el('departure-hint');if(!h)return;h.textContent=d?((LX('Tage bis Abreise: ','Days to departure: '))+Math.round((new Date(d)-new Date())/86400000)):'';}
 function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();renderContraWarn();}
 // Hinweise zu Akuterkrankung / Thrombose / Ohnmacht – nur für Personal, nichts für Patienten
 function renderContraWarn(){
@@ -1526,10 +1529,10 @@ function renderContraWarn(){
   const faint=el('p-faint')&&el('p-faint').checked;
   if(!staff || (!acute&&!thromb&&!faint)){ box.innerHTML=''; return; }
   const items=[];
-  if(acute) items.push(LANG==='de'?'<b>Akute Erkrankung:</b> Impfung bei behandlungsbedürftiger akuter Erkrankung (≥38,5 °C) verschieben; leichte Infekte ohne Fieber sind i. d. R. kein Hindernis.':'<b>Acute illness:</b> postpone if acute illness needing treatment (≥38.5 °C); mild infections without fever are usually no barrier.');
-  if(thromb) items.push(LANG==='de'?'<b>Thrombose / Antikoagulation:</b> i. m. Injektion mit sehr feiner Kanüle, danach ≥2 Min. komprimieren; ggf. Rücksprache bei hoher Blutungsneigung.':'<b>Thrombosis / anticoagulation:</b> use a fine needle for i.m. injection, then compress ≥2 min; consult if high bleeding risk.');
-  if(faint) items.push(LANG==='de'?'<b>Ohnmachtsneigung:</b> im Liegen impfen und anschließend ≥15 Min. nachbeobachten.':'<b>Fainting tendency:</b> vaccinate lying down and observe ≥15 min afterwards.');
-  box.innerHTML='<div class="warn-box" style="margin-top:12px;"><h4>'+(LANG==='de'?'Hinweise zur Durchführung':'Procedure notes')+'</h4><ul style="margin:4px 0 0 18px;padding:0;">'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul></div>';
+  if(acute) items.push(LX('<b>Akute Erkrankung:</b> Impfung bei behandlungsbedürftiger akuter Erkrankung (≥38,5 °C) verschieben; leichte Infekte ohne Fieber sind i. d. R. kein Hindernis.','<b>Acute illness:</b> postpone if acute illness needing treatment (≥38.5 °C); mild infections without fever are usually no barrier.'));
+  if(thromb) items.push(LX('<b>Thrombose / Antikoagulation:</b> i. m. Injektion mit sehr feiner Kanüle, danach ≥2 Min. komprimieren; ggf. Rücksprache bei hoher Blutungsneigung.','<b>Thrombosis / anticoagulation:</b> use a fine needle for i.m. injection, then compress ≥2 min; consult if high bleeding risk.'));
+  if(faint) items.push(LX('<b>Ohnmachtsneigung:</b> im Liegen impfen und anschließend ≥15 Min. nachbeobachten.','<b>Fainting tendency:</b> vaccinate lying down and observe ≥15 min afterwards.'));
+  box.innerHTML='<div class="warn-box" style="margin-top:12px;"><h4>'+(LX('Hinweise zur Durchführung','Procedure notes'))+'</h4><ul style="margin:4px 0 0 18px;padding:0;">'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul></div>';
 }
 
 const DISEASE_MAPS = {
@@ -1554,11 +1557,11 @@ function showInfo(k){
   if(k==='hepA'){ v={de:'Hepatitis A',en:'Hepatitis A',live:false}; a=AVAIL['hepatitis']; }
   if(k==='hepB'){ v={de:'Hepatitis B',en:'Hepatitis B',live:false}; a=AVAIL['hepatitis']; }
   const inf=INFO[k];
-  const availHtml=a?('<div class="m-sec"><h4>'+(LANG==='de'?'Verfügbarkeit & Alter (Ambulanz)':'Availability & age (clinic)')+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
+  const availHtml=a?('<div class="m-sec"><h4>'+(LX('Verfügbarkeit & Alter (Ambulanz)','Availability & age (clinic)'))+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
   const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3>'+(LANG==='de'?v.de:v.en)+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
-    '<div class="m-sub">'+(LANG==='de'?'Vereinfachte Kurzinformation für das Patientengespräch':'Simplified summary for the patient conversation')+'</div>'+
+    '<div class="m-sub">'+(LX('Vereinfachte Kurzinformation für das Patientengespräch','Simplified summary for the patient conversation'))+'</div>'+
     '<div class="m-sec"><h4>'+t('mDisease')+'</h4><p>'+(inf.disease[LANG]||inf.disease.en)+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mEpi')+'</h4><p>'+(inf.epi[LANG]||inf.epi.en)+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mSide')+'</h4><p>'+(inf.side[LANG]||inf.side.en)+'</p></div>'+
@@ -1572,10 +1575,10 @@ function showMap(k){
   const v=VACCINES.find(x=>x.k===k);
   const name=(MAP_NAME[k]?MAP_NAME[k][LANG==='de'?'de':'en']:(v?(LANG==='de'?v.de:v.en):''));
   const src=(MAP_SOURCE[k]?MAP_SOURCE[k]:{de:'Quelle: RKI, Epidemiologisches Bulletin 14/2025',en:'Source: RKI, Epidemiological Bulletin 14/2025'})[LANG==='de'?'de':'en'];
-  const missMsg=(LANG==='de'?'Karte noch nicht hinterlegt.':'Map not yet available.');
+  const missMsg=(LX('Karte noch nicht hinterlegt.','Map not yet available.'));
   el('map-bg').innerHTML='<button class="map-close" onclick="closeMap()" title="Schließen">×</button>'+
     '<div class="map-inner">'+
-      '<div class="map-head">'+name+' — '+(LANG==='de'?'Geografische Verbreitung':'Geographic distribution')+'</div>'+
+      '<div class="map-head">'+name+' — '+(LX('Geografische Verbreitung','Geographic distribution'))+'</div>'+
       '<img src="assets/karten/'+f+'" alt="'+name+'" class="map-full" onerror="this.outerHTML=\'<div class=&quot;map-missing&quot;>'+missMsg+'</div>\'">'+
       '<div class="map-foot">'+src+'</div>'+
     '</div>';
@@ -1782,7 +1785,7 @@ function loadPatient(id){
     if(p.editLog){
       const logs=p.editLog.filter(l=>l.section===sid&&l.fields&&l.fields.length>0);
       if(logs.length){
-        logEl.innerHTML='<div class="log-title">'+(LANG==='de'?'Änderungsprotokoll':'Change log')+'</div>'+logs.slice().reverse().map(l=>'<div class="log-entry"><span class="log-ts">'+fmtDateTime(l.ts)+'</span> <span class="log-who">'+_esc(l.who)+'</span> <span class="log-fields">'+_esc(l.fields.join(', '))+'</span></div>').join('');
+        logEl.innerHTML='<div class="log-title">'+(LX('Änderungsprotokoll','Change log'))+'</div>'+logs.slice().reverse().map(l=>'<div class="log-entry"><span class="log-ts">'+fmtDateTime(l.ts)+'</span> <span class="log-who">'+_esc(l.who)+'</span> <span class="log-fields">'+_esc(l.fields.join(', '))+'</span></div>').join('');
       }
     }
   });
@@ -1850,7 +1853,7 @@ function loadPatient(id){
 function cancelEdit(){editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');resetForm();
   if(document.body.classList.contains('clinic'))document.body.classList.add('clinic-idle');}
 async function deletePatient(id){
-  if(!(await uiConfirm(t('confirmDel'),{title:LANG==='de'?'Patient löschen':'Delete patient',ok:LANG==='de'?'Löschen':'Delete',danger:true})))return;
+  if(!(await uiConfirm(t('confirmDel'),{title:LX('Patient löschen','Delete patient'),ok:LX('Löschen','Delete'),danger:true})))return;
   const p=patients.find(x=>x.id===id); if(!p)return;
   // Soft-Delete: Datensatz bleibt erhalten (für Admin sichtbar), mit Protokoll wann/von wem
   const who=((CURRENT_PROFILE&&CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'')+((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'')).trim()||myUserKey();
@@ -1936,10 +1939,10 @@ function updateLeistungen() {
 
    let html = '';
    if (list.length === 0) {
-      html = '<div class="leistung-empty">' + (LANG==='de'?'Keine Impfungen für heute geplant.':'No vaccinations planned for today.') + '</div>';
+      html = '<div class="leistung-empty">' + (LX('Keine Impfungen für heute geplant.','No vaccinations planned for today.')) + '</div>';
    } else {
       list.forEach(item => {
-         html += '<span class="leistung-chip">'+_esc(item.name)+'<span class="lc-x" title="'+(LANG==='de'?'Entfernen':'Remove')+'" onclick="removeLeistungVax(\''+item.k+'\', \''+item.sub+'\')">✕</span></span>';
+         html += '<span class="leistung-chip">'+_esc(item.name)+'<span class="lc-x" title="'+(LX('Entfernen','Remove'))+'" onclick="removeLeistungVax(\''+item.k+'\', \''+item.sub+'\')">✕</span></span>';
       });
    }
    listDiv.innerHTML = html;
@@ -2003,13 +2006,13 @@ async function setPatientStatus(id,status,type,claim){
 function canTreatType(type){ return !((CURRENT_PROFILE||{}).role==='mfa' && type==='beratung'); }
 async function takeIntoTreatment(id){
   const p=patients.find(x=>x.id===id); const type=p?patientTreatType(p):myTreatmentMode();
-  if(!canTreatType(type)){ uiAlert(LANG==='de'?'Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.':'As MFA you cannot take a consultation; only physicians consult.'); return; }
+  if(!canTreatType(type)){ uiAlert(LX('Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.','As MFA you cannot take a consultation; only physicians consult.')); return; }
   await setPatientStatus(id,'treatment',type,true); loadPatient(id);
 }
 async function takeGroupIntoTreatment(g){
   const first=patients.find(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===g.trim().toLowerCase());
   const type=first?patientTreatType(first):myTreatmentMode();
-  if(!canTreatType(type)){ uiAlert(LANG==='de'?'Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.':'As MFA you cannot take a consultation; only physicians consult.'); return; }
+  if(!canTreatType(type)){ uiAlert(LX('Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.','As MFA you cannot take a consultation; only physicians consult.')); return; }
   await moveGroupStatus(g,'treatment',type,true); if(first)loadPatient(first.id);
 }
 async function startTreatment(id){ await takeIntoTreatment(id); }
@@ -2021,8 +2024,8 @@ async function finishTreatment(){
   const isGrp=!!grp && patients.filter(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===grp).length>1;
   const msg=isGrp
     ? (LANG==='de'?'Behandlung der ganzen Gruppe „'+(cur.group)+'" abschließen und nach „Behandelt" verschieben?':'Complete treatment for the whole group and move to "Treated"?')
-    : (LANG==='de'?'Behandlung abschließen und Patient nach „Behandelt" verschieben?':'Complete treatment and move patient to "Treated"?');
-  if(!(await uiConfirm(msg,{title:LANG==='de'?'Behandlung abschließen':'Complete treatment',ok:LANG==='de'?'Abschließen':'Complete'}))) return;
+    : (LX('Behandlung abschließen und Patient nach „Behandelt" verschieben?','Complete treatment and move patient to "Treated"?'));
+  if(!(await uiConfirm(msg,{title:LX('Behandlung abschließen','Complete treatment'),ok:LX('Abschließen','Complete')}))) return;
   const ok=await savePatient();   // speichert aktuellen Patienten als „done" + exitToList()
   if(!ok) return;
   if(grp){
@@ -2034,7 +2037,7 @@ async function finishTreatment(){
 async function assignGroup(id){
   closeCardMenus();
   const p=patients.find(x=>x.id===id);if(!p)return;
-  const g=await uiPrompt(LANG==='de'?'Gruppen-/Familienname (leer = Gruppe entfernen):':'Group/family name (empty = remove):',{title:LANG==='de'?'Gruppe':'Group',def:p.group||''});
+  const g=await uiPrompt(LX('Gruppen-/Familienname (leer = Gruppe entfernen):','Group/family name (empty = remove):'),{title:LX('Gruppe','Group'),def:p.group||''});
   if(g===null)return; p.group=g.trim();
   await persistPatient(p); renderPatients();
 }
@@ -2056,7 +2059,7 @@ function pDrop(e,status,type){
   // Drag&Drop in „In Behandlung" übernimmt den Patienten in die eigene Behandlung (claim=true).
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
   // MFA darf niemanden in „Beratung · In Behandlung" ziehen (keine Beratung durch MFA)
-  if(status==='treatment' && !canTreatType(type)){ _dragGroup=null;_dragPid=null; uiAlert(LANG==='de'?'Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.':'As MFA you cannot take a consultation; only physicians consult.'); return; }
+  if(status==='treatment' && !canTreatType(type)){ _dragGroup=null;_dragPid=null; uiAlert(LX('Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.','As MFA you cannot take a consultation; only physicians consult.')); return; }
   if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status,type,true);return; }
   let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status,type,true);
 }
@@ -2082,26 +2085,26 @@ async function pCardDrop(e){
   const src=patients.find(x=>x.id===srcId), tgt=patients.find(x=>x.id===targetId);
   if(!src||!tgt)return;
   const nm=(p)=>(p.firstname?p.name+', '+p.firstname:p.name);
-  if(!(await uiConfirm((LANG==='de'?'„'+nm(src)+'" zur Gruppe „'+(tgt.name||'')+'" hinzufügen?':'Add "'+nm(src)+'" to group "'+(tgt.name||'')+'"?'),{title:LANG==='de'?'Gruppieren':'Group'})))return;
+  if(!(await uiConfirm((LANG==='de'?'„'+nm(src)+'" zur Gruppe „'+(tgt.name||'')+'" hinzufügen?':'Add "'+nm(src)+'" to group "'+(tgt.name||'')+'"?'),{title:LX('Gruppieren','Group')})))return;
   const grp=(tgt.name||'Gruppe').trim();   // Gruppenname = Nachname des Ziels
   src.group=grp; tgt.group=grp;
   await persistPatient(tgt); await persistPatient(src); renderPatients();
 }
 // Rechter Pfeil: Patient in die eigene Behandlung nehmen. Nur für Wartend/In Behandlung.
-function arrowBtn(id){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeIntoTreatment(\''+id+'\')" title="'+(LANG==='de'?'In Behandlung nehmen':'Take into treatment')+'">→</button>'; }
-function groupArrowBtn(gesc){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')" title="'+(LANG==='de'?'Gruppe in Behandlung nehmen':'Take group into treatment')+'">→</button>'; }
-function elapsedStr(iso){ if(!iso)return''; const min=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000)); if(isNaN(min))return''; if(min<1)return LANG==='de'?'gerade eben':'just now'; if(min<60)return min+' min'; const h=Math.floor(min/60),m=min%60; return h+' h'+(m?' '+m:'')+(m?' min':''); }
+function arrowBtn(id){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeIntoTreatment(\''+id+'\')" title="'+(LX('In Behandlung nehmen','Take into treatment'))+'">→</button>'; }
+function groupArrowBtn(gesc){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')" title="'+(LX('Gruppe in Behandlung nehmen','Take group into treatment'))+'">→</button>'; }
+function elapsedStr(iso){ if(!iso)return''; const min=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000)); if(isNaN(min))return''; if(min<1)return LX('gerade eben','just now'); if(min<60)return min+' min'; const h=Math.floor(min/60),m=min%60; return h+' h'+(m?' '+m:'')+(m?' min':''); }
 function initials(name){ if(!name)return '?'; const parts=String(name).trim().split(/\s+/).filter(Boolean); if(!parts.length)return '?'; if(parts.length===1)return parts[0].slice(0,2).toUpperCase(); return (parts[0][0]+parts[parts.length-1][0]).toUpperCase(); }
 function roleColor(role){ switch(role){ case 'arzt':return '#2563eb'; case 'mfa':return '#0e9e8e'; case 'admin':return '#111827'; case 'kasse':return '#b45309'; case 'patient':return '#6b7280'; default:return '#6b7280'; } }
 function formatRoleTitle(role, gender){
   if(role==='arzt'){
-    if(gender==='m') return LANG==='de'?'Arzt':'Doctor';
-    if(gender==='w') return LANG==='de'?'Ärztin':'Doctor';
-    return LANG==='de'?'Arzt / Ärztin':'Doctor';
+    if(gender==='m') return LX('Arzt','Doctor');
+    if(gender==='w') return LX('Ärztin','Doctor');
+    return LX('Arzt / Ärztin','Doctor');
   }
   if(role==='mfa') return 'MFA';
   if(role==='admin') return 'Admin';
-  if(role==='kasse') return LANG==='de'?'Kasse':'Reception';
+  if(role==='kasse') return LX('Kasse','Reception');
   return role||'';
 }
 function initialsCircle(name,role,gender){ const rTitle=formatRoleTitle(role,gender); return '<span class="ini-circle" style="background:'+roleColor(role)+'" title="'+_esc(name||'')+(rTitle?' · '+rTitle:'')+'">'+_esc(initials(name))+'</span>'; }
@@ -2137,7 +2140,7 @@ function renderPatients(){
     let h='<div class="amb-section'+(collapsed?' collapsed':'')+(s.type?' amb-lane':'')+'" '+dropAttr+'>';
     h+='<div class="amb-sec-h"'+clickAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')"><span>'+(LANG==='de'?s.de:s.en)+' <span class="count-pill">'+inSec.length+'</span></span>'+toggleArrow+'</div>';
     h+='<div class="patient-list drop-zone" '+dropAttr+' ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\','+typeArg+')">';
-    h+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
+    h+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LX('Hierher ziehen …','Drop here …'))+'</div>';
     h+='</div></div>';
     return h;
   };
@@ -2156,8 +2159,8 @@ function renderPatients(){
     const del=dayPats.filter(p=>p.deleted);
     if(del.length){
       const collapsed=('del' in SEC_COLLAPSE)?SEC_COLLAPSE.del:true;
-      html+='<div class="amb-section amb-deleted'+(collapsed?' collapsed':'')+'"><div class="amb-sec-h" onclick="toggleSection(\'del\',this)"><span>'+(LANG==='de'?'Gelöscht':'Deleted')+' <span class="count-pill">'+del.length+'</span></span><span class="amb-toggle">▾</span></div><div class="patient-list">'+
-        del.map(p=>{const nm=(p.firstname?p.name+', '+p.firstname:p.name);const d=p.deleted||{};return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LANG==='de'?'gelöscht von ':'deleted by ')+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LANG==='de'?'Wiederherstellen':'Restore')+'</button></div>';}).join('')+
+      html+='<div class="amb-section amb-deleted'+(collapsed?' collapsed':'')+'"><div class="amb-sec-h" onclick="toggleSection(\'del\',this)"><span>'+(LX('Gelöscht','Deleted'))+' <span class="count-pill">'+del.length+'</span></span><span class="amb-toggle">▾</span></div><div class="patient-list">'+
+        del.map(p=>{const nm=(p.firstname?p.name+', '+p.firstname:p.name);const d=p.deleted||{};return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button></div>';}).join('')+
         '</div></div>';
     }
   }
@@ -2179,15 +2182,15 @@ function toggleSection(key,hdr){ const sec=hdr.parentNode; sec.classList.toggle(
 
 function tpTooltipHTML(p) {
   const dest=(p.destinations||[]).map(c=>CBY[c]?cName(CBY[c]):c).join(', ')||'—';
-  const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
-  const preg = p.pregnant==='pregnant'?(LANG==='de'?'Ja':'Yes'):(p.pregnant==='breastfeeding'?(LANG==='de'?'Stillend':'Breastfeeding'):(p.pregnant==='planned'?(LANG==='de'?'Geplant':'Planned'):(LANG==='de'?'Nein':'No')));
+  const durLbl={'<1w':'< 1 '+(LX('Woche','week')),'1-2w':'1–2 '+(LX('Wochen','weeks')),'<2w':'< 2 '+(LX('Wochen','weeks')),'2-4w':'2–4 '+(LX('Wochen','weeks')),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LX('Mon','mo')),'3-6m':'3–6 '+(LX('Mon','mo')),'>6m':'>6 '+(LX('Mon','mo'))}[p.duration]||p.duration||'—';
+  const preg = p.pregnant==='pregnant'?(LX('Ja','Yes')):(p.pregnant==='breastfeeding'?(LX('Stillend','Breastfeeding')):(p.pregnant==='planned'?(LX('Geplant','Planned')):(LX('Nein','No'))));
   const fld=(lbl,val)=>'<div class="pb-field"><span class="pb-lbl">'+lbl+'</span><span class="pb-val">'+val+'</span></div>';
-  return fld(LANG==='de'?'Reisedauer':'Duration', durLbl) +
-         fld(LANG==='de'?'Reiseziel(e)':'Destination(s)', dest) +
-         fld(LANG==='de'?'Allergien':'Allergies', _esc(p.allergy||'—')) +
-         fld(LANG==='de'?'Schwangerschaft':'Pregnancy', preg) +
-         fld(LANG==='de'?'Chron. Erkrankung':'Chronic Illness', _esc(p.chronicText||'—')) +
-         fld(LANG==='de'?'Medikamente':'Medication', _esc(p.meds&&p.meds.length?p.meds.join(', '):'—'));
+  return fld(LX('Reisedauer','Duration'), durLbl) +
+         fld(LX('Reiseziel(e)','Destination(s)'), dest) +
+         fld(LX('Allergien','Allergies'), _esc(p.allergy||'—')) +
+         fld(LX('Schwangerschaft','Pregnancy'), preg) +
+         fld(LX('Chron. Erkrankung','Chronic Illness'), _esc(p.chronicText||'—')) +
+         fld(LX('Medikamente','Medication'), _esc(p.meds&&p.meds.length?p.meds.join(', '):'—'));
 }
 function showTpTooltip(e, id) {
   let tooltip = document.getElementById('tp-tooltip');
@@ -2224,27 +2227,27 @@ function renderTreatPanel(){
   const docName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';
   const docRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
   let h='';
-  h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'In Behandlung':'In treatment')+'</span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
-  if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top: 8px;">&larr; '+(LANG==='de'?'Ambulanzliste':'Clinic list')+'</button>';
+  h+='<div class="tp-head"><span class="tp-title">'+(LX('In Behandlung','In treatment'))+'</span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
+  if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top: 8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
   if(mine.length){
     const groups={},order=[];
     mine.forEach(p=>{const g=(p.group||'').trim();const k=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[k]){groups[k]={g:g,items:[]};order.push(k);}groups[k].items.push(p);});
     h+='<div class="tp-list">';
     order.forEach(k=>{const grp=groups[k];
-      if(grp.g&&grp.items.length>1) h+='<div class="tp-group"><div class="tp-gname">'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+'</div>'+grp.items.map(tpItem).join('')+'</div>';
+      if(grp.g&&grp.items.length>1) h+='<div class="tp-group"><div class="tp-gname">'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</div>'+grp.items.map(tpItem).join('')+'</div>';
       else h+=grp.items.map(tpItem).join('');
     });
     h+='</div>';
   } else {
-    h+='<div class="tp-empty">'+(LANG==='de'?'Kein Patient in Behandlung.':'No patient in treatment.')+'</div>';
+    h+='<div class="tp-empty">'+(LX('Kein Patient in Behandlung.','No patient in treatment.'))+'</div>';
   }
   
   if(!editing) {
     const done=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='done');
     h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px; flex:1; display:flex; flex-direction:column; min-height:0;">';
-    h+='<div class="tp-head"><span class="tp-title">'+(LANG==='de'?'Behandelt':'Treated')+' <span class="count-pill">'+done.length+'</span></span></div>';
+    h+='<div class="tp-head"><span class="tp-title">'+(LX('Behandelt','Treated'))+' <span class="count-pill">'+done.length+'</span></span></div>';
     h+='<div class="tp-list drop-zone" style="min-height:80px; padding:4px; overflow-y:auto; flex:1;" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)">';
-    h+= done.length ? done.map(tpItemDone).join('') : '<div class="tp-empty" style="text-align:center; padding-top:20px;">'+(LANG==='de'?'Hierher ziehen …':'Drop here …')+'</div>';
+    h+= done.length ? done.map(tpItemDone).join('') : '<div class="tp-empty" style="text-align:center; padding-top:20px;">'+(LX('Hierher ziehen …','Drop here …'))+'</div>';
     h+='</div></div>';
   }
 
@@ -2266,8 +2269,8 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      const gBehandeln=(st==='waiting'&&canTreatType(patientTreatType(grp.items[0])))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
-      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LANG==='de'?'Gruppe: ':'Group: ')+_esc(grp.g)+' <span class="amb-group-hint">'+(LANG==='de'?'(ganze Gruppe ziehen)':'(drag whole group)')+'</span></span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
+      const gBehandeln=(st==='waiting'&&canTreatType(patientTreatType(grp.items[0])))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LX('Behandeln','Treat'))+'</button>':'';
+      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+' <span class="amb-group-hint">'+(LX('(ganze Gruppe ziehen)','(drag whole group)'))+'</span></span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
   });
@@ -2275,10 +2278,10 @@ function renderSectionCards(list){
 }
 function renderPatientCard(p,inGroup){
     const dest=(p.destinations||[]).map(c=>CBY[c]?cName(CBY[c]):c).join(', ')||'—';
-    const durLbl={'<1w':'< 1 '+(LANG==='de'?'Woche':'week'),'1-2w':'1–2 '+(LANG==='de'?'Wochen':'weeks'),'<2w':'< 2 '+(LANG==='de'?'Wochen':'weeks'),'2-4w':'2–4 '+(LANG==='de'?'Wochen':'weeks'),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LANG==='de'?'Mon':'mo'),'3-6m':'3–6 '+(LANG==='de'?'Mon':'mo'),'>6m':'>6 '+(LANG==='de'?'Mon':'mo')}[p.duration]||p.duration||'—';
+    const durLbl={'<1w':'< 1 '+(LX('Woche','week')),'1-2w':'1–2 '+(LX('Wochen','weeks')),'<2w':'< 2 '+(LX('Wochen','weeks')),'2-4w':'2–4 '+(LX('Wochen','weeks')),'0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 '+(LX('Mon','mo')),'3-6m':'3–6 '+(LX('Mon','mo')),'>6m':'>6 '+(LX('Mon','mo'))}[p.duration]||p.duration||'—';
     const vax=p.vax||{};
     // Impfstatus (Sektion 3)
-    let statusHTML = '<div style="font-size:12px;font-weight:700;margin-top:12px;margin-bottom:6px;">' + (LANG==='de'?'Impfstatus':'Vaccination Status') + '</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    let statusHTML = '<div style="font-size:12px;font-weight:700;margin-top:12px;margin-bottom:6px;">' + (LX('Impfstatus','Vaccination Status')) + '</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
     let hasStatus = false;
     VACCINES.forEach(sv => {
        const svSt = vax[sv.k];
@@ -2296,7 +2299,7 @@ function renderPatientCard(p,inGroup){
       }
     });
     statusHTML += '</div>';
-    if (!hasStatus) statusHTML = '<div style="margin-top:10px;" class="mini-note">'+(LANG==='de'?'Kein Impfstatus erfasst.':'No vaccination status recorded.')+'</div>';
+    if (!hasStatus) statusHTML = '<div style="margin-top:10px;" class="mini-note">'+(LX('Kein Impfstatus erfasst.','No vaccination status recorded.'))+'</div>';
 
     // Impfplan (Sektion 4)
     let schedHTML = '';
@@ -2317,7 +2320,7 @@ function renderPatientCard(p,inGroup){
     });
 
     if (p.customSchedule && p.customSchedule.length > 0) {
-      schedHTML = '<div style="font-size:12px;font-weight:700;margin-top:12px;margin-bottom:6px;">'+(LANG==='de'?'Geplante Impfungen':'Planned vaccinations')+'</div><div style="display:flex;flex-direction:column;gap:8px;">';
+      schedHTML = '<div style="font-size:12px;font-weight:700;margin-top:12px;margin-bottom:6px;">'+(LX('Geplante Impfungen','Planned vaccinations'))+'</div><div style="display:flex;flex-direction:column;gap:8px;">';
       p.customSchedule.forEach((b, idx) => {
          let title = (LANG === 'de' ? 'Termin ' : 'Appt ') + (idx + 1);
          if (b.isExternal) title += (LANG === 'de' ? ' (Extern)' : ' (External)');
@@ -2325,15 +2328,15 @@ function renderPatientCard(p,inGroup){
          let subtitle = '';
          if (offset === 0) subtitle = LANG === 'de' ? 'Heute' : 'Today';
          else if (b._isIndependent) subtitle = LANG === 'de' ? 'Unabhängig' : 'Independent';
-         else if (offset % 7 === 0) subtitle = `~${offset/7} ${LANG==='de'?'Wochen':'weeks'}`;
-         else subtitle = `~${Math.round(offset/7)} ${LANG==='de'?'Wochen':'weeks'}`;
+         else if (offset % 7 === 0) subtitle = `~${offset/7} ${LX('Wochen','weeks')}`;
+         else subtitle = `~${Math.round(offset/7)} ${LX('Wochen','weeks')}`;
          
          let itemsHtml = b.items.length ? b.items.map(it => {
             let n = it.displayName || it.name;
             return `<div style="background:#fff;border:1px solid var(--line);border-radius:4px;padding:4px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
                <div style="font-size:11.5px;"><b>${n}</b> ${it.live ? '<span class="live-dot" title="Lebendimpfstoff">L</span>' : ''}</div>
             </div>`;
-         }).join('') : '<div style="color:var(--grey);font-size:11px;font-style:italic;padding:4px;">'+(LANG==='de'?'Keine Impfungen':'No vaccinations')+'</div>';
+         }).join('') : '<div style="color:var(--grey);font-size:11px;font-style:italic;padding:4px;">'+(LX('Keine Impfungen','No vaccinations'))+'</div>';
 
          schedHTML += `<div style="background:var(--grey-xl);border:1px solid var(--line);border-radius:6px;overflow:hidden;">
            <div style="background:#f8f9fa;padding:4px 8px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
@@ -2345,24 +2348,24 @@ function renderPatientCard(p,inGroup){
       });
       schedHTML += '</div>';
     } else if (savedPlanned.length > 0) {
-      schedHTML = '<div style="font-size:12px;font-weight:700;margin-top:12px;margin-bottom:6px;">'+(LANG==='de'?'Geplante Impfungen':'Planned vaccinations')+'</div><div style="display:flex;flex-direction:column;gap:4px;">';
+      schedHTML = '<div style="font-size:12px;font-weight:700;margin-top:12px;margin-bottom:6px;">'+(LX('Geplante Impfungen','Planned vaccinations'))+'</div><div style="display:flex;flex-direction:column;gap:4px;">';
       savedPlanned.forEach(sp => {
           schedHTML += `<div style="background:#fff;border:1px solid var(--line);border-radius:4px;padding:4px 8px;font-size:11.5px;"><b>${sp}</b></div>`;
       });
       schedHTML += '</div>';
     }
     
-    const schedBlock=schedHTML?('<div style="margin-top:10px;">'+schedHTML+'</div>'):('<div style="margin-top:10px;" class="mini-note">'+(LANG==='de'?'Keine Impfungen geplant.':'No vaccinations planned.')+'</div>');
-    const cmt=p.comment?'<div class="pb-comment"><span class="pb-lbl">'+(LANG==='de'?'Kommentar':'Comment')+'</span><span class="pb-val">'+_esc(p.comment)+'</span></div>':'';
-    const upd=(p.updatedAt&&p.updatedAt!==p.savedAt)?' · '+(LANG==='de'?'geändert':'edited')+' '+fmtDateTime(p.updatedAt):'';
+    const schedBlock=schedHTML?('<div style="margin-top:10px;">'+schedHTML+'</div>'):('<div style="margin-top:10px;" class="mini-note">'+(LX('Keine Impfungen geplant.','No vaccinations planned.'))+'</div>');
+    const cmt=p.comment?'<div class="pb-comment"><span class="pb-lbl">'+(LX('Kommentar','Comment'))+'</span><span class="pb-val">'+_esc(p.comment)+'</span></div>':'';
+    const upd=(p.updatedAt&&p.updatedAt!==p.savedAt)?' · '+(LX('geändert','edited'))+' '+fmtDateTime(p.updatedAt):'';
     const stampTxt=t('savedStamp')+': '+fmtDateTime(p.savedAt)+upd+' · '+t('physicianLbl')+': '+_esc(p.physician||'—');
-    const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LANG==='de'?'J.':'yrs')+')':'';
+    const dobStr=p.dob?fmtDate(new Date(p.dob)):'—';const ageParen=(p.age!==null&&p.age!==undefined)?' ('+p.age+' '+(LX('J.','yrs'))+')':'';
     const dispName=_esc(p.firstname?p.name+', '+p.firstname:p.name);
     const grpBadge=(p.group&&!inGroup)?' <span class="grp-badge">'+_esc(p.group)+'</span>':'';
     const s=patientStatus(p); const mine=p.claimedBy&&p.claimedBy===myUserKey();
     let timeMeta='';
-    if(s==='waiting') timeMeta=' · '+(LANG==='de'?'wartet ':'waiting ')+elapsedStr(p.savedAt);
-    else if(s==='treatment') timeMeta=(mine?' · '+(LANG==='de'?'von mir':'by me'):'')+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
+    if(s==='waiting') timeMeta=' · '+(LX('wartet ','waiting '))+elapsedStr(p.savedAt);
+    else if(s==='treatment') timeMeta=(mine?' · '+(LX('von mir','by me')):'')+(p.treatmentAt?' · '+elapsedStr(p.treatmentAt):'');
     // Behandler-Icon in der Liste (damit anderes Personal sieht, wer behandelt) – bei Gruppen nur im Gruppenkopf
     let ini = '';
     if (!inGroup) {
@@ -2373,27 +2376,27 @@ function renderPatientCard(p,inGroup){
       }
     }
     // „Behandeln"-Button bei wartenden Einzelpatienten → in eigene Behandlung übernehmen
-    const behandeln=(!inGroup&&s==='waiting'&&canTreatType(patientTreatType(p)))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LANG==='de'?'Behandeln':'Treat')+'</button>':'';
+    const behandeln=(!inGroup&&s==='waiting'&&canTreatType(patientTreatType(p)))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LX('Behandeln','Treat'))+'</button>':'';
     const tt=patientTreatType(p);
     const typeBadge='<span class="type-badge '+tt+'" title="'+(tt==='folgeimpfung'?'Folgeimpfung':'Beratung')+'">'+(tt==='folgeimpfung'?'F':'B')+'</span>';
-    const actionsBtns=(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LANG==='de'?'Entgruppieren':'Ungroup')+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LANG==='de'?'Löschen':'Delete')+'</button>';
+    const actionsBtns=(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LX('Entgruppieren','Ungroup'))+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LX('Löschen','Delete'))+'</button>';
     const fld=(lbl,val)=>'<div class="pb-field"><span class="pb-lbl">'+lbl+'</span><span class="pb-val">'+val+'</span></div>';
     const body='<div class="patient-body">'
       +'<div class="pb-grid">'
-        +fld(LANG==='de'?'Reisedauer':'Duration', durLbl)
-        +fld(LANG==='de'?'Reiseziel(e)':'Destination(s)', dest)
-        +fld(LANG==='de'?'Allergien':'Allergies', _esc(p.allergy||'—'))
-        +fld(LANG==='de'?'Schwangerschaft':'Pregnancy', p.pregnant==='pregnant'?(LANG==='de'?'Ja':'Yes'):(p.pregnant==='breastfeeding'?(LANG==='de'?'Stillend':'Breastfeeding'):(p.pregnant==='planned'?(LANG==='de'?'Geplant':'Planned'):(LANG==='de'?'Nein':'No'))))
-        +fld(LANG==='de'?'Chron. Erkrankung':'Chronic Illness', _esc(p.chronicText||'—'))
-        +fld(LANG==='de'?'Medikamente':'Medication', _esc(p.meds&&p.meds.length?p.meds.join(', '):'—'))
+        +fld(LX('Reisedauer','Duration'), durLbl)
+        +fld(LX('Reiseziel(e)','Destination(s)'), dest)
+        +fld(LX('Allergien','Allergies'), _esc(p.allergy||'—'))
+        +fld(LX('Schwangerschaft','Pregnancy'), p.pregnant==='pregnant'?(LX('Ja','Yes')):(p.pregnant==='breastfeeding'?(LX('Stillend','Breastfeeding')):(p.pregnant==='planned'?(LX('Geplant','Planned')):(LX('Nein','No')))))
+        +fld(LX('Chron. Erkrankung','Chronic Illness'), _esc(p.chronicText||'—'))
+        +fld(LX('Medikamente','Medication'), _esc(p.meds&&p.meds.length?p.meds.join(', '):'—'))
       +'</div>'
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
       +'</div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LANG==='de'?'Schnellansicht':'Preview')+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LANG==='de'?'geb. ':'b. ')+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LX('Schnellansicht','Preview'))+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LX('geb. ','b. '))+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
 }
 
 function fmtDate(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}
-function fmtDateTime(iso){if(!iso)return '';const d=new Date(iso);return fmtDate(d)+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' '+(LANG==='de'?'Uhr':'');}
+function fmtDateTime(iso){if(!iso)return '';const d=new Date(iso);return fmtDate(d)+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' '+(LX('Uhr',''));}
 function provName(p){const c=provResolve(p);return t(c==='paed'?'provPaed':c==='gp'?'provGP':'provCharite');}
 function printSchedule() {
   const name = el('p-name').value.trim() || '—';
@@ -2404,12 +2407,12 @@ function printSchedule() {
   const comment = el('p-comment').value.trim();
   const dep = el('p-departure').value;
   const daysDep = dep ? Math.round((new Date(dep)-base)/86400000) : null;
-  const ageStr = det ? (det.y<5 ? (det.y<1 ? det.m+' '+(LANG==='de'?'Mon.':'mo')+' '+det.d+' '+(LANG==='de'?'Tage':'d') : det.y+' '+(LANG==='de'?'J.':'yr')+' '+det.m+' '+(LANG==='de'?'Mon.':'mo')) : det.y+' '+(LANG==='de'?'Jahre':'yrs')) : '';
+  const ageStr = det ? (det.y<5 ? (det.y<1 ? det.m+' '+(LX('Mon.','mo'))+' '+det.d+' '+(LX('Tage','d')) : det.y+' '+(LX('J.','yr'))+' '+det.m+' '+(LX('Mon.','mo'))) : det.y+' '+(LX('Jahre','yrs'))) : '';
   
   const css = 'body{font-family:Helvetica,Arial,sans-serif;color:#111;margin:32px;} h1{font-size:20px;border-bottom:2px solid #000;padding-bottom:8px;} h2{font-size:14px;margin-top:20px;padding:6px 10px;background:#eef5fc;border:1px solid #bcd6f2;border-radius:4px;color:#000;} .gap{font-weight:400;font-size:12px;opacity:.8;margin-left:6px;} .prov{margin:5px 0 0 10px;font-size:13px;} .prov b{display:inline-block;min-width:150px;} .meta{color:#555;font-size:13px;margin-top:6px;} .box{margin-top:14px;padding:10px 14px;border:1px solid #bcd6f2;background:#eef5fc;border-radius:8px;font-size:12.5px;} .foot{margin-top:26px;font-size:11px;color:#888;}';
   
   let h = '<html><head><meta charset="utf-8"><title>'+t('printTitle')+'</title><style>'+css+'</style></head><body>';
-  h += '<h1>Charité · Reisemedizinische Ambulanz · '+t('printTitle')+'</h1><div class="meta"><strong>'+name+'</strong>'+(ageStr?' · '+ageStr:'')+(dob?' ('+(LANG==='de'?'geb.':'b.')+' '+fmtDate(new Date(dob))+')':'')+'<br>'+(LANG==='de'?'Reiseziel(e)':'Destination(s)')+': '+dest+(dep?'<br>'+(LANG==='de'?'Abreise':'Departure')+': '+fmtDate(new Date(dep)):'')+'<br>'+(LANG==='de'?'Erstellt':'Created')+': '+fmtDateTime(base.toISOString())+'</div>';
+  h += '<h1>Charité · Reisemedizinische Ambulanz · '+t('printTitle')+'</h1><div class="meta"><strong>'+name+'</strong>'+(ageStr?' · '+ageStr:'')+(dob?' ('+(LX('geb.','b.'))+' '+fmtDate(new Date(dob))+')':'')+'<br>'+(LX('Reiseziel(e)','Destination(s)'))+': '+dest+(dep?'<br>'+(LX('Abreise','Departure'))+': '+fmtDate(new Date(dep)):'')+'<br>'+(LX('Erstellt','Created'))+': '+fmtDateTime(base.toISOString())+'</div>';
 
   const planned = [];
   VACCINES.forEach(v => {
@@ -2447,12 +2450,12 @@ function printSchedule() {
       
       h += '<h2>' + title + ' <span class="gap">' + subtitle + '</span></h2>';
       
-      let provNameStr = b.isExternal ? (LANG==='de'?'Hausarzt/Extern':'External provider') : 'Charité';
+      let provNameStr = b.isExternal ? (LX('Hausarzt/Extern','External provider')) : 'Charité';
       if (b.items && b.items.length) {
           let names = b.items.map(it => it.name).join(', ');
           h += '<div class="prov"><b>' + provNameStr + ':</b> ' + names + '</div>';
       } else {
-          h += '<div class="prov"><b>' + provNameStr + ':</b> <i>' + (LANG==='de'?'Keine Impfungen zugeordnet':'No vaccinations assigned') + '</i></div>';
+          h += '<div class="prov"><b>' + provNameStr + ':</b> <i>' + (LX('Keine Impfungen zugeordnet','No vaccinations assigned')) + '</i></div>';
       }
     });
 
@@ -2461,14 +2464,14 @@ function printSchedule() {
       h += '<div class="box" style="border-color:#f5c2c2;background:#fdecec"><strong>'+(LANG==='de'?'Bei Lebendimpfstoffen (z.B. '+lives.map(l=>l.name).join(', ')+') gilt: Entweder am selben Tag impfen oder mind. 4 Wochen Abstand einhalten.':'Live vaccines must be given on the same day or ≥4 weeks apart.')+'</strong></div>';
     }
 
-    h += '<div class="box"><strong>'+(LANG==='de'?'Benötigte Zeit vor Ort (ohne späteren Termin): ca. '+nearDays+' Tage.':'Time needed on site (excl. later appt): ~'+nearDays+' days.')+'</strong>'+(daysDep!==null?' '+(LANG==='de'?'Tage bis Abreise: '+daysDep+'.':'Days to departure: '+daysDep+'.')+(daysDep<nearDays?' <span style="color:#b00">'+(LANG==='de'?'Zeit reicht evtl. nicht – Schnellschema/Priorisierung prüfen.':'May be insufficient — consider rapid schedule.')+'</span>':''):'')+'</div>';
+    h += '<div class="box"><strong>'+(LANG==='de'?'Benötigte Zeit vor Ort (ohne späteren Termin): ca. '+nearDays+' Tage.':'Time needed on site (excl. later appt): ~'+nearDays+' days.')+'</strong>'+(daysDep!==null?' '+(LANG==='de'?'Tage bis Abreise: '+daysDep+'.':'Days to departure: '+daysDep+'.')+(daysDep<nearDays?' <span style="color:#b00">'+(LX('Zeit reicht evtl. nicht – Schnellschema/Priorisierung prüfen.','May be insufficient — consider rapid schedule.'))+'</span>':''):'')+'</div>';
   }
 
   if (childhoodOn && childhoodOn()) h += '<div class="box"><strong>'+t('provPaed')+':</strong> '+t('printChildhood')+'</div>';
-  if (comment) h += '<div class="box"><strong>'+(LANG==='de'?'Kommentar':'Comment')+':</strong> '+comment+'</div>';
+  if (comment) h += '<div class="box"><strong>'+(LX('Kommentar','Comment'))+':</strong> '+comment+'</div>';
   h += '<div class="box">'+t('printCharite')+'<br><strong>'+t('printDoctolib')+'</strong></div>';
-  h+='<div class="foot">'+(LANG==='de'?'Angegeben sind Mindestabstände, keine festen Termine. Bitte Folgetermine selbst über Doctolib buchen.':'Minimum intervals shown, not fixed dates. Please book follow-ups via Doctolib.')+'</div></body></html>';
-  const w=window.open('','_blank');if(!w){uiAlert(LANG==='de'?'Bitte Pop-ups erlauben, um den Impfplan zu drucken.':'Please allow pop-ups to print.');return;}
+  h+='<div class="foot">'+(LX('Angegeben sind Mindestabstände, keine festen Termine. Bitte Folgetermine selbst über Doctolib buchen.','Minimum intervals shown, not fixed dates. Please book follow-ups via Doctolib.'))+'</div></body></html>';
+  const w=window.open('','_blank');if(!w){uiAlert(LX('Bitte Pop-ups erlauben, um den Impfplan zu drucken.','Please allow pop-ups to print.'));return;}
   w.document.write(h);w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},300);
 }
 
@@ -2594,7 +2597,7 @@ function applyLocks(){
     const sec=el(id); if(!sec)return;
     const locked = staff && SECTION_LOCKED[id]!==false;   // Patienten (Kiosk): nie gesperrt
     sec.classList.toggle('locked', locked);
-    const btn=el('lock-'+id); if(btn){ btn.classList.toggle('active', !locked); btn.title=locked?(LANG==='de'?'Bearbeiten':'Edit'):(LANG==='de'?'Bearbeitung aktiv':'Editing'); }
+    const btn=el('lock-'+id); if(btn){ btn.classList.toggle('active', !locked); btn.title=locked?(LX('Bearbeiten','Edit')):(LX('Bearbeitung aktiv','Editing')); }
   });
   if(!LOCK_LISTENERS){
     LOCK_SECTIONS.forEach(id=>{ const sec=el(id); if(sec) sec.addEventListener('input',()=>{ if(SECTION_LOCKED[id]===false) SECTION_EDIT[id]=true; }); });
@@ -2605,14 +2608,14 @@ function editLogHtml(p){
   const log=(p.editLog||[]).slice().reverse();
   const del=p.deleted;
   if(!log.length && !del) return '';
-  let h='<div class="pb-log"><div class="pb-lbl">'+(LANG==='de'?'Änderungsprotokoll':'Change log')+'</div>';
-  if(del) h+='<div class="pb-log-row del"><b>'+(LANG==='de'?'Gelöscht':'Deleted')+'</b> · '+_esc(del.who||'—')+' · '+fmtDateTime(del.ts)+'</div>';
+  let h='<div class="pb-log"><div class="pb-lbl">'+(LX('Änderungsprotokoll','Change log'))+'</div>';
+  if(del) h+='<div class="pb-log-row del"><b>'+(LX('Gelöscht','Deleted'))+'</b> · '+_esc(del.who||'—')+' · '+fmtDateTime(del.ts)+'</div>';
   log.slice(0,12).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(LANG==='de'?SECTION_TITLES[e.section].de:SECTION_TITLES[e.section].en):e.section; const flds=(e.fields&&e.fields.length)?' · '+e.fields.join(', '):''; h+='<div class="pb-log-row">'+fmtDateTime(e.ts)+' · '+_esc(e.who||'—')+' · '+_esc(sn)+_esc(flds)+'</div>'; });
   return h+'</div>';
 }
-function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LANG==='de'?'Neuer Patient':'New patient'); enterPatient(); }
+function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LX('Neuer Patient','New patient')); enterPatient(); }
 async function cancelEditConfirm(){
-  if(!(await uiConfirm(LANG==='de'?'Bearbeitung wirklich abbrechen? Nicht gespeicherte Änderungen gehen verloren.':'Really cancel editing? Unsaved changes will be lost.',{title:LANG==='de'?'Bearbeitung abbrechen':'Cancel editing',ok:LANG==='de'?'Verwerfen':'Discard',danger:true}))) return;
+  if(!(await uiConfirm(LX('Bearbeitung wirklich abbrechen? Nicht gespeicherte Änderungen gehen verloren.','Really cancel editing? Unsaved changes will be lost.'),{title:LX('Bearbeitung abbrechen','Cancel editing'),ok:LX('Verwerfen','Discard'),danger:true}))) return;
   cancelEdit();
 }
 
@@ -2626,7 +2629,7 @@ function openDialog(opts, cb){
   if(opts.input){ inp.style.display=''; inp.value=opts.def||''; } else { inp.style.display='none'; inp.value=''; }
   const okBtn=el('ui-dialog-ok'), cancelBtn=el('ui-dialog-cancel');
   okBtn.textContent=opts.ok||'OK';
-  cancelBtn.textContent=opts.cancel||(LANG==='de'?'Abbrechen':'Cancel');
+  cancelBtn.textContent=opts.cancel||(LX('Abbrechen','Cancel'));
   cancelBtn.style.display=(opts.cancel===null)?'none':'';
   okBtn.className='btn'+(opts.danger?' danger':'');
   const done=(val)=>{ bg.classList.remove('show'); okBtn.onclick=null; cancelBtn.onclick=null; bg.onclick=null; document.removeEventListener('keydown',key); cb(val); };
@@ -2638,9 +2641,9 @@ function openDialog(opts, cb){
   bg.classList.add('show');
   if(opts.input) setTimeout(()=>{ try{ inp.focus(); inp.select(); }catch(_){} },30);
 }
-function uiConfirm(msg,o){ o=o||{}; return new Promise(r=>openDialog({title:o.title||(LANG==='de'?'Bestätigen':'Confirm'),msg,ok:o.ok||(LANG==='de'?'Bestätigen':'Confirm'),cancel:o.cancel,danger:o.danger},v=>r(v!==null))); }
+function uiConfirm(msg,o){ o=o||{}; return new Promise(r=>openDialog({title:o.title||(LX('Bestätigen','Confirm')),msg,ok:o.ok||(LX('Bestätigen','Confirm')),cancel:o.cancel,danger:o.danger},v=>r(v!==null))); }
 function uiPrompt(msg,o){ o=o||{}; return new Promise(r=>openDialog({title:o.title||'',msg,def:o.def||'',input:true,ok:o.ok||'OK',cancel:o.cancel},v=>r(v))); }
-function uiAlert(msg,o){ o=o||{}; return new Promise(r=>openDialog({title:o.title||(LANG==='de'?'Hinweis':'Notice'),msg,cancel:null,ok:o.ok||'OK'},()=>r())); }
+function uiAlert(msg,o){ o=o||{}; return new Promise(r=>openDialog({title:o.title||(LX('Hinweis','Notice')),msg,cancel:null,ok:o.ok||'OK'},()=>r())); }
 
 /* ---------- Sektions-Navigation (im linken Behandlungsfeld) ---------- */
 const SEC_NAV_ITEMS=[
@@ -2691,7 +2694,7 @@ async function kioskSubmit(){
   const ok = await savePatient();
   if(ok){
     try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
-    await uiAlert(LANG==='de'?'Vielen Dank! Ihre Angaben wurden übermittelt.':'Thank you! Your data has been submitted.',{title:LANG==='de'?'Übermittelt':'Submitted'});
+    await uiAlert(LX('Vielen Dank! Ihre Angaben wurden übermittelt.','Thank you! Your data has been submitted.'),{title:LX('Übermittelt','Submitted')});
     showIntakeChoice();   // für den nächsten Patienten wieder die Auswahl zeigen
   }
 }
@@ -2737,7 +2740,7 @@ async function renderAdminUsers(){
     html+='<div class="ab-sec'+(pending?' ab-pending':'')+'" data-role="'+col.role+'" ondragover="adminColOver(event)" ondragleave="adminColLeave(event)" ondrop="adminColDrop(event)">';
     html+='<div class="ab-sec-h">'+(LANG==='de'?col.de:col.en)+' <span class="count-pill">'+list.length+'</span></div>';
     html+='<div class="ab-rows">';
-    if(!list.length){ html+='<div class="ab-empty">'+(pending?(LANG==='de'?'Keine offenen Registrierungen':'None'):(LANG==='de'?'Person hierher ziehen …':'Drop person here …'))+'</div>'; }
+    if(!list.length){ html+='<div class="ab-empty">'+(pending?(LX('Keine offenen Registrierungen','None')):(LX('Person hierher ziehen …','Drop person here …')))+'</div>'; }
     list.forEach(u=>{
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
       html+='<div class="ab-row" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role,u.gender)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
