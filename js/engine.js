@@ -595,7 +595,7 @@ function tdapPolioAssess(){
 
   let T = 'grey', D = 'grey', aP = 'grey', IPV = 'grey';
   let unvaxxed = false, infantOngoing = false;
-  let ipvNote = {de:'', en:''};
+  let ipvNote = {de:'', en:'', fr:''};
 
   if (infant && !gi_tdap && d_hexa > 0) { infantOngoing = true; T='blue'; D='blue'; aP='blue'; IPV='blue'; }
   else if (!gi_tdap && d_hexa === 0 && !y_td && !y_ap && !y_ipv) { unvaxxed = true; T='red'; D='red'; aP='red'; IPV='red'; }
@@ -625,18 +625,18 @@ function tdapPolioAssess(){
     const risk = isCat1 || isCat2 || isCat3;
     const longM = longStay();
 
-    if (!gi_ipv) { IPV = risk ? 'red' : 'blue'; ipvNote = risk ? {de:'Grundimmunisierung unvollständig – für Polio-Risikoland zwingend',en:'Primary series incomplete — mandatory for polio-risk country'} : {de:'Grundimmunisierung/Auffrischung nach STIKO',en:'Primary series/booster per STIKO'}; }
+    if (!gi_ipv) { IPV = risk ? 'red' : 'blue'; ipvNote = risk ? {de:'Grundimmunisierung unvollständig – für Polio-Risikoland zwingend',en:'Primary series incomplete — mandatory for polio-risk country',fr:'Primovaccination incomplète – obligatoire pour un pays à risque de polio'} : {de:'Grundimmunisierung/Auffrischung nach STIKO',en:'Primary series/booster per STIKO',fr:'Primovaccination/rappel selon la STIKO'}; }
     else if (isCat1) {
-      if (longM) { if (yrs_ipv !== null && yrs_ipv < 1) { IPV='green'; ipvNote={de:'Aktuell (Kat-1, ≥4 Wo: Impfung <12 Mon.)',en:'Current (cat 1, ≥4 wks stay: dose <12 mo)'}; } else { IPV='red'; ipvNote={de:'ZWINGEND: Aufenthalt ≥4 Wochen in Kat-1-Land – Impfung 4 Wo–12 Mon vor Ausreise!',en:'MANDATORY: ≥4 wks stay in cat 1 — dose 4 wks–12 mo before exit required'}; } }
-      else { if (yrs_ipv !== null && yrs_ipv < 10) { IPV='green'; ipvNote={de:'Aktuell (Kat-1: letzte <10 J.)',en:'Current (cat 1: last <10 yrs)'}; } else { IPV='red'; ipvNote={de:'Auffrischung nötig (Kat-1: letzte >10 J. / unbekannt)',en:'Booster needed (cat 1: last >10 yrs/unknown)'}; } }
+      if (longM) { if (yrs_ipv !== null && yrs_ipv < 1) { IPV='green'; ipvNote={de:'Aktuell (Kat-1, ≥4 Wo: Impfung <12 Mon.)',en:'Current (cat 1, ≥4 wks stay: dose <12 mo)',fr:'À jour (cat. 1, ≥4 sem. : dose <12 mois)'}; } else { IPV='red'; ipvNote={de:'ZWINGEND: Aufenthalt ≥4 Wochen in Kat-1-Land – Impfung 4 Wo–12 Mon vor Ausreise!',en:'MANDATORY: ≥4 wks stay in cat 1 — dose 4 wks–12 mo before exit required',fr:'OBLIGATOIRE : séjour ≥4 semaines en pays cat. 1 – dose 4 sem.–12 mois avant le départ !'}; } }
+      else { if (yrs_ipv !== null && yrs_ipv < 10) { IPV='green'; ipvNote={de:'Aktuell (Kat-1: letzte <10 J.)',en:'Current (cat 1: last <10 yrs)',fr:'À jour (cat. 1 : dernière <10 ans)'}; } else { IPV='red'; ipvNote={de:'Auffrischung nötig (Kat-1: letzte >10 J. / unbekannt)',en:'Booster needed (cat 1: last >10 yrs/unknown)',fr:'Rappel nécessaire (cat. 1 : dernière >10 ans / inconnue)'}; } }
     }
     else if (isCat2) {
-      if (yrs_ipv !== null && yrs_ipv < 10) { IPV='green'; ipvNote={de:'Aktuell (Kat-2: letzte <10 J.)',en:'Current (cat 2: last <10 yrs)'}; } else { IPV='red'; ipvNote={de:'Auffrischung empfohlen (Kat-2: letzte >10 J.)',en:'Booster recommended (cat 2: last >10 yrs)'}; }
+      if (yrs_ipv !== null && yrs_ipv < 10) { IPV='green'; ipvNote={de:'Aktuell (Kat-2: letzte <10 J.)',en:'Current (cat 2: last <10 yrs)',fr:'À jour (cat. 2 : dernière <10 ans)'}; } else { IPV='red'; ipvNote={de:'Auffrischung empfohlen (Kat-2: letzte >10 J.)',en:'Booster recommended (cat 2: last >10 yrs)',fr:'Rappel recommandé (cat. 2 : dernière >10 ans)'}; }
     }
     else if (isCat3) {
-      if (yrs_ipv !== null && yrs_ipv < 10) { IPV='green'; ipvNote={de:'Aktuell (Kat-3: letzte <10 J.)',en:'Current (cat 3: last <10 yrs)'}; } else { IPV='yellow'; ipvNote={de:'Auffrischung erwägen (Kat-3: letzte >10 J.)',en:'Consider booster (cat 3: last >10 yrs)'}; }
+      if (yrs_ipv !== null && yrs_ipv < 10) { IPV='green'; ipvNote={de:'Aktuell (Kat-3: letzte <10 J.)',en:'Current (cat 3: last <10 yrs)',fr:'À jour (cat. 3 : dernière <10 ans)'}; } else { IPV='yellow'; ipvNote={de:'Auffrischung erwägen (Kat-3: letzte >10 J.)',en:'Consider booster (cat 3: last >10 yrs)',fr:'Envisager un rappel (cat. 3 : dernière >10 ans)'}; }
     }
-    else { IPV='green'; ipvNote={de:'Grundimmunisierung komplett: lebenslanger Schutz (STIKO)',en:'Primary series complete: lifelong protection (STIKO)'}; }
+    else { IPV='green'; ipvNote={de:'Grundimmunisierung komplett: lebenslanger Schutz (STIKO)',en:'Primary series complete: lifelong protection (STIKO)',fr:'Primovaccination complète : protection à vie (STIKO)'}; }
   }
 
   return { T, D, aP, IPV, infantOngoing, unvaxxed, ipvNote };

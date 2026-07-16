@@ -171,10 +171,10 @@ const AA_SLUG={US:'vereinigte-staaten',GB:'vereinigtes-koenigreich',AE:'vereinig
 function slugify(s){return s.toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[’'`]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
 function aaLink(code){const c=CBY[code];if(!c)return 'https://www.auswaertiges-amt.de/de/reiseundsicherheit/reise-und-sicherheitshinweise';return 'https://www.auswaertiges-amt.de/de/service/laender/'+(AA_SLUG[code]||slugify(c.de))+'-node';}
 const HEALTH_DEMO={
- TH:{stand:'Stand 11/2025 · Demo-Auszug',de:'Durchfallerkrankungen häufigste Reisekrankheit – nur sicheres Trinkwasser. Dengue landesweit, v.a. Regenzeit.',en:'Diarrhoeal disease most common—safe water only. Dengue nationwide, esp. rainy season.'},
- IN:{stand:'Stand 11/2025 · Demo-Auszug',de:'Hohes Risiko für Durchfall/Typhus, Dengue und Tollwut. Luftverschmutzung in Großstädten.',en:'High risk of diarrhoea/typhoid, dengue and rabies. Air pollution in megacities.'},
- BO:{stand:'Stand Q2/2026 · Demo-Auszug',de:'Aktueller Chikungunya-Ausbruch (Santa Cruz, Cochabamba). Gelbfieber im Tiefland. Höhenkrankheit im Altiplano.',en:'Active chikungunya outbreak (Santa Cruz, Cochabamba). Yellow fever in lowlands. Altitude sickness on the Altiplano.'},
- BR:{stand:'Stand Q2/2026 · Demo-Auszug',de:'Dengue/Chikungunya landesweit erhöht. Gelbfieber in weiten Teilen. Tollwutrisiko (auch Fledermäuse).',en:'Dengue/chikungunya elevated nationwide. Yellow fever across large areas. Rabies risk (incl. bats).'},
+ TH:{stand:'Stand 11/2025 · Demo-Auszug',de:'Durchfallerkrankungen häufigste Reisekrankheit – nur sicheres Trinkwasser. Dengue landesweit, v.a. Regenzeit.',en:'Diarrhoeal disease most common—safe water only. Dengue nationwide, esp. rainy season.',fr:'Les diarrhées sont la maladie du voyageur la plus fréquente – uniquement de l\'eau potable sûre. Dengue dans tout le pays, surtout en saison des pluies.'},
+ IN:{stand:'Stand 11/2025 · Demo-Auszug',de:'Hohes Risiko für Durchfall/Typhus, Dengue und Tollwut. Luftverschmutzung in Großstädten.',en:'High risk of diarrhoea/typhoid, dengue and rabies. Air pollution in megacities.',fr:'Risque élevé de diarrhée/typhoïde, dengue et rage. Pollution de l\'air dans les mégapoles.'},
+ BO:{stand:'Stand Q2/2026 · Demo-Auszug',de:'Aktueller Chikungunya-Ausbruch (Santa Cruz, Cochabamba). Gelbfieber im Tiefland. Höhenkrankheit im Altiplano.',en:'Active chikungunya outbreak (Santa Cruz, Cochabamba). Yellow fever in lowlands. Altitude sickness on the Altiplano.',fr:'Épidémie de chikungunya en cours (Santa Cruz, Cochabamba). Fièvre jaune dans les basses terres. Mal des montagnes sur l\'Altiplano.'},
+ BR:{stand:'Stand Q2/2026 · Demo-Auszug',de:'Dengue/Chikungunya landesweit erhöht. Gelbfieber in weiten Teilen. Tollwutrisiko (auch Fledermäuse).',en:'Dengue/chikungunya elevated nationwide. Yellow fever across large areas. Rabies risk (incl. bats).',fr:'Dengue/chikungunya en hausse dans tout le pays. Fièvre jaune sur de vastes zones. Risque de rage (y compris chauves-souris).'},
 };
 
 /* ---------- VACCINES (rows) ---------- */
@@ -263,6 +263,30 @@ const AVAIL={
  dengue:{prod:'Qdenga',min:4,de:'Lebendimpfstoff ab 4 J. 2 Dosen (0, 3 M). Nur bei durchgemachter Dengue-Infektion empfohlen.',en:'Live vaccine from age 4. 2 doses (0, 3 mo). Recommended only after prior dengue infection.'},
  chikungunya:{prod:'Vimkunya',min:12,de:'Vimkunya = Totimpfstoff (VLP), ab 12 J., 1 Dosis. (IXCHIQ = Lebendimpfstoff, Vorsicht ≥65 J.)',en:'Vimkunya = inactivated (VLP), from 12 yrs, 1 dose. (IXCHIQ = live, caution ≥65 yrs.)'},
 };
+/* AVAIL – französische Verfügbarkeits-/Altershinweise (Overlay, wird unten in AVAIL[k].fr gemergt) */
+const AVAIL_FR={
+ yellowfever:'9 mois – 60 ans. Au-delà de 60 ans, uniquement après évaluation individuelle du rapport bénéfice/risque. Rappel après 10 ans (5 ans si primovaccination <2 ans).',
+ tdap_polio:'Nourrissons : hexavalent dès 6 semaines. Rappels : Boostrix dès 4 ans, Repevax (Tdap-IPV) dès 3 ans. Rappel Td (ou Tdap/IPV) tous les 10 ans (coqueluche 1× à l\'âge adulte + à chaque grossesse). Rappel polio uniquement en cas de voyage en zone à risque.',
+ mmr:'Dès (9–)12 mois. Vaccin vivant. Adultes nés après 1970 au statut incertain : 1 × ROR.',
+ varicella:'Dès 11 mois. Vaccin vivant. 2 doses. Contrôle sérologique si possible.',
+ hepatitis:'Hép. A : Havrix enfant 1–15 ans, Avaxim dès 16 ans. Hép. B : dès la naissance (Twinrix enfant dès 1 an, adulte dès 16 ans).',
+ typhoid:'Injection (vaccin inactivé) dès 2 ans, 1 dose, rappel au plus tard après 3 ans.',
+ menacwy:'Nimenrix (conjugué) dès 6 semaines. Standard/rattrapage STIKO jusqu\'à <25 ans. Rappel après 10 ans.',
+ menb:'Bexsero dès 2 mois. Standard STIKO pour les nourrissons ; sinon selon l\'indication.',
+ jev:'Dès 2 mois. IMPORTANT : 2 mois – <3 ans 0,25 ml ; dès 3 ans 0,5 ml. >65 ans : pas de données à long terme.',
+ rabies:'Sans limite d\'âge. Schéma rapide pré-exposition : Rabipur 3 doses (j0/j3/j7) ; Verorab 2 doses (j0/j7).',
+ cholera:'Vaccin oral (inactivé) dès 2 ans. 2–6 ans : 3 doses ; dès 6 ans : 2 doses (≥1 semaine d\'écart, max. 6 semaines). Rappel dès 6 ans après 2 ans.',
+ tbe:'Encepur enfant 1–11 ans (0,25 ml), adulte dès 12 ans (0,5 ml). Rappel >50 ans tous les 3 ans.',
+ hpv:'Dès 9 ans. 9–14 ans : 2 doses ; dès 15 ans : 3 doses.',
+ influenza:'Influsplit dès 6 mois ; Efluelda haute dose dès 60 ans.',
+ covid:'(Prise en charge standard / médecin traitant)',
+ zoster:'Vaccin inactivé dès 18 ans. 2 doses (2 mois d\'écart). Standard dès 60 ans ; dès 18 ans en cas de risque.',
+ pneumo:'Dès 6 semaines. Adultes : dose unique (indication dès 18 ans, standard dès 60 ans).',
+ mpox:'Vaccin vivant non réplicatif dès 12 ans, 2 doses (≥28 j).',
+ dengue:'Vaccin vivant dès 4 ans. 2 doses (0, 3 mois). Recommandé uniquement après une infection antérieure par la dengue.',
+ chikungunya:'Vimkunya = vaccin inactivé (VLP), dès 12 ans, 1 dose. (IXCHIQ = vaccin vivant, prudence ≥65 ans.)'
+};
+for(const k in AVAIL_FR){ if(AVAIL[k]) AVAIL[k].fr=AVAIL_FR[k]; }
 
 /* ---------- INFO (mit Schnellschema) ---------- */
 const INFO={
@@ -1317,7 +1341,7 @@ function renderVaxTable(){
       html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(vName(v))+availBadge+'</div><div class="vsub">'+(LX('Basis-Impfschutz','Core vaccines'))+'</div></td>'+
         '<td data-label="'+t('thDone')+'">'+col2+'</td>'+
         '<td data-label="'+t('thLast')+'">'+col3+'</td>'+
-        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><div style="min-height:48px;">'+compBadges+(a.ipvNote&&a.ipvNote.de?'<div class="reason" style="margin-top:6px;border-top:1px solid var(--line);padding-top:4px"><b>Polio:</b> '+(LANG==='de'?a.ipvNote.de:a.ipvNote.en)+'</div>':'')+'</div></td></tr>';return;
+        '<td class="status" data-label="'+t('thStatus')+'"><div class="row-info">'+infoBtn+'</div><div style="min-height:48px;">'+compBadges+(a.ipvNote&&a.ipvNote.de?'<div class="reason" style="margin-top:6px;border-top:1px solid var(--line);padding-top:4px"><b>Polio:</b> '+L2(a.ipvNote)+'</div>':'')+'</div></td></tr>';return;
     }
     if(v.hep){
       const ha=hepAssess();
@@ -1401,7 +1425,7 @@ function renderVaxTable(){
       }
     }
     let note=(LANG==='de'?a.noteDe:(LANG==='fr'?(a.noteFr||a.noteEn):a.noteEn));let noteStyle='';
-    if(a.status==='green'&&BOOSTER[v.k]){note=(LANG==='de'?BOOSTER[v.k].de:BOOSTER[v.k].en);noteStyle=' style="color:var(--green)"';}
+    if(a.status==='green'&&BOOSTER[v.k]){note=L2(BOOSTER[v.k]);noteStyle=' style="color:var(--green)"';}
     const mandBadge=a.mand?'<span class="badge mand">'+t('mandatory')+'</span>':'';
     const alN=allergyNote(v);const alNote=alN?'<div class="reason" style="color:var(--red);font-weight:600">'+L2(alN)+'</div>':'';
     let extraChk='';
@@ -1465,25 +1489,25 @@ function renderNotes(){
     
     // YF
     const yf = d.yellow_fever || {};
-    if(yf.risk_level === 'mandatory_all') items.push({t:'red',de:'Gelbfieber-Impfnachweis bei Einreise verpflichtend.',en:'Yellow fever certificate mandatory for entry.'});
-    else if(yf.risk_level === 'recommended' || yf.risk_level === 'risk_based') items.push({t:'amber',de:'Gelbfieber-Endemiegebiet – Impfung empfohlen.',en:'Yellow fever endemic area—vaccination recommended.'});
+    if(yf.risk_level === 'mandatory_all') items.push({t:'red',de:'Gelbfieber-Impfnachweis bei Einreise verpflichtend.',en:'Yellow fever certificate mandatory for entry.',fr:'Certificat de fièvre jaune obligatoire à l\'entrée.'});
+    else if(yf.risk_level === 'recommended' || yf.risk_level === 'risk_based') items.push({t:'amber',de:'Gelbfieber-Endemiegebiet – Impfung empfohlen.',en:'Yellow fever endemic area—vaccination recommended.',fr:'Zone d\'endémie de fièvre jaune – vaccination recommandée.'});
     
     // Meningitis
-    if(code === 'SA') items.push({t:'red',de:'Meningokokken ACWY für Hajj/Umrah verpflichtend.',en:'Meningococcal ACWY mandatory for Hajj/Umrah.'});
+    if(code === 'SA') items.push({t:'red',de:'Meningokokken ACWY für Hajj/Umrah verpflichtend.',en:'Meningococcal ACWY mandatory for Hajj/Umrah.',fr:'Méningocoque ACWY obligatoire pour le Hajj/Oumra.'});
     const men = d.meningococcal || {};
     if(men.risk_level === 'recommended' || men.risk_level === 'risk_based'){
       const dm=departureMonth();const dry=dm!==null&&[11,0,1,2,3,4,5].includes(dm);
-      items.push({t:dry?'red':'amber',de:'Meningitisgürtel – ACWY'+(dry?' (Abreise in der Trockenzeit Dez–Jun: erhöhtes Risiko)':' je nach Saison/Aufenthalt')+'.',en:'Meningitis belt — ACWY'+(dry?' (departure in dry season Dec–Jun: elevated risk)':' depending on season/stay')+'.'});
+      items.push({t:dry?'red':'amber',de:'Meningitisgürtel – ACWY'+(dry?' (Abreise in der Trockenzeit Dez–Jun: erhöhtes Risiko)':' je nach Saison/Aufenthalt')+'.',en:'Meningitis belt — ACWY'+(dry?' (departure in dry season Dec–Jun: elevated risk)':' depending on season/stay')+'.',fr:'Ceinture de la méningite – ACWY'+(dry?' (départ en saison sèche déc.–juin : risque accru)':' selon la saison/le séjour')+'.'});
     }
     
     // Chikungunya
     const chik = d.chikungunya || {};
-    if(chik.details && chik.details.includes('outbreak')) items.push({t:'red',de:'Aktueller Chikungunya-Ausbruch.',en:'Active chikungunya outbreak.'});
-    else if(chik.risk_level === 'recommended' || chik.risk_level === 'risk_based') items.push({t:'amber',de:'Erhöhtes Chikungunya-Hintergrundrisiko.',en:'Elevated chikungunya background risk.'});
+    if(chik.details && chik.details.includes('outbreak')) items.push({t:'red',de:'Aktueller Chikungunya-Ausbruch.',en:'Active chikungunya outbreak.',fr:'Épidémie de chikungunya en cours.'});
+    else if(chik.risk_level === 'recommended' || chik.risk_level === 'risk_based') items.push({t:'amber',de:'Erhöhtes Chikungunya-Hintergrundrisiko.',en:'Elevated chikungunya background risk.',fr:'Risque de fond de chikungunya élevé.'});
 
     const cls=items.length?(items[0].t==='red'?'':items[0].t):'info';let inner='<h4><img class="flag" src="https://flagcdn.com/w40/'+code.toLowerCase()+'.png" onerror="this.remove()" alt="" loading="lazy">'+name+(c.terr?' *':'')+'</h4>';
-    if(items.length)inner+='<ul>'+items.map(i=>'<li>'+(LANG==='de'?i.de:i.en)+'</li>').join('')+'</ul>';
-    const hd=HEALTH_DEMO[code];if(hd)inner+='<div class="health-snap"><div class="hs-date">'+hd.stand+'</div>'+(LANG==='de'?hd.de:hd.en)+'</div>';else inner+='<div class="mini-note" style="margin-top:6px;">'+t('healthLive')+'</div>';
+    if(items.length)inner+='<ul>'+items.map(i=>'<li>'+L2(i)+'</li>').join('')+'</ul>';
+    const hd=HEALTH_DEMO[code];if(hd)inner+='<div class="health-snap"><div class="hs-date">'+hd.stand+'</div>'+L2(hd)+'</div>';else inner+='<div class="mini-note" style="margin-top:6px;">'+t('healthLive')+'</div>';
     inner+='<a class="aa-link" href="'+aaLink(code)+'" target="_blank" rel="noopener">'+t('aaLinkTxt')+'</a>';
     html+='<div class="warn-box '+cls+'" style="margin-top:10px;">'+inner+'</div>';});
   box.innerHTML=html;
@@ -1562,7 +1586,7 @@ function showInfo(k){
   if(k==='hepA'){ v={de:'Hepatitis A',en:'Hepatitis A',live:false}; a=AVAIL['hepatitis']; }
   if(k==='hepB'){ v={de:'Hepatitis B',en:'Hepatitis B',live:false}; a=AVAIL['hepatitis']; }
   const inf=INFO[k];
-  const availHtml=a?('<div class="m-sec"><h4>'+(LX('Verfügbarkeit & Alter (Ambulanz)','Availability & age (clinic)'))+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+(LANG==='de'?a.de:a.en)+'</p></div>'):'';
+  const availHtml=a?('<div class="m-sec"><h4>'+(LX('Verfügbarkeit & Alter (Ambulanz)','Availability & age (clinic)'))+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+L2(a)+'</p></div>'):'';
   const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3>'+(vName(v))+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
@@ -2306,7 +2330,7 @@ function renderPatientCard(p,inGroup){
          });
       } else if (['green','red','yellow','blue','violet'].includes(svSt.status)) {
          hasStatus = true;
-         let name = (LANG==='de'?sv.de:sv.en);
+         let name = vName(sv);
          if(sv.hep && (svSt.plannedA || (svSt.done && svSt.done.includes('A')))) name = 'Hepatitis A';
          statusHTML += `<span class="badge ${svSt.status}">${name}</span>`;
       }
@@ -2325,10 +2349,10 @@ function renderPatientCard(p,inGroup){
         if (svSt.plannedB) savedPlanned.push('Hepatitis B');
         if (svSt.plannedAB) savedPlanned.push('Twinrix');
       } else if (sv.tdap_polio) {
-        if (svSt.planned) savedPlanned.push(LANG==='de'?sv.de:sv.en);
+        if (svSt.planned) savedPlanned.push(vName(sv));
         if (svSt.planned_ipv) savedPlanned.push('Polio (IPV)');
       } else if (svSt.planned) {
-        savedPlanned.push(LANG==='de'?sv.de:sv.en);
+        savedPlanned.push(vName(sv));
       }
     });
 
@@ -2668,16 +2692,16 @@ function uiAlert(msg,o){ o=o||{}; return new Promise(r=>openDialog({title:o.titl
 
 /* ---------- Sektions-Navigation (im linken Behandlungsfeld) ---------- */
 const SEC_NAV_ITEMS=[
-  {id:'step1',label:'1',de:'Stammdaten',en:'Master data'},
-  {id:'step2',label:'2',de:'Reise',en:'Travel'},
-  {id:'step3',label:'3',de:'Immunstatus',en:'Immune status'},
-  {id:'step4',label:'4',de:'Impfstatus',en:'Vaccination status'},
-  {id:'step5',label:'5',de:'Geplante Impfungen',en:'Planned'},
-  {id:'step6',label:'6',de:'Leistungen',en:'Services'}
+  {id:'step1',label:'1',de:'Stammdaten',en:'Master data',fr:'Données de base'},
+  {id:'step2',label:'2',de:'Reise',en:'Travel',fr:'Voyage'},
+  {id:'step3',label:'3',de:'Immunstatus',en:'Immune status',fr:'Statut immunitaire'},
+  {id:'step4',label:'4',de:'Impfstatus',en:'Vaccination status',fr:'Statut vaccinal'},
+  {id:'step5',label:'5',de:'Geplante Impfungen',en:'Planned',fr:'Vaccins planifiés'},
+  {id:'step6',label:'6',de:'Leistungen',en:'Services',fr:'Prestations'}
 ];
 function secNavHtml(){
   const vis=SEC_NAV_ITEMS.filter(it=>{const e=el(it.id); return e && e.offsetParent!==null;});
-  return vis.map(it=>'<button type="button" data-target="'+it.id+'" onclick="secNavJump(\''+it.id+'\')"><span class="sn-dot">'+it.label+'</span><span class="sn-lbl">'+(LANG==='de'?it.de:it.en)+'</span></button>').join('');
+  return vis.map(it=>'<button type="button" data-target="'+it.id+'" onclick="secNavJump(\''+it.id+'\')"><span class="sn-dot">'+it.label+'</span><span class="sn-lbl">'+L2(it)+'</span></button>').join('');
 }
 function secNavJump(id){ const e=el(id); if(e) try{ e.scrollIntoView({behavior:'smooth',block:'start'}); }catch(err){} }
 function updateSecNav(){
@@ -2739,11 +2763,11 @@ function adminMsg(text,type){ const e=el('admin-msg'); if(e) e.innerHTML = text?
 
 // Nutzer-Board: Spalten „Pending" + Rollen; Freischalten per Drag&Drop
 const ADMIN_BOARD=[
-  {role:'', de:'Wartet auf Freischaltung', en:'Awaiting approval'},
-  {role:'admin', de:'Admin', en:'Admin'},
-  {role:'arzt', de:'Arzt / Ärztin', en:'Doctor'},
-  {role:'mfa', de:'MFA', en:'MFA'},
-  {role:'kasse', de:'Kasse', en:'Reception'}
+  {role:'', de:'Wartet auf Freischaltung', en:'Awaiting approval', fr:'En attente d\'activation'},
+  {role:'admin', de:'Admin', en:'Admin', fr:'Admin'},
+  {role:'arzt', de:'Arzt / Ärztin', en:'Doctor', fr:'Médecin'},
+  {role:'mfa', de:'MFA', en:'MFA', fr:'Assistant(e) médical(e)'},
+  {role:'kasse', de:'Kasse', en:'Reception', fr:'Accueil'}
 ];
 let _adminUsers=[];
 async function renderAdminUsers(){
@@ -2759,7 +2783,7 @@ async function renderAdminUsers(){
     const list=byRole[col.role]||[];
     const pending=col.role==='';
     html+='<div class="ab-sec'+(pending?' ab-pending':'')+'" data-role="'+col.role+'" ondragover="adminColOver(event)" ondragleave="adminColLeave(event)" ondrop="adminColDrop(event)">';
-    html+='<div class="ab-sec-h">'+(LANG==='de'?col.de:col.en)+' <span class="count-pill">'+list.length+'</span></div>';
+    html+='<div class="ab-sec-h">'+L2(col)+' <span class="count-pill">'+list.length+'</span></div>';
     html+='<div class="ab-rows">';
     if(!list.length){ html+='<div class="ab-empty">'+(pending?(LX('Keine offenen Registrierungen','None')):(LX('Person hierher ziehen …','Drop person here …')))+'</div>'; }
     list.forEach(u=>{
