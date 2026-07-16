@@ -9,7 +9,7 @@
 <link rel="shortcut icon" href="assets/favicon.ico?v=4">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png?v=4">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -173,6 +173,7 @@
 
   <!-- STEP 4: Impfstatus -->
   <section class="card" id="step4">
+    <button class="lock-btn" id="lock-step4" onclick="toggleLock('step4')" title="Bearbeiten" aria-label="Bearbeiten" style="display:none">✎</button>
     <h2 style="display:flex;align-items:center;"><span class="step-badge">4</span><span data-i18n="s4Title">Impfstatus</span><span style="flex:1"></span><div class="age-box empty" id="age-box" data-i18n="ageEmpty">Alter: bitte Geburtsdatum eingeben</div></h2>
     <div class="today-warn" id="today-warn"></div>
     <div class="table-container">
@@ -184,6 +185,7 @@
 
   <!-- STEP 5: Geplante Impfungen -->
   <section class="card" id="step5">
+    <button class="lock-btn" id="lock-step5" onclick="toggleLock('step5')" title="Bearbeiten" aria-label="Bearbeiten" style="display:none">✎</button>
     <h2><span class="step-badge">5</span><span data-i18n="s5Title">Geplante Impfungen</span></h2>
     <div class="card-desc" data-i18n="s5Desc">Termine für die ausgewählten Impfungen festlegen.</div>
     <div class="appt-overview" id="appt-overview">
@@ -198,6 +200,7 @@
 
   <!-- STEP 6: Leistungen -->
   <section class="card" id="step6" style="display:none">
+    <button class="lock-btn" id="lock-step6" onclick="toggleLock('step6')" title="Bearbeiten" aria-label="Bearbeiten" style="display:none">✎</button>
     <h2><span class="step-badge">6</span><span data-i18n="s6Title">Leistungen</span></h2>
     <div class="card-desc" data-i18n="s6Desc">Dokumentation der heute erbrachten Leistungen für die Abrechnung.</div>
 
@@ -220,6 +223,8 @@
     </div>
 
     <div id="leistung-warning" class="leistung-warn" data-i18n="leistWarn" style="display:none;">Keine Leistung erfasst</div>
+
+    <div id="kasse-billing" class="kasse-billing"></div>
   </section>
 
 
@@ -270,13 +275,13 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=5"></script>
+<script src="js/auth.js?v=6"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=5"></script>
-<script src="js/engine.js?v=5"></script>
-<script src="js/script.js?v=5"></script>
+<script src="js/engine_rules.js?v=6"></script>
+<script src="js/engine.js?v=6"></script>
+<script src="js/script.js?v=6"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){
