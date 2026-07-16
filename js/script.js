@@ -1152,7 +1152,7 @@ function renderVaxTable(){
     else if(av.flag==='caution')availBadge='<span class="badge yellow">'+(LANG==='de'?av.badgeDe:av.badgeEn)+'</span>';
     const availNote=(av.flag==='na'||av.flag==='age')?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':(av.flag==='caution'?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:av.noteEn)+'</div>':'');
     const liveNote=la?'<div class="reason" style="color:'+(la.level==='block'?'var(--red)':'var(--yellow)')+';font-weight:600">'+(LANG==='de'?la.de:la.en)+'</div>':'';
-    const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">K</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>';
+    const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">'+(LANG==='de'?'K':'M')+'</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>';
 
     if(v.tdap_polio){
       const a = tdapPolioAssess();
@@ -1217,8 +1217,8 @@ function renderVaxTable(){
         '<div class="reason">'+(LANG==='de'?ha.bNote.de:ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
-      const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">K</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info">i</button>';
-      const infoBtnB='<button class="info-btn" onclick="showInfo(\'hepB\')" title="Info">i</button>';
+      const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">'+(LANG==='de'?'K':'M')+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info">i</button>';
+      const infoBtnB=(DISEASE_MAPS['hepatitis_b']?'<button class="map-btn" onclick="showMap(\'hepatitis_b\')" title="'+(LANG==='de'?'Verbreitungskarte':'Distribution map')+'">'+(LANG==='de'?'K':'M')+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepB\')" title="Info">i</button>';
       
       function yrSel(f){return yearInput('hepatitis',f);}
       
@@ -1420,7 +1420,17 @@ function renderContraWarn(){
 const DISEASE_MAPS = {
   yellowfever:'yellowfever.png', tdap_polio:'polio.png', hepatitis:'hepatitis_a.png', hepA:'hepatitis_a.png',
   menacwy:'menacwy.png', jev:'jev.png', rabies:'rabies.png', tbe:'tbe.png',
-  dengue:'dengue.png', influenza:'influenza.png'
+  dengue:'dengue.png', influenza:'influenza.png',
+  // new (CDC Yellow Book 2026 maps – drop the PNGs into assets/karten to enable)
+  typhoid:'typhoid.png', cholera:'cholera.png', chikungunya:'chikungunya.png', hepatitis_b:'hepb.png'
+};
+// map name + source overrides (keys without a VACCINES entry, and non-RKI sources)
+const MAP_NAME = { hepatitis_b:{de:'Hepatitis B',en:'Hepatitis B'} };
+const MAP_SOURCE = {
+  typhoid:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
+  cholera:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
+  chikungunya:{de:'Quelle: CDC (public domain)',en:'Source: CDC (public domain)'},
+  hepatitis_b:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'}
 };
 const PENCIL_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z"></path></svg>';
 function showInfo(k){
@@ -1444,12 +1454,15 @@ function showInfo(k){
 function closeModal(){el('modal-bg').classList.remove('show');}
 function showMap(k){
   const f=DISEASE_MAPS[k];if(!f)return;
-  const v=VACCINES.find(x=>x.k===k);const name=v?(LANG==='de'?v.de:v.en):'';
+  const v=VACCINES.find(x=>x.k===k);
+  const name=(MAP_NAME[k]?MAP_NAME[k][LANG==='de'?'de':'en']:(v?(LANG==='de'?v.de:v.en):''));
+  const src=(MAP_SOURCE[k]?MAP_SOURCE[k]:{de:'Quelle: RKI, Epidemiologisches Bulletin 14/2025',en:'Source: RKI, Epidemiological Bulletin 14/2025'})[LANG==='de'?'de':'en'];
+  const missMsg=(LANG==='de'?'Karte noch nicht hinterlegt.':'Map not yet available.');
   el('map-bg').innerHTML='<button class="map-close" onclick="closeMap()" title="Schließen">×</button>'+
     '<div class="map-inner">'+
       '<div class="map-head">'+name+' — '+(LANG==='de'?'Geografische Verbreitung':'Geographic distribution')+'</div>'+
-      '<img src="assets/karten/'+f+'" alt="'+name+'" class="map-full">'+
-      '<div class="map-foot">'+(LANG==='de'?'Quelle: RKI, Epidemiologisches Bulletin 14/2025':'Source: RKI, Epidemiological Bulletin 14/2025')+'</div>'+
+      '<img src="assets/karten/'+f+'" alt="'+name+'" class="map-full" onerror="this.outerHTML=\'<div class=&quot;map-missing&quot;>'+missMsg+'</div>\'">'+
+      '<div class="map-foot">'+src+'</div>'+
     '</div>';
   el('map-bg').classList.add('show');
 }

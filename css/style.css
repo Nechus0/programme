@@ -337,6 +337,7 @@ table.vax td.status{position:relative;padding-right:44px;}
 .map-head { color:#fff; font-size:15px; font-weight:600; margin-bottom:10px; text-align:center; }
 .map-full { max-width:98vw; max-height:84vh; width:auto; height:auto; object-fit:contain; background:#fff; border-radius:8px; box-shadow:0 8px 40px rgba(0,0,0,.5); }
 .map-foot { color:rgba(255,255,255,.72); font-size:12px; margin-top:10px; }
+.map-missing { background:#fff; color:#555; border-radius:8px; padding:48px 40px; font-size:14px; text-align:center; box-shadow:0 8px 40px rgba(0,0,0,.5); }
 .map-close { position:fixed; top:18px; right:24px; background:rgba(255,255,255,.14); border:none; color:#fff; font-size:26px; line-height:1; width:44px; height:44px; border-radius:50%; cursor:pointer; }
 .map-close:hover { background:rgba(255,255,255,.28); }
 
