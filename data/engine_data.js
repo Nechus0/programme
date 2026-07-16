@@ -3,8 +3,307 @@
 window.ENGINE_DATA = {
  "_meta": {
   "generated_from": "tools/master_data",
-  "source": "RKI/DTG 2026, WHO, ECDC, STIKO"
+  "source": "RKI/DTG 2026, WHO, ECDC, STIKO, Tropimed"
  },
+ "specialPopulations": [
+  {
+   "population": "pregnancy",
+   "population_de": "Schwangerschaft",
+   "applies_to": "live_vaccines",
+   "rule": "contraindicated",
+   "condition": "",
+   "note_de": "Lebendimpfstoffe grundsätzlich kontraindiziert (MMR, Varizellen, Zoster-Lebend/Zostavax, Rotaviren, orale Typhusimpfung Ty21a, nasale Influenza)",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "pregnancy",
+   "population_de": "Schwangerschaft",
+   "applies_to": "yellow_fever",
+   "rule": "caution",
+   "condition": "unvermeidbare Reise in Endemiegebiet",
+   "note_de": "Nur nach strenger Nutzen-Risiko-Abwägung; wenn möglich Reise verschieben",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "pregnancy",
+   "population_de": "Schwangerschaft",
+   "applies_to": "inactivated_vaccines",
+   "rule": "allowed",
+   "condition": "",
+   "note_de": "Totimpfstoffe unbedenklich",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "pregnancy",
+   "population_de": "Schwangerschaft",
+   "applies_to": "pertussis",
+   "rule": "recommended",
+   "condition": "jede Schwangerschaft",
+   "note_de": "Tdap in JEDER Schwangerschaft (ab 28. SSW, früher bei Frühgeburtsrisiko)",
+   "source": "RKI2026-Empfehlungen"
+  },
+  {
+   "population": "pregnancy",
+   "population_de": "Schwangerschaft",
+   "applies_to": "influenza",
+   "rule": "recommended",
+   "condition": "ab 2. Trimenon (bei Grundleiden ab 1.)",
+   "note_de": "Influenza-Totimpfstoff empfohlen",
+   "source": "RKI2026-Empfehlungen"
+  },
+  {
+   "population": "breastfeeding",
+   "population_de": "Stillzeit",
+   "applies_to": "live_vaccines",
+   "rule": "allowed",
+   "condition": "",
+   "note_de": "I.d.R. möglich; Ausnahme Gelbfieber",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "breastfeeding",
+   "population_de": "Stillzeit",
+   "applies_to": "yellow_fever",
+   "rule": "caution",
+   "condition": "",
+   "note_de": "Nur nach individueller Nutzen-Risiko-Abwägung (theoret. Übertragung über Muttermilch)",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "immunosuppression_high",
+   "population_de": "Hochgradige Immunsuppression",
+   "applies_to": "live_vaccines",
+   "rule": "contraindicated",
+   "condition": "",
+   "note_de": "Kontraindiziert (unkontrollierte Virusreplikation). Falls möglich >=4 Wochen vor Therapiebeginn impfen",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "immunosuppression_high",
+   "population_de": "Hochgradige Immunsuppression",
+   "applies_to": "inactivated_vaccines",
+   "rule": "allowed",
+   "condition": "",
+   "note_de": "Totimpfstoffe ungefährlich; Immunantwort ggf. reduziert -> ggf. höhere Dosis / mehr Booster / Titerkontrolle",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "immunodeficiency",
+   "population_de": "Immundefizienz",
+   "applies_to": "live_vaccines",
+   "rule": "contraindicated",
+   "condition": "",
+   "note_de": "Kongenital/Neoplasien/Immunsuppressiva: Lebendimpfstoffe meiden",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "high_dose_steroids",
+   "population_de": "Hochdosis-Kortikosteroide",
+   "applies_to": "live_vaccines",
+   "rule": "contraindicated",
+   "condition": ">=20 mg Prednisolonäquivalent/Tag >=2 Wochen (Kinder >=2 mg/kg/Tag)",
+   "note_de": "Lebendimpfstoffe kontraindiziert; Gelbfieber (Stamaril FI): >=20 mg oder >=2 mg/kg >=2 Wochen bzw. >=40 mg/Tag",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "immunosuppression_low",
+   "population_de": "Niedriggradige Immunsuppression",
+   "applies_to": "live_vaccines",
+   "rule": "caution",
+   "condition": "",
+   "note_de": "I.d.R. möglich; wenn möglich >=4 Wochen vor Therapiebeginn",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "hiv_cd4_low",
+   "population_de": "HIV mit CD4 <200/µl",
+   "applies_to": "live_vaccines",
+   "rule": "contraindicated",
+   "condition": "CD4 <200/µl",
+   "note_de": "Lebendimpfstoffe (MMR, Varizellen, Gelbfieber) kontraindiziert",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "hiv_cd4_ok",
+   "population_de": "HIV mit CD4 >=200/µl",
+   "applies_to": "mmr",
+   "rule": "allowed",
+   "condition": "CD4 >=200/µl",
+   "note_de": "MMR möglich bei ausreichender CD4-Zahl",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "hiv_cd4_ok",
+   "population_de": "HIV mit CD4 >=200/µl",
+   "applies_to": "varicella",
+   "rule": "allowed",
+   "condition": "CD4 >=200/µl",
+   "note_de": "Varizellen möglich bei ausreichender CD4-Zahl",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "hiv_cd4_ok",
+   "population_de": "HIV mit CD4 >=200/µl",
+   "applies_to": "yellow_fever",
+   "rule": "caution",
+   "condition": "CD4 >=200/µl",
+   "note_de": "Gelbfieber bei CD4 >=200 möglich; Nutzen-Risiko abwägen, ggf. Titerkontrolle",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "hiv",
+   "population_de": "HIV",
+   "applies_to": "inactivated_vaccines",
+   "rule": "allowed",
+   "condition": "",
+   "note_de": "Totimpfstoffe unbedenklich; Immunantwort ggf. reduziert",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "hiv",
+   "population_de": "HIV",
+   "applies_to": "mpox",
+   "rule": "recommended",
+   "condition": "CD4 >100/µl",
+   "note_de": "Imvanex bei HIV mit CD4 >100 möglich; bei relevantem Risiko empfohlen",
+   "source": "ChariteReisemed2025"
+  },
+  {
+   "population": "asplenia",
+   "population_de": "Asplenie",
+   "applies_to": "meningococcal_acwy",
+   "rule": "indicated",
+   "condition": "",
+   "note_de": "ACWY Grundimmunisierung + Auffrischung",
+   "source": "RKI2026-Empfehlungen"
+  },
+  {
+   "population": "asplenia",
+   "population_de": "Asplenie",
+   "applies_to": "meningococcal_b",
+   "rule": "indicated",
+   "condition": "",
+   "note_de": "MenB Grundimmunisierung",
+   "source": "RKI2026-Empfehlungen"
+  },
+  {
+   "population": "asplenia",
+   "population_de": "Asplenie",
+   "applies_to": "pneumococcal_pcv20",
+   "rule": "indicated",
+   "condition": "",
+   "note_de": "PCV20 + PPSV23",
+   "source": "RKI2026-Empfehlungen"
+  },
+  {
+   "population": "asplenia",
+   "population_de": "Asplenie",
+   "applies_to": "hib",
+   "rule": "indicated",
+   "condition": "",
+   "note_de": "Hib bei Asplenie erwägen",
+   "source": "RKI2026-Empfehlungen"
+  },
+  {
+   "population": "age_60plus",
+   "population_de": "Senioren >=60 J.",
+   "applies_to": "influenza",
+   "rule": "recommended",
+   "condition": "",
+   "note_de": "Standardimpfung ab 60 J. (Hochdosis Efluelda)",
+   "source": "RKI2026-Impfkalender"
+  },
+  {
+   "population": "age_60plus",
+   "population_de": "Senioren >=60 J.",
+   "applies_to": "zoster",
+   "rule": "recommended",
+   "condition": "",
+   "note_de": "Herpes zoster (Shingrix) Standard ab 60 J.",
+   "source": "RKI2026-Impfkalender"
+  },
+  {
+   "population": "age_60plus",
+   "population_de": "Senioren >=60 J.",
+   "applies_to": "covid",
+   "rule": "recommended",
+   "condition": "",
+   "note_de": "COVID-19 jährlich ab 60 J.",
+   "source": "RKI2026-Impfkalender"
+  },
+  {
+   "population": "age_60plus",
+   "population_de": "Senioren >60 J.",
+   "applies_to": "yellow_fever",
+   "rule": "caution",
+   "condition": "Erstimpfung >60 J.",
+   "note_de": "Erhöhtes Risiko schwerer Nebenwirkungen bei YF-Erstimpfung >60 J.; strenge Indikation",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "age_75plus",
+   "population_de": "Senioren >=75 J.",
+   "applies_to": "pneumococcal_pcv20",
+   "rule": "recommended",
+   "condition": "",
+   "note_de": "PCV20 Standard-Altersimpfung ab 75 J.",
+   "source": "RKI2026-Impfkalender"
+  },
+  {
+   "population": "age_75plus",
+   "population_de": "Senioren >=75 J.",
+   "applies_to": "rsv_adult",
+   "rule": "recommended",
+   "condition": "",
+   "note_de": "RSV-Impfung Standard ab 75 J. (60-74 J. nach Indikation)",
+   "source": "RKI2026-Impfkalender"
+  },
+  {
+   "population": "infant",
+   "population_de": "Säuglinge",
+   "applies_to": "rotavirus",
+   "rule": "recommended",
+   "condition": "6-24/32 Wochen",
+   "note_de": "Rotavirus-Schluckimpfung frühzeitig beginnen",
+   "source": "RKI2026-Impfkalender"
+  },
+  {
+   "population": "child",
+   "population_de": "Kinder",
+   "applies_to": "yellow_fever",
+   "rule": "caution",
+   "condition": "<9 Monate kontraindiziert",
+   "note_de": "YF <9 Monate kontraindiziert (Enzephalitis-Risiko); 6-8 Mon nur in Ausnahmefällen",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "child",
+   "population_de": "Kinder",
+   "applies_to": "japanese_encephalitis",
+   "rule": "allowed",
+   "condition": "ab 2 Monate",
+   "note_de": "Ixiaro ab 2 Mon (0,25 ml bei 2 M-<3 J.)",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "child",
+   "population_de": "Kinder",
+   "applies_to": "rabies",
+   "rule": "recommended",
+   "condition": "großzügige Indikation",
+   "note_de": "Kinder großzügig impfen (erhöhtes Bissrisiko, unklare Expositionsangabe)",
+   "source": "Tropimed2026"
+  },
+  {
+   "population": "child",
+   "population_de": "Kinder",
+   "applies_to": "cholera",
+   "rule": "allowed",
+   "condition": "ab 2 J.",
+   "note_de": "Dukoral ab 2 J. (2-6 J. 3 Dosen)",
+   "source": "Tropimed2026"
+  }
+ ],
  "countries": {
   "AF": {
    "iso_a3": "AFG",
