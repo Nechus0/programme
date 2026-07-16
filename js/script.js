@@ -2191,6 +2191,8 @@ function listDayPick(v){if(v){listDay=v;renderPatients();}}
 function listDayShift(n){const d=new Date(listDay+'T00:00:00');d.setDate(d.getDate()+n);listDay=ymd(d);const i=el('list-date');if(i)i.value=listDay;renderPatients();}
 function listDayToday(){listDay=ymd(new Date());const i=el('list-date');if(i)i.value=listDay;renderPatients();}
 function listSearchChange(v){listSearch=(v||'').trim().toLowerCase();renderPatients();}
+let listTypeFilter='all';   // 'all' | 'beratung' | 'folgeimpfung' – Filter im Fluss-Board
+function setTypeFilter(t){ listTypeFilter=t; renderPatients(); }
 function myUserKey(){return (CURRENT_PROFILE&&(CURRENT_PROFILE.id||CURRENT_PROFILE.full_name))||'me';}
 async function persistPatient(p){
   if(USE_DB){const res=await dbUpdatePatient(p.id,p);if(res&&res.error){await uiAlert('Speichern fehlgeschlagen: '+(res.error.message||res.error));return false;}}
@@ -2291,12 +2293,18 @@ function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
 function pDrop(e,status,type){
   // Drag&Drop in „In Behandlung" übernimmt den Patienten in die eigene Behandlung (claim=true).
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}
+  // Typ aus dem gezogenen Patienten/der Gruppe ableiten, wenn die Spalte keinen Typ vorgibt (Fluss-Board)
+  if(!type){
+    if(_dragGroup){ const first=patients.find(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===_dragGroup.trim().toLowerCase()); if(first) type=patientTreatType(first); }
+    else if(id){ const dp=patients.find(x=>x.id===id); if(dp) type=patientTreatType(dp); }
+  }
   // Kasse darf niemanden in „In Behandlung" ziehen (nur ins Wartezimmer)
   if(status==='treatment' && roleIsKasse()){ _dragGroup=null;_dragPid=null; uiAlert(kasseNoTreatMsg()); return; }
   // MFA darf niemanden in „Beratung · In Behandlung" ziehen (keine Beratung durch MFA)
   if(status==='treatment' && !canTreatType(type)){ _dragGroup=null;_dragPid=null; uiAlert(LX('Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.','As MFA you cannot take a consultation; only physicians consult.')); return; }
   if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status,type,true);return; }
-  let id=_dragPid;if(!id){try{id=e.dataTransfer.getData('text/plain');}catch(_){}}_dragPid=null;if(id)setPatientStatus(id,status,type,true);
+  _dragPid=null;if(id)setPatientStatus(id,status,type,true);
 }
 async function moveGroupStatus(groupName,status,type,claim){
   const gl=groupName.trim().toLowerCase();
@@ -2379,16 +2387,27 @@ function renderPatients(){
     h+='</div></div>';
     return h;
   };
+  // Fluss-Board: eine durchgehende Reihe entlang des Patientenwegs
+  const STAGES=[
+    {status:'waiting',   de:'Wartend',       en:'Waiting',      fr:'En attente'},
+    {status:'treatment', de:'In Behandlung', en:'In treatment', fr:'En traitement'},
+    {status:'kasse',     de:'Kasse',         en:'Billing',      fr:'Caisse'},
+    {status:'done',      de:'Behandelt',     en:'Treated',      fr:'Traité'}
+  ];
+  const tf=listTypeFilter||'all';
+  const filtT=(tf==='all')?filt:filt.filter(p=>patientTreatType(p)===tf);
   let cols='';
-  [{type:'beratung',de:'Beratung',en:'Consultation',fr:'Consultation'},{type:'folgeimpfung',de:'Folgeimpfung',en:'Follow-up',fr:'Suivi'}].forEach(g=>{
-    const wCount=filt.filter(p=>patientStatus(p)==='waiting'&&patientTreatType(p)===g.type).length;
-    const tCount=filt.filter(p=>patientStatus(p)==='treatment'&&patientTreatType(p)===g.type).length;
-    cols+='<div class="amb-typegroup '+g.type+'"><div class="amb-tg-h"><span class="type-badge '+g.type+'">'+(g.type==='folgeimpfung'?'F':'B')+'</span>'+(LANG==='de'?g.de:(LANG==='fr'?g.fr:g.en))+'<span class="amb-tg-count">'+(wCount+tCount)+'</span></div>';
-    cols+=lane({status:'waiting',type:g.type,de:'Wartend',en:'Waiting',fr:'En attente'});
-    cols+=lane({status:'treatment',type:g.type,de:'In Behandlung',en:'In treatment',fr:'En traitement'});
-    cols+='</div>';
+  STAGES.forEach(s=>{
+    const inSec=filtT.filter(p=>!p.deleted && patientStatus(p)===s.status);
+    const title=(LANG==='de'?s.de:(LANG==='fr'?s.fr:s.en));
+    cols+='<div class="amb-col amb-col-'+s.status+'"><div class="amb-col-h"><span class="amb-col-title">'+title+'</span><span class="count-pill">'+inSec.length+'</span></div>';
+    cols+='<div class="patient-list drop-zone" data-status="'+s.status+'" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\',null)">';
+    cols+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LX('Hierher ziehen …','Drop here …'))+'</div>';
+    cols+='</div></div>';
   });
-  let html='<div class="amb-board2">'+cols+'</div>';
+  const fchip=(v,lbl)=>'<button class="amb-filter'+(tf===v?' active':'')+'" onclick="setTypeFilter(\''+v+'\')">'+lbl+'</button>';
+  let html='<div class="amb-filterbar">'+fchip('all',LX('Alle','All'))+fchip('beratung',LX('Beratung','Consultation'))+fchip('folgeimpfung',LX('Folgeimpfung','Follow-up'))+'</div>';
+  html+='<div class="amb-flow">'+cols+'</div>';
   // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
   if((CURRENT_PROFILE||{}).role==='admin'){
     const del=dayPats.filter(p=>p.deleted);
@@ -2471,12 +2490,7 @@ function renderTreatPanel(){
     h+='<div class="tp-head"><span class="tp-title">'+L2(I18N.kasseSection)+' <span class="count-pill">'+kassePats.length+'</span></span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
     if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top:8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
     h+='<div class="tp-list drop-zone tp-kasse-list" data-status="kasse" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'kasse\',null)">'+(kassePats.length?kassePats.map(tpItem).join(''):'<div class="tp-empty">'+L2(I18N.kasseNoItems)+'</div>')+'</div>';
-    if(!editing){
-      h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:20px; flex:1; display:flex; flex-direction:column; min-height:0;">';
-      h+='<div class="tp-head"><span class="tp-title">'+(LX('Behandelt','Treated'))+' <span class="count-pill">'+donePats.length+'</span></span></div>';
-      h+='<div class="tp-list drop-zone" style="min-height:80px; padding:4px; overflow-y:auto; flex:1;" data-status="done">'+(donePats.length?donePats.map(tpItemDone).join(''):'<div class="tp-empty" style="text-align:center;padding-top:20px;">—</div>')+'</div></div>';
-      h+='<div class="tp-shift-zone">'+shiftPanelHtml()+'</div>';
-    }
+    if(!editing) h+='<div class="tp-shift-zone" style="margin-top:auto;">'+shiftPanelHtml()+'</div>';
     if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
     box.innerHTML=h; box.classList.add('show'); updateSecNav(); return;
   }
@@ -2498,17 +2512,9 @@ function renderTreatPanel(){
     h+='<div class="tp-empty">'+(LX('Kein Patient in Behandlung.','No patient in treatment.'))+'</div>';
   }
 
-  if(!editing) {
-    // Kasse-Zwischenstufe (nur Anzeige) – zwischen „In Behandlung" und „Behandelt"
-    h+='<div class="tp-kasse-zone" style="margin-top:16px;"><div class="tp-head"><span class="tp-title">'+L2(I18N.kasseSection)+' <span class="count-pill">'+kassePats.length+'</span></span></div>';
-    h+='<div class="tp-list">'+(kassePats.length?kassePats.map(tpItemStatic).join(''):'<div class="tp-empty">—</div>')+'</div></div>';
-    h+='<div class="tp-done-zone" data-status="done" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'done\',null)" style="margin-top:16px; flex:1; display:flex; flex-direction:column; min-height:0;">';
-    h+='<div class="tp-head"><span class="tp-title">'+(LX('Behandelt','Treated'))+' <span class="count-pill">'+donePats.length+'</span></span></div>';
-    h+='<div class="tp-list drop-zone" style="min-height:60px; padding:4px; overflow-y:auto; flex:1;" data-status="done">';
-    h+= donePats.length ? donePats.map(tpItemDone).join('') : '<div class="tp-empty" style="text-align:center; padding-top:16px;">'+(LX('Hierher ziehen …','Drop here …'))+'</div>';
-    h+='</div></div>';
-    h+='<div class="tp-shift-zone">'+shiftPanelHtml()+'</div>';
-  }
+  // Kasse & Behandelt stehen jetzt im zentralen Fluss-Board – die linke Spalte zeigt nur
+  // die eigenen laufenden Behandlungen und „Im Dienst".
+  if(!editing) h+='<div class="tp-shift-zone" style="margin-top:auto;">'+shiftPanelHtml()+'</div>';
 
   if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
   box.innerHTML=h; box.classList.add('show');

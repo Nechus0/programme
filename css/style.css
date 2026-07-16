@@ -737,3 +737,37 @@ body.clinic-idle #list-card{ border-top-right-radius:8px; border-bottom-right-ra
 .card.locked .kasse-billing, .card.locked .kasse-billing *{ pointer-events:auto; }
 /* Chips/Dosen im gesperrten Zustand ausgegraut wie die übrigen Felder */
 .card.locked .dose-chip, .card.locked .leistung-chip{ opacity:.55; }
+
+/* ===== Ambulanzliste als Fluss-Board (Wartend → In Behandlung → Kasse → Behandelt) ===== */
+.amb-filterbar{ display:flex; gap:6px; margin:0 0 12px; flex:0 0 auto; }
+.amb-filter{ font-size:12px; padding:5px 13px; border:0.5px solid var(--line); border-radius:8px; background:#fff; cursor:pointer; color:var(--grey); font-family:var(--font); }
+.amb-filter:hover{ border-color:#aaa; color:var(--text); }
+.amb-filter.active{ background:var(--black); color:#fff; border-color:var(--black); font-weight:600; }
+.amb-flow{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; flex:1 1 auto; min-height:0; }
+.amb-col{ display:flex; flex-direction:column; min-height:0; background:var(--grey-xl); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+.amb-col-h{ display:flex; align-items:center; justify-content:space-between; padding:11px 13px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); background:#fff; border-bottom:1px solid var(--line); flex:0 0 auto; }
+.amb-col-title{ white-space:nowrap; }
+.amb-col .drop-zone{ flex:1 1 auto; min-height:60px; padding:8px; overflow-y:auto; background:transparent; }
+.amb-col .drop-zone.drag-over{ background:#e3f2fd; }
+.amb-col-waiting   .amb-col-h{ box-shadow:inset 0 3px 0 #c3c7cd; }
+.amb-col-treatment .amb-col-h{ box-shadow:inset 0 3px 0 var(--blue); }
+.amb-col-kasse     .amb-col-h{ box-shadow:inset 0 3px 0 var(--yellow); }
+.amb-col-done      .amb-col-h{ box-shadow:inset 0 3px 0 var(--green); }
+
+/* ===== iPad-/Tablet-Kiosk: große, klare Touch-Ziele für die Patienten-Selbstanmeldung ===== */
+body.kiosk main{ max-width:840px; margin:0 auto; padding:24px 20px 130px; }
+body.kiosk .card{ padding:26px 30px; border-radius:14px; margin-bottom:20px; }
+body.kiosk .card h2{ font-size:21px; }
+body.kiosk .card .card-desc{ font-size:14.5px; }
+body.kiosk label.fld{ font-size:14px; margin-bottom:8px; }
+body.kiosk input[type=text],body.kiosk input[type=date],body.kiosk input[type=email],body.kiosk input[type=number],body.kiosk select{ font-size:17px; height:56px; padding:12px 16px; border-radius:10px; }
+body.kiosk textarea{ font-size:17px; min-height:96px; padding:12px 16px; border-radius:10px; }
+body.kiosk .chk-chip{ font-size:15px; padding:15px 18px; border-radius:10px; }
+body.kiosk .chk-row .chk-chip{ min-width:220px; }
+body.kiosk input[type=checkbox]{ width:24px; height:24px; }
+body.kiosk .chip{ font-size:14px; padding:6px 12px 6px 14px; }
+body.kiosk .grid{ gap:20px; }
+body.kiosk .kiosk-bar{ padding:16px 28px; }
+body.kiosk .kiosk-bar .btn{ padding:16px 34px; font-size:17px; border-radius:10px; }
+body.kiosk .kiosk-bar .kiosk-hint{ font-size:14px; }
+body.kiosk .med-ac{ font-size:16px; }
