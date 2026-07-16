@@ -174,6 +174,16 @@ async function dbDeletePatient(id) {
 }
 
 // --- Audit Log ----------------------------------
+// Alle Login-/Aktivitäts-Einträge von HEUTE lesen (für „Im Dienst"). Fällt bei fehlender Leseberechtigung leise aus.
+async function dbListAuditToday() {
+  if (!supabaseClient) return { data: [], error: null };
+  const start = new Date(); start.setHours(0,0,0,0);
+  try {
+    return await supabaseClient.from('audit_logs')
+      .select('user_id,user_role,action,details,created_at')
+      .gte('created_at', start.toISOString());
+  } catch (e) { return { data: [], error: e }; }
+}
 async function dbAuditLog(action, details) {
   if (!supabaseClient) return;
   const user_id = CURRENT_PROFILE ? CURRENT_PROFILE.id : null;

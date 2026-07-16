@@ -2347,7 +2347,7 @@ function toggleCardMenu(id){ const m=el('cm-'+id); const open=m&&m.style.display
 function closeCardMenus(){ document.querySelectorAll('.card-menu').forEach(m=>m.style.display='none'); }
 document.addEventListener('click',function(e){ if(!e.target.closest('.card-menu')&&!e.target.closest('.menu-btn')) closeCardMenus(); });
 let AMB_TIMER=null;
-function startAmbRefresh(){ if(AMB_TIMER)return; AMB_TIMER=setInterval(()=>{ if(USE_DB && typeof roleSeesClinic==='function' && roleSeesClinic((CURRENT_PROFILE||{}).role)) loadPatientsFromDB(); },5000); }
+function startAmbRefresh(){ if(AMB_TIMER)return; AMB_TIMER=setInterval(()=>{ if(USE_DB && typeof roleSeesClinic==='function' && roleSeesClinic((CURRENT_PROFILE||{}).role)){ loadPatientsFromDB(); if(typeof loadShiftToday==='function') loadShiftToday(); } },5000); }
 function renderPatients(){
   const listEl=el('patient-list');if(!listEl)return;
   const di=el('list-date');if(di&&di.value!==listDay)di.value=listDay;
@@ -2516,9 +2516,24 @@ function renderTreatPanel(){
 }
 // „Im Dienst": wer ist heute da (aus Behandlern/Abrechnungen des Tages + aktueller Nutzer), Admin ausgenommen.
 // Wird unten in die linke Spalte eingehängt (kein rechtes Panel mehr).
+let SHIFT_TODAY={};   // wer war heute eingeloggt (aus audit_logs 'shift_login')
+async function loadShiftToday(){
+  if(typeof dbListAuditToday!=='function') return;
+  try{
+    const { data, error } = await dbListAuditToday();
+    if(error || !data) return;
+    const m={};
+    data.forEach(r=>{ if(r.action!=='shift_login') return; const role=r.user_role; if(!role||role==='admin') return; const d=r.details||{}; const name=d.name||''; if(!name) return; m[(role+'|'+name).toLowerCase()]={name:name,role:role,gender:d.gender||''}; });
+    SHIFT_TODAY=m;
+    if(typeof renderTreatPanel==='function') renderTreatPanel();
+  }catch(_){}
+}
 function shiftPanelHtml(){
   const people={};
   const add=(name,role,gender)=>{ if(!name||!role||role==='admin') return; const k=(role+'|'+name).toLowerCase(); if(!people[k]) people[k]={name:name,role:role,gender:gender||''}; };
+  // 1) alle heute eingeloggten Profile (bleiben den ganzen Tag sichtbar)
+  Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender));
+  // 2) zusätzlich aus heutigen Behandlungen/Abrechnungen (Fallback, falls audit_logs nicht lesbar)
   patients.filter(p=>patientDay(p)===listDay && !p.deleted).forEach(p=>{
     (p.handlers||[]).forEach(h=>add(h.name,h.role,h.gender));
     if(p.billing && p.billing.by) add(p.billing.by,'kasse','');
@@ -2844,6 +2859,9 @@ function applyRole(profile){
   moveListToTop();
   if(USE_DB){ loadPatientsFromDB(); startAmbRefresh(); } else renderPatients();
   renderTreatPanel();
+  // „Im Dienst": eigenen Login des Tages festhalten (außer Admin – unsichtbar) und die Tagesliste laden
+  if(USE_DB && role!=='admin' && typeof dbAuditLog==='function'){ try{ dbAuditLog('shift_login', {name:CURRENT_PROFILE.full_name, gender:CURRENT_PROFILE.gender||'', role:role}); }catch(_){} }
+  if(USE_DB) loadShiftToday();
 }
 function moveListToTop(){
   const main=document.querySelector('main'); const lc=el('list-card'), s1=el('step1'), eb=el('editing-banner');
