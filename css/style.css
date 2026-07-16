@@ -728,3 +728,12 @@ body.clinic-idle .shift-panel.show{ margin:24px 0 20px 0; border-left:none; bord
 /* Ohne rechte Spalte: Liste wieder schmaler + rechte Ecken der Ambulanzliste gerundet */
 body.clinic-idle .shell{ max-width:1180px; }
 body.clinic-idle #list-card{ border-top-right-radius:8px; border-bottom-right-radius:8px; }
+
+/* Gesperrte Sektion: NICHTS ist bedienbar (Pillen/Chips/Dosen/Listen), außer Überschrift (Auf-/Zuklappen),
+   Stift, schreibgeschützte Info-/Karten-Buttons und der Abrechnungsblock. */
+.card.locked > :not(h2):not(.lock-btn){ pointer-events:none; }
+.card.locked > h2, .card.locked .lock-btn{ pointer-events:auto; }
+.card.locked .info-btn, .card.locked .map-btn, .card.locked .row-info{ pointer-events:auto; }
+.card.locked .kasse-billing, .card.locked .kasse-billing *{ pointer-events:auto; }
+/* Chips/Dosen im gesperrten Zustand ausgegraut wie die übrigen Felder */
+.card.locked .dose-chip, .card.locked .leistung-chip{ opacity:.55; }

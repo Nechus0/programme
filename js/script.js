@@ -1983,11 +1983,12 @@ const PRICE_FOLGE = 3.15;            // Folgeverordnung (2)
 const PRICE_BESCHEINIGUNG = 5.36;    // Bescheinigung (70)
 const PRICE_IMPFLEISTUNG = 10.72;    // je Injektion (375, auch Folgeimpfung)
 const VAX_PRICE = {
-  chikungunya:163.04, dengue:112.54, tbe:57.86, yellowfever:72.15,
-  hepA:65.68, hepA_child:43.97, hepB:69.38, hepAB:88.27, hpv:209.62,
-  influenza:24.64, jev:121.84, mmr:49.12, menacwy:61.23, menb:122.56,
-  ipv_mono:28.87, tdap_combo:44.82, rabies:86.54, typhoid:37.98
-};   // Rabies = Rabipur (Verorab: 80,02 €). Nicht gelistet (Aushang/Homepage): Cholera, Varizellen, Zoster, Pneumo, Mpox, COVID.
+  chikungunya:163.04, cholera:101.36, dengue:112.54, tbe:57.86, tbe_child:56.23,
+  yellowfever:72.15, zoster:281.73, influenza:24.64, influenza_hd:35.84, hpv:209.62,
+  hepA:65.68, hepA_child:43.97, hepB:69.38, hepAB:88.27, hepAB_child:56.39,
+  jev:121.84, mmr:49.12, menacwy:61.23, menb:122.56, mpox:199.69,
+  ipv_mono:28.87, pneumo:105.77, tdap_combo:44.82, rabies:86.54, typhoid:37.98, varicella:96.19
+};   // Charité-Gebührenübersicht, Stand 22.05.2026. Rabies = Rabipur (Verorab: 80,02 €). Nur COVID nicht gelistet (Standardversorgung/Hausarzt).
 function eur(n){ return (typeof n==='number' && !isNaN(n)) ? n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €' : '—'; }
 // (stKey, planField) → Preis-Schlüssel in VAX_PRICE
 function vaxPriceKey(stKey, sub){
@@ -1995,9 +1996,13 @@ function vaxPriceKey(stKey, sub){
   if(stKey==='tdap_polio'){ if(sub==='planned_ipv') return 'ipv_mono'; return 'tdap_combo'; }
   return stKey;
 }
-// Einzelpreis einer Impfung (Hep A alters­abhängig Kinder/Erwachsene)
+// Einzelpreis einer Impfung (altersabhängige Varianten: Hep A / Hep A+B / FSME / Grippe HD)
 function vaxUnitPrice(priceKey){
-  if(priceKey==='hepA'){ const a=(typeof ageExact==='function' && el('p-dob'))?ageExact(el('p-dob').value):null; if(a!==null && a<16) return VAX_PRICE.hepA_child; }
+  const a=(typeof ageExact==='function' && el('p-dob'))?ageExact(el('p-dob').value):null;
+  if(priceKey==='hepA'      && a!==null && a<16) return VAX_PRICE.hepA_child;
+  if(priceKey==='hepAB'     && a!==null && a<16) return VAX_PRICE.hepAB_child;
+  if(priceKey==='tbe'       && a!==null && a<12) return VAX_PRICE.tbe_child;
+  if(priceKey==='influenza' && a!==null && a>=60) return VAX_PRICE.influenza_hd;
   return VAX_PRICE[priceKey];
 }
 // Vollständige Abrechnung des aktuellen Formulars berechnen
@@ -2058,11 +2063,15 @@ function payBadge(p){
 }
 // Preisübersicht (kompakt, ohne Scrollen) – für alle Rollen
 const PRICE_VAX_LIST=[
-  ['Chikungunya',163.04],['Dengue (Qdenga)',112.54],['FSME/TBE (Erw.)',57.86],['Gelbfieber',72.15],
-  ['Hepatitis A (Erw.)',65.68],['Hepatitis A (Kinder)',43.97],['Hepatitis A+B (Erw.)',88.27],['Hepatitis B',69.38],
-  ['HPV (Gardasil 9)',209.62],['Influenza',24.64],['Japan. Enzephalitis',121.84],['MMR',49.12],
-  ['Meningokokken ACWY',61.23],['Meningokokken B',122.56],['Poliomyelitis',28.87],['Tdap-IPV',44.82],
-  ['Tollwut (Rabipur)',86.54],['Tollwut (Verorab)',80.02],['Typhus',37.98]
+  ['Chikungunya',163.04],['Cholera (Schluck)',101.36],['Dengue (Qdenga)',112.54],
+  ['FSME/TBE (Erw.)',57.86],['FSME/TBE (Kinder)',56.23],['Gelbfieber',72.15],
+  ['Gürtelrose (Zoster)',281.73],['Grippe (Standard)',24.64],['Grippe (Hochdosis)',35.84],
+  ['Hepatitis A (Erw.)',65.68],['Hepatitis A (Kinder)',43.97],['Hepatitis B',69.38],
+  ['Hepatitis A+B (Erw.)',88.27],['Hepatitis A+B (Kinder)',56.39],['HPV (Gardasil 9)',209.62],
+  ['Japan. Enzephalitis',121.84],['MMR',49.12],['Meningok. ACWY',61.23],['Meningok. B',122.56],
+  ['MPox',199.69],['Pneumokokken',105.77],['Poliomyelitis',28.87],
+  ['Td-IPV',27.06],['Tdap-IPV',44.82],['Tdap',42.78],
+  ['Tollwut (Rabipur)',86.54],['Tollwut (Verorab)',80.02],['Typhus',37.98],['Windpocken',96.19]
 ];
 function showPriceInfo(){
   const box=el('modal-content'); if(!box) return;
@@ -2131,7 +2140,11 @@ function getTodaysLeistungVax() {
       const todayBucket = buckets.find(b => b.offset === 0 && !b.isExternal);
       if (todayBucket && todayBucket.items) todaysItems = todayBucket.items;
    }
-   return todaysItems.map(item => ({ k: item.stKey, sub: item.planField || 'planned', name: item.name, priceKey: vaxPriceKey(item.stKey, item.planField || 'planned') }));
+   // Nur noch aktiv geplante Impfungen berücksichtigen – entfernte Impfungen dürfen die Abrechnung
+   // nicht mehr beeinflussen, auch wenn ein alter customSchedule sie noch enthält.
+   return todaysItems
+      .filter(item => { if(!item.planField) return true; const st=vaxState[item.stKey]; return !!(st && st[item.planField]); })
+      .map(item => ({ k: item.stKey, sub: item.planField || 'planned', name: item.name, priceKey: vaxPriceKey(item.stKey, item.planField || 'planned') }));
 }
 function updateLeistungen() {
    const listDiv = el('leistung-vax-list');
@@ -2207,12 +2220,16 @@ async function setPatientStatus(id,status,type,claim){
 // Rechter Pfeil: Patient in die EIGENE Behandlung nehmen (claim) und öffnen
 // MFA darf keine Beratung durchführen (nur Folgeimpfungen)
 function canTreatType(type){ return !((CURRENT_PROFILE||{}).role==='mfa' && type==='beratung'); }
+// Kasse darf niemals behandeln / in „In Behandlung" verschieben (nur ins Wartezimmer)
+function kasseNoTreatMsg(){ return LX('Als Kasse können Sie keine Patienten behandeln. Sie können Patienten nur ins Wartezimmer zurücklegen.','As billing staff you cannot treat patients. You can only move patients back to the waiting room.'); }
 async function takeIntoTreatment(id){
+  if(roleIsKasse()){ uiAlert(kasseNoTreatMsg()); return; }
   const p=patients.find(x=>x.id===id); const type=p?patientTreatType(p):myTreatmentMode();
   if(!canTreatType(type)){ uiAlert(LX('Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.','As MFA you cannot take a consultation; only physicians consult.')); return; }
   await setPatientStatus(id,'treatment',type,true); loadPatient(id);
 }
 async function takeGroupIntoTreatment(g){
+  if(roleIsKasse()){ uiAlert(kasseNoTreatMsg()); return; }
   const first=patients.find(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===g.trim().toLowerCase());
   const type=first?patientTreatType(first):myTreatmentMode();
   if(!canTreatType(type)){ uiAlert(LX('Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.','As MFA you cannot take a consultation; only physicians consult.')); return; }
@@ -2274,6 +2291,8 @@ function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
 function pDrop(e,status,type){
   // Drag&Drop in „In Behandlung" übernimmt den Patienten in die eigene Behandlung (claim=true).
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  // Kasse darf niemanden in „In Behandlung" ziehen (nur ins Wartezimmer)
+  if(status==='treatment' && roleIsKasse()){ _dragGroup=null;_dragPid=null; uiAlert(kasseNoTreatMsg()); return; }
   // MFA darf niemanden in „Beratung · In Behandlung" ziehen (keine Beratung durch MFA)
   if(status==='treatment' && !canTreatType(type)){ _dragGroup=null;_dragPid=null; uiAlert(LX('Als MFA können Sie keine Beratung übernehmen. Nur Ärztinnen/Ärzte führen Beratungen durch.','As MFA you cannot take a consultation; only physicians consult.')); return; }
   if(_dragGroup){ const g=_dragGroup;_dragGroup=null;_dragPid=null;moveGroupStatus(g,status,type,true);return; }
@@ -2307,7 +2326,7 @@ async function pCardDrop(e){
   await persistPatient(tgt); await persistPatient(src); renderPatients();
 }
 // Rechter Pfeil: Patient in die eigene Behandlung nehmen. Nur für Wartend/In Behandlung.
-function arrowBtn(id){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeIntoTreatment(\''+id+'\')" title="'+(LX('In Behandlung nehmen','Take into treatment'))+'">→</button>'; }
+function arrowBtn(id){ if(roleIsKasse()) return ''; return '<button class="amb-arrow" onclick="event.stopPropagation();takeIntoTreatment(\''+id+'\')" title="'+(LX('In Behandlung nehmen','Take into treatment'))+'">→</button>'; }
 function groupArrowBtn(gesc){ return '<button class="amb-arrow" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')" title="'+(LX('Gruppe in Behandlung nehmen','Take group into treatment'))+'">→</button>'; }
 function elapsedStr(iso){ if(!iso)return''; const min=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000)); if(isNaN(min))return''; if(min<1)return LX('gerade eben','just now'); if(min<60)return min+' min'; const h=Math.floor(min/60),m=min%60; return h+' h'+(m?' '+m:'')+(m?' min':''); }
 function initials(name){ if(!name)return '?'; const parts=String(name).trim().split(/\s+/).filter(Boolean); if(!parts.length)return '?'; if(parts.length===1)return parts[0].slice(0,2).toUpperCase(); return (parts[0][0]+parts[parts.length-1][0]).toUpperCase(); }
