@@ -1654,9 +1654,10 @@ async function savePatient(finish){
   };
   // Änderungsprotokoll: bearbeitete Abschnitte (1–3) beim Speichern eines bestehenden Patienten festhalten
   if(existing){
-    const touched=LOCK_SECTIONS.filter(id=>SECTION_EDIT[id]);
-    if(touched.length){
-      const oldSnap = window._patientSnapshot ? JSON.parse(window._patientSnapshot) : null;
+    // Diff-basiert: erfasst JEDE tatsächliche Feldänderung (Text, Checkbox, Chip, Autocomplete …),
+    // unabhängig davon, ob ein 'input'-Event gefeuert hat – so wird der Log zuverlässig geführt.
+    const oldSnap = window._patientSnapshot ? JSON.parse(window._patientSnapshot) : null;
+    if(oldSnap){
       const ts=new Date().toISOString();
       const title = CURRENT_PROFILE&&CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'';
       const fName = CURRENT_PROFILE&&CURRENT_PROFILE.full_name||'';
@@ -1664,32 +1665,34 @@ async function savePatient(finish){
       const gender = (CURRENT_PROFILE&&CURRENT_PROFILE.gender)||'';
       const roleDisplay = typeof formatRoleTitle === 'function' ? formatRoleTitle(roleRaw, gender) : roleRaw;
       const who = ((title + fName).trim() + (roleDisplay ? ' ('+roleDisplay+')' : '')) || myUserKey();
-      
+
       const fMap = {
         'step1': { name:'Nachname', firstname:'Vorname', dob:'Geburtsdatum', sex:'Geschlecht', phone:'Telefon', email:'E-Mail', insurance:'Versicherung', profession:'Beruf', address:'Adresse', zip:'PLZ', city:'Ort' },
         'step2': { duration:'Reisedauer', departure:'Abreise', destinations:'Reiseziele' },
         'step3': { pregnant:'Schwangerschaft', allergy:'Allergien', meds:'Medikamente', immuno:'Immunsuppression', recentVax:'Kürzliche Impfungen', conds:'Vorerkrankungen', acute:'Akute Erkrankung', thrombosis:'Thrombose', faint:'Ohnmachtsneigung', comment:'Kommentar' }
       };
-      
-      touched.forEach(id=>{
+
+      LOCK_SECTIONS.forEach(id=>{
         let changed = [];
-        if(oldSnap && fMap[id]) {
+        if(fMap[id]) {
            for(const [k, lbl] of Object.entries(fMap[id])) {
               if(JSON.stringify(oldSnap[k]) !== JSON.stringify(snap[k])) changed.push(lbl);
            }
         }
-        if(id==='step3' && oldSnap && oldSnap.vax && snap.vax) {
+        if(id==='step3' && oldSnap.vax && snap.vax) {
            let vChanged=false;
            for(const v of VACCINES) {
              if(JSON.stringify(oldSnap.vax[v.k]) !== JSON.stringify(snap.vax[v.k])) vChanged=true;
            }
            if(vChanged) changed.push('Impfplan');
         }
-        snap.editLog.push({ts,who,role:roleRaw,section:id,fields:changed});
+        if(changed.length) snap.editLog.push({ts,who,role:roleRaw,section:id,fields:changed});
       });
     }
   }
   LOCK_SECTIONS.forEach(id=>SECTION_EDIT[id]=false);
+  // Baseline aktualisieren, damit der nächste Speichervorgang nur NEUE Änderungen protokolliert (keine Duplikate)
+  window._patientSnapshot = JSON.stringify(snap);
   if(USE_DB){
     const res = editingId ? await dbUpdatePatient(editingId, snap) : await dbInsertPatient(snap);
     if(res && res.error){ await uiAlert('Speichern fehlgeschlagen: '+(res.error.message||res.error)); return false; }
@@ -1703,7 +1706,9 @@ async function savePatient(finish){
   if (typeof dbAuditLog === 'function') {
       dbAuditLog('save_patient', { patient_id: snap.id, name: snap.name, finish: finish });
   }
-  
+  // Änderungsprotokoll sofort unter den Abschnitten anzeigen, wenn wir im Formular bleiben
+  if(!finish) renderChangeLogs(snap);
+
   if(finish){
     if(document.body.classList.contains('clinic')) exitToList();
     else resetForm();
@@ -1738,6 +1743,25 @@ function fuzzyNameMatch(n1, f1, n2, f2) {
   return false;
 }
 
+function renderChangeLogs(p){
+  ['step1','step2','step3'].forEach(sid=>{
+    let logEl=el('log-'+sid);
+    if(!logEl){
+      logEl=document.createElement('div');
+      logEl.id='log-'+sid;
+      logEl.className='change-log';
+      const sec=el(sid);
+      if(sec)sec.appendChild(logEl);
+    }
+    logEl.innerHTML='';
+    if(p&&p.editLog){
+      const logs=p.editLog.filter(l=>l.section===sid&&l.fields&&l.fields.length>0);
+      if(logs.length){
+        logEl.innerHTML='<div class="log-title">'+(LX('Änderungsprotokoll','Change log'))+'</div>'+logs.slice().reverse().map(l=>'<div class="log-entry"><span class="log-ts">'+fmtDateTime(l.ts)+'</span> <span class="log-who">'+_esc(l.who)+'</span> <span class="log-fields">'+_esc(l.fields.join(', '))+'</span></div>').join('');
+      }
+    }
+  });
+}
 function loadPatient(id){
   const p=patients.find(x=>x.id===id);if(!p)return;
   if(p.status === 'treatment' && p.claimedBy && p.claimedBy !== myUserKey()) {
@@ -1777,23 +1801,7 @@ function loadPatient(id){
   customSchedule=p.customSchedule?JSON.parse(JSON.stringify(p.customSchedule)):null;
   
   // Rendere Change Logs
-  ['step1','step2','step3'].forEach(sid=>{
-    let logEl=el('log-'+sid);
-    if(!logEl){
-      logEl=document.createElement('div');
-      logEl.id='log-'+sid;
-      logEl.className='change-log';
-      const sec=el(sid);
-      if(sec)sec.appendChild(logEl);
-    }
-    logEl.innerHTML='';
-    if(p.editLog){
-      const logs=p.editLog.filter(l=>l.section===sid&&l.fields&&l.fields.length>0);
-      if(logs.length){
-        logEl.innerHTML='<div class="log-title">'+(LX('Änderungsprotokoll','Change log'))+'</div>'+logs.slice().reverse().map(l=>'<div class="log-entry"><span class="log-ts">'+fmtDateTime(l.ts)+'</span> <span class="log-who">'+_esc(l.who)+'</span> <span class="log-fields">'+_esc(l.fields.join(', '))+'</span></div>').join('');
-      }
-    }
-  });
+  renderChangeLogs(p);
   
   if (p.treatmentType === 'folgeimpfung' && !p.vaxMerged) {
      const past = patients.filter(x => 
@@ -2595,7 +2603,15 @@ let SECTION_LOCKED={}, SECTION_EDIT={}, LOCK_LISTENERS=false;
 function isStaff(){ return (typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{}).role); }
 function lockAllSections(){ LOCK_SECTIONS.forEach(id=>{SECTION_LOCKED[id]=true;SECTION_EDIT[id]=false;}); applyLocks(); }
 function unlockAllSections(){ LOCK_SECTIONS.forEach(id=>{SECTION_LOCKED[id]=false;SECTION_EDIT[id]=false;}); applyLocks(); }
-function toggleLock(id){ SECTION_LOCKED[id]=!(SECTION_LOCKED[id]!==false); applyLocks(); }
+async function toggleLock(id){
+  const wasEditing = SECTION_LOCKED[id]===false;   // Abschnitt war offen (in Bearbeitung)
+  SECTION_LOCKED[id]=!(SECTION_LOCKED[id]!==false);
+  applyLocks();
+  // Beim Zuklappen (Bearbeitung abgeschlossen) speichern → Änderungen + Protokoll erscheinen sofort
+  if(wasEditing && SECTION_LOCKED[id]===true && editingId && isStaff()){
+    try{ await savePatient(false); }catch(_){}
+  }
+}
 function applyLocks(){
   const staff=isStaff();
   LOCK_SECTIONS.forEach(id=>{

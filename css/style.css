@@ -197,12 +197,19 @@ body.clinic:not(.clinic-idle) #list-card{display:none !important;}
 .treat-panel.show{display:flex;}
 body.clinic-idle .treat-panel { margin-bottom: 20px; }
 /* Ambulanzliste (list view only): dock the In-Behandlung/Behandelt panel flush onto the
-   central Ambulanzliste box so they read as one unit. Treating-patient view keeps the
-   free-standing left column (default .shell gap). */
-body.clinic-idle .shell { gap: 0; }
-body.clinic-idle .treat-panel { margin-top: 0; margin-bottom: 0; border-right: none;
-  border-top-right-radius: 0; border-bottom-right-radius: 0; }
+   central Ambulanzliste box so they read as one component — a grey sidebar next to the
+   white list. Treating-patient view keeps the free-standing left column. */
+body.clinic-idle .shell { gap: 0; max-width: 1180px; }
+body.clinic-idle .treat-panel {
+  margin-top: 0; margin-bottom: 0;
+  flex: 0 0 212px;
+  padding: 20px 16px;
+  background: var(--grey-xl);
+  border-right: none;
+  border-top-right-radius: 0; border-bottom-right-radius: 0;
+}
 body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+body.clinic-idle .tp-item:hover { background: #fff; }
 .tp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
 .tp-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);}
 .tp-list{display:flex;flex-direction:column;gap:4px;}
