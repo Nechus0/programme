@@ -555,7 +555,7 @@ function buildCtx(){
 // geschuetzt=green, nicht indiziert=grey). No violet.
 function assess(v){
   const ctx = buildCtx();
-  if(isProtected(v)) return {status:'green', category:'gesch\u00fctzt', mand:false, noteDe:'', noteEn:''};
+  if(isProtected(v)) return {status:'green', category:'gesch\u00fctzt', mand:false, noteDe:'', noteEn:'', noteFr:''};
   if(v.k==='yellowfever'){
     const yfSt=EngineCtx.getVaxState()[v.k]||{};
     const yfDone=doseNum(yfSt.done);
@@ -563,14 +563,15 @@ function assess(v){
     if(yfDone>=1 && yfYrs!==null && yfYrs>=10){
       return {status:'yellow', category:'Erw\u00e4gen', mand:false,
         noteDe:'WHO: Einmaldosis gilt als lebenslanger Schutz. STIKO empfiehlt Auffrischung nach 10 J. \u2013 erw\u00e4gen.',
-        noteEn:'WHO: single dose considered lifelong. STIKO recommends booster after 10 yrs \u2014 consider.'};
+        noteEn:'WHO: single dose considered lifelong. STIKO recommends booster after 10 yrs \u2014 consider.',
+        noteFr:'OMS : une dose unique est consid\u00e9r\u00e9e comme une protection \u00e0 vie. La STIKO recommande un rappel apr\u00e8s 10 ans \u2013 \u00e0 envisager.'};
     }
   }
   const R = window.EngineRules;
-  if(!R){ const b=baseLevel(v); return {status:(b.level==='strong'?'red':b.level==='general'?'blue':b.level==='consider'?'yellow':'grey'),mand:b.mand,noteDe:b.noteDe,noteEn:b.noteEn}; }
+  if(!R){ const b=baseLevel(v); return {status:(b.level==='strong'?'red':b.level==='general'?'blue':b.level==='consider'?'yellow':'grey'),mand:b.mand,noteDe:b.noteDe,noteEn:b.noteEn,noteFr:b.noteEn}; }
   const r = R.deriveCategory(v.k, ctx);
   const status = R.CATEGORY_COLOR[r.category] || 'grey';
-  return {status:status, category:r.category, mand:(r.category==='Pflicht'), noteDe:r.de, noteEn:r.en};
+  return {status:status, category:r.category, mand:(r.category==='Pflicht'), noteDe:r.de, noteEn:r.en, noteFr:r.fr};
 }
 function tdapPolioAssess(){
   const st = EngineCtx.getVaxState().tdap_polio;

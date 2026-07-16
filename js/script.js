@@ -1341,7 +1341,7 @@ function renderVaxTable(){
         badgeTxt = LANG === 'de' ? 'Geschützt' : 'Protected';
       }
     }
-    let note=(LANG==='de'?a.noteDe:a.noteEn);let noteStyle='';
+    let note=(LANG==='de'?a.noteDe:(LANG==='fr'?(a.noteFr||a.noteEn):a.noteEn));let noteStyle='';
     if(a.status==='green'&&BOOSTER[v.k]){note=(LANG==='de'?BOOSTER[v.k].de:BOOSTER[v.k].en);noteStyle=' style="color:var(--green)"';}
     const mandBadge=a.mand?'<span class="badge mand">'+t('mandatory')+'</span>':'';
     const alN=allergyNote(v);const alNote=alN?'<div class="reason" style="color:var(--red);font-weight:600">'+(LANG==='de'?alN.de:alN.en)+'</div>':'';

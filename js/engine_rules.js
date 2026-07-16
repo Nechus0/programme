@@ -136,7 +136,8 @@
         if (hB.risk >= RISKORD.moderate && (ls || has(ctx, "health"))) { cat = CAT.EMPF; deB = "Hep B: Langzeit/med. Tätigkeit"; enB = "Hep B: long-term / medical activity"; }
         else if (hB.risk >= RISKORD.low && hB.endemic) { if (cat === CAT.NONE) cat = CAT.ERWAEGEN; deB = "Hep B: Endemiegebiet – erwägen"; enB = "Hep B: endemic area — consider"; }
         var de = [deA, deB].filter(Boolean).join(" | "), en = [enA, enB].filter(Boolean).join(" | ");
-        return mk(cat, de || "Kein erhöhtes Hepatitis-Risiko", en || "No elevated hepatitis risk");
+        var fr = [deA, deB].filter(Boolean).map(function (s) { return NOTE_FR[s] || s; }).join(" | ");
+        return mk(cat, de || "Kein erhöhtes Hepatitis-Risiko", en || "No elevated hepatitis risk", fr || "Pas de risque hépatite accru");
       }
       case "typhoid": {
         a = destAgg(ctx, "typhoid");
@@ -181,7 +182,7 @@
         a = destAgg(ctx, "meningococcal");
         if (has(ctx, "hajj")) return mk(CAT.PFLICHT, "Nachweispflicht (Hajj/Umrah, Saudi-Arabien)", "Mandatory (Hajj/Umrah, Saudi Arabia)");
         if (a.belt) {
-          if (ls || has(ctx, "health") || has(ctx, "rural")) return mk(CAT.EMPF, "Meningitisgürtel + enger Kontakt/Langzeit (Saison " + a.belt + ")", "Meningitis belt + close contact/long stay (season " + a.belt + ")");
+          if (ls || has(ctx, "health") || has(ctx, "rural")) return mk(CAT.EMPF, "Meningitisgürtel + enger Kontakt/Langzeit (Saison " + a.belt + ")", "Meningitis belt + close contact/long stay (season " + a.belt + ")", "Ceinture de la méningite + contact étroit/long séjour (saison " + a.belt + ")");
           return mk(CAT.ERWAEGEN, "Meningitisgürtel, kurzer Aufenthalt – erwägen", "Meningitis belt, short stay — consider");
         }
         return mk(CAT.NONE, "Kein erhöhtes Meningokokken-Risiko", "No elevated meningococcal risk");
@@ -256,7 +257,7 @@
 
   function stikoRoutine(ctx, codes, label) {
     var hit = stikoApplies(ctx, codes);
-    if (hit) return mk(CAT.GENERELL, "STIKO: " + (hit.note || label), "STIKO: " + label);
+    if (hit) return mk(CAT.GENERELL, "STIKO: " + (hit.note || label), "STIKO: " + label, "STIKO : " + label);
     return mk(CAT.NONE, "Keine STIKO-Indikation für diese Person", "No STIKO indication for this person");
   }
 
@@ -272,7 +273,68 @@
   function yearsSince(ctx, yr) { if (!yr) return null; var now = ctx.nowYear || new Date().getFullYear(); return now - parseInt(yr, 10); }
   function boosterDue(ctx, st, years) { var ys = yearsSince(ctx, st && st.year); return ys == null || ys >= years; }
 
-  function mk(category, de, en) { return { category: category, de: de, en: en }; }
+  var NOTE_FR = {
+    "Impfnachweis bei Einreise gefordert (IHR)": "Certificat de vaccination exigé à l'entrée (RSI)",
+    "Gelbfieber-Endemiegebiet – Impfung dringend empfohlen": "Zone d'endémie de fièvre jaune – vaccination fortement recommandée",
+    "Kein Gelbfieber-Risiko/keine Nachweispflicht": "Pas de risque de fièvre jaune / aucun certificat requis",
+    "Hep A: Reiseimpfung für Endemiegebiet": "Hép A : vaccin de voyage pour zone d'endémie",
+    "Hep B: Langzeit/med. Tätigkeit": "Hép B : long séjour / activité médicale",
+    "Hep B: Endemiegebiet – erwägen": "Hép B : zone d'endémie – à envisager",
+    "Kein erhöhtes Hepatitis-Risiko": "Pas de risque hépatite accru",
+    "Hohes Typhus-Risiko": "Risque typhoïde élevé",
+    "Endemiegebiet + ländlich/Langzeit": "Zone d'endémie + rural/long séjour",
+    "Endemiegebiet, kurzer/urbaner Aufenthalt – erwägen": "Zone d'endémie, séjour court/urbain – à envisager",
+    "Kein relevantes Typhus-Risiko": "Pas de risque typhoïde pertinent",
+    "Tierkontakt + Tollwutrisiko im Land – präexpositionell dringend empfohlen": "Contact animalier + risque rabique dans le pays – préexposition fortement recommandée",
+    "Tollwut im Land präsent – erwägen (v.a. ländlich/Langzeit/Kind/Folgereisen)": "Rage présente dans le pays – à envisager (surtout rural/long séjour/enfant/voyages répétés)",
+    "Kein relevantes Tollwut-Risiko": "Pas de risque rabique pertinent",
+    "Endemiegebiet + ländlich + Langzeit": "Zone d'endémie + rural + long séjour",
+    "Endemiegebiet, aber Expositions-/Dauerkriterium grenzwertig – erwägen": "Zone d'endémie, mais critère d'exposition/durée limite – à envisager",
+    "Kein JE-Risiko": "Pas de risque d'EJ",
+    "Ausbruch/Hochrisiko + Helfer/Langzeit": "Épidémie/risque élevé + secouriste/long séjour",
+    "Cholera-Gebiet – bei einfachen Bedingungen erwägen": "Zone de choléra – à envisager en conditions sommaires",
+    "Kein relevantes Cholera-Risiko": "Pas de risque choléra pertinent",
+    "FSME-Gebiet + Outdoor-Exposition": "Zone d'encéphalite à tiques + exposition en plein air",
+    "FSME-Gebiet, ohne Outdoor-Exposition – erwägen": "Zone d'encéphalite à tiques, sans exposition en plein air – à envisager",
+    "Kein FSME-Risiko": "Pas de risque d'encéphalite à tiques",
+    "Nachweispflicht (Hajj/Umrah, Saudi-Arabien)": "Certificat obligatoire (Hajj/Omra, Arabie saoudite)",
+    "Meningitisgürtel, kurzer Aufenthalt – erwägen": "Ceinture de la méningite, séjour court – à envisager",
+    "Kein erhöhtes Meningokokken-Risiko": "Pas de risque méningococcique accru",
+    "STIKO-Standard für Säuglinge": "Standard STIKO pour les nourrissons",
+    "Indikation (Immundefizienz/Asplenie)": "Indication (immunodéficience/asplénie)",
+    "Keine generelle MenB-Indikation": "Pas d'indication générale MenB",
+    "Keine/unvollständige Grundimmunisierung Polio – nachholen": "Primovaccination polio absente/incomplète – à rattraper",
+    "Polio Kat. 1: Impfnachweis bei >4 Wochen Aufenthalt": "Polio cat. 1 : certificat requis pour un séjour >4 semaines",
+    "Polio-Auffrischung für Risikoregion": "Rappel polio pour région à risque",
+    "Polio-Auffrischung fällig": "Rappel polio dû",
+    "Polio: STIKO-Standard": "Polio : standard STIKO",
+    "Keine/unvollständige Grundimmunisierung Tdap-IPV – nachholen": "Primovaccination Tdap-IPV absente/incomplète – à rattraper",
+    "Td/Tdap-Auffrischung fällig (>10 Jahre)": "Rappel Td/Tdap dû (>10 ans)",
+    "Tetanus/Diphtherie/Pertussis aktuell": "Tétanos/diphtérie/coqueluche à jour",
+    "Vor 9 Monaten nicht empfohlen": "Non recommandé avant 9 mois",
+    "Masern-Schutz vorhanden": "Protection contre la rougeole présente",
+    "Keine Grundimmunisierung – 2 Dosen (Lebendimpfstoff)": "Pas de primovaccination – 2 doses (vaccin vivant)",
+    "Impfschutz vervollständigen (STIKO)": "Compléter la protection vaccinale (STIKO)",
+    "Impfserie (2 Dosen) komplettieren": "Compléter la série (2 doses)",
+    "Nach durchgemachter Dengue-Infektion + Endemiegebiet": "Après infection dengue antérieure + zone d'endémie",
+    "Nur nach durchgemachter Dengue-Infektion": "Uniquement après une infection dengue antérieure",
+    "Aktueller Ausbruch am Zielort": "Épidémie en cours à destination",
+    "Erhöhtes Hintergrundrisiko – erwägen": "Risque de fond accru – à envisager",
+    "Kein relevantes Chikungunya-Risiko": "Pas de risque chikungunya pertinent",
+    "STIKO-Standard/Nachhol 9–17 J.": "Standard/rattrapage STIKO 9–17 ans",
+    "Begonnene Serie vervollständigen": "Compléter la série commencée",
+    "Keine generelle STIKO-Indikation ab 18 J.": "Pas d'indication STIKO générale à partir de 18 ans",
+    "VZV-Immunität serologisch": "Immunité VZV (sérologie)",
+    "Kinderwunsch ohne Immunität – 2 Dosen": "Désir de grossesse sans immunité – 2 doses",
+    "Med. Personal ohne Immunität": "Personnel médical sans immunité",
+    "Nur bei Risiko/Kinderwunsch indiziert": "Indiqué uniquement en cas de risque/désir de grossesse",
+    "Ausbruchsregion, enger Kontakt – erwägen": "Région épidémique, contact étroit – à envisager",
+    "Keine generelle Mpox-Indikation": "Pas d'indication générale Mpox",
+    "Keine STIKO-Indikation für diese Person": "Pas d'indication STIKO pour cette personne"
+  };
+  function mk(category, de, en, fr) {
+    return { category: category, de: de, en: en, fr: (fr != null ? fr : (NOTE_FR[de] != null ? NOTE_FR[de] : en)) };
+  }
 
   function deriveCategory(k, ctx) { return rule(k, ctx || {}); }
 
