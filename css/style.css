@@ -73,16 +73,19 @@ h2 .age-box.empty{font-size:11.5px;font-weight:500;}
 .dot{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.15);}
 .dot.red{background:var(--red);} .dot.yellow{background:var(--yellow);} .dot.green{background:var(--green);} .dot.grey{background:var(--neutral);} .dot.blue{background:var(--blue);} .dot.violet{background:var(--violet);}
 table.vax{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
-table.vax th,table.vax td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top;}
+table.vax th,table.vax td{border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;vertical-align:top;}
 table.vax thead th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#fff;font-weight:600;background:var(--black);vertical-align:middle;}
 table.vax thead th:first-child{border-top-left-radius:6px;} table.vax thead th:last-child{border-top-right-radius:6px;}
 table.vax th:nth-child(1), table.vax td:nth-child(1) { width: 25%; }
 table.vax th:nth-child(2), table.vax td:nth-child(2) { width: 31%; }
 table.vax th:nth-child(3), table.vax td:nth-child(3) { width: 17%; }
 table.vax th:nth-child(4), table.vax td:nth-child(4) { width: 27%; }
-table.vax tbody tr:hover{background:#fafafa;}
-/* Kompaktere Eingaben in der Impfstatus-Tabelle */
-table.vax input[type=text],table.vax input[type=number],table.vax select{height:38px;max-width:150px;}
+table.vax tbody tr:hover{background:#f6f8fb;}
+table.vax tbody tr{transition:background .1s;}
+/* Kompaktere, ruhigere Eingaben in der Impfstatus-Tabelle */
+table.vax input[type=text],table.vax input[type=number],table.vax select{height:38px;max-width:140px;border-radius:7px;}
+table.vax input:focus,table.vax select:focus{outline:none;border-color:var(--black);box-shadow:0 0 0 3px rgba(0,0,0,.05);}
+table.vax input::placeholder{color:#cfcfcf;letter-spacing:.06em;}
 table.vax .age-box{max-width:none;}
 .combo-row{background:#fafafa;}
 .badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;}
@@ -319,8 +322,8 @@ body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radi
 /* Lebendimpfstoff-Kennung (violetter Kreis „L") */
 .live-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#5b2a9e;color:#fff;font-size:10.5px;font-weight:700;margin-left:6px;flex-shrink:0;vertical-align:middle;}
 /* Info-/Karten-Buttons ganz rechts in der Statusspalte */
-table.vax td.status{position:relative;padding-right:44px;}
-.row-info{position:absolute;top:8px;right:8px;display:flex;gap:5px;}
+table.vax td.status{position:relative;padding-right:46px;}
+.row-info{position:absolute;top:12px;right:10px;display:flex;gap:5px;}
 .row-info .info-btn,.row-info .map-btn{margin-left:0;}
 /* Hep-Statuslabel (statt farbiger Hep-A/B-Badges) */
 .hep-stat{display:flex;align-items:center;gap:8px;margin-bottom:6px;}

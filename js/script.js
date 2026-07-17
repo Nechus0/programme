@@ -3905,7 +3905,8 @@ function openAdminPanel(){
 // Reiter-Umschaltung im Admin-Einstellungsmenü
 function adminTab(name){
   const bar=el('admin-tabs'); if(bar) bar.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.atab===name));
-  document.querySelectorAll('#admin-panel [data-atab]').forEach(sec=>{ sec.style.display=(sec.dataset.atab===name)?'':'none'; });
+  // nur die Sektions-Karten umschalten – nicht die Reiter-Buttons (die tragen ebenfalls data-atab)
+  document.querySelectorAll('#admin-panel section[data-atab]').forEach(sec=>{ sec.style.display=(sec.dataset.atab===name)?'':'none'; });
 }
 function openSettings(){ openAdminPanel(); }
 function closeAdminPanel(){ const p=el('admin-panel'); if(p) p.classList.remove('show'); }
