@@ -3586,6 +3586,67 @@ function renderSources(){
   h+='<div class="src-foot">'+LX('Diese Übersicht dokumentiert die Grundlagen der Empfehlungen und ersetzt keine ärztliche Beurteilung.','This overview documents the basis of the recommendations and does not replace clinical judgement.')+'</div>';
   box.innerHTML=h;
 }
+/* ================= TESTDATEN – Patienten-Generator (nur Admin) ================= */
+const TG_POOLS={
+  afrika:['KE','TZ','GH','NG','CM','SN','ET','UG','ZM','MZ','ML','CI','ZA','MW','RW','AO','BJ','BF','MG'],
+  suedamerika:['BR','PE','CO','BO','EC','VE','GY','AR','CL','PY'],
+  asien:['TH','VN','IN','ID','KH','LK','NP','PH','MM','LA','BD','MY','CN'],
+  mittelamerika:['MX','GT','HN','NI','CR','PA','DO','CU','HT'],
+  nahost:['EG','MA','TR','AE','JO','TN','OM','SA','IL']
+};
+TG_POOLS.any=[].concat(TG_POOLS.afrika,TG_POOLS.suedamerika,TG_POOLS.asien,TG_POOLS.mittelamerika,TG_POOLS.nahost,['ES','IT','GR','US','TH']);
+const TG_FN_F=['Anna','Lena','Sofia','Marie','Julia','Emma','Laura','Clara','Fatima','Aylin','Giulia','Ana','Nora','Mia'];
+const TG_FN_M=['Jonas','Lukas','David','Max','Paul','Felix','Noah','Ben','Ahmed','Luca','Hans','Tom','Elias','Karim'];
+const TG_SUR=['Müller','Schmidt','Fischer','Weber','Meyer','Wagner','Becker','Hoffmann','Schäfer','Koch','Bauer','Richter','Klein','Wolf','Neumann','Braun','Nguyen','Yilmaz','Rossi','Okonkwo','Almeida','Popescu'];
+const TG_CITY=['Berlin','Potsdam','Leipzig','Hamburg','Dresden','Cottbus'];
+const TG_MEDS=['Ramipril','Metformin','L-Thyroxin','Bisoprolol','Sertralin','ASS 100','Pantoprazol','Simvastatin'];
+const TG_IMMUNO=['Methotrexat','Adalimumab','Prednisolon 20 mg','Azathioprin','Ciclosporin'];
+const TG_CHRON=['Diabetes mellitus Typ 2','COPD','Chronische Niereninsuffizienz','Rheumatoide Arthritis','Arterielle Hypertonie'];
+const TG_DUR=['<1w','1-2w','2-4w','1-3m','3-6m','>6m'];
+function tgRand(a){ return a[Math.floor(Math.random()*a.length)]; }
+function tgChance(p){ return Math.random()<p; }
+function tgUuid(){ return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2); }
+function tgStep(d){ const i=el('tg-n'); if(i) i.value=Math.max(1,Math.min(10,(parseInt(i.value,10)||1)+d)); }
+function tgAgeRange(m){ if(m==='kind')return[0,12]; if(m==='jugend')return[13,17]; if(m==='erw')return[18,64]; if(m==='senior')return[65,88]; return[1,80]; }
+function tgDob(age){ const y=new Date().getFullYear()-age; const mo=1+Math.floor(Math.random()*12); const d=1+Math.floor(Math.random()*28); return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+function tgMake(opts,idx){
+  const [amin,amax]=tgAgeRange(opts.age); const age=amin+Math.floor(Math.random()*(amax-amin+1));
+  const female=tgChance(0.5); const firstname=female?tgRand(TG_FN_F):tgRand(TG_FN_M); const name=tgRand(TG_SUR);
+  const pool=TG_POOLS[opts.region]||TG_POOLS.any; const dests=[tgRand(pool)]; if(tgChance(0.25)){ const d2=tgRand(pool); if(d2!==dests[0]) dests.push(d2); }
+  let meds=[], immuno='', immunodef=false, pregnant='no', chronicText='', chronic=false;
+  if(opts.med && tgChance(0.55)) meds.push(tgRand(TG_MEDS));
+  if(opts.exo && tgChance(0.5)){ const k=Math.floor(Math.random()*3);
+    if(k===0){ const im=tgRand(TG_IMMUNO); meds.push(im); immuno=im; immunodef=true; }
+    else if(k===1 && female && age>=18 && age<=45){ pregnant='pregnant'; }
+    else { chronicText=tgRand(TG_CHRON); chronic=true; } }
+  const savedAt=new Date(Date.now()-idx*13*60000).toISOString();
+  return { id:tgUuid(), name:name, firstname:firstname, dob:tgDob(age), age:age, sex:female?'f':'m',
+    phone:'', email:'', insurance:'', profession:'', address:'', zip:'', city:tgRand(TG_CITY),
+    duration:tgRand(TG_DUR), departure:'', destinations:dests,
+    pregnant:pregnant, allergy:tgChance(0.15)?'Penicillin':'', meds:meds, immuno:immuno, recentVax:'',
+    conds:[], acute:false, chronicText:chronicText, chronic:chronic, immunodef:immunodef, thrombosis:false, faint:false,
+    serology:{measles:false,vzv:false,hbs:false}, childhood:false,
+    comment:'Testpatient (Generator)', physician:'', vax:{}, customSchedule:null,
+    status:'waiting', group:'', treatmentType:tgChance(0.12)?'folgeimpfung':'beratung',
+    claimedBy:null, claimedByName:'', claimedByRole:'', treatmentAt:null,
+    editLog:[], savedAt:savedAt, updatedAt:savedAt };
+}
+async function genTestPatients(){
+  const logEl=el('tg-log'); if(logEl) logEl.innerHTML='';
+  const tlog=(m,c)=>{ if(!logEl)return; const d=document.createElement('div'); if(c)d.className=c; d.textContent=m; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; };
+  if(typeof dbInsertPatient!=='function' || !USE_DB){ tlog('Nicht mit der Datenbank verbunden.','tg-err'); return; }
+  const n=Math.max(1,Math.min(10,parseInt((el('tg-n')||{}).value,10)||1));
+  const opts={ region:(el('tg-region')||{}).value||'any', age:(el('tg-age')||{}).value||'mix', grp:!!(el('tg-grp')&&el('tg-grp').checked), med:!!(el('tg-med')&&el('tg-med').checked), exo:!!(el('tg-exo')&&el('tg-exo').checked) };
+  const list=[]; for(let i=0;i<n;i++) list.push(tgMake(opts,i));
+  if(opts.grp && n>=2){ const sur=tgRand(TG_SUR); const sz=(n>=4&&tgChance(0.5))?3:2; const city=tgRand(TG_CITY); for(let i=0;i<sz;i++){ list[i].name=sur; list[i].group=sur; list[i].city=city; } }
+  let ok=0;
+  for(const rec of list){
+    try{ const res=await dbInsertPatient(rec); if(res&&res.error){ tlog('✗ '+rec.name+', '+rec.firstname+' – '+(res.error.message||res.error),'tg-err'); } else { ok++; const extra=[rec.group?'Gruppe '+rec.group:'',rec.immunodef?'immunsupprimiert':'',rec.pregnant==='pregnant'?'schwanger':'',rec.chronic?'chron. Erkrankung':'',(rec.meds&&rec.meds.length)?'Medikation':''].filter(Boolean).join(', '); tlog('✓ '+rec.name+', '+rec.firstname+' ('+rec.age+' J. · '+rec.destinations.join(', ')+(extra?' · '+extra:'')+')','tg-ok'); } }
+    catch(e){ tlog('✗ '+(e&&e.message?e.message:e),'tg-err'); }
+  }
+  tlog(ok+' von '+list.length+' Patienten angelegt.', ok===list.length?'tg-ok':'tg-err');
+  if(typeof loadPatientsFromDB==='function') await loadPatientsFromDB();
+}
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
   const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode);});
