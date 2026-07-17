@@ -586,7 +586,7 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .vax .reason + .reason{ margin-top:4px; }
 /* Einheitliche Komponenten-Chips (Hep A/B, T/D/aP/IPV) etwas luftiger */
 .comp{ padding:4px 9px; font-size:11px; }.handlers-circles { display:inline-flex; align-items:center; }
-.handlers-circles .ini-circle { margin-left:-6px; border:2px solid #fff; z-index:1; position:relative; }
+.handlers-circles .ini-circle { box-sizing:border-box; margin-left:-6px; border:2px solid #fff; z-index:1; position:relative; }
 .handlers-circles .ini-circle:first-child { margin-left:0; z-index:0; }
 .handlers-circles .ini-circle:nth-child(2) { z-index:1; }
 .handlers-circles .ini-circle:nth-child(3) { z-index:2; }
@@ -727,9 +727,9 @@ body.clinic-idle .shift-panel.show{ display:flex;flex-direction:column;flex:0 0 
 /* === Kasse/Layout Feinschliff v2 === */
 /* Kasse-Warteschlange darf nicht wachsen (sonst „zu lang"), Behandelt bekommt den Platz */
 .tp-kasse-list{ flex:0 0 auto !important; min-height:48px; max-height:36%; }
-/* Zahlungs-/Behandler-Icons gleich groß wie das Personal-Icon (26px) */
-.pay-badge{ width:26px; height:26px; font-size:13px; }
-.pay-badge b{ font-size:14px; }
+/* Zahlungs-/Behandler-Icons gleich groß wie das Personal-Icon (20px, rundes Quadrat) */
+.pay-badge{ width:20px; height:20px; font-size:11px; }
+.pay-badge b{ font-size:12px; }
 /* Grünes „Bezahlt"-Feld unten rechts in Sektion 6 */
 .kb-paid-field{ display:block; width:fit-content; margin:16px 0 0 auto; background:var(--green); color:#fff; border-radius:8px; padding:9px 20px; font-weight:700; font-size:14px; letter-spacing:.02em; }
 /* Rechte Spalte „Im Dienst" an die Ambulanzliste andocken (nicht mehr freistehend) */
@@ -824,7 +824,7 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-item{ position:relative; background:#fff; border:0.5px solid var(--line); border-left:3px solid var(--line); border-radius:0 10px 10px 0; margin-bottom:8px; }
 .amb-flow .patient-item.pi-beratung{ border-left-color:#2563eb; }      /* B = blau */
 .amb-flow .patient-item.pi-folgeimpfung{ border-left-color:#0e9e8e; }  /* F = teal/grün */
-.amb-flow .patient-head{ display:flex; flex-direction:column; align-items:stretch; gap:3px; padding:9px 11px; cursor:pointer; }
+.amb-flow .patient-head{ display:flex; flex-direction:column; align-items:stretch; gap:3px; padding:9px 32px 9px 11px; cursor:pointer; }
 .amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:6px; min-height:20px; }
 .amb-flow .patient-head .pl-name{ font-weight:600; font-size:13.5px; line-height:1.2; white-space:normal; }
 .amb-flow .patient-head .pl-age{ font-weight:400; font-size:11.5px; color:var(--grey); white-space:nowrap; }
@@ -841,7 +841,7 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-head .ini-circle{ flex:none; }
 
 /* Löschen/Entgruppieren – fixe Position unten rechts, erscheinen beim Hover */
-.amb-flow .pi-actions{ position:absolute; right:6px; bottom:5px; display:inline-flex; align-items:center; gap:1px; opacity:0; transition:opacity .12s; }
+.amb-flow .pi-actions{ position:absolute; right:5px; top:50%; transform:translateY(-50%); display:inline-flex; flex-direction:column; align-items:center; gap:1px; opacity:0; transition:opacity .12s; }
 .amb-flow .patient-item:hover .pi-actions, .amb-flow .pi-actions:focus-within{ opacity:1; }
 .amb-flow .pi-act{ background:rgba(255,255,255,.85); border:none; cursor:pointer; color:var(--grey); padding:2px 3px; border-radius:5px; display:inline-flex; align-items:center; }
 .amb-flow .pi-act:hover{ background:var(--grey-xl); color:var(--text); }

@@ -1699,11 +1699,13 @@ function printMeaslesCertificate(){
     '.c-opt{display:flex;gap:10px;align-items:flex-start;margin:7px 0;}'+
     '.c-box{font-size:16px;line-height:1.1;flex:none;}'+
     '.c-txt{flex:1;}.c-txt .c-de{display:block;}.c-txt .c-en{display:block;color:#666;font-style:italic;font-size:11px;}'+
-    '.sign{display:flex;gap:26px;margin-top:40px;}'+
-    '.sign .col{flex:1;border-top:1px solid #111;padding-top:5px;font-size:10.5px;color:#444;}'+
-    '.sign .col .en{color:#999;}'+
-    '.sign .val{display:block;color:#111;font-size:12px;font-weight:600;margin-bottom:22px;border:0;}'+
-    '.foot{margin-top:28px;font-size:9.5px;color:#999;}';
+    '.place{margin-top:34px;font-size:12px;color:#111;}'+
+    '.sig-area{margin-top:66px;width:62%;max-width:340px;}'+
+    '.sig-line{border-top:1px solid #111;}'+
+    '.sig-cap{padding-top:6px;font-size:10.5px;color:#555;}'+
+    '.sig-cap .sig-name{display:block;color:#111;font-size:12px;font-weight:600;margin-bottom:1px;}'+
+    '.sig-cap .en{color:#999;font-style:italic;}'+
+    '.foot{margin-top:34px;font-size:9.5px;color:#999;}';
   const html='<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>'+(LX('Masernschutz-Bescheinigung','Measles immunity certificate'))+'</title><style>'+css+'</style></head><body>'+
     '<h1>Ärztliche Bescheinigung<span class="en">Medical certificate</span></h1>'+
     '<div class="sub">Nachweis gemäß § 20 Absatz 9 Infektionsschutzgesetz (IfSG) · Certificate pursuant to Section 20 (9) German Infection Protection Act</div>'+
@@ -1718,16 +1720,18 @@ function printMeaslesCertificate(){
     proof+
     '<div class="c-head">Befreiung von einer Masern-Impfung:<span class="en">Exemption from measles vaccination:</span></div>'+
     exempt+
-    '<div class="sign">'+
-      '<div class="col"><span class="val">Berlin, '+_esc(today)+'</span>Ort, Datum <span class="en">/ Place, date</span></div>'+
-      '<div class="col"><span class="val">'+_esc(physFull)+'</span>Unterschrift, Stempel (Ärztin/Arzt) <span class="en">/ Signature, stamp (physician)</span></div>'+
+    '<div class="place">Berlin, den '+_esc(today)+'</div>'+
+    '<div class="sig-area"><div class="sig-line"></div>'+
+      '<div class="sig-cap"><span class="sig-name">'+_esc(physFull)+'</span>Unterschrift und Stempel · <span class="en">Signature and stamp</span></div>'+
     '</div>'+
     '<div class="foot">Charité · Reisemedizinische Ambulanz · Institut für Internationale Gesundheit</div>'+
+    '<script>window.onload=function(){setTimeout(function(){try{window.focus();window.print();}catch(e){}},150);};<\/script>'+
     '</body></html>';
   const w=window.open('','_blank');
   if(!w){ uiAlert(LX('Bitte Pop-ups für diese Seite erlauben, um die Bescheinigung zu drucken.','Please allow pop-ups for this page to print the certificate.')); return; }
   w.document.open(); w.document.write(html); w.document.close();
-  try{ w.addEventListener('load',function(){ setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },250); }); }catch(_){ setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },400); }
+  // Zusätzlicher Fallback zum eingebetteten onload-Print (falls onload nicht feuert)
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} }, 400);
   closeModal();
 }
 function closeModal(){el('modal-bg').classList.remove('show');const mc=el('modal-content');if(mc)mc.classList.remove('pi-modal');}
