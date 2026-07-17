@@ -609,6 +609,16 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .treat-record .tr-lbl{ font-weight:700; color:var(--grey); text-transform:uppercase; font-size:10.5px; letter-spacing:.03em; }
 .treat-record .tr-ts{ color:var(--grey); }
 .m-doc{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+/* Masern-Bescheinigung: Auswahl im Modal */
+.mc-opts{ display:flex; flex-direction:column; gap:8px; margin:14px 0 4px; }
+.mc-opt{ display:flex; align-items:flex-start; gap:11px; padding:12px 14px; border:1px solid var(--line); border-radius:10px; cursor:pointer; transition:border-color .12s, background .12s; }
+.mc-opt:hover{ border-color:#aaa; }
+.mc-opt:has(input:checked){ border-color:var(--black); background:var(--grey-xl); }
+.mc-opt input{ margin-top:2px; flex:none; width:17px; height:17px; accent-color:var(--black); }
+.mc-opt-txt{ display:flex; flex-direction:column; gap:2px; }
+.mc-opt .mc-de{ font-size:13.5px; font-weight:600; color:var(--text); line-height:1.35; }
+.mc-opt .mc-en{ font-size:12px; color:var(--grey); font-style:italic; line-height:1.3; }
+.mc-actions{ display:flex; justify-content:space-between; gap:12px; margin-top:18px; }
 .change-log { margin-top:20px; font-size:12px; color:var(--grey); border-top:1px dashed var(--line); padding-top:12px; }
 .change-log:empty { display:none; }
 .log-title { font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--grey); margin-bottom:6px; }

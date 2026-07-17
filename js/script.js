@@ -1620,7 +1620,10 @@ function showInfo(k){
   const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
   // Gelbfieber: Aufklärungsbogen (DTG) zum Drucken
   const doc=DISEASE_DOCS[k];
-  const docBtn=doc?('<div class="m-doc"><button class="btn sec sm" onclick="printDoc(\''+doc+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>'+(LX('Aufklärungsbogen drucken','Print consent form'))+'</button></div>'):'';
+  const printSvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
+  const docBtn=doc?('<div class="m-doc"><button class="btn sec sm" onclick="printDoc(\''+doc+'\')">'+printSvg+(LX('Aufklärungsbogen drucken','Print consent form'))+'</button></div>'):'';
+  // Masern (MMR): ärztliche Masernschutz-Bescheinigung (§20 Abs. 9 IfSG) generieren
+  const certBtn=(k==='mmr')?('<div class="m-doc"><button class="btn sec sm" onclick="openMeaslesCert()">'+printSvg+(LX('Impfbescheinigung drucken','Print immunity certificate'))+'</button></div>'):'';
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3>'+(vName(v))+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
     '<div class="m-sub">'+(LX('Vereinfachte Kurzinformation für das Patientengespräch','Simplified summary for the patient conversation'))+'</div>'+
@@ -1628,7 +1631,7 @@ function showInfo(k){
     '<div class="m-sec"><h4>'+t('mEpi')+'</h4><p>'+(inf.epi[LANG]||inf.epi.en)+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mSide')+'</h4><p>'+(inf.side[LANG]||inf.side.en)+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mSchedInfo')+'</h4><p>'+(inf.sched[LANG]||inf.sched.en)+'</p></div>'+
-    availHtml+mapBtn+docBtn;
+    availHtml+mapBtn+docBtn+certBtn;
   el('modal-bg').classList.add('show');
 }
 // Aufklärungs-/Infobögen je Erkrankung (im Ordner assets/docs)
@@ -1639,6 +1642,93 @@ function printDoc(file){
   const w=window.open(url,'_blank');
   if(w){ try{ w.addEventListener('load',function(){ setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },300); }); }catch(_){} }
   else { window.open(url,'_blank'); }
+}
+/* ---- Masernschutz-Bescheinigung (§ 20 Abs. 9 IfSG), zweisprachig DE/EN ---- */
+const MEASLES_CERT_OPTS=[
+  {v:'v2',  group:'proof', de:'2 Masernschutzimpfungen (für Personen nach vollendetem 2. Lebensjahr)', en:'2 measles vaccinations (for persons after completion of the 2nd year of life)'},
+  {v:'v1',  group:'proof', de:'1 Masernschutzimpfung (ausreichend für Kinder im 2. Lebensjahr)',     en:'1 measles vaccination (sufficient for children in their 2nd year of life)'},
+  {v:'imm', group:'proof', de:'Immunität gegen Masern (serologischer Labornachweis) liegt vor',      en:'Immunity against measles confirmed by serological laboratory evidence'},
+  {v:'ci',  group:'exempt', de:'Es liegt eine dauerhafte, medizinische Kontraindikation vor, aufgrund derer nicht gegen Masern geimpft werden kann.', en:'A permanent medical contraindication exists, preventing measles vaccination.'}
+];
+function openMeaslesCert(){
+  const box=el('modal-content'); if(!box) return;
+  box.classList.remove('pi-modal');
+  const psvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
+  let opts='';
+  MEASLES_CERT_OPTS.forEach((o,i)=>{
+    opts+='<label class="mc-opt"><input type="radio" name="measles_cert" value="'+o.v+'"'+(i===0?' checked':'')+'>'+
+      '<span class="mc-opt-txt"><span class="mc-de">'+_esc(o.de)+'</span><span class="mc-en">'+_esc(o.en)+'</span></span></label>';
+  });
+  box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
+    '<h3>'+(LX('Masern-Impfbescheinigung','Measles immunity certificate'))+'</h3>'+
+    '<div class="m-sub">'+(LX('Bitte den zutreffenden Nachweis auswählen (§ 20 Abs. 9 IfSG).','Please select the applicable evidence (Section 20 (9) IfSG).'))+'</div>'+
+    '<div class="mc-opts">'+opts+'</div>'+
+    '<div class="mc-actions"><button class="btn sec sm" onclick="showInfo(\'mmr\')">&larr; '+(LX('Zurück','Back'))+'</button>'+
+      '<button class="btn sm" onclick="printMeaslesCertificate()">'+psvg+(LX('Bescheinigung drucken','Print certificate'))+'</button></div>';
+  el('modal-bg').classList.add('show');
+}
+function printMeaslesCertificate(){
+  const sel=(document.querySelector('input[name="measles_cert"]:checked')||{}).value||'v2';
+  const gv=id=>{const e=el(id);return e?(''+e.value).trim():'';};
+  const p=patients.find(x=>x.id===editingId)||{};
+  const nm=gv('p-name')||p.name||'';
+  const fn=gv('p-firstname')||p.firstname||'';
+  const fullName=(nm?(nm+(fn?', '+fn:'')):'')||'—';
+  const dobRaw=gv('p-dob')||p.dob||'';
+  const dob=dobRaw?fmtDate(new Date(dobRaw)):'—';
+  const street=gv('p-address')||p.address||'';
+  const cityline=((gv('p-zip')||p.zip||'')+' '+(gv('p-city')||p.city||'')).trim();
+  const addr=[street,cityline].filter(Boolean).join(', ')||'—';
+  const today=fmtDate(new Date());
+  const physTitle=(CURRENT_PROFILE&&CURRENT_PROFILE.title)?CURRENT_PROFILE.title+' ':'';
+  const physName=(p.claimedByName||(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'').trim();
+  const physFull=(physTitle+physName).trim()||'—';
+  const cb=(v)=>(v===sel)?'☒':'☐';
+  const optRow=(o)=>'<div class="c-opt"><span class="c-box">'+cb(o.v)+'</span><span class="c-txt"><span class="c-de">'+_esc(o.de)+'</span><span class="c-en">'+_esc(o.en)+'</span></span></div>';
+  const proof=MEASLES_CERT_OPTS.filter(o=>o.group==='proof').map(optRow).join('');
+  const exempt=MEASLES_CERT_OPTS.filter(o=>o.group==='exempt').map(optRow).join('');
+  const css='@page{size:A4;margin:22mm 20mm;}*{box-sizing:border-box;}body{font-family:Helvetica,Arial,sans-serif;color:#111;font-size:12px;line-height:1.5;}'+
+    'h1{font-size:19px;margin:0 0 2px;}h1 .en{display:block;font-size:13px;font-weight:400;color:#444;}'+
+    '.sub{font-size:11px;color:#555;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;}'+
+    '.pat{width:100%;border-collapse:collapse;margin-bottom:18px;}'+
+    '.pat td{border:1px solid #bbb;padding:7px 10px;vertical-align:top;}'+
+    '.pat .lbl{font-size:9.5px;color:#666;text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:2px;}'+
+    '.pat .lbl .en{color:#999;}'+
+    '.intro{margin:6px 0 12px;}.intro .en{display:block;color:#555;font-style:italic;margin-top:2px;}'+
+    '.c-head{font-weight:700;margin:14px 0 6px;}.c-head .en{display:block;font-weight:400;font-style:italic;color:#555;}'+
+    '.c-opt{display:flex;gap:10px;align-items:flex-start;margin:7px 0;}'+
+    '.c-box{font-size:16px;line-height:1.1;flex:none;}'+
+    '.c-txt{flex:1;}.c-txt .c-de{display:block;}.c-txt .c-en{display:block;color:#666;font-style:italic;font-size:11px;}'+
+    '.sign{display:flex;gap:26px;margin-top:40px;}'+
+    '.sign .col{flex:1;border-top:1px solid #111;padding-top:5px;font-size:10.5px;color:#444;}'+
+    '.sign .col .en{color:#999;}'+
+    '.sign .val{display:block;color:#111;font-size:12px;font-weight:600;margin-bottom:22px;border:0;}'+
+    '.foot{margin-top:28px;font-size:9.5px;color:#999;}';
+  const html='<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>'+(LX('Masernschutz-Bescheinigung','Measles immunity certificate'))+'</title><style>'+css+'</style></head><body>'+
+    '<h1>Ärztliche Bescheinigung<span class="en">Medical certificate</span></h1>'+
+    '<div class="sub">Nachweis gemäß § 20 Absatz 9 Infektionsschutzgesetz (IfSG) · Certificate pursuant to Section 20 (9) German Infection Protection Act</div>'+
+    '<table class="pat"><tr>'+
+      '<td style="width:60%"><span class="lbl">Name, Vorname <span class="en">/ Surname, first name</span></span>'+_esc(fullName)+'</td>'+
+      '<td><span class="lbl">Geburtsdatum <span class="en">/ Date of birth</span></span>'+_esc(dob)+'</td>'+
+    '</tr><tr>'+
+      '<td colspan="2"><span class="lbl">Adresse <span class="en">/ Address</span></span>'+_esc(addr)+'</td>'+
+    '</tr></table>'+
+    '<div class="intro">Für die o.g. Person wird bescheinigt, dass folgender, altersentsprechender, den Anforderungen gemäß § 20 Absatz 9 IfSG genügender Masernschutz vorliegt:'+
+      '<span class="en">It is hereby certified that the above-named person has the following age-appropriate measles protection meeting the requirements of Section 20 (9) IfSG:</span></div>'+
+    proof+
+    '<div class="c-head">Befreiung von einer Masern-Impfung:<span class="en">Exemption from measles vaccination:</span></div>'+
+    exempt+
+    '<div class="sign">'+
+      '<div class="col"><span class="val">Berlin, '+_esc(today)+'</span>Ort, Datum <span class="en">/ Place, date</span></div>'+
+      '<div class="col"><span class="val">'+_esc(physFull)+'</span>Unterschrift, Stempel (Ärztin/Arzt) <span class="en">/ Signature, stamp (physician)</span></div>'+
+    '</div>'+
+    '<div class="foot">Charité · Reisemedizinische Ambulanz · Institut für Internationale Gesundheit</div>'+
+    '</body></html>';
+  const w=window.open('','_blank');
+  if(!w){ uiAlert(LX('Bitte Pop-ups für diese Seite erlauben, um die Bescheinigung zu drucken.','Please allow pop-ups for this page to print the certificate.')); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  try{ w.addEventListener('load',function(){ setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },250); }); }catch(_){ setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },400); }
+  closeModal();
 }
 function closeModal(){el('modal-bg').classList.remove('show');const mc=el('modal-content');if(mc)mc.classList.remove('pi-modal');}
 function showMap(k){

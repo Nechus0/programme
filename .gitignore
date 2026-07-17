@@ -11,6 +11,9 @@ Thumbs.db
 
 # Source material / large binaries (kept in the workspace, not the deploy repo)
 *.pdf
+# Ausnahme: ausgelieferte Aufklärungs-/Formular-PDFs (werden von der App verlinkt)
+!assets/docs/
+!assets/docs/*.pdf
 
 # Python dev artefacts
 __pycache__/
