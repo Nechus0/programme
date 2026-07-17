@@ -463,11 +463,12 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 h4 .flag{width:20px;height:20px;}
 /* Ambulanzliste: Toolbar, Status-Spalten, Drag&Drop, Gruppen */
 .list-h2{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
-.amb-toolbar{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.amb-toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:18px;}
 .amb-day{display:flex;align-items:center;gap:6px;}
 .amb-day input[type=date]{width:auto;padding:7px 9px;font-size:13px;}
-.amb-tools-right{display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end;min-width:240px;}
-.amb-search{flex:1;min-width:160px;max-width:320px;padding:9px 12px;font-size:14px;}
+.amb-filter-slot{display:flex;align-items:center;gap:6px;}
+.amb-tools-right{display:flex;align-items:center;gap:10px;margin-left:auto;justify-content:flex-end;}
+.amb-search{width:280px;max-width:44vw;padding:9px 12px;font-size:14px;}
 .amb-tools-right #new-patient-btn{white-space:nowrap;flex-shrink:0;}
 /* Typ-Gruppe (Beratung / Folgeimpfung) verbindet Wartend + In Behandlung */
 .amb-typegroup{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;background:#fff;display:flex;flex-direction:column;min-height:0;}
@@ -588,6 +589,11 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .chk-chip.leistung-auto{opacity:.65;cursor:default;}
 .leistung-warn{margin-top:16px;padding:11px 15px;border-radius:8px;background:var(--red-bg);color:var(--red);border:1px solid #f5c2c2;font-weight:600;font-size:13px;}
 
+.treat-record{ margin-top:16px; padding-top:12px; border-top:1px solid var(--line); font-size:12.5px; }
+.treat-record:empty{ display:none; }
+.treat-record .tr-row{ margin:2px 0; color:var(--text); }
+.treat-record .tr-lbl{ font-weight:700; color:var(--grey); text-transform:uppercase; font-size:10.5px; letter-spacing:.03em; }
+.treat-record .tr-ts{ color:var(--grey); }
 .change-log { margin-top:20px; font-size:12px; color:var(--grey); border-top:1px dashed var(--line); padding-top:12px; }
 .change-log:empty { display:none; }
 .log-title { font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--grey); margin-bottom:6px; }
@@ -782,7 +788,7 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-col-kasse .amb-col-ic{ color:var(--yellow); }
 .amb-col-done .amb-col-ic{ color:var(--green); }
 .amb-shift-row{ display:flex; align-items:center; flex-wrap:wrap; gap:6px 16px; margin-top:12px; padding:10px 14px 2px; border-top:1px solid var(--line); flex:0 0 auto; }
-.shift-row-title{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--grey); margin-right:2px; }
+.shift-row-title{ font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text); margin-right:4px; }
 .shift-row-group{ display:inline-flex; align-items:center; gap:7px; }
 .shift-row-role{ font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
 .shift-row-person{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; }
@@ -795,11 +801,14 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-item.pi-beratung{ border-left-color:#2563eb; }      /* B = blau */
 .amb-flow .patient-item.pi-folgeimpfung{ border-left-color:#0e9e8e; }  /* F = teal/grün */
 .amb-flow .patient-head{ display:flex; flex-direction:column; gap:3px; padding:9px 11px; cursor:pointer; }
-.amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:8px; min-height:22px; }
+.amb-flow .patient-head .ph-row1{ display:flex; align-items:baseline; gap:6px; min-height:20px; }
 .amb-flow .patient-head .pl-name{ font-weight:600; font-size:13.5px; line-height:1.2; white-space:normal; }
+.amb-flow .patient-head .pl-age{ font-weight:400; font-size:11.5px; color:var(--grey); white-space:nowrap; }
 .amb-flow .patient-head .pl-spacer{ flex:1 1 auto; }
-/* Zeile 2: Alter · Ziel links, Uhrzeit/Preis rechts – immer gleiche Position */
-.amb-flow .patient-head .ph-row2{ display:flex; align-items:center; gap:8px; padding-left:28px; font-size:11.5px; color:var(--grey); line-height:1.35; }
+.amb-flow .patient-head .ph-row1 .ini-circle,.amb-flow .patient-head .ph-row1 .pay-badge{ align-self:center; }
+/* Zeile 2: B/F-Badge ganz links, Ziel, dann Uhrzeit/Preis rechts – immer gleiche Position */
+.amb-flow .patient-head .ph-row2{ display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--grey); line-height:1.35; }
+.amb-flow .type-badge{ flex:none; width:19px; height:19px; border-radius:5px; font-size:10.5px; }
 .amb-flow .patient-head .ph-meta{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .amb-flow .patient-head .ph-spacer{ flex:1 1 auto; }
 .amb-flow .patient-head .ph-time{ flex:none; display:inline-flex; align-items:center; gap:3px; color:var(--grey); }
@@ -807,9 +816,9 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-head .ph-price{ flex:none; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
 .amb-flow .patient-head .ini-circle{ flex:none; }
 
-/* Aktions-Icons (Löschen/Entgruppieren) – fixe Position rechts, erscheinen beim Hover */
-.amb-flow .pi-actions{ flex:none; display:inline-flex; align-items:center; gap:1px; opacity:0; transition:opacity .12s; }
+/* Löschen/Entgruppieren – fixe Position unten rechts, erscheinen beim Hover */
+.amb-flow .pi-actions{ position:absolute; right:6px; bottom:5px; display:inline-flex; align-items:center; gap:1px; opacity:0; transition:opacity .12s; }
 .amb-flow .patient-item:hover .pi-actions, .amb-flow .pi-actions:focus-within{ opacity:1; }
-.amb-flow .pi-act{ background:none; border:none; cursor:pointer; color:var(--grey); padding:2px 3px; border-radius:5px; display:inline-flex; align-items:center; }
+.amb-flow .pi-act{ background:rgba(255,255,255,.85); border:none; cursor:pointer; color:var(--grey); padding:2px 3px; border-radius:5px; display:inline-flex; align-items:center; }
 .amb-flow .pi-act:hover{ background:var(--grey-xl); color:var(--text); }
 .amb-flow .pi-act.pi-del:hover{ color:var(--red); }

@@ -1682,6 +1682,14 @@ async function savePatient(finish){
       }
   });
   const existing = patients.find(p=>p.id===editingId);
+  // Statusgesteuerter Abschluss: Patient an der Kasse → Abschluss bedeutet „bezahlt" (→ done),
+  // sonst → Übergabe an die Kasse (→ kasse). So kann auch Medizin-Personal die Kasse vertreten.
+  const _clinic = document.body.classList.contains('clinic');
+  const _prevStatus = (existing&&existing.status)||(_clinic?'treatment':'waiting');
+  const _atKasse = _prevStatus==='kasse';
+  const _finalizing = finish && _clinic && _atKasse;   // Zahlung wird bestätigt (jede Personalrolle)
+  const _me = ((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||myUserKey());
+  const _myRole = (CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
   const snap={
     id: editingId || (window.crypto&&crypto.randomUUID?crypto.randomUUID():String(Date.now())),
     name, firstname:g('p-firstname'), dob, age:ageYears(dob), sex:el('p-sex').value,
@@ -1696,10 +1704,13 @@ async function savePatient(finish){
     comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
     leistungen: document.body.classList.contains('clinic') ? readLeistungen() : ((existing&&existing.leistungen)||undefined),
-    payment: (function(){ const m=paymentMethod(); const finalizing=(finish && roleIsKasse() && document.body.classList.contains('clinic')); const prevPaid=!!(existing&&existing.payment&&existing.payment.paid); if(!m && !(existing&&existing.payment)) return undefined; return {method:m||((existing&&existing.payment&&existing.payment.method)||''), label:payMethodLabel(m), paid: finalizing?true:prevPaid}; })(),
-    billing: (finish && document.body.classList.contains('clinic')) ? {total:computeBilling().total, hasUnpriced:computeBilling().hasUnpriced, method:(roleIsKasse()?paymentMethod():((existing&&existing.billing&&existing.billing.method)||undefined)), at:new Date().toISOString(), by:((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||myUserKey())} : ((existing&&existing.billing)||undefined),
-    // Medizin-Personal schließt ab → 'kasse' (Übergabe an die Kasse); die Kasse schließt ab → 'done'
-    status: ((finish && document.body.classList.contains('clinic')) ? (roleIsKasse() ? 'done' : 'kasse') : ((existing&&existing.status)||(document.body.classList.contains('clinic')?'treatment':'waiting'))),
+    payment: (function(){ const m=paymentMethod(); const prevPaid=!!(existing&&existing.payment&&existing.payment.paid); if(!m && !(existing&&existing.payment)) return undefined; return {method:m||((existing&&existing.payment&&existing.payment.method)||''), label:payMethodLabel(m), paid: _finalizing?true:prevPaid}; })(),
+    billing: (finish && _clinic) ? {total:computeBilling().total, hasUnpriced:computeBilling().hasUnpriced, method:(_atKasse?paymentMethod():((existing&&existing.billing&&existing.billing.method)||undefined)), at:new Date().toISOString(), by:_me, byRole:_myRole} : ((existing&&existing.billing)||undefined),
+    // „Behandelt von" (Medizin-Personal, Übergabe an Kasse) und „Abgerechnet von" (Kasse/Vertretung, Zahlung)
+    treatedBy: (finish && _clinic && !_atKasse) ? {name:((existing&&existing.claimedByName)||_me), role:((existing&&existing.claimedByRole)||_myRole), at:new Date().toISOString()} : ((existing&&existing.treatedBy)||undefined),
+    billedBy: _finalizing ? {name:_me, role:_myRole, at:new Date().toISOString()} : ((existing&&existing.billedBy)||undefined),
+    // Patient an der Kasse → Abschluss = 'done' (bezahlt); sonst Abschluss durch Personal → 'kasse'
+    status: ((finish && _clinic) ? (_atKasse ? 'done' : 'kasse') : _prevStatus),
     group:(existing&&existing.group)||'',
     treatmentType:(existing&&existing.treatmentType)||INTAKE_TYPE||undefined,
     claimedBy:(existing&&existing.claimedBy)||(document.body.classList.contains('clinic')?myUserKey():null),
@@ -1823,6 +1834,15 @@ function renderChangeLogs(p){
       }
     }
   });
+  // Vermerk unten in Abschnitt 6: Behandelt von … / Abgerechnet von …
+  let rec=el('treat-record'); const s6=el('step6');
+  if(!rec && s6){ rec=document.createElement('div'); rec.id='treat-record'; rec.className='treat-record'; s6.appendChild(rec); }
+  if(rec){
+    let rh='';
+    if(p && p.treatedBy && p.treatedBy.name) rh+='<div class="tr-row"><span class="tr-lbl">'+LX('Behandelt von','Treated by')+'</span> <span class="tr-val">'+_esc(p.treatedBy.name)+'</span>'+(p.treatedBy.at?' <span class="tr-ts">· '+fmtDateTime(p.treatedBy.at)+'</span>':'')+'</div>';
+    if(p && p.billedBy && p.billedBy.name) rh+='<div class="tr-row"><span class="tr-lbl">'+LX('Abgerechnet von','Billed by')+'</span> <span class="tr-val">'+_esc(p.billedBy.name)+'</span>'+(p.billedBy.at?' <span class="tr-ts">· '+fmtDateTime(p.billedBy.at)+'</span>':'')+'</div>';
+    rec.innerHTML=rh;
+  }
 }
 function loadPatient(id){
   const p=patients.find(x=>x.id===id);if(!p)return;
@@ -1926,6 +1946,7 @@ function loadPatient(id){
 
   renderDestChips();recompute();
   lockAllSections();   // Abschnitte sperren; Bearbeiten erst per Stift
+  applySectionVisibility(p);   // Wartend → nur Abschnitte 1–3; ab „In Behandlung" existieren 4–6
   if(roleIsKasse()) setupKasseFolds(); else clearFolds();   // Kasse: 2–5 eingeklappt, 1 & 6 offen
   if(document.body.classList.contains('clinic')) enterPatient();
   else if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
@@ -2097,7 +2118,7 @@ function renderKasseBilling(){
   const box=el('kasse-billing'); if(!box) return;
   // Grünes „Bezahlt"-Feld, sobald der Patient finalisiert wurde – in jeder Rolle sichtbar
   const paidField = (_loadedPaid==='paid') ? '<div class="kb-paid-field">'+L2(I18N.kassePaid)+'</div>' : '';
-  if(!isKasseView()){ box.innerHTML = paidField; return; }   // Nicht-Kasse: nur „Bezahlt" bei finalisiertem Patienten
+  if(!canBill()){ box.innerHTML = paidField; return; }   // Abrechnungsblock nur wenn Patient an der Kasse (Kasse ODER vertretendes Personal)
   const b=computeBilling();
   let h='<div class="kb-title">'+L2(I18N.kasseBillTitle)+'</div>';
   if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'+paidField; return; }
@@ -2241,9 +2262,12 @@ async function startTreatment(id){ await takeIntoTreatment(id); }
 // Grüner Haken: Medizin-Personal → Patient an die Kasse übergeben ('kasse'); Kasse → Zahlung bestätigen ('done')
 async function finishTreatment(){
   if(!editingId){ exitToList(); return; }
-  const kasse = roleIsKasse();
-  if(kasse && computeBilling().total>0 && !paymentMethod()){ await uiAlert(L2(I18N.kassePayRequired)); return; }
   const cur=patients.find(p=>p.id===editingId);
+  const curStatus = cur ? patientStatus(cur) : 'treatment';
+  // Wartende Patienten (Patientenansicht, noch nicht übernommen) → nur zwischenspeichern, kein Abschluss
+  if(curStatus==='waiting'){ try{ await savePatient(false); }catch(_){} showList(); return; }
+  const kasse = (curStatus==='kasse');   // Patient an der Kasse → Abschluss = Zahlung bestätigen
+  if(kasse && computeBilling().total>0 && !paymentMethod()){ await uiAlert(L2(I18N.kassePayRequired)); return; }
   const grp=(cur&&cur.group)?cur.group.trim().toLowerCase():'';
   const isGrp=!!grp && patients.filter(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===grp).length>1;
   const target = kasse ? 'done' : 'kasse';
@@ -2420,8 +2444,8 @@ function renderPatients(){
     cols+='</div></div>';
   });
   const fchip=(v,lbl)=>'<button class="amb-filter'+(tf===v?' active':'')+'" onclick="setTypeFilter(\''+v+'\')">'+lbl+'</button>';
-  let html='<div class="amb-filterbar">'+fchip('all',LX('Alle','All'))+fchip('beratung',LX('Beratung','Consultation'))+fchip('folgeimpfung',LX('Folgeimpfung','Follow-up'))+'</div>';
-  html+='<div class="amb-flow">'+cols+'</div>';
+  const slot=el('amb-filter-slot'); if(slot) slot.innerHTML=fchip('all',LX('Alle','All'))+fchip('beratung',LX('Beratung','Consultation'))+fchip('folgeimpfung',LX('Folgeimpfung','Follow-up'));
+  let html='<div class="amb-flow">'+cols+'</div>';
   html+='<div class="amb-shift-row">'+shiftRowHtml()+'</div>';   // „Im Dienst" als Zeile unter dem Board
   // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
   if((CURRENT_PROFILE||{}).role==='admin'){
@@ -2557,7 +2581,7 @@ function gatherShiftPeople(){
   Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender));           // heute eingeloggte Profile
   patients.filter(p=>patientDay(p)===listDay && !p.deleted).forEach(p=>{         // + aus heutigen Behandlungen/Abrechnungen
     (p.handlers||[]).forEach(h=>add(h.name,h.role,h.gender));
-    if(p.billing && p.billing.by) add(p.billing.by,'kasse','');
+    if(p.billedBy && p.billedBy.name) add(p.billedBy.name, p.billedBy.role||'kasse', '');   // wer abgerechnet hat (mit tatsächlicher Rolle; Admin wird in add() ausgeschlossen)
   });
   if(CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin') add(CURRENT_PROFILE.full_name,CURRENT_PROFILE.role,CURRENT_PROFILE.gender);
   return people;
@@ -2600,7 +2624,7 @@ function renderSectionCards(list){
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
       const gBehandeln=(st==='waiting'&&canTreatType(patientTreatType(grp.items[0])))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LX('Behandeln','Treat'))+'</button>':'';
-      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+' <span class="amb-group-hint">'+(LX('(ganze Gruppe ziehen)','(drag whole group)'))+'</span></span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
+      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
   });
@@ -2732,16 +2756,16 @@ function renderPatientCard(p,inGroup){
     const actions='<span class="pi-actions">'+(p.group?'<button class="pi-act" onclick="event.stopPropagation();ungroup(\''+p.id+'\')" title="'+(LX('Entgruppieren','Ungroup'))+'" aria-label="Entgruppieren">'+unlinkSvg+'</button>':'')+'<button class="pi-act pi-del" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')" title="'+(LX('Löschen','Delete'))+'" aria-label="Löschen">'+trashSvg+'</button></span>';
     return '<div class="patient-item pi-'+tt+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
       +'<div class="patient-head" onclick="openPatientCard(\''+p.id+'\')">'
-        +'<div class="ph-row1">'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-spacer"></span>'+rightIcons+actions+'</div>'
-        +'<div class="ph-row2"><span class="ph-meta">'+((ageTxt?ageTxt+' · ':'')+dest)+'</span><span class="ph-spacer"></span>'+(timeTxt?'<span class="ph-time">'+clockSvg+'<span>'+timeTxt+'</span></span>':'')+(priceTxt?'<span class="ph-price">'+priceTxt+'</span>':'')+'</div>'
-      +'</div></div>';
+        +'<div class="ph-row1"><span class="pl-name">'+dispName+grpBadge+'</span>'+(ageTxt?'<span class="pl-age">'+ageTxt+'</span>':'')+'<span class="pl-spacer"></span>'+rightIcons+'</div>'
+        +'<div class="ph-row2">'+typeBadge+'<span class="ph-meta">'+dest+'</span><span class="ph-spacer"></span>'+(timeTxt?'<span class="ph-time">'+clockSvg+'<span>'+timeTxt+'</span></span>':'')+(priceTxt?'<span class="ph-price">'+priceTxt+'</span>':'')+'</div>'
+      +'</div>'+actions+'</div>';
 }
 // Klick auf eine Karte im Fluss-Board öffnet den Patienten passend zur Stufe/Rolle
 function openPatientCard(id){
+  // Jede Rolle kann einen Patienten öffnen. Wartend → Patientenansicht (nur Abschnitte 1–3, kein Claim).
+  // Übernahme in die eigene Behandlung geschieht ausschließlich per Drag&Drop in „In Behandlung".
   const p=patients.find(x=>x.id===id); if(!p) return;
-  const s=patientStatus(p);
-  if(s==='waiting'){ if(!roleIsKasse()) takeIntoTreatment(id); return; }   // Wartend → in Behandlung nehmen (nur Personal)
-  loadPatient(id);   // In Behandlung / Kasse / Behandelt → öffnen (Anspruchsprüfung in loadPatient)
+  loadPatient(id);   // Anspruchsprüfung (bereits in Behandlung durch andere) erfolgt in loadPatient
 }
 
 function fmtDate(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}
@@ -2948,6 +2972,15 @@ function lockedSectionsForRole(){ return roleIsKasse() ? ['step1','step2','step3
 const SECTION_TITLES={step1:{de:'Stammdaten',en:'Master data',fr:'Données personnelles'},step2:{de:'Reise',en:'Travel',fr:'Voyage'},step3:{de:'Immunstatus',en:'Immune status',fr:'Statut immunitaire'},step4:{de:'Impfstatus',en:'Vaccination status',fr:'Statut vaccinal'},step5:{de:'Geplante Impfungen',en:'Planned vaccinations',fr:'Vaccins planifiés'},step6:{de:'Leistungen',en:'Services',fr:'Prestations'}};
 let SECTION_LOCKED={}, SECTION_EDIT={}, LOCK_LISTENERS=false;
 function isStaff(){ return (typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{}).role); }
+// Wartende Patienten (Patientenansicht): nur Abschnitte 1–3. Ab „In Behandlung" existieren 4–6.
+function applySectionVisibility(p){
+  if(!isStaff()) return;   // Kiosk-/Patientenansicht nicht anfassen (eigene Layout-Logik)
+  const waiting = p && patientStatus(p)==='waiting';
+  ['step4','step5','step6'].forEach(id=>{ const s=el(id); if(s) s.style.display = waiting ? 'none' : ''; });
+}
+// Patient an der Kasse? (steuert, ob der Abrechnungsblock/Zahlung erscheint – auch für vertretendes Personal)
+function isBillingStage(){ const p=patients.find(x=>x.id===editingId); return !!p && patientStatus(p)==='kasse'; }
+function canBill(){ return isStaff() && document.body.classList.contains('clinic') && isBillingStage(); }
 function lockAllSections(){ lockedSectionsForRole().forEach(id=>{SECTION_LOCKED[id]=true;SECTION_EDIT[id]=false;}); applyLocks(); }
 function unlockAllSections(){ LOCK_SECTIONS.forEach(id=>{SECTION_LOCKED[id]=false;SECTION_EDIT[id]=false;}); applyLocks(); }
 async function toggleLock(id){
