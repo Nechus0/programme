@@ -676,7 +676,7 @@ function hepAssess(){
   else {
     const hepbR = getRisk('hepatitis_b');
     const destEndemicB = hepbR ? (hepbR.level === 'recommended' || hepbR.level === 'risk_based' || hepbR.level === 'mandatory_all') : false;
-    const strong=(ls&&destEndemicB)||c.includes('health')||c.includes('animal');B=strong?'red':'blue';bNote={de:strong?'Langzeit/Exposition – Grundimmunisierung':'',en:strong?'Long stay/exposure — primary series':''};
+    const strong=(ls&&destEndemicB)||c.includes('health')||c.includes('animal');B=strong?'red':'blue';bNote={de:strong?'Langzeit/Exposition':'',en:strong?'Long stay/exposure':''};
   }
   const needA=(A!=='green'),needB=(B!=='green');const childForm=age!==null&&age<16;const infant=age!==null&&age<1;
   function form(kind){

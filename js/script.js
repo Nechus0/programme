@@ -246,7 +246,7 @@ const MENHEP_FR={
  '1× Twinrix reicht für Hep A NICHT (halbe Antigenmenge) – Serie vervollständigen':"1× Twinrix ne suffit PAS pour l'hép A (moitié de l'antigène) – compléter la série",
  'Dringend empfohlen für die meisten Reiseziele':'Fortement recommandé pour la plupart des destinations',
  'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig':'Immun – anti-HBs suffisants, aucune vaccination supplémentaire nécessaire',
- 'Langzeit/Exposition – Grundimmunisierung':'Long séjour/exposition – primovaccination'
+ 'Langzeit/Exposition':'Long séjour/exposition'
 };
 function frNote(de,en){ return LANG==='de'?de:(LANG==='fr'?(MENHEP_FR[de]||en):en); }
 // FR vaccine names (keyed by vaccine key). vName() picks by LANG with EN fallback.
@@ -1443,7 +1443,7 @@ function renderVaxTable(){
       const ha=hepAssess();
       const hepLbl=(s)=>{
         if(s==='green') return LANG==='de'?'Geschützt':(LANG==='fr'?'Protégé':'Protected');
-        if(s==='yellow') return LANG==='de'?'Unvollständig':(LANG==='fr'?'Incomplet':'Incomplete');
+        if(s==='yellow') return LANG==='de'?'Empfohlen':(LANG==='fr'?'Recommandé':'Recommended');
         if(s==='blue') return LANG==='de'?'Empfohlen':(LANG==='fr'?'Recommandé':'Recommended');
         if(s==='red') return LANG==='de'?'Empfohlen':(LANG==='fr'?'Recommandé':'Recommended');
         return LANG==='de'?'Nicht relevant':(LANG==='fr'?'Non pertinent':'Not relevant');
@@ -1665,15 +1665,17 @@ const DISEASE_MAPS = {
   menacwy:'menacwy.png', jev:'jev.png', rabies:'rabies.png', tbe:'tbe.png',
   dengue:'dengue.png', influenza:'influenza.png',
   // new (CDC Yellow Book 2026 maps – drop the PNGs into assets/karten to enable)
-  typhoid:'typhoid.png', chikungunya:'chikungunya.png', hepatitis_b:'hepb.png'
+  typhoid:'typhoid.png', chikungunya:'chikungunya.png', hepatitis_b:'hepb.png',
+  malaria:'malaria.png'
 };
 // map name + source overrides (keys without a VACCINES entry, and non-RKI sources)
-const MAP_NAME = { hepatitis_b:{de:'Hepatitis B',en:'Hepatitis B'} };
+const MAP_NAME = { hepatitis_b:{de:'Hepatitis B',en:'Hepatitis B'}, malaria:{de:'Malaria',en:'Malaria'} };
 const MAP_SOURCE = {
   typhoid:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
   cholera:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
   chikungunya:{de:'Quelle: CDC (public domain)',en:'Source: CDC (public domain)'},
-  hepatitis_b:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'}
+  hepatitis_b:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
+  malaria:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'}
 };
 const PENCIL_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z"></path></svg>';
 function showInfo(k){
@@ -3497,18 +3499,16 @@ function renderMalaria(){
   const editing = !!editingId && document.body.classList.contains('clinic') && !document.body.classList.contains('clinic-idle');
   const showable = editing && isStaff() && !waiting;   // Sektion 6 ist immer vorhanden (ohne Risiko eingeklappt)
   if(!showable){ sec.style.display='none'; box.innerHTML=''; if(typeof updateSecNav==='function') updateSecNav(); return; }
+  // Sektion ist während der Behandlung IMMER vollständig sichtbar (kein Ein-/Ausklappen mehr).
   sec.style.display='';
-  sec.classList.add('foldable');   // Kopfzeile ist per Inline-Handler (malToggleFold) immer klickbar
+  sec.classList.remove('foldable','folded');
   const a=malariaAssess(destinations||[]);
   if(!a.any){
-    box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>';
-    if(malFoldPatient!==editingId){ sec.classList.add('folded'); }   // nur beim ersten Öffnen einklappen; manuelles Aufklappen bleibt erhalten
-    malFoldPatient=editingId;
+    box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>'
+      + '<div class="mal-expo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>'+L2(MAL_EXPO)+'</span></div>';
     if(typeof updateSecNav==='function') updateSecNav();
     return;
   }
-  sec.classList.remove('folded');   // Malariarisiko → immer aufgeklappt
-  malFoldPatient=editingId;
   if(malariaState.days==null) malariaState.days=malDefaultDays();
   // Gewichtsfeld nur für Kinder (< 15 J.); Erwachsene erhalten die Standarddosis
   const dobVal=(el('p-dob')&&el('p-dob').value)||'';
