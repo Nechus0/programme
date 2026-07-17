@@ -2535,6 +2535,18 @@ async function ungroup(id){
   }
   renderPatients();
 }
+// Ganze Gruppe auflösen (alle Mitglieder des Tages) – über den Button im Gruppenkopf
+async function dissolveGroup(g){
+  const gl=(g||'').trim().toLowerCase(); if(!gl)return;
+  const mates=patients.filter(x=>patientDay(x)===listDay && !x.deleted && (x.group||'').trim().toLowerCase()===gl);
+  if(!mates.length)return;
+  if(typeof uiConfirm==='function'){
+    const ok=await uiConfirm(LX('Gruppe „'+g+'" auflösen? Die Patienten bleiben einzeln in der Liste.','Dissolve group “'+g+'”? The patients remain individually in the list.'),{title:LX('Gruppe auflösen','Dissolve group'),ok:LX('Auflösen','Dissolve')});
+    if(!ok)return;
+  }
+  for(const p of mates){ p.group=''; await persistPatient(p); }
+  renderPatients();
+}
 let _dragPid=null, _dragGroup=null;
 document.addEventListener('dragend', () => {
   document.querySelectorAll('.drag-over, .group-target').forEach(el => el.classList.remove('drag-over', 'group-target'));
@@ -2875,7 +2887,8 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
+      const ungroupBtn=(st==='waiting'||st==='kasse')?'<button class="amb-ungroup" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
+      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span class="amb-group-nm">'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+ungroupBtn+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
   });

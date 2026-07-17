@@ -535,6 +535,9 @@ h4 .flag{width:20px;height:20px;}
 .amb-group-h{font-size:11px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:10px;}
 .amb-group-h>span:first-child{flex:1;min-width:0;}
 .amb-group-act{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.amb-ungroup{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--violet);cursor:pointer;opacity:.55;transition:opacity .12s,background .12s,border-color .12s;padding:0;}
+.amb-group:hover .amb-ungroup{opacity:.85;}
+.amb-ungroup:hover{opacity:1;background:#fff;border-color:var(--violet);}
 /* Rechter Pfeil „in Behandlung nehmen" */
 .amb-arrow{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;
   color:var(--black);font-size:16px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;
