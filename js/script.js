@@ -2887,7 +2887,7 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      const ungroupBtn=(st==='waiting'||st==='kasse')?'<button class="amb-ungroup" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
+      const ungroupBtn=(st!=='done')?'<button class="amb-ungroup" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
       h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span class="amb-group-nm">'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+ungroupBtn+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
