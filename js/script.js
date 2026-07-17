@@ -2550,7 +2550,12 @@ function renderTreatPanel(){
 
   // Medizin-Personal (Arzt/MFA/Admin)
   const mine=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='treatment' && p.claimedBy===myUserKey());
-  h+='<div class="tp-head"><span class="tp-title">'+(LX('In Behandlung','In treatment'))+'</span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
+  // Wird ein wartender Patient geöffnet (Patientenansicht), ist noch niemand Behandler → kein „In Behandlung", kein Behandler-Icon
+  const _curEdit=patients.find(p=>p.id===editingId);
+  const _waitingView=editing && _curEdit && patientStatus(_curEdit)==='waiting';
+  const _headTitle=_waitingView ? LX('Patient','Patient') : LX('In Behandlung','In treatment');
+  const _headAvatar=_waitingView ? '' : (docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'');
+  h+='<div class="tp-head"><span class="tp-title">'+_headTitle+'</span>'+_headAvatar+'</div>';
   if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top: 8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
   if(mine.length){
     const groups={},order=[];

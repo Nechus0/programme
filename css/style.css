@@ -463,13 +463,27 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 h4 .flag{width:20px;height:20px;}
 /* Ambulanzliste: Toolbar, Status-Spalten, Drag&Drop, Gruppen */
 .list-h2{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
-.amb-toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:18px;}
+.amb-toolbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:18px;}
 .amb-day{display:flex;align-items:center;gap:6px;}
-.amb-day input[type=date]{width:auto;padding:7px 9px;font-size:13px;}
 .amb-filter-slot{display:flex;align-items:center;gap:6px;}
-.amb-tools-right{display:flex;align-items:center;gap:10px;margin-left:auto;justify-content:flex-end;}
-.amb-search{width:280px;max-width:44vw;padding:9px 12px;font-size:14px;}
+.amb-tools-right{display:flex;align-items:center;gap:8px;margin-left:auto;justify-content:flex-end;}
+.amb-search{width:260px;max-width:38vw;}
 .amb-tools-right #new-patient-btn{white-space:nowrap;flex-shrink:0;}
+/* Einheitliche Höhe & Typografie aller Toolbar-Bedienelemente */
+.amb-toolbar .btn,
+.amb-toolbar .amb-filter,
+.amb-toolbar input[type=text],
+.amb-toolbar input[type=date]{
+  height:38px; box-sizing:border-box; font-size:13.5px;
+  display:inline-flex; align-items:center; margin:0;
+}
+.amb-toolbar input[type=text],
+.amb-toolbar input[type=date]{ padding:0 12px; width:auto; }
+.amb-toolbar .amb-search{ width:260px; }
+.amb-toolbar .amb-filter{ padding:0 15px; border-radius:9px; }
+.amb-toolbar .btn{ padding:0 15px; }
+.amb-toolbar .btn.sec.sm,
+.amb-toolbar .btn.sm{ font-size:13.5px; }
 /* Typ-Gruppe (Beratung / Folgeimpfung) verbindet Wartend + In Behandlung */
 .amb-typegroup{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;background:#fff;display:flex;flex-direction:column;min-height:0;}
 .amb-typegroup.beratung{border-left:3px solid #2563eb;}
@@ -555,7 +569,7 @@ h4 .flag{width:20px;height:20px;}
 .pb-comment{display:flex;flex-direction:column;gap:2px;margin-top:10px;}
 .pb-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;padding-top:11px;border-top:1px solid var(--line);flex-wrap:wrap;}
 .pb-stamp{font-size:11.5px;color:var(--grey);min-width:0;}
-.ini-circle{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--black);color:#fff;font-size:10.5px;font-weight:700;flex-shrink:0;}
+.ini-circle{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;background:var(--black);color:#fff;font-size:9.5px;font-weight:700;flex-shrink:0;}
 .admin-row .ini-circle{margin-right:10px;}
 .patient-head .caret{cursor:pointer;padding:2px 4px;border-radius:4px;}
 .patient-head .caret:hover{background:var(--grey-xl);}
@@ -684,7 +698,7 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .tp-item.tp-done{ display:flex;align-items:center; }
 .tp-item.tp-done .tp-nm{ flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
 .tp-icons{ display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding-left:6px; }
-.pay-badge{ display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:11px;border:1px solid; }
+.pay-badge{ display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;font-size:11px;border:1px solid;flex-shrink:0; }
 .pay-badge.paid{ background:var(--green-bg);color:var(--green);border-color:#bfe0c2; }
 .pay-badge.unpaid{ background:var(--grey-xl);color:var(--grey);border-color:var(--line); }
 /* 11a: Bezahlt/Nicht bezahlt farbige Auswahl */
@@ -793,7 +807,6 @@ body.clinic-idle .shell{ max-width:1280px; }
 .shift-row-group{ display:inline-flex; align-items:center; gap:7px; }
 .shift-row-role{ font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
 .shift-row-person{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; }
-.shift-row-person .ini-circle{ width:20px; height:20px; min-width:20px; font-size:9px; }
 .shift-row-nm{ white-space:nowrap; }
 .shift-row-empty{ font-size:12px; color:var(--grey); }
 
@@ -801,15 +814,15 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-item{ position:relative; background:#fff; border:0.5px solid var(--line); border-left:3px solid var(--line); border-radius:0 10px 10px 0; margin-bottom:8px; }
 .amb-flow .patient-item.pi-beratung{ border-left-color:#2563eb; }      /* B = blau */
 .amb-flow .patient-item.pi-folgeimpfung{ border-left-color:#0e9e8e; }  /* F = teal/grün */
-.amb-flow .patient-head{ display:flex; flex-direction:column; gap:3px; padding:9px 11px; cursor:pointer; }
-.amb-flow .patient-head .ph-row1{ display:flex; align-items:baseline; gap:6px; min-height:20px; }
+.amb-flow .patient-head{ display:flex; flex-direction:column; align-items:stretch; gap:3px; padding:9px 11px; cursor:pointer; }
+.amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:6px; min-height:20px; }
 .amb-flow .patient-head .pl-name{ font-weight:600; font-size:13.5px; line-height:1.2; white-space:normal; }
 .amb-flow .patient-head .pl-age{ font-weight:400; font-size:11.5px; color:var(--grey); white-space:nowrap; }
 .amb-flow .patient-head .pl-spacer{ flex:1 1 auto; }
 .amb-flow .patient-head .ph-row1 .ini-circle,.amb-flow .patient-head .ph-row1 .pay-badge{ align-self:center; }
 /* Zeile 2: B/F-Badge ganz links, Ziel, dann Uhrzeit/Preis rechts – immer gleiche Position */
 .amb-flow .patient-head .ph-row2{ display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--grey); line-height:1.35; }
-.amb-flow .type-badge{ flex:none; width:19px; height:19px; border-radius:5px; font-size:10.5px; }
+.amb-flow .type-badge{ flex:none; width:20px; height:20px; border-radius:5px; font-size:10.5px; }
 .amb-flow .patient-head .ph-meta{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .amb-flow .patient-head .ph-spacer{ flex:1 1 auto; }
 .amb-flow .patient-head .ph-time{ flex:none; display:inline-flex; align-items:center; gap:3px; color:var(--grey); }
