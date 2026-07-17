@@ -3363,6 +3363,62 @@ function renderStats(){
   h+='</div>';
   box.innerHTML=h;
 }
+/* ================= VERWENDETE QUELLEN (Settings) ================= */
+const USED_SOURCES=[
+  { aspect:{de:'Impfempfehlungen & Altersfreigaben',en:'Vaccination recommendations & age limits'}, status:'active', items:[
+    {name:'RKI / STIKO', use:{de:'Impfkalender, Standard- und Reiseimpfempfehlungen, Altersfreigaben',en:'Immunisation schedule, standard & travel recommendations, age limits'}, url:'https://www.rki.de/DE/Themen/Infektionskrankheiten/Impfen/Impfempfehlungen/impfempfehlungen_node.html', stand:'2026'},
+    {name:'Fachinformationen (SmPC)', use:{de:'Dosierung, Altersgrenzen und Kontraindikationen je Impfstoff',en:'Dosing, age limits and contraindications per product'}, url:'', stand:''},
+    {name:'DTG / Tropimed', use:{de:'Reisemedizinische Impf- und Erkrankungsinformationen (Info-Fenster)',en:'Travel-medicine vaccine & disease information (info panels)'}, url:'https://www.dtg.org', stand:'2026'}
+  ]},
+  { aspect:{de:'Länder- & Reiseempfehlungen',en:'Country & travel recommendations'}, status:'active', items:[
+    {name:'RKI', use:{de:'Reisemedizinische Länderinformationen und Empfehlungen',en:'Travel-medicine country information and recommendations'}, url:'https://www.rki.de', stand:'2025/26'},
+    {name:'WHO – International Travel and Health', use:{de:'Impf- und Gesundheitsanforderungen je Land',en:'Vaccine and health requirements per country'}, url:'https://www.who.int/health-topics/travel-and-health', stand:'2025'},
+    {name:'Auswärtiges Amt', use:{de:'Reise- und Gesundheitshinweise, Gelbfieber-Einreisebestimmungen',en:'Travel & health notices, yellow-fever entry rules'}, url:'https://www.auswaertiges-amt.de/de/ReiseUndSicherheit/reise-und-sicherheitshinweise', stand:'2025'}
+  ]},
+  { aspect:{de:'Verbreitungskarten',en:'Distribution maps'}, status:'active', items:[
+    {name:'RKI, Epidemiologisches Bulletin 14/2025', use:{de:'Geografische Verbreitung der Erkrankungen (Karten-Button)',en:'Geographic distribution of diseases (map button)'}, url:'https://www.rki.de/DE/Aktuelles/Publikationen/Epidemiologisches-Bulletin/epid_bull_node.html', stand:'14/2025'}
+  ]},
+  { aspect:{de:'Gelbfieber',en:'Yellow fever'}, status:'active', items:[
+    {name:'WHO / Auswärtiges Amt', use:{de:'Impfpflicht bei Einreise und Endemiegebiete (Reiselogik)',en:'Mandatory-on-entry rules and endemic areas (travel logic)'}, url:'https://www.who.int/teams/global-programme-on-tuberculosis-and-lung-health/data/', stand:'2025'},
+    {name:'DTG – Aufklärungsbogen Gelbfieber', use:{de:'Patienten-Aufklärungsbogen zum Ausdruck',en:'Printable patient consent form'}, url:'https://www.dtg.org', stand:'STAR 03.18'}
+  ]},
+  { aspect:{de:'Preise & Leistungen',en:'Prices & services'}, status:'active', items:[
+    {name:'Charité – Reisemedizinische Ambulanz', use:{de:'Preisliste der Impfungen und Leistungen',en:'Price list of vaccinations and services'}, url:'https://reisemedizin.charite.de', stand:'22.05.2026'}
+  ]},
+  { aspect:{de:'Bescheinigungen',en:'Certificates'}, status:'active', items:[
+    {name:'§ 20 Abs. 9 Infektionsschutzgesetz (IfSG)', use:{de:'Ärztliche Masernschutz-Bescheinigung',en:'Physician measles-immunity certificate'}, url:'https://www.gesetze-im-internet.de/ifsg/__20.html', stand:'—'}
+  ]},
+  { aspect:{de:'Malaria & Expositionsprophylaxe',en:'Malaria & bite prevention'}, status:'planned', items:[
+    {name:'DTG – Malaria-Leitlinie / Chemoprophylaxe', use:{de:'Prophylaxe-Strategien und Standardschemata',en:'Prophylaxis strategies and standard regimens'}, url:'https://www.dtg.org/empfehlungen-und-leitlinien/empfehlungen/malaria.html', stand:'2025'},
+    {name:'DTG – Ländertabelle 2025', use:{de:'Risiko, Erreger, Saison und Prophylaxe je Land/Region',en:'Risk, species, season and prophylaxis per country/region'}, url:'https://www.dtg.org/empfehlungen-und-leitlinien/empfehlungen/malaria.html', stand:'Juni 2025'},
+    {name:'DTG – Weltkarte 2025 (Übersichtskarte)', use:{de:'Regionale Malaria-Verbreitung (World Malaria Reports 2020–2024)',en:'Regional malaria distribution (World Malaria Reports 2020–2024)'}, url:'https://www.dtg.org/empfehlungen-und-leitlinien/empfehlungen/malaria.html', stand:'2025'},
+    {name:'RKI-Ratgeber Malaria', use:{de:'Nationale Empfehlungen und Standardregime',en:'National recommendations and standard regimens'}, url:'https://www.rki.de/DE/Aktuelles/Publikationen/RKI-Ratgeber/Ratgeber/Ratgeber_Malaria.html', stand:'2024'},
+    {name:'Auswärtiges Amt – Malaria-Daten', use:{de:'Länderbezogene Risiko-Gegenkontrolle',en:'Country-level risk cross-check'}, url:'https://accra.diplo.de/resource/blob/1118318/46816e74f6abff0f8cdd044b94221e79/malaria-data.pdf', stand:'2025'},
+    {name:'CDC – Malaria (Drugs & Prevention)', use:{de:'Dosierung inkl. Gewichtsklassen, Expositionsprophylaxe',en:'Dosing incl. weight bands, bite prevention'}, url:'https://www.cdc.gov/malaria/hcp/drug-malaria/index.html', stand:'2025'},
+    {name:'Lupi, Hatz, Schlagenhauf 2013 (PMID 24201040)', use:{de:'Wirksamkeit von Repellents (DEET, Icaridin, IR3535, PMD)',en:'Efficacy of repellents (DEET, Icaridin, IR3535, PMD)'}, url:'https://pubmed.ncbi.nlm.nih.gov/24201040/', stand:'Travel Med Infect Dis 2013'}
+  ]}
+];
+function renderSources(){
+  const box=el('sources-body'); if(!box) return;
+  const extSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-left:3px"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>';
+  const badge=(st)=> st==='planned'
+    ? '<span class="src-badge planned">'+LX('In Vorbereitung','In preparation')+'</span>'
+    : '<span class="src-badge active">'+LX('Aktiv','Active')+'</span>';
+  let h='<div class="st-head"><h2>'+LX('Verwendete Quellen','Sources used')+'</h2></div>';
+  h+='<div class="src-groups">';
+  USED_SOURCES.forEach(g=>{
+    h+='<div class="src-group"><div class="src-group-h"><span>'+L2(g.aspect)+'</span>'+badge(g.status)+'</div>';
+    g.items.forEach(it=>{
+      const nm=_esc(it.name);
+      const link = it.url ? '<a href="'+it.url+'" target="_blank" rel="noopener" class="src-link">'+nm+extSvg+'</a>' : '<span class="src-name">'+nm+'</span>';
+      h+='<div class="src-row"><div class="src-main">'+link+'<div class="src-use">'+L2(it.use)+'</div></div>'+(it.stand?'<div class="src-stand">'+(it.stand==='—'?'':LX('Stand ','')+_esc(it.stand))+'</div>':'')+'</div>';
+    });
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<div class="src-foot">'+LX('Diese Übersicht dokumentiert die Grundlagen der Empfehlungen und ersetzt keine ärztliche Beurteilung.','This overview documents the basis of the recommendations and does not replace clinical judgement.')+'</div>';
+  box.innerHTML=h;
+}
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
   const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode);});
@@ -3372,6 +3428,7 @@ function openAdminPanel(){
   if(isAdmin){ renderAdminUsers(); }
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
   if(ss){ ss.style.display=showStats?'':'none'; if(showStats) renderStats(); }
+  renderSources();
   p.classList.add('show');
 }
 function openSettings(){ openAdminPanel(); }
