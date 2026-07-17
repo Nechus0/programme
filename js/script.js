@@ -3618,7 +3618,7 @@ const MAL_MAP_SRC = {de:'Quelle: DTG/EKRM, „Malaria 2025" (Thieme, Flug u. Rei
   en:'Source: DTG/EKRM, "Malaria 2025" (Thieme, Flug u. Reisemed. 2025). For clinical use in the Charité clinic.'};
 function malMapImg(file, cap){
   return '<figure class="mal-map-fig"><figcaption class="mal-map-cap">'+cap+'</figcaption>'+
-    '<img src="assets/karten/'+file+'?v=47" alt="'+_esc(cap)+'" class="map-full" loading="lazy" '+
+    '<img src="assets/karten/'+file+'?v=49" alt="'+_esc(cap)+'" class="map-full" loading="lazy" '+
     'onerror="this.outerHTML=\'<div class=&quot;map-missing&quot;>'+LX('Karte noch nicht hinterlegt.','Map not yet available.')+'</div>\'"></figure>';
 }
 function showMalariaMaps(){
