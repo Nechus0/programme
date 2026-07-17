@@ -3134,7 +3134,7 @@ function isStaff(){ return (typeof roleSeesClinic==='function') && roleSeesClini
 function applySectionVisibility(p){
   if(!isStaff()) return;   // Kiosk-/Patientenansicht nicht anfassen (eigene Layout-Logik)
   const waiting = p && patientStatus(p)==='waiting';
-  ['step4','step5','step6'].forEach(id=>{ const s=el(id); if(s) s.style.display = waiting ? 'none' : ''; });
+  ['step4','step5','stepM','step6'].forEach(id=>{ const s=el(id); if(s) s.style.display = waiting ? 'none' : ''; });
 }
 // Patient an der Kasse? (steuert, ob der Abrechnungsblock/Zahlung erscheint – auch für vertretendes Personal)
 function isBillingStage(){ const p=patients.find(x=>x.id===editingId); return !!p && patientStatus(p)==='kasse'; }
@@ -3237,8 +3237,8 @@ const SEC_NAV_ITEMS=[
   {id:'step3',label:'3',de:'Immunstatus',en:'Immune status',fr:'Statut immunitaire'},
   {id:'step4',label:'4',de:'Impfstatus',en:'Vaccination status',fr:'Statut vaccinal'},
   {id:'step5',label:'5',de:'Geplante Impfungen',en:'Planned',fr:'Vaccins planifiés'},
-  {id:'stepM',label:'M',de:'Malaria',en:'Malaria',fr:'Paludisme'},
-  {id:'step6',label:'6',de:'Leistungen',en:'Services',fr:'Prestations'}
+  {id:'stepM',label:'6',de:'Malaria',en:'Malaria',fr:'Paludisme'},
+  {id:'step6',label:'7',de:'Leistungen',en:'Services',fr:'Prestations'}
 ];
 function secNavHtml(){
   const vis=SEC_NAV_ITEMS.filter(it=>{const e=el(it.id); return e && e.offsetParent!==null;});
@@ -3309,13 +3309,16 @@ function computeStats(){
 }
 function stKpi(label,val){ return '<div class="st-kpi"><div class="st-kpi-v">'+val+'</div><div class="st-kpi-l">'+label+'</div></div>'; }
 function stCountBox(title,counts){ const ents=Object.entries(counts).sort((a,b)=>b[1]-a[1]); let h='<div class="st-box"><div class="st-box-h">'+title+'</div>'; h+= ents.length ? ('<div class="st-rows">'+ents.map(e=>'<div class="st-row"><span>'+_esc(e[0])+'</span><span class="st-num">'+e[1]+'</span></div>').join('')+'</div>') : '<div class="st-empty">—</div>'; return h+'</div>'; }
+function stNiceCeil(v){ if(v<=0)return 100; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; let m; if(n<=1)m=1;else if(n<=2)m=2;else if(n<=5)m=5;else m=10; return m*p; }
 function stRevenueChart(){
   const done=statDonePatients(); const byDay={};
   done.forEach(p=>{ const d=statDayOf(p); byDay[d]=(byDay[d]||0)+((p.billing&&+p.billing.total)||0); });
   const days=[]; const today=new Date(); for(let i=27;i>=0;i--){ const dt=new Date(today); dt.setDate(today.getDate()-i); if(dt.getDay()===0) continue; days.push(dt); }
-  const vals=days.map(dt=>byDay[ymd(dt)]||0); const max=Math.max(1,...vals);
-  const bars=days.map((dt,i)=>{ const v=vals[i]; const hpct=v>0?Math.max(3,Math.round(v/max*100)):0; return '<div class="st-bar" title="'+ymd(dt)+': '+eur(v)+'"><div class="st-bar-fill" style="height:'+hpct+'%"></div><div class="st-bar-x">'+dt.getDate()+'</div></div>'; }).join('');
-  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Umsatz – letzte 4 Wochen (Mo–Sa)','Revenue – last 4 weeks (Mon–Sat)')+'</div><div class="st-chart">'+bars+'</div></div>';
+  const vals=days.map(dt=>byDay[ymd(dt)]||0); const niceMax=stNiceCeil(Math.max(1,...vals));
+  const bars=days.map((dt,i)=>{ const v=vals[i]; const hpct=v>0?Math.max(2,Math.round(v/niceMax*100)):0; return '<div class="st-bar" title="'+ymd(dt)+': '+eur(v)+'"><div class="st-bar-fill" style="height:'+hpct+'%"></div><div class="st-bar-x">'+dt.getDate()+'</div></div>'; }).join('');
+  const ticks=[1,0.75,0.5,0.25,0].map(f=>'<div class="st-yt">'+eur(Math.round(niceMax*f))+'</div>').join('');
+  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Umsatz – letzte 4 Wochen (Mo–Sa)','Revenue – last 4 weeks (Mon–Sat)')+'</div>'+
+    '<div class="st-chart-wrap"><div class="st-yaxis">'+ticks+'</div><div class="st-chart st-chart-grid">'+bars+'</div></div></div>';
 }
 function stTopCountries(){
   const done=statDonePatients(); const c={};
@@ -3403,14 +3406,24 @@ function malDefaultDays(){
 function malariaRelevant(){ return (typeof malariaAssess==='function') && malariaAssess(destinations||[]).any; }
 function renderMalaria(){
   const sec=el('stepM'), box=el('malaria-body'); if(!sec||!box||typeof malariaAssess!=='function') return;
-  const a=malariaAssess(destinations||[]);
   const editingP=patients.find(p=>p.id===editingId);
   const waiting=editingP && patientStatus(editingP)==='waiting';
   // Nur während der aktiven Behandlung eines Patienten – niemals in der Ambulanzliste (idle)
   const editing = !!editingId && document.body.classList.contains('clinic') && !document.body.classList.contains('clinic-idle');
-  const showable = editing && a.any && isStaff() && !waiting;
+  const showable = editing && isStaff() && !waiting;   // Sektion 6 ist immer vorhanden (ohne Risiko eingeklappt)
   if(!showable){ sec.style.display='none'; box.innerHTML=''; if(typeof updateSecNav==='function') updateSecNav(); return; }
   sec.style.display='';
+  // Immer faltbar; Kopfzeile klickbar zum Ein-/Ausklappen
+  sec.classList.add('foldable');
+  if(!sec._malFoldWired){ const hh=sec.querySelector('h2'); if(hh){ hh.style.cursor='pointer'; hh.addEventListener('click',function(e){ if(e.target.closest('.lock-btn'))return; sec.classList.toggle('folded'); }); } sec._malFoldWired=true; }
+  const a=malariaAssess(destinations||[]);
+  if(!a.any){
+    box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>';
+    sec.classList.add('folded');   // ohne Relevanz automatisch eingeklappt
+    if(typeof updateSecNav==='function') updateSecNav();
+    return;
+  }
+  sec.classList.remove('folded');
   if(malariaState.days==null) malariaState.days=malDefaultDays();
   // Gewichtsfeld nur für Kinder (< 15 J.); Erwachsene erhalten die Standarddosis
   const dobVal=(el('p-dob')&&el('p-dob').value)||'';
@@ -3486,6 +3499,30 @@ function malRecUpdate(){
 function malSetDays(v){ malariaState.days=Math.max(0,parseInt(v,10)||0); malRecUpdate(); }
 function malSetWeight(v){ const n=parseFloat(v); malariaState.weight=isNaN(n)?null:n; malRecUpdate(); }
 function malSelectDrug(k){ if(!MAL_DRUGS[k])return; malariaState.drug=k; renderMalaria(); }
+// Malaria-Karten (DTG) – aus Urheberrechtsgründen wird auf die offiziellen DTG-Karten verlinkt (nicht eingebettet)
+const MAL_MAP_WORLD='https://dtg.org/images/Startseite-Download-Box/Weltkarte_2024.pdf';
+const MAL_MAP_REGION='https://dtg.org/index.php/empfehlungen-und-leitlinien/empfehlungen/malaria/karten.html';
+function showMalariaMaps(){
+  const box=el('modal-content'); if(!box || typeof malariaAssess!=='function') return; box.classList.remove('pi-modal');
+  const a=malariaAssess(destinations||[]);
+  let list;
+  if(a.any){
+    list='<div class="mm-list">'+a.countries.map(c=>{
+      const nm=CBY[c.code]?cName(CBY[c.code]):c.code;
+      const cls=c.strategy==='P'?'high':c.strategy==='NSB'?'mid':'low';
+      const lbl=c.strategy==='P'?LX('Chemoprophylaxe','Chemoprophylaxis'):c.strategy==='NSB'?LX('Standby','Standby'):LX('Expositionsprophylaxe','Bite prevention');
+      return '<div class="mm-row"><span class="mm-c">'+_esc(nm)+'</span><span class="mal-badge '+cls+'">'+lbl+'</span><a class="btn sec sm" href="'+MAL_MAP_REGION+'" target="_blank" rel="noopener">'+LX('Regionalkarte','Regional map')+' ↗</a></div>';
+    }).join('')+'</div>';
+  } else {
+    list='<div class="mm-none">'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>';
+  }
+  box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
+    '<h3>'+LX('Malaria-Karten (DTG)','Malaria maps (DTG)')+'</h3>'+
+    '<div class="m-sub">'+LX('Offizielle Karten der DTG – öffnen in einem neuen Tab.','Official DTG maps – open in a new tab.')+'</div>'+
+    list+
+    '<div class="mm-actions"><a class="btn" href="'+MAL_MAP_WORLD+'" target="_blank" rel="noopener">'+LX('Weltkarte (DTG)','World map (DTG)')+' ↗</a><a class="btn sec" href="'+MAL_MAP_REGION+'" target="_blank" rel="noopener">'+LX('Alle Regionalkarten','All regional maps')+' ↗</a></div>';
+  const bg=el('modal-bg'); if(bg) bg.classList.add('show');
+}
 
 /* ================= VERWENDETE QUELLEN (Settings) ================= */
 const USED_SOURCES=[
