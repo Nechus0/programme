@@ -1667,6 +1667,7 @@ function openMeaslesCert(){
       '<button class="btn sm" onclick="printMeaslesCertificate()">'+psvg+(LX('Bescheinigung drucken','Print certificate'))+'</button></div>';
   el('modal-bg').classList.add('show');
 }
+const CHARITE_LOGO_SVG='<svg viewBox="0 0 800 295.499" xmlns="http://www.w3.org/2000/svg" aria-label="Charité"><g transform="translate(97.142897,-21.75554)"><path d="m 679.23213,81.036291 -16.1875,22.312499 6.78125,3.78125 20.78125,-20.906249 -11.375,-5.1875 z m -383.59375,32.468749 -2.1875,4.78125 -45.125,102.4375 12.5,0 12.375,-29.0625 43.75,0 12.09375,29.0625 12.65625,0 -43.96875,-102.4375 -2.09375,-4.78125 z m -234.812497,2.6875 c -33.29988,-4.9e-4 -54.1250001,24.87159 -54.1250001,53.71875 0,28.84931 20.9853001,52.875 54.1250001,52.875 10.75929,-4.9e-4 21.50436,-3.61406 30.25,-9.9375 l 0,-13.71875 c -8.10513,8.10366 -19.14433,13.34375 -30.625,13.34375 -24.8887,0 -41.3125,-20.54883 -41.3125,-42.96875 0,-22.42092 16.12673,-42.96875 41.0625,-42.96875 11.75139,0 22.76987,4.97135 30.875,13.34375 l 0,-13.71875 c -9.00996,-6.72705 -18.94932,-9.96875 -30.25,-9.96875 z m 75.218747,2.09375 0,102.4375 11.4375,0 0,-50.28125 34.75,0 0,-10.59375 -34.75,0 0,-41.5625 -11.4375,0 z m 61.78125,0 0,102.4375 11.40625,0 0,-102.4375 -11.40625,0 z m 181.34375,0 0,102.4375 11.40625,0 0,-44.96875 15.40625,0 23.25,44.96875 13.25,0 -24.90625,-46.53125 c 10.60382,-3.11906 20.96922,-11.27951 20.96875,-27.59375 0,-20.62599 -15.45439,-28.3125 -32.3125,-28.3125 l -27.0625,0 z m 110.5625,0 0,102.4375 11.40625,0 0,-102.4375 -11.40625,0 z m 54.5,0 0,10.59375 24.75,0 0,91.84375 11.40625,0 0,-91.84375 25,0 0,-10.59375 -61.15625,0 z m 102.4375,0 0,102.4375 55.4375,0 0,-10.59375 -44.03125,0 0,-40.21875 37.78125,0 0,-10.59375 -37.78125,0 0,-30.4375 42.34375,0 0,-10.59375 -53.75,0 z m -256.09375,10.59375 14.15625,0 c 11.80432,0 22.37547,4.70602 22.375,17.71875 0,13.01964 -9.05974,19.09375 -22.25,19.09375 l -14.28125,0 0,-36.8125 z m -95.21875,11.125 17.125,41.03125 -34.65625,0 17.53125,-41.03125 z" style="fill:#000;fill-rule:evenodd"/><path d="m -97.142897,169.50441 c 0,-81.602649 65.736405,-147.74887 149.00748,-147.74887 36.46409,-4.91e-4 69.840447,13.206968 95.606777,35.096719 l 0,22.747509 C 123.691,54.368296 89.959283,38.621964 52.551213,38.621964 c -72.976915,0 -130.010455,58.391013 -130.010455,130.424396 0,72.03234 57.060795,130.42807 130.010455,130.42807 37.40812,0 71.139787,-15.74879 94.920147,-40.98027 l 0,23.66067 c -25.76607,21.89227 -59.143217,35.09971 -95.606777,35.09971 -83.202936,0 -149.00748,-66.14937 -149.00748,-147.75044 z" style="fill:#878787;fill-rule:evenodd"/></g></svg>';
 function printMeaslesCertificate(){
   const sel=(document.querySelector('input[name="measles_cert"]:checked')||{}).value||'v2';
   const gv=id=>{const e=el(id);return e?(''+e.value).trim():'';};
@@ -1691,6 +1692,9 @@ function printMeaslesCertificate(){
   const proof=MEASLES_CERT_OPTS.filter(o=>o.group==='proof').map(optRow).join('');
   const exempt=MEASLES_CERT_OPTS.filter(o=>o.group==='exempt').map(optRow).join('');
   const css='@page{size:A4;margin:0;}*{box-sizing:border-box;}body{font-family:Helvetica,Arial,sans-serif;color:#111;font-size:12px;line-height:1.5;margin:0;padding:20mm 18mm;}'+
+    '.lh{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px;}'+
+    '.lh-logo svg{height:30px;width:auto;display:block;}'+
+    '.lh-addr{font-size:9px;color:#555;text-align:right;line-height:1.5;}'+
     'h1{font-size:19px;margin:0 0 2px;}h1 .en{display:block;font-size:13px;font-weight:400;color:#444;}'+
     '.sub{font-size:11px;color:#555;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;}'+
     '.pat{width:100%;border-collapse:collapse;margin-bottom:18px;}'+
@@ -1710,6 +1714,8 @@ function printMeaslesCertificate(){
     '.sig-cap .en{color:#999;font-style:italic;}'+
     '.foot{margin-top:34px;font-size:9.5px;color:#999;}';
   const html='<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>'+(LX('Masernschutz-Bescheinigung','Measles immunity certificate'))+'</title><style>'+css+'</style></head><body>'+
+    '<div class="lh"><div class="lh-logo">'+CHARITE_LOGO_SVG+'</div>'+
+      '<div class="lh-addr">Charité – Universitätsmedizin Berlin · Institut für Internationale Gesundheit<br>Campus Virchow-Klinikum<br>Augustenburger Platz 1, 13353 Berlin<br>Geländeadresse: Südring 2–3, Erdgeschoss</div></div>'+
     '<h1>Ärztliche Bescheinigung<span class="en">Medical certificate</span></h1>'+
     '<div class="sub">Nachweis gemäß § 20 Absatz 9 Infektionsschutzgesetz (IfSG) · Certificate pursuant to Section 20 (9) German Infection Protection Act</div>'+
     '<table class="pat"><tr>'+
