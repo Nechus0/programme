@@ -953,6 +953,9 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 .mal-step-unit{ font-size:13px; color:var(--grey); margin-left:8px; }
 body.clinic-idle #stepM{ display:none !important; }
 .mal-none{ font-size:13px; color:var(--grey); display:flex; align-items:center; }
+#stepM.foldable > h2{ cursor:pointer; }
+#stepM.foldable > h2::after{ content:'▾'; margin-left:auto; color:var(--grey); font-size:12px; transition:transform .15s; }
+#stepM.folded > h2::after{ transform:rotate(-90deg); }
 .mal-map-btn{ display:inline-flex; align-items:center; justify-content:center; margin-left:10px; background:#fff; border:1px solid var(--line); border-radius:50%; width:24px; height:24px; cursor:pointer; color:var(--blue); flex:none; }
 .mal-map-btn:hover{ border-color:var(--blue); }
 .mm-list{ display:flex; flex-direction:column; gap:8px; margin:14px 0; }

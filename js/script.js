@@ -3388,6 +3388,7 @@ function renderStats(){
 /* ================= MALARIA-SEKTION (UI; Engine in malaria_engine.js) ================= */
 let malariaState = { days:null, weight:null, drug:'malarone' };
 let malIsChild = false;
+let malFoldPatient = null;   // merkt sich, für welchen Patienten bereits automatisch ein-/ausgeklappt wurde
 function resetMalariaState(){ malariaState = { days:null, weight:null, drug:'malarone' }; malIsChild=false; }
 // Zahlen-Stepper (− / Eingabe / +) für Aufenthaltsdauer und Kindergewicht
 function malStepper(id,val,stepFn,setFn,unit,min,max){
@@ -3419,11 +3420,13 @@ function renderMalaria(){
   const a=malariaAssess(destinations||[]);
   if(!a.any){
     box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>';
-    sec.classList.add('folded');   // ohne Relevanz automatisch eingeklappt
+    if(malFoldPatient!==editingId){ sec.classList.add('folded'); }   // nur beim ersten Öffnen einklappen; manuelles Aufklappen bleibt erhalten
+    malFoldPatient=editingId;
     if(typeof updateSecNav==='function') updateSecNav();
     return;
   }
-  sec.classList.remove('folded');
+  sec.classList.remove('folded');   // Malariarisiko → immer aufgeklappt
+  malFoldPatient=editingId;
   if(malariaState.days==null) malariaState.days=malDefaultDays();
   // Gewichtsfeld nur für Kinder (< 15 J.); Erwachsene erhalten die Standarddosis
   const dobVal=(el('p-dob')&&el('p-dob').value)||'';
