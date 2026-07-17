@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=40">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=40">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=40">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=40">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=41">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=41">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=41">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=41">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=40">
+<link rel="stylesheet" href="css/style.css?v=41">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -65,6 +65,8 @@
       <div class="tg-row"><label class="tg-lbl">Anzahl</label><div class="mal-step"><button type="button" onclick="tgStep(-1)">−</button><input type="number" id="tg-n" min="1" max="10" value="5"><button type="button" onclick="tgStep(1)">+</button></div></div>
       <div class="tg-row"><label class="tg-lbl">Region</label><select id="tg-region"><option value="any">Überall</option><option value="afrika">Afrika</option><option value="suedamerika">Südamerika</option><option value="asien">Asien</option><option value="mittelamerika">Mittelamerika &amp; Karibik</option><option value="nahost">Naher Osten &amp; Nordafrika</option></select></div>
       <div class="tg-row"><label class="tg-lbl">Altersbereich</label><select id="tg-age"><option value="mix">Gemischt</option><option value="kind">Kinder (0–12)</option><option value="jugend">Jugendliche (13–17)</option><option value="erw">Erwachsene (18–64)</option><option value="senior">Senioren (65+)</option></select></div>
+      <div class="tg-row"><label class="tg-lbl">Behandlungsart</label><select id="tg-type"><option value="beratung">Beratung</option><option value="folgeimpfung">Folgeimpfung</option><option value="mix">Gemischt</option></select></div>
+      <div class="tg-row"><label class="tg-lbl">Impfstatus (hinterlegt)</label><select id="tg-vax"><option value="nodata">Keine Daten</option><option value="age">Altersgerecht (STIKO)</option><option value="travel">Altersgerecht + Reiseimpfungen</option><option value="thorough">Umfassend geimpft</option><option value="mixed">Gemischt (nie ohne Daten)</option></select></div>
       <div class="tg-row"><label class="tg-lbl">Optionen</label><div class="chk-grid"><label class="chk-chip"><input type="checkbox" id="tg-grp"> <span>Gruppe (Ehepaar/Familie)</span></label><label class="chk-chip"><input type="checkbox" id="tg-med"> <span>Medikation</span></label><label class="chk-chip"><input type="checkbox" id="tg-exo"> <span>Exotische Fälle</span></label></div></div>
       <div class="row-flex" style="margin-top:8px;"><button class="btn" onclick="genTestPatients()">Patienten generieren</button></div>
       <div id="tg-log" class="tg-log"></div>
@@ -294,15 +296,15 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=40"></script>
+<script src="js/auth.js?v=41"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=40"></script>
-<script src="js/engine.js?v=40"></script>
-<script src="js/malaria_data.js?v=40"></script>
-<script src="js/malaria_engine.js?v=40"></script>
-<script src="js/script.js?v=40"></script>
+<script src="js/engine_rules.js?v=41"></script>
+<script src="js/engine.js?v=41"></script>
+<script src="js/malaria_data.js?v=41"></script>
+<script src="js/malaria_engine.js?v=41"></script>
+<script src="js/script.js?v=41"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){

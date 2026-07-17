@@ -2781,8 +2781,7 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      const gBehandeln=(st==='waiting'&&canTreatType(patientTreatType(grp.items[0])))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeGroupIntoTreatment(\''+gesc+'\')">'+(LX('Behandeln','Treat'))+'</button>':'';
-      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+gBehandeln+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
+      h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span>'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
   });
@@ -3606,7 +3605,40 @@ const TG_MEDS=['Ramipril','Metformin','L-Thyroxin','Bisoprolol','Sertralin','ASS
 const TG_IMMUNO=['Methotrexat','Adalimumab','Prednisolon 20 mg','Azathioprin','Ciclosporin'];
 const TG_CHRON=['Diabetes mellitus Typ 2','COPD','Chronische Niereninsuffizienz','Rheumatoide Arthritis','Arterielle Hypertonie'];
 const TG_DUR=['<1w','1-2w','2-4w','1-3m','3-6m','>6m'];
+const TG_INS=['AOK Nordost','Techniker Krankenkasse','Barmer','DAK-Gesundheit','IKK Brandenburg u. Berlin','Knappschaft','mhplus BKK','HEK','Privat: Debeka','Privat: Allianz','Selbstzahler'];
+const TG_STREET=['Luisenstraße','Chausseestraße','Invalidenstraße','Müllerstraße','Seestraße','Turmstraße','Sonnenallee','Karl-Marx-Straße','Frankfurter Allee','Prenzlauer Allee','Schönhauser Allee','Kantstraße','Bornholmer Straße','Danziger Straße'];
+const TG_ZIP=['10115','13353','10999','12043','10405','10437','13405','10247','10585','12099'];
 function tgRand(a){ return a[Math.floor(Math.random()*a.length)]; }
+function tgShuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function tgY(){ return new Date().getFullYear(); }
+function tgYr(maxAgo,minAgo){ minAgo=minAgo||0; return String(tgY()-(minAgo+Math.floor(Math.random()*(maxAgo-minAgo+1)))); }
+// Impfstatus-Profile: als wäre ein elektronischer Impfausweis hinterlegt (wird beim Öffnen vorbefüllt)
+function tgVax(profile, age){
+  if(profile==='nodata') return {};
+  if(profile==='mixed') profile=tgRand(['age','travel','thorough']);
+  const v={}; const by=tgY()-age;
+  v.tdap_polio={ gi_tdap:true, gi_ipv:true, y_td:tgYr(9), y_ap:tgYr(9), y_ipv:tgYr(9) };
+  if(age<55) v.mmr={ done:'2', year:String(Math.min(tgY(), by+2)) };
+  if(age<=16) v.varicella={ done:'2', year:String(by+1) }; else if(tgChance(0.85)) v.varicella={ disease:true };
+  if(age<=30) v.hepatitis={ bMono:'3', bYear:String(by+1) };
+  if(age>=60){ v.influenza={ done:'1', year:String(tgY()) }; v.pneumo={ done:'1', year:tgYr(3) }; if(tgChance(0.5)) v.zoster={ done:'2', year:tgYr(3) }; }
+  if(age>=9 && age<=30) v.hpv={ done:'2', year:tgYr(Math.max(1,age-11)) };
+  if(tgChance(0.8)) v.covid={ done:String(2+Math.floor(Math.random()*3)), year:tgYr(2) };
+  if(profile==='age') return v;
+  const base=['hepatitis','typhoid','yellowfever','tbe','rabies'];
+  const pick = (profile==='thorough') ? base.concat(['jev','menacwy','cholera']) : tgShuffle(base).slice(0, 2+Math.floor(Math.random()*2));
+  pick.forEach(k=>{
+    if(k==='hepatitis') v.hepatitis=Object.assign(v.hepatitis||{}, { aMono:'2', aYear:tgYr(4), bMono:'3', bYear:(v.hepatitis&&v.hepatitis.bYear)||tgYr(6) });
+    else if(k==='menacwy') v.menacwy={ done:'1', type:'acwy', year:tgYr(4) };
+    else if(k==='tbe') v.tbe={ done:'3', year:tgYr(4) };
+    else if(k==='rabies') v.rabies={ done:'3', year:tgYr(4) };
+    else if(k==='jev') v.jev={ done:'2', year:tgYr(3) };
+    else if(k==='typhoid') v.typhoid={ done:'1', year:tgYr(2) };
+    else if(k==='yellowfever') v.yellowfever={ done:'1', year:tgYr(8) };
+    else if(k==='cholera') v.cholera={ done:'2', year:tgYr(2) };
+  });
+  return v;
+}
 function tgChance(p){ return Math.random()<p; }
 function tgUuid(){ return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2); }
 function tgStep(d){ const i=el('tg-n'); if(i) i.value=Math.max(1,Math.min(10,(parseInt(i.value,10)||1)+d)); }
@@ -3622,15 +3654,16 @@ function tgMake(opts,idx){
     if(k===0){ const im=tgRand(TG_IMMUNO); meds.push(im); immuno=im; immunodef=true; }
     else if(k===1 && female && age>=18 && age<=45){ pregnant='pregnant'; }
     else { chronicText=tgRand(TG_CHRON); chronic=true; } }
+  let tt=opts.type||'beratung'; if(tt==='mix') tt=tgChance(0.5)?'beratung':'folgeimpfung';
   const savedAt=new Date(Date.now()-idx*13*60000).toISOString();
   return { id:tgUuid(), name:name, firstname:firstname, dob:tgDob(age), age:age, sex:female?'f':'m',
-    phone:'', email:'', insurance:'', profession:'', address:'', zip:'', city:tgRand(TG_CITY),
+    phone:'0'+(150+Math.floor(Math.random()*20))+' '+(1000000+Math.floor(Math.random()*8999999)), email:'', insurance:tgRand(TG_INS), profession:'', address:tgRand(TG_STREET)+' '+(1+Math.floor(Math.random()*120)), zip:tgRand(TG_ZIP), city:tgRand(TG_CITY),
     duration:tgRand(TG_DUR), departure:'', destinations:dests,
     pregnant:pregnant, allergy:tgChance(0.15)?'Penicillin':'', meds:meds, immuno:immuno, recentVax:'',
     conds:[], acute:false, chronicText:chronicText, chronic:chronic, immunodef:immunodef, thrombosis:false, faint:false,
     serology:{measles:false,vzv:false,hbs:false}, childhood:false,
-    comment:'Testpatient (Generator)', physician:'', vax:{}, customSchedule:null,
-    status:'waiting', group:'', treatmentType:tgChance(0.12)?'folgeimpfung':'beratung',
+    comment:'Testpatient (Generator)', physician:'', vax:tgVax(opts.vax||'nodata', age), customSchedule:null,
+    status:'waiting', group:'', treatmentType:tt,
     claimedBy:null, claimedByName:'', claimedByRole:'', treatmentAt:null,
     editLog:[], savedAt:savedAt, updatedAt:savedAt };
 }
@@ -3639,7 +3672,7 @@ async function genTestPatients(){
   const tlog=(m,c)=>{ if(!logEl)return; const d=document.createElement('div'); if(c)d.className=c; d.textContent=m; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; };
   if(typeof dbInsertPatient!=='function' || !USE_DB){ tlog('Nicht mit der Datenbank verbunden.','tg-err'); return; }
   const n=Math.max(1,Math.min(10,parseInt((el('tg-n')||{}).value,10)||1));
-  const opts={ region:(el('tg-region')||{}).value||'any', age:(el('tg-age')||{}).value||'mix', grp:!!(el('tg-grp')&&el('tg-grp').checked), med:!!(el('tg-med')&&el('tg-med').checked), exo:!!(el('tg-exo')&&el('tg-exo').checked) };
+  const opts={ region:(el('tg-region')||{}).value||'any', age:(el('tg-age')||{}).value||'mix', type:(el('tg-type')||{}).value||'beratung', vax:(el('tg-vax')||{}).value||'nodata', grp:!!(el('tg-grp')&&el('tg-grp').checked), med:!!(el('tg-med')&&el('tg-med').checked), exo:!!(el('tg-exo')&&el('tg-exo').checked) };
   const list=[]; for(let i=0;i<n;i++) list.push(tgMake(opts,i));
   if(opts.grp && n>=2){ const sur=tgRand(TG_SUR); const sz=(n>=4&&tgChance(0.5))?3:2; const city=tgRand(TG_CITY); for(let i=0;i<sz;i++){ list[i].name=sur; list[i].group=sur; list[i].city=city; } }
   let ok=0;
