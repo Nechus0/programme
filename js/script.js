@@ -1694,25 +1694,25 @@ function printMeaslesCertificate(){
   const css='@page{size:A4;margin:0;}*{box-sizing:border-box;}body{font-family:Helvetica,Arial,sans-serif;color:#111;font-size:12px;line-height:1.5;margin:0;padding:20mm 18mm;}'+
     '.lh{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px;}'+
     '.lh-logo svg{height:30px;width:auto;display:block;}'+
-    '.lh-addr{font-size:9px;color:#555;text-align:right;line-height:1.5;}'+
-    'h1{font-size:19px;margin:0 0 2px;}h1 .en{display:block;font-size:13px;font-weight:400;color:#444;}'+
-    '.sub{font-size:11px;color:#555;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;}'+
+    '.lh-addr{font-size:9.5px;color:#333;text-align:right;line-height:1.5;}'+
+    'h1{font-size:19px;margin:0 0 2px;}h1 .en{display:block;font-size:13px;font-weight:400;color:#333;}'+
+    '.sub{font-size:11px;color:#333;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;}'+
     '.pat{width:100%;border-collapse:collapse;margin-bottom:18px;}'+
-    '.pat td{border:1px solid #bbb;padding:7px 10px;vertical-align:top;}'+
-    '.pat .lbl{font-size:9.5px;color:#666;text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:2px;}'+
-    '.pat .lbl .en{color:#999;}'+
-    '.intro{margin:6px 0 12px;}.intro .en{display:block;color:#555;font-style:italic;margin-top:2px;}'+
-    '.c-head{font-weight:700;margin:14px 0 6px;}.c-head .en{display:block;font-weight:400;font-style:italic;color:#555;}'+
+    '.pat td{border:1px solid #999;padding:7px 10px;vertical-align:top;}'+
+    '.pat .lbl{font-size:9.5px;color:#333;text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:2px;font-weight:600;}'+
+    '.pat .lbl .en{color:#555;font-weight:400;}'+
+    '.intro{margin:6px 0 12px;}.intro .en{display:block;color:#333;font-style:italic;margin-top:2px;}'+
+    '.c-head{font-weight:700;margin:14px 0 6px;}.c-head .en{display:block;font-weight:400;font-style:italic;color:#333;}'+
     '.c-opt{display:flex;gap:10px;align-items:flex-start;margin:7px 0;}'+
     '.c-box{font-size:16px;line-height:1.1;flex:none;}'+
-    '.c-txt{flex:1;}.c-txt .c-de{display:block;}.c-txt .c-en{display:block;color:#666;font-style:italic;font-size:11px;}'+
+    '.c-txt{flex:1;}.c-txt .c-de{display:block;}.c-txt .c-en{display:block;color:#333;font-style:italic;font-size:11px;}'+
     '.place{margin-top:34px;font-size:12px;color:#111;}'+
     '.sig-area{margin-top:66px;width:62%;max-width:340px;}'+
     '.sig-line{border-top:1px solid #111;}'+
-    '.sig-cap{padding-top:6px;font-size:10.5px;color:#555;}'+
+    '.sig-cap{padding-top:6px;font-size:10.5px;color:#333;}'+
     '.sig-cap .sig-name{display:block;color:#111;font-size:12px;font-weight:600;margin-bottom:1px;}'+
-    '.sig-cap .en{color:#999;font-style:italic;}'+
-    '.foot{margin-top:34px;font-size:9.5px;color:#999;}';
+    '.sig-cap .en{color:#555;font-style:italic;}'+
+    '.foot{margin-top:34px;font-size:9.5px;color:#666;}';
   const html='<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>'+(LX('Masernschutz-Bescheinigung','Measles immunity certificate'))+'</title><style>'+css+'</style></head><body>'+
     '<div class="lh"><div class="lh-logo">'+CHARITE_LOGO_SVG+'</div>'+
       '<div class="lh-addr">Charité – Universitätsmedizin Berlin · Institut für Internationale Gesundheit<br>Campus Virchow-Klinikum<br>Augustenburger Platz 1, 13353 Berlin<br>Geländeadresse: Südring 2–3, Erdgeschoss</div></div>'+
