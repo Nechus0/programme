@@ -173,6 +173,33 @@ async function dbDeletePatient(id) {
   return await supabaseClient.from('patients').delete().eq('id', id);
 }
 
+// --- App-Einstellungen (key/value) ----------------------------------
+// Globale Einstellungen in Tabelle app_settings (siehe supabase_app_settings.sql).
+// Fällt bei fehlender Tabelle/Verbindung leise auf localStorage zurück (nur lokal wirksam).
+async function dbGetSetting(key) {
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient.from('app_settings').select('value').eq('key', key).maybeSingle();
+      if (!error) return data ? data.value : null;
+    } catch (e) { /* fällt unten auf localStorage zurück */ }
+  }
+  try { const v = localStorage.getItem('setting_' + key); return v == null ? null : JSON.parse(v); } catch (e) { return null; }
+}
+async function dbSetSetting(key, value) {
+  try { localStorage.setItem('setting_' + key, JSON.stringify(value)); } catch (e) {}
+  if (!supabaseClient) return { data: { ok: true }, error: null };
+  return await supabaseClient.from('app_settings')
+    .upsert({ key: key, value: value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+}
+// Patienteneingabe (Tablet-Selbstanmeldung) sperren/entsperren
+async function isPatientInputLocked() {
+  const v = await dbGetSetting('patient_input_locked');
+  return v === true || v === 'true';
+}
+async function setPatientInputLocked(locked) {
+  return await dbSetSetting('patient_input_locked', !!locked);
+}
+
 // --- Audit Log ----------------------------------
 // Alle Login-/Aktivitäts-Einträge von HEUTE lesen (für „Im Dienst"). Fällt bei fehlender Leseberechtigung leise aus.
 async function dbListAuditToday() {

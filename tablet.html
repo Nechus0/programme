@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=60">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=60">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=60">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=60">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=61">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=61">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=61">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=61">
 <title>Charité · Patienten-Anmeldung</title>
-<link rel="stylesheet" href="css/style.css?v=60">
+<link rel="stylesheet" href="css/style.css?v=61">
 <style>
   body{background:var(--grey-xl);}
   .t-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:18px;}
@@ -46,6 +46,16 @@
 <script src="js/auth.js"></script>
 <script>
 function showMsg(t){ document.getElementById('msg-slot').innerHTML = t?('<div class="msg err">'+t+'</div>'):''; }
+// Zeigt den „Anmeldung geschlossen"-Zustand, wenn ein Admin die Patienteneingabe gesperrt hat.
+function showLockedState(){
+  const card=document.querySelector('.t-card');
+  if(card) card.innerHTML='<h1>Anmeldung derzeit geschlossen</h1>'+
+    '<p>Die Selbstanmeldung am Tablet ist momentan deaktiviert. Bitte wenden Sie sich an das Personal.</p>';
+}
+async function checkLocked(){
+  try{ if(typeof isPatientInputLocked==='function') return await isPatientInputLocked(); }catch(e){}
+  return false;
+}
 async function ensureAnon(){
   if(!AUTH_ENABLED) return true;
   const u = await getSessionUser();
@@ -56,12 +66,15 @@ async function ensureAnon(){
 }
 async function startIntake(){
   const btn=document.getElementById('start'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  if(await checkLocked()){ showLockedState(); return; }
   const ok = await ensureAnon();
   btn.disabled=false; btn.textContent='Anmeldung starten';
   if(ok) window.location.href='index.html';
 }
 (async function init(){
   document.body.style.visibility='visible';
+  // Sperre durch Admin: keine Selbstanmeldung, kein Auto-Weiterleiten in den Kiosk.
+  if(await checkLocked()){ showLockedState(); return; }
   // Wenn das iPad schon eine (anonyme) Sitzung hat, direkt in den Kiosk.
   if(AUTH_ENABLED){ const u=await getSessionUser(); if(u){ window.location.href='index.html'; } }
 })();

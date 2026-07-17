@@ -19,7 +19,7 @@ const I18N={
  subMasterData:{de:'Stammdaten',en:'Master data'},subTravel:{de:'Reisedaten',en:'Travel data'},
  fEmailAddr:{de:'E-Mail',en:'Email'},fChronicText:{de:'Chronische Erkrankung / Immundefizienz (welche?)',en:'Chronic illness / immunodeficiency (which?)'},
  fMedication:{de:'Aktuelle Medikamente',en:'Current medication'},optPregnant:{de:'schwanger',en:'pregnant'},optBreastfeeding:{de:'stillend',en:'breastfeeding'},optPlanned:{de:'Schwangerschaft geplant',en:'pregnancy planned'},
- btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},btnToday:{de:'Heute',en:'Today'},btnFinish:{de:'Behandlung abschließen',en:'Finish treatment'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
+ btnNewPatient:{de:'+ Neuer Patient',en:'+ New patient'},backToList:{de:'Zurück zur Ambulanzliste',en:'Back to clinic list'},btnToday:{de:'Heute',en:'Today'},btnFinish:{de:'Behandlung abschließen',en:'Finish treatment'},adminUserListDesc:{de:'Nach Funktion gruppiert.',en:'Grouped by role.'},adminTabletTitle:{de:'Patienten-Tablet (Selbstanmeldung)',en:'Patient tablet (self check-in)'},tabletLockTitle:{de:'Patienteneingabe am Tablet',en:'Patient input on tablet'},adminTabletDesc:{de:'Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.',en:'The tablet needs no account. On the login page choose "Open patient tablet" — the device signs in anonymously and patients fill in their data (sections 1 & 2), which then appear in the clinic list.'},
  disclaimer:{de:'Mockup zur Demonstration. Empfehlungen folgen der STIKO-Systematik und ersetzen nicht die ärztliche Beurteilung. Ausbruchs- und Reisehinweise (RKI, Auswärtiges Amt) vor jeder Beratung prüfen; Live-Abruf erfordert eine Server-Anbindung.',en:'Demonstration mockup. Recommendations follow STIKO methodology and do not replace clinical judgement. Verify outbreak/travel advisories (RKI, German Foreign Office) before each consultation; live retrieval needs a server backend.'},
  s1Title:{de:'Stammdaten',en:'Master data'},s1Desc:{de:'Persönliche Daten und Kontakt.',en:'Personal details and contact.'},
  s2Title:{de:'Reise',en:'Travel'},s2Desc:{de:'Reiseziel(e), Aufenthaltsdauer und besondere Bedingungen.',en:'Destination(s), duration and special conditions.'},
@@ -28,7 +28,7 @@ const I18N={
  leistVaxToday:{de:'Impfungen heute',en:'Vaccinations today'},leistBeratHead:{de:'Beratung & Untersuchung',en:'Consultation & examination'},leistWeitereHead:{de:'Weitere Leistungen',en:'Other services'},
  leistBeratplan:{de:'Beratung mit Impfplan & Impftauglichkeit',en:'Consultation with vaccination plan & fitness'},leistBeratRezept:{de:'Beratung, ggf. mit Rezept',en:'Consultation, possibly with prescription'},leistBeratLang:{de:'Ausführliche Beratung > 20 min',en:'Detailed consultation > 20 min'},leistKeineBerat:{de:'Keine Beratung',en:'No consultation'},
  leistFolge:{de:'Folgeverordnung',en:'Follow-up prescription'},leistBescheinigung:{de:'Bescheinigung – Impfheft / Impfbefreiung',en:'Certificate – vaccination record / exemption'},leistImpf:{de:'Impfleistung',en:'Vaccination service'},leistWarn:{de:'Keine Leistung erfasst',en:'No service recorded'},
- kasseBillTitle:{de:'Abrechnung',en:'Billing'},kasseNoItems:{de:'Noch keine abrechenbaren Leistungen.',en:'No billable services yet.'},kassePriceManual:{de:'Preis manuell (Aushang)',en:'price manual (see notice)'},kasseTotal:{de:'Gesamtbetrag',en:'Total amount'},kasseUnpricedNote:{de:'Für mit „+" markierte Leistungen ist kein Festpreis hinterlegt – bitte Aushang/Homepage prüfen.',en:'Services marked "+" have no fixed price on file — please check the notice/homepage.'},kassePayTitle:{de:'Zahlungsart',en:'Payment method'},kassePaidTitle:{de:'Zahlungsstatus',en:'Payment status'},kassePaid:{de:'Bezahlt',en:'Paid'},kasseUnpaid:{de:'Nicht bezahlt',en:'Not paid'},priceInfoTitle:{de:'Preisübersicht (Anmeldebogen)',en:'Price list (registration form)'},priceInfoLeist:{de:'Leistungen',en:'Services'},priceInfoVax:{de:'Impfstoffe (Preis je Injektion)',en:'Vaccines (price per injection)'},priceInfoBtn:{de:'Preise',en:'Prices'},shiftTitle:{de:'Im Dienst',en:'On shift'},kasseSection:{de:'Kasse',en:'Billing'},kasseSignoff:{de:'Zahlung bestätigen & abschließen',en:'Confirm payment & complete'},kassePayRequired:{de:'Bitte zuerst eine Zahlungsart wählen.',en:'Please select a payment method first.'},toKasseConfirm:{de:'Behandlung abschließen und Patient an die Kasse übergeben?',en:'Complete treatment and hand the patient over to billing?'},toKasseBtn:{de:'An Kasse übergeben',en:'Hand over to billing'},
+ kasseBillTitle:{de:'Abrechnung',en:'Billing'},kasseNoItems:{de:'Noch keine abrechenbaren Leistungen.',en:'No billable services yet.'},kassePriceManual:{de:'Preis manuell (Aushang)',en:'price manual (see notice)'},kasseTotal:{de:'Gesamtbetrag',en:'Total amount'},kasseUnpricedNote:{de:'Für mit „+" markierte Leistungen ist kein Festpreis hinterlegt – bitte Aushang/Homepage prüfen.',en:'Services marked "+" have no fixed price on file — please check the notice/homepage.'},kassePayTitle:{de:'Zahlungsart',en:'Payment method'},kassePaidTitle:{de:'Zahlungsstatus',en:'Payment status'},kassePaid:{de:'Bezahlt',en:'Paid'},kasseUnpaid:{de:'Nicht bezahlt',en:'Not paid'},priceInfoTitle:{de:'Preisübersicht',en:'Price list'},priceInfoLeist:{de:'Leistungen',en:'Services'},priceInfoVax:{de:'Impfstoffe (Preis je Injektion)',en:'Vaccines (price per injection)'},priceInfoBtn:{de:'Preise',en:'Prices'},shiftTitle:{de:'Im Dienst',en:'On shift'},kasseSection:{de:'Kasse',en:'Billing'},kasseSignoff:{de:'Zahlung bestätigen & abschließen',en:'Confirm payment & complete'},kassePayRequired:{de:'Bitte zuerst eine Zahlungsart wählen.',en:'Please select a payment method first.'},toKasseConfirm:{de:'Behandlung abschließen und Patient an die Kasse übergeben?',en:'Complete treatment and hand the patient over to billing?'},toKasseBtn:{de:'An Kasse übergeben',en:'Hand over to billing'},
  adminUsersTitle:{de:'Nutzerverwaltung',en:'User management'},adminUsersDesc:{de:'Neue Registrierungen erscheinen unter „Wartet auf Freischaltung". Ziehe eine Person in eine Funktion, um ihr die entsprechenden Rechte zu geben. Das ✕ deaktiviert den Zugang sofort – der Datensatz bleibt 30 Tage erhalten.',en:'New registrations appear under "Awaiting approval". Drag a person into a role to grant the corresponding rights. The ✕ disables access immediately — the record is kept for 30 days.'},
  phAllergy:{de:'z. B. Hühnereiweiß',en:'e.g. egg protein, neomycin'},phMed:{de:'Medikament eingeben…',en:'Enter medication…'},phRecentVax:{de:'Impfung eingeben…',en:'Enter vaccination…'},phChronic:{de:'z. B. Diabetes, Asplenie, HIV, Rheuma …',en:'e.g. diabetes, asplenia, HIV, rheuma …'},
  kioskPrev:{de:'Zurück',en:'Back'},kioskNext:{de:'Weiter',en:'Next'},
@@ -90,7 +90,7 @@ const I18N_FR={
  subMasterData:'Données personnelles', subTravel:'Données de voyage',
  fEmailAddr:'E-mail', fChronicText:'Maladie chronique / immunodéficience (laquelle ?)',
  fMedication:'Médicaments actuels', optPregnant:'enceinte', optBreastfeeding:'allaitement', optPlanned:'grossesse planifiée',
- btnNewPatient:'+ Nouveau patient', backToList:'Retour à la liste', btnToday:"Aujourd'hui", btnFinish:'Terminer la prise en charge', adminUserListDesc:'Groupés par fonction.', adminTabletTitle:'Tablette patient (auto-enregistrement)', adminTabletDesc:"La tablette ne nécessite pas de compte. Sur la page de connexion, choisissez « Ouvrir la tablette patient » — l'appareil se connecte de façon anonyme et les patients saisissent eux-mêmes leurs données (sections 1 et 2), qui apparaissent ensuite dans la liste.",
+ btnNewPatient:'+ Nouveau patient', backToList:'Retour à la liste', btnToday:"Aujourd'hui", btnFinish:'Terminer la prise en charge', adminUserListDesc:'Groupés par fonction.', adminTabletTitle:'Tablette patient (auto-enregistrement)', tabletLockTitle:'Saisie patient sur tablette', adminTabletDesc:"La tablette ne nécessite pas de compte. Sur la page de connexion, choisissez « Ouvrir la tablette patient » — l'appareil se connecte de façon anonyme et les patients saisissent eux-mêmes leurs données (sections 1 et 2), qui apparaissent ensuite dans la liste.",
  disclaimer:"Maquette de démonstration. Les recommandations suivent la méthodologie STIKO et ne remplacent pas l'évaluation médicale. Vérifier les alertes épidémiques et de voyage (RKI, ministère des Affaires étrangères) avant chaque consultation ; la consultation en direct nécessite un serveur.",
  s1Title:'Données personnelles', s1Desc:'Coordonnées et contact.',
  s2Title:'Voyage', s2Desc:'Destination(s), durée du séjour et conditions particulières.',
@@ -99,7 +99,7 @@ const I18N_FR={
  leistVaxToday:"Vaccins aujourd'hui", leistBeratHead:'Consultation et examen', leistWeitereHead:'Autres prestations',
  leistBeratplan:"Consultation avec plan vaccinal et aptitude à la vaccination", leistBeratRezept:'Consultation, éventuellement avec ordonnance', leistBeratLang:'Consultation détaillée > 20 min', leistKeineBerat:'Aucune consultation',
  leistFolge:'Prescription de suivi', leistBescheinigung:'Attestation – carnet de vaccination / dispense', leistImpf:'Acte de vaccination', leistWarn:'Aucune prestation saisie',
- kasseBillTitle:'Facturation', kasseNoItems:'Aucune prestation facturable pour le moment.', kassePriceManual:'prix manuel (affichage)', kasseTotal:'Montant total', kasseUnpricedNote:'Les prestations marquées « + » n\'ont pas de prix fixe enregistré — veuillez vérifier l\'affichage/le site.', kassePayTitle:'Mode de paiement', kassePaidTitle:'Statut de paiement', kassePaid:'Payé', kasseUnpaid:'Non payé', priceInfoTitle:'Tarifs (formulaire d\'inscription)', priceInfoLeist:'Prestations', priceInfoVax:'Vaccins (prix par injection)', priceInfoBtn:'Tarifs', shiftTitle:'De service', kasseSection:'Caisse', kasseSignoff:'Confirmer le paiement et clôturer', kassePayRequired:'Veuillez d\'abord choisir un mode de paiement.', toKasseConfirm:'Terminer la prise en charge et transférer le patient à la caisse ?', toKasseBtn:'Transférer à la caisse',
+ kasseBillTitle:'Facturation', kasseNoItems:'Aucune prestation facturable pour le moment.', kassePriceManual:'prix manuel (affichage)', kasseTotal:'Montant total', kasseUnpricedNote:'Les prestations marquées « + » n\'ont pas de prix fixe enregistré — veuillez vérifier l\'affichage/le site.', kassePayTitle:'Mode de paiement', kassePaidTitle:'Statut de paiement', kassePaid:'Payé', kasseUnpaid:'Non payé', priceInfoTitle:'Tarifs', priceInfoLeist:'Prestations', priceInfoVax:'Vaccins (prix par injection)', priceInfoBtn:'Tarifs', shiftTitle:'De service', kasseSection:'Caisse', kasseSignoff:'Confirmer le paiement et clôturer', kassePayRequired:'Veuillez d\'abord choisir un mode de paiement.', toKasseConfirm:'Terminer la prise en charge et transférer le patient à la caisse ?', toKasseBtn:'Transférer à la caisse',
  adminUsersTitle:'Gestion des utilisateurs', adminUsersDesc:"Les nouvelles inscriptions apparaissent sous « En attente d'activation ». Faites glisser une personne dans une fonction pour lui accorder les droits correspondants. Le ✕ désactive l'accès immédiatement – l'enregistrement est conservé 30 jours.",
  phAllergy:"p. ex. blanc d'œuf, néomycine", phMed:'Saisir un médicament…', phRecentVax:'Saisir une vaccination…', phChronic:'p. ex. diabète, asplénie, VIH, rhumatisme …',
  kioskPrev:'Retour', kioskNext:'Suivant',
@@ -327,7 +327,8 @@ const INFO={
  pneumo:{disease:{de:'Pneumokokken; Lungenentzündung, Sepsis, Meningitis.',en:'Pneumococcus; pneumonia, sepsis, meningitis.'},epi:{de:'Weltweit; höchstes Risiko Ältere/chron. Kranke/Säuglinge.',en:'Worldwide; highest risk elderly/chronically ill/infants.'},side:{de:'Lokalreaktion, selten Fieber. Bei zeitgleicher Gabe mit z.B. Influenza oder COVID-19 an getrennten Körperstellen (anderer Arm) impfen.',en:'Local reaction, rarely fever. If co-administered with flu or COVID-19, use separate injection sites (different arm).'},sched:{de:'PCV20: Erwachsene 1 Dosis (Standard ab 60 J.). Säuglinge nach Impfkalender (nicht Prevenar20).',en:'PCV20: adults 1 dose (standard from 60). Infants per schedule (not Prevenar20).'}},
  mpox:{disease:{de:'Pockenähnliche Erkrankung mit Hautläsionen; meist selbstlimitierend.',en:'Smallpox-like illness; usually self-limiting.'},epi:{de:'Ausbrüche u.a. Zentral-/Westafrika; enger Kontakt.',en:'Outbreaks incl. Central/West Africa; close contact.'},side:{de:'Lokalreaktion; MVA-BN nicht-replizierend, auch bei Immunschwäche einsetzbar.',en:'Local reaction; MVA-BN non-replicating, usable in immunocompromise.'},sched:{de:'MVA-BN: 2 Dosen (≥28 d). Für Indikationsgruppen.',en:'MVA-BN: 2 doses (≥28 d). For indication groups.'}},
  dengue:{disease:{de:'Mückenübertragenes Fieber; Zweitinfektion kann schwer verlaufen.',en:'Mosquito-borne fever; second infection can be severe.'},epi:{de:'Tropen/Subtropen weltweit.',en:'Tropics/subtropics worldwide.'},side:{de:'Lokalreaktion. Lebendimpfstoff (Qdenga). Bei zeitgleicher Gabe mit anderen Impfstoffen an getrennten Körperstellen (anderer Arm) impfen.',en:'Local reaction. Live vaccine (Qdenga). If co-administered, use separate injection sites (different arm).'},sched:{de:'<ul style="margin:4px 0 0 20px;padding:0"><li>Qdenga: 2 Dosen (0 / 3 Mon)</li><li>Empfehlung NUR nach durchgemachter Dengue-Infektion</li><li>Risiko schwererer Verläufe bei Erstinfektion nach Impfung Seronegativer!</li></ul>',en:'<ul style="margin:4px 0 0 20px;padding:0"><li>Qdenga: 2 doses (0 / 3 mo)</li><li>Recommended ONLY after prior dengue infection</li><li>Risk of severe disease in seronegatives upon first natural infection!</li></ul>'}},
- chikungunya:{disease:{de:'Mückenübertragenes Fieber mit teils langanhaltenden Gelenkschmerzen.',en:'Mosquito-borne fever with sometimes prolonged joint pain.'},epi:{de:'Aktuelle Ausbrüche (Q2 2026): Bolivien, Franz.-Guayana, Mauritius, Mayotte, Seychellen, Suriname.',en:'Current outbreaks (Q2 2026): Bolivia, French Guiana, Mauritius, Mayotte, Seychelles, Suriname.'},side:{de:'Lokalreaktion; Vimkunya = Totimpfstoff. <strong>Wichtig:</strong> Bei zeitgleicher Gabe mit anderen Impfstoffen zwingend an getrennten Körperstellen (z.B. anderer Arm) impfen. (IXCHIQ = Lebendimpfstoff, Vorsicht ≥65 J.)',en:'Local reaction; Vimkunya = inactivated. <strong>Important:</strong> If given simultaneously with other vaccines, strictly use separate injection sites (e.g., different arm). (IXCHIQ = live, caution ≥65 yrs.)'},sched:{de:'Vimkunya: 1 Dosis. Indikation je nach Ziel/Ausbruchslage.',en:'Vimkunya: 1 dose. Indication per destination/outbreak.'}},
+ chikungunya:{disease:{de:'Mückenübertragenes Fieber mit teils langanhaltenden Gelenkschmerzen.',en:'Mosquito-borne fever with sometimes prolonged joint pain.'},epi:{de:'Aktuelle Ausbrüche (Stand März 2026, ECDC): Bolivien, Brasilien, Kuba, Madagaskar, Mauritius, Mayotte, Réunion, Seychellen, Suriname. Erhöhtes Hintergrundrisiko u.a.: Argentinien, Kolumbien, Mexiko, Peru, Indien, Indonesien, Nigeria, Pakistan, Philippinen, Thailand. Verbreitungskarte über den „K"-Button.',en:'Current outbreaks (as of March 2026, ECDC): Bolivia, Brazil, Cuba, Madagascar, Mauritius, Mayotte, Réunion, Seychelles, Suriname. Elevated background risk incl.: Argentina, Colombia, Mexico, Peru, India, Indonesia, Nigeria, Pakistan, Philippines, Thailand. Distribution map via the "K" button.'},side:{de:'Lokalreaktion; Vimkunya = Totimpfstoff. <strong>Wichtig:</strong> Bei zeitgleicher Gabe mit anderen Impfstoffen zwingend an getrennten Körperstellen (z.B. anderer Arm) impfen. (IXCHIQ = Lebendimpfstoff, Vorsicht ≥65 J.)',en:'Local reaction; Vimkunya = inactivated. <strong>Important:</strong> If given simultaneously with other vaccines, strictly use separate injection sites (e.g., different arm). (IXCHIQ = live, caution ≥65 yrs.)'},sched:{de:'Vimkunya: 1 Dosis. Indikation je nach Ziel/Ausbruchslage.',en:'Vimkunya: 1 dose. Indication per destination/outbreak.'}},
+ varicella:{disease:{de:'Windpocken (Varizellen): hochansteckende Viruserkrankung mit juckendem Bläschenausschlag und Fieber. Bei Erwachsenen, Immungeschwächten und in der Schwangerschaft (Fehlbildungsrisiko/schwere Verläufe) deutlich schwerer.',en:'Chickenpox (varicella): highly contagious viral illness with itchy blistering rash and fever. Markedly more severe in adults, the immunocompromised and in pregnancy (fetal malformation risk / severe course).'},epi:{de:'Weltweit verbreitet; ohne Impfung/durchgemachte Erkrankung erkranken fast alle. Übertragung per Tröpfchen/Schmierinfektion, sehr hohe Kontagiosität.',en:'Worldwide; without vaccination/prior disease nearly everyone becomes infected. Droplet/contact transmission, very high contagiousness.'},side:{de:'Lebendimpfstoff. Lokalreaktion, gelegentlich leichtes Fieber; 5–26 Tage nach Impfung selten milder varizellenähnlicher Ausschlag. <strong>Kontraindiziert</strong> in der Schwangerschaft und bei relevanter Immunsuppression.',en:'Live vaccine. Local reaction, occasional mild fever; rarely a mild varicella-like rash 5–26 days after vaccination. <strong>Contraindicated</strong> in pregnancy and relevant immunosuppression.'},sched:{de:'Varilrix / Varivax: 2 Dosen (Mindestabstand 4–6 Wochen). Indikation v.a. bei fehlender Immunität und med. Personal oder Kinderwunsch (gebärfähiges Alter). Bei unklarer Anamnese Serologie (VZV-IgG) erwägen; durchgemachte Windpocken = Immunität.',en:'Varilrix / Varivax: 2 doses (min. 4–6 weeks apart). Indicated esp. when non-immune and medical staff or planned pregnancy (childbearing age). Consider serology (VZV-IgG) if history unclear; prior chickenpox = immunity.'}},
 };
 /* ---- Français (FR) pour les fenêtres « i » (fusionné dans INFO ci-dessous). Repli EN via showInfo. ---- */
 const INFO_FR={
@@ -1684,10 +1685,12 @@ const DISEASE_MAPS = {
 };
 // map name + source overrides (keys without a VACCINES entry, and non-RKI sources)
 const MAP_NAME = { hepatitis_b:{de:'Hepatitis B',en:'Hepatitis B'}, malaria:{de:'Malaria',en:'Malaria'} };
+// Fallback-URL, falls die lokale Karte (assets/karten/…) noch nicht hinterlegt ist.
+const MAP_REMOTE = { chikungunya:'https://www.ecdc.europa.eu/sites/default/files/images/Chikungunya-12-months-rate-march-2026.png' };
 const MAP_SOURCE = {
   typhoid:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
   cholera:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
-  chikungunya:{de:'Quelle: CDC (public domain)',en:'Source: CDC (public domain)'},
+  chikungunya:{de:'Quelle: ECDC – Chikungunya, 12-Monats-Meldeinzidenz/100.000 (Stand März 2026)',en:'Source: ECDC – Chikungunya, 12-month notification rate/100,000 (as of March 2026)'},
   hepatitis_b:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'},
   malaria:{de:'Quelle: CDC Yellow Book 2026 (public domain)',en:'Source: CDC Yellow Book 2026 (public domain)'}
 };
@@ -1697,7 +1700,7 @@ function showInfo(k){
   let a=AVAIL[k];
   if(k==='hepA'){ v={de:'Hepatitis A',en:'Hepatitis A',live:false}; a=AVAIL['hepatitis']; }
   if(k==='hepB'){ v={de:'Hepatitis B',en:'Hepatitis B',live:false}; a=AVAIL['hepatitis']; }
-  const inf=INFO[k];
+  const inf=INFO[k]||{disease:{de:'',en:''},epi:{de:'',en:''},side:{de:'',en:''},sched:{de:'',en:''}};
   const availHtml=a?('<div class="m-sec"><h4>'+(LX('Verfügbarkeit & Alter (Ambulanz)','Availability & age (clinic)'))+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+L2(a)+'</p></div>'):'';
   const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
   // Gelbfieber: Aufklärungsbogen (DTG) zum Drucken
@@ -1831,10 +1834,15 @@ function showMap(k){
   const name=(MAP_NAME[k]?MAP_NAME[k][LANG==='de'?'de':'en']:(v?(vName(v)):''));
   const src=(MAP_SOURCE[k]?MAP_SOURCE[k]:{de:'Quelle: RKI, Epidemiologisches Bulletin 14/2025',en:'Source: RKI, Epidemiological Bulletin 14/2025'})[LANG==='de'?'de':'en'];
   const missMsg=(LX('Karte noch nicht hinterlegt.','Map not yet available.'));
+  const src_img=(/^https?:\/\//.test(f)?f:'assets/karten/'+f);
+  const remote=MAP_REMOTE[k]||'';
+  const onErr=remote
+    ? "if(!this.dataset.fb){this.dataset.fb=1;this.src='"+remote+"';}else{this.outerHTML='<div class=&quot;map-missing&quot;>"+missMsg+"</div>';}"
+    : "this.outerHTML='<div class=&quot;map-missing&quot;>"+missMsg+"</div>'";
   el('map-bg').innerHTML='<button class="map-close" onclick="closeMap()" title="Schließen">×</button>'+
     '<div class="map-inner">'+
       '<div class="map-head">'+name+' — '+(LX('Geografische Verbreitung','Geographic distribution'))+'</div>'+
-      '<img src="assets/karten/'+f+'" alt="'+name+'" class="map-full" onerror="this.outerHTML=\'<div class=&quot;map-missing&quot;>'+missMsg+'</div>\'">'+
+      '<img src="'+src_img+'" alt="'+name+'" class="map-full" onerror="'+onErr+'">'+
       '<div class="map-foot">'+src+'</div>'+
     '</div>';
   el('map-bg').classList.add('show');
@@ -3892,7 +3900,7 @@ function openAdminPanel(){
   const role=(CURRENT_PROFILE||{}).role;
   const isAdmin=role==='admin';
   const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
-  if(isAdmin){ renderAdminUsers(); renderDeletedPatients(); }
+  if(isAdmin){ renderAdminUsers(); renderDeletedPatients(); renderTabletLock(); }
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
   if(ss){ ss.style.display=showStats?'':'none'; if(showStats) renderStats(); }
   renderSources();
@@ -3908,6 +3916,34 @@ function adminTab(name){
   document.querySelectorAll('#admin-panel section[data-atab]').forEach(sec=>{ sec.style.display=(sec.dataset.atab===name)?'':'none'; });
 }
 function openSettings(){ openAdminPanel(); }
+// Patienteneingabe am Tablet sperren/entsperren (nur Admin)
+let _tabletLocked=false;
+async function renderTabletLock(){
+  const btn=el('tablet-lock-btn'), st=el('tablet-lock-status'); if(!btn||!st) return;
+  try{ _tabletLocked = await isPatientInputLocked(); }catch(e){ _tabletLocked=false; }
+  if(_tabletLocked){
+    st.textContent=LX('Gesperrt – Patienten können sich nicht anmelden','Locked — patients cannot register');
+    st.className='lock-status locked';
+    btn.textContent=LX('Eingabe entsperren','Unlock input');
+    btn.classList.remove('btn-lock'); btn.classList.add('btn-unlock');
+  } else {
+    st.textContent=LX('Freigegeben – Selbstanmeldung möglich','Open — self-registration possible');
+    st.className='lock-status open';
+    btn.textContent=LX('Eingabe sperren','Lock input');
+    btn.classList.remove('btn-unlock'); btn.classList.add('btn-lock');
+  }
+}
+async function togglePatientInputLock(){
+  const btn=el('tablet-lock-btn'); if(btn) btn.disabled=true;
+  try{
+    const next=!_tabletLocked;
+    const { error } = await setPatientInputLocked(next);
+    if(error){ adminMsg((LX('Konnte Sperre nicht speichern: ','Could not save lock: '))+(error.message||error),'err'); }
+    else { _tabletLocked=next; if(typeof dbAuditLog==='function') dbAuditLog('patient_input_lock', next?'locked':'unlocked'); }
+  }catch(e){ adminMsg(String(e&&e.message||e),'err'); }
+  if(btn) btn.disabled=false;
+  renderTabletLock();
+}
 function closeAdminPanel(){ const p=el('admin-panel'); if(p) p.classList.remove('show'); }
 function adminMsg(text,type){ const e=el('admin-msg'); if(e) e.innerHTML = text?('<div class="msg '+(type||'err')+'">'+text+'</div>'):''; }
 

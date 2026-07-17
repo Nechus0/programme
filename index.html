@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=60">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=60">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=60">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=60">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=61">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=61">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=61">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=61">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=60">
+<link rel="stylesheet" href="css/style.css?v=61">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -61,9 +61,16 @@
       <div id="admin-msg"></div>
       <div id="admin-users" class="admin-board"></div>
     </section>
-    <section class="card" data-atab="testing">
+    <section class="card" id="tablet-sec" data-atab="users">
       <h2 data-i18n="adminTabletTitle">Patienten-Tablet (Selbstanmeldung)</h2>
       <div class="card-desc" data-i18n="adminTabletDesc">Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.</div>
+      <div class="lock-row">
+        <div class="lock-meta">
+          <span class="lock-title" data-i18n="tabletLockTitle">Patienteneingabe am Tablet</span>
+          <span id="tablet-lock-status" class="lock-status"></span>
+        </div>
+        <button id="tablet-lock-btn" class="btn sec sm" onclick="togglePatientInputLock()">…</button>
+      </div>
     </section>
     <section class="card" id="testgen-sec" data-atab="testing">
       <h2>Testdaten – Patienten-Generator</h2>
@@ -303,14 +310,14 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=60"></script>
+<script src="js/auth.js?v=61"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=60"></script>
-<script src="js/engine.js?v=60"></script>
+<script src="js/engine_rules.js?v=61"></script>
+<script src="js/engine.js?v=61"></script>
 <!-- Malaria-Daten + Engine sind inline in script.js eingebettet (Deploy-Sicherheit) -->
-<script src="js/script.js?v=60"></script>
+<script src="js/script.js?v=61"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){

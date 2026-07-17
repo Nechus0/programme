@@ -225,10 +225,18 @@
         return mk(CAT.NONE, "Nur nach durchgemachter Dengue-Infektion", "Only after prior dengue infection");
       }
       case "chikungunya": {
+        // Only CDC-declared current outbreaks -> "Dringend empfohlen".
+        // Elevated-risk areas (CDC list) -> at most "Erwägen"; escalate to "Empfohlen"
+        // only for a risk group (chronic illness / immunodeficiency / immunosuppression)
+        // staying >= ~1 month.
         a = destAgg(ctx, "chikungunya");
-        if (a.outbreak) return mk(CAT.DRINGEND, "Aktueller Ausbruch am Zielort", "Active outbreak at destination");
-        if (a.risk >= RISKORD.moderate) return mk(CAT.ERWAEGEN, "Erhöhtes Hintergrundrisiko – erwägen", "Elevated background risk — consider");
-        return mk(CAT.NONE, "Kein relevantes Chikungunya-Risiko", "No relevant chikungunya risk");
+        if (a.outbreak) return mk(CAT.DRINGEND, "Aktueller Ausbruch am Zielort", "Active outbreak at destination", "Épidémie active à destination");
+        var chikElevated = a.risk >= RISKORD.moderate;
+        var chikRiskGroup = ctx.anyChronic || (ctx.immuno && (ctx.immuno.high || ctx.immuno.def));
+        if (chikElevated && ls && chikRiskGroup)
+          return mk(CAT.EMPF, "Risikogruppe + Langzeit (≥1 Monat) in Region mit erhöhtem Risiko", "Risk group + long stay (≥1 month) in elevated-risk area", "Groupe à risque + long séjour (≥1 mois) en zone à risque accru");
+        if (chikElevated) return mk(CAT.ERWAEGEN, "Erhöhtes Hintergrundrisiko – erwägen", "Elevated background risk — consider", "Risque de fond élevé – à envisager");
+        return mk(CAT.NONE, "Kein relevantes Chikungunya-Risiko", "No relevant chikungunya risk", "Pas de risque chikungunya pertinent");
       }
       // ---- routine / STIKO (no travel component) ----
       case "influenza": return stikoRoutine(ctx, ["influenza"], "Influenza");

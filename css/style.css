@@ -15,16 +15,15 @@ header{background:#fff;border-bottom:2px solid var(--black);padding:14px 28px;di
 .brand .divider{width:1px;height:30px;background:var(--line);}
 .brand .app-title{font-size:15px;font-weight:600;}
 .brand .app-sub{font-size:11px;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;}
-.header-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.header-right{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
 .login-box{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;}
 .login-box input{width:180px;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:12px;}
 .login-box input:focus{outline:none;border-color:var(--black);}
-.lang-toggle{display:flex;gap:6px;}
-.lang-toggle{display:inline-flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:3px 6px 3px 8px;}
-.lang-toggle .lang-globe{color:var(--grey);margin-right:3px;flex:none;}
-.lang-toggle button{display:inline-flex;align-items:center;cursor:pointer;user-select:none;background:transparent;padding:5px 9px;border-radius:6px;border:none;transition:background .12s,color .12s;font-size:12.5px;font-family:var(--font);color:var(--grey);font-weight:700;}
+.lang-toggle{display:inline-flex;align-items:center;gap:2px;background:var(--grey-xl);border:1px solid var(--line);border-radius:10px;padding:3px 5px 3px 9px;}
+.lang-toggle .lang-globe{color:var(--grey);margin-right:5px;flex:none;}
+.lang-toggle button{display:inline-flex;align-items:center;cursor:pointer;user-select:none;background:transparent;padding:5px 10px;border-radius:7px;border:none;transition:background .12s,color .12s,box-shadow .12s;font-size:12.5px;font-family:var(--font);color:var(--grey);font-weight:700;letter-spacing:.02em;}
 .lang-toggle button:hover{color:var(--black);}
-.lang-toggle button.active{color:#fff;background:var(--black);}
+.lang-toggle button.active{color:var(--black);background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);}
 .shell{max-width:1560px;margin:0 auto;padding:0 20px;display:flex;align-items:flex-start;gap:22px;}
 body.clinic-idle { overflow: hidden; }
 body.clinic-idle .shell { align-items: stretch; height: calc(100vh - 80px); }
@@ -373,10 +372,10 @@ table.vax td.status{position:relative;padding-right:46px;}
 .map-close:hover { background:rgba(255,255,255,.28); }
 
 /* ===== Auth / Rollen / Admin ===== */
-.user-box{display:flex;align-items:center;gap:12px;}
-.user-box .user-meta{display:flex;flex-direction:column;line-height:1.2;text-align:right;}
+.user-box{display:flex;align-items:center;gap:14px;padding-right:18px;border-right:1px solid var(--line);}
+.user-box .user-meta{display:flex;flex-direction:column;line-height:1.25;text-align:right;}
 .user-box #user-name{font-size:13px;font-weight:700;}
-.user-box .user-role{font-size:11px;color:var(--grey);}
+.user-box .user-role{font-size:11px;color:var(--grey);text-transform:capitalize;}
 .hamburger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:38px;height:34px;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:0 9px;}
 .hamburger span{display:block;height:2px;background:var(--black);border-radius:2px;}
 .hamburger:hover{border-color:var(--black);}
@@ -852,13 +851,13 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-col-treatment .amb-col-ic{ color:var(--blue); }
 .amb-col-kasse .amb-col-ic{ color:var(--yellow); }
 .amb-col-done .amb-col-ic{ color:var(--green); }
-.amb-shift-row{ display:flex; align-items:center; flex-wrap:wrap; gap:6px 16px; margin-top:12px; padding:10px 14px 2px; border-top:1px solid var(--line); flex:0 0 auto; }
-.shift-row-title{ font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text); margin-right:4px; }
-.shift-row-group{ display:inline-flex; align-items:center; gap:7px; }
-.shift-row-role{ font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
-.shift-row-person{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; }
+.amb-shift-row{ display:flex; align-items:center; flex-wrap:wrap; gap:10px 12px; margin-top:18px; padding:12px 16px; border:1px solid var(--line); border-radius:12px; background:#fafbfc; flex:0 0 auto; }
+.shift-row-title{ font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--text); margin-right:2px; }
+.shift-row-group{ display:inline-flex; align-items:center; gap:9px; padding:5px 12px; background:#fff; border:1px solid var(--line); border-radius:999px; }
+.shift-row-role{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--grey); }
+.shift-row-person{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; }
 .shift-row-nm{ white-space:nowrap; }
-.shift-row-empty{ font-size:12px; color:var(--grey); }
+.shift-row-empty{ font-size:12px; color:#bcbcbc; }
 
 /* ===== Standardisierte 2-Zeilen-Karten im Fluss-Board ===== */
 .amb-flow .patient-item{ position:relative; background:#fff; border:0.5px solid var(--line); border-left:3px solid var(--line); border-radius:0 10px 10px 0; margin-bottom:8px; }
@@ -1060,3 +1059,15 @@ body.clinic-idle #stepM{ display:none !important; }
 .mal-calc-note{ font-size:11.5px; color:var(--grey); margin-top:8px; }
 .mal-expo{ display:flex; gap:9px; align-items:flex-start; background:var(--green-bg); border-radius:10px; padding:10px 13px; font-size:12.5px; color:#215c2a; }
 .mal-expo svg{ flex:none; margin-top:1px; color:var(--green); }
+/* Patienteneingabe-Sperre (Tablet) im Admin-Bereich */
+.lock-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; padding:14px 16px; border:1px solid var(--line); border-radius:10px; background:#fafbfc; flex-wrap:wrap; }
+.lock-meta{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.lock-title{ font-weight:600; font-size:14px; }
+.lock-status{ font-size:12.5px; display:inline-flex; align-items:center; gap:6px; }
+.lock-status::before{ content:""; width:8px; height:8px; border-radius:50%; background:currentColor; flex:none; }
+.lock-status.open{ color:var(--green); }
+.lock-status.locked{ color:var(--red); }
+.btn.btn-lock{ border:1.5px solid var(--red); color:var(--red); background:#fff; }
+.btn.btn-lock:hover{ background:var(--red); color:#fff; }
+.btn.btn-unlock{ border:1.5px solid var(--green); color:var(--green); background:#fff; }
+.btn.btn-unlock:hover{ background:var(--green); color:#fff; }
