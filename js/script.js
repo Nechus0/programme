@@ -24,7 +24,7 @@ const I18N={
  s1Title:{de:'Stammdaten',en:'Master data'},s1Desc:{de:'Persönliche Daten und Kontakt.',en:'Personal details and contact.'},
  s2Title:{de:'Reise',en:'Travel'},s2Desc:{de:'Reiseziel(e), Aufenthaltsdauer und besondere Bedingungen.',en:'Destination(s), duration and special conditions.'},
  s5Title:{de:'Geplante Impfungen',en:'Planned vaccinations'},s5Desc:{de:'Termine für die ausgewählten Impfungen festlegen.',en:'Set appointments for the selected vaccinations.'},
- s6Title:{de:'Leistungen',en:'Services'},s6Desc:{de:'Dokumentation der heute erbrachten Leistungen für die Abrechnung.',en:'Documentation of services provided today for billing.'},
+ s6Title:{de:'Leistungen',en:'Services'},s6Desc:{de:'Dokumentation der heute erbrachten Leistungen für die Abrechnung.',en:'Documentation of services provided today for billing.'},priceBtn:{de:'Preise',en:'Prices'},
  leistVaxToday:{de:'Impfungen heute',en:'Vaccinations today'},leistBeratHead:{de:'Beratung & Untersuchung',en:'Consultation & examination'},leistWeitereHead:{de:'Weitere Leistungen',en:'Other services'},
  leistBeratplan:{de:'Beratung mit Impfplan & Impftauglichkeit',en:'Consultation with vaccination plan & fitness'},leistBeratRezept:{de:'Beratung, ggf. mit Rezept',en:'Consultation, possibly with prescription'},leistBeratLang:{de:'Ausführliche Beratung > 20 min',en:'Detailed consultation > 20 min'},leistKeineBerat:{de:'Keine Beratung',en:'No consultation'},
  leistFolge:{de:'Folgeverordnung',en:'Follow-up prescription'},leistBescheinigung:{de:'Bescheinigung – Impfheft / Impfbefreiung',en:'Certificate – vaccination record / exemption'},leistImpf:{de:'Impfleistung',en:'Vaccination service'},leistWarn:{de:'Keine Leistung erfasst',en:'No service recorded'},
@@ -95,7 +95,7 @@ const I18N_FR={
  s1Title:'Données personnelles', s1Desc:'Coordonnées et contact.',
  s2Title:'Voyage', s2Desc:'Destination(s), durée du séjour et conditions particulières.',
  s5Title:'Vaccinations planifiées', s5Desc:'Définir les rendez-vous pour les vaccinations sélectionnées.',
- s6Title:'Prestations', s6Desc:"Documentation des prestations fournies aujourd'hui pour la facturation.",
+ s6Title:'Prestations', s6Desc:"Documentation des prestations fournies aujourd'hui pour la facturation.", priceBtn:'Prix',
  leistVaxToday:"Vaccins aujourd'hui", leistBeratHead:'Consultation et examen', leistWeitereHead:'Autres prestations',
  leistBeratplan:"Consultation avec plan vaccinal et aptitude à la vaccination", leistBeratRezept:'Consultation, éventuellement avec ordonnance', leistBeratLang:'Consultation détaillée > 20 min', leistKeineBerat:'Aucune consultation',
  leistFolge:'Prescription de suivi', leistBescheinigung:'Attestation – carnet de vaccination / dispense', leistImpf:'Acte de vaccination', leistWarn:'Aucune prestation saisie',
@@ -2309,10 +2309,9 @@ function showPriceInfo(){
   box.classList.add('pi-modal');
   box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3 class="pi-h">'+L2(I18N.priceInfoTitle)+'</h3>'+
-    '<div class="pi-grid">'+
-      '<div class="pi-col"><div class="pi-sub">'+L2(I18N.priceInfoLeist)+'</div>'+mkRows(leist)+'</div>'+
-      '<div class="pi-col pi-col-vax"><div class="pi-sub">'+L2(I18N.priceInfoVax)+'</div>'+mkRows(vaxA)+'</div>'+
-      '<div class="pi-col pi-col-vax"><div class="pi-sub">&nbsp;</div>'+mkRows(vaxB)+'</div>'+
+    '<div class="pi-2col">'+
+      '<div class="pi-block"><div class="pi-sub">'+L2(I18N.priceInfoLeist)+'</div><div class="pi-list">'+mkRows(leist)+'</div></div>'+
+      '<div class="pi-block"><div class="pi-sub">'+L2(I18N.priceInfoVax)+'</div><div class="pi-vaxgrid"><div class="pi-vaxcol">'+mkRows(vaxA)+'</div><div class="pi-vaxcol">'+mkRows(vaxB)+'</div></div></div>'+
     '</div>';
   const bg=el('modal-bg'); if(bg) bg.classList.add('show');
 }

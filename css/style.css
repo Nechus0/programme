@@ -35,7 +35,7 @@ main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90p
 .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:22px;scroll-margin-top:78px;}
 .card h2{margin:0 0 4px;font-size:17px;font-weight:700;}
 .card h2.sec-h{display:flex;align-items:center;}
-.card h2.sec-h .price-info-btn{margin-left:10px;}
+.card h2.sec-h .price-info-btn{margin-left:auto;}
 .card .card-desc{color:var(--grey);font-size:12.5px;margin-bottom:18px;}
 .step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--black);color:#fff;border-radius:50%;font-size:12px;font-weight:700;margin-right:10px;}
 .grid{display:grid;gap:16px;} .g4{grid-template-columns:repeat(4,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);}
@@ -722,14 +722,17 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .leistung-group{ flex-direction:row; flex-wrap:wrap; align-items:stretch; }
 .leistung-group .chk-chip{ flex:0 1 auto; }
 /* 5: P-Preis-Button + Preisübersicht-Modal */
-.price-info-btn{ width:26px;height:26px;border-radius:50%;border:1.5px solid var(--black);background:#fff;color:var(--black);font-weight:800;font-size:13px;cursor:pointer;font-family:var(--font);line-height:1;flex:none; }
+.price-info-btn{ display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 15px;border-radius:15px;border:1.5px solid var(--black);background:#fff;color:var(--black);font-weight:600;font-size:12.5px;letter-spacing:.01em;cursor:pointer;font-family:var(--font);line-height:1;flex:none;transition:background .12s,color .12s; }
+.price-info-btn span:first-child{ font-weight:800; }
 .price-info-btn:hover{ background:var(--black);color:#fff; }
-.pi-h{ margin:0 0 14px;font-size:17px; }
-.pi-grid{ display:grid;grid-template-columns:1fr 1fr;gap:6px 26px; }
-.pi-sub{ font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);margin-bottom:6px;border-bottom:1px solid var(--line);padding-bottom:4px; }
-.pi-row{ display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:2px 0;border-bottom:1px solid #f0f0f0; }
-.pi-row span:last-child{ font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap; }
-@media(max-width:560px){ .pi-grid{ grid-template-columns:1fr; } }
+.pi-h{ margin:0 0 18px;font-size:18px; }
+.pi-2col{ display:grid;grid-template-columns:1fr 1fr;gap:20px 40px;align-items:start; }
+.pi-vaxgrid{ display:grid;grid-template-columns:1fr 1fr;gap:0 32px; }
+.pi-sub{ font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:6px; }
+.pi-row{ display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:13px;line-height:1.4;padding:5px 0;border-bottom:1px solid #f2f2f2; }
+.pi-row span:first-child{ color:var(--text); }
+.pi-row span:last-child{ font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;color:var(--text); }
+@media(max-width:640px){ .pi-2col{ grid-template-columns:1fr; } .pi-vaxgrid{ grid-template-columns:1fr; } }
 /* 7+8: Behandler-Icon + Zahlungs-Badge in der Behandelt-Liste */
 .tp-item.tp-done{ display:flex;align-items:center; }
 .tp-item.tp-done .tp-nm{ flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
@@ -766,11 +769,10 @@ body.clinic-idle .shift-panel.show{ margin:24px 0 20px 0; border-left:none; bord
 .shift-panel .tp-title{ font-size:13px; color:var(--text); }
 .shift-group{ margin-bottom:22px; }
 .shift-role{ margin-bottom:9px; }
-/* Preisliste etwas größer + dreispaltig */
-.modal.pi-modal{ max-width:840px; }
-.pi-h{ font-size:19px; margin-bottom:16px; }
-.pi-grid{ grid-template-columns:1.05fr 1fr 1fr; gap:8px 30px; }
-.pi-row{ font-size:13.5px; padding:3px 0; }
+/* Preisliste: Leistungen links, Impfstoffe rechts (zweispaltig) */
+.modal.pi-modal{ max-width:880px; }
+.pi-2col{ grid-template-columns:0.9fr 1.5fr; }
+.pi-h{ font-size:19px; }
 .pi-sub{ font-size:12px; }
 /* Sektion 4: Altersfeld in eigener Zeile unter der Überschrift (kein Kollidieren mit Stift/Caret) */
 .s4-agebar{ display:flex; justify-content:flex-end; margin:0 0 18px; }
