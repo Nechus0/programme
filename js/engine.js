@@ -163,7 +163,20 @@ function buildOptimalSchedule(planned, departureStr) {
   }
   buckets.sort((a, c) => a.offset - c.offset);
 
-  return buckets.filter(b => b.items.length > 0);
+  // COVID-19 wird an der Charité nicht verimpft (Standardversorgung/Hausarzt) →
+  // immer automatisch in einen externen Termin verschieben (Hausarzt/Extern).
+  let covidItems = [];
+  buckets.forEach(b => {
+     const keep = [];
+     b.items.forEach(it => { if (it.k === 'covid') covidItems.push(it); else keep.push(it); });
+     b.items = keep;
+  });
+  let result = buckets.filter(b => b.items.length > 0);
+  if (covidItems.length) {
+     let lastOff = result.length ? result[result.length - 1].offset : 0;
+     result.push({ offset: lastOff + 28, items: covidItems, live: false, reactoCount: 0, isExternal: true });
+  }
+  return result;
 }
 function ageExact(dob){
   if(!dob)return null;

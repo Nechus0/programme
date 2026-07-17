@@ -768,6 +768,8 @@ body.clinic-idle #list-card{ border-top-right-radius:8px; border-bottom-right-ra
 .card.locked > :not(h2):not(.lock-btn){ pointer-events:none; }
 .card.locked > h2, .card.locked .lock-btn{ pointer-events:auto; }
 .card.locked .info-btn, .card.locked .map-btn, .card.locked .row-info{ pointer-events:auto; }
+/* Länder- & Gesundheitshinweise (nur Info + externe Links) bleiben immer klickbar, auch bei gesperrter Reise-Sektion */
+.card.locked #notes-block, .card.locked #notes-block *, .card.locked .aa-link{ pointer-events:auto !important; }
 .card.locked .kasse-billing, .card.locked .kasse-billing *{ pointer-events:auto; }
 /* Chips/Dosen im gesperrten Zustand ausgegraut wie die übrigen Felder */
 .card.locked .dose-chip, .card.locked .leistung-chip{ opacity:.55; }

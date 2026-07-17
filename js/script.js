@@ -380,19 +380,66 @@ const RECENT_VAX_DB = [
   { disease: 'Cholera', substance: 'Dukoral, Vaxchora', live_vaccine: false }
 ];
 
+const CHR_U_PNEU = 'Unkritisch. Empfehlung Pneumokokken prüfen.';
+const CHR_U_CHRON = 'Unkritisch. Bei chronischer Grunderkrankung Influenza- und Pneumokokken-Impfung prüfen.';
+const CHR_U_NONE = 'Für die Reiseimpfung unkritisch.';
+const CHR_IMMUNO = 'Immunsuppressive Therapie prüfen. Lebendimpfstoffe ggf. kontraindiziert.';
+const CHR_TUMOR = 'Bei Chemo-/Immuntherapie Immunsuppression prüfen. Lebendimpfstoffe ggf. kontraindiziert.';
 const CHRONIC_DB = [
-  { name: 'Diabetes Mellitus Typ II', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
-  { name: 'Diabetes Mellitus Typ I', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
-  { name: 'HIV / AIDS', warning: true, context: 'CD4-Zellzahl prüfen. Lebendimpfstoffe ab <200/µl kontraindiziert.' },
-  { name: 'Leukämie', warning: true, context: 'Immunsuppression wahrscheinlich. Lebendimpfstoffe kontraindiziert. Totimpfstoff-Antwort reduziert.' },
-  { name: 'Rheumatoide Arthritis', warning: true, context: 'Immunsuppressive Therapie (Biologika/MTX) prüfen. Lebendimpfstoffe ggf. kontraindiziert.' },
-  { name: 'Chronisch entzündliche Darmerkrankung (Morbus Crohn, Colitis Ulcerosa)', warning: true, context: 'Immunsuppressive Therapie prüfen. Lebendimpfstoffe ggf. kontraindiziert.' },
-  { name: 'Asthma bronchiale', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
-  { name: 'COPD', warning: false, context: 'Unkritisch. Empfehlung Pneumokokken prüfen.' },
-  { name: 'Niereninsuffizienz', warning: true, context: 'Immunantwort oft reduziert (v.a. Hep B). Titerkontrollen sinnvoll.' },
-  { name: 'Asplenie (fehlende/funktionslose Milz)', warning: true, context: 'Dringende Indikation für Pneumokokken, Meningokokken (ACWY+B), Haemophilus influenzae.' },
-  { name: 'Multiple Sklerose', warning: true, context: 'Krankheitsmodifizierende Therapie prüfen (z.B. Ocrelizumab). Lebendimpfstoffe ggf. kontraindiziert.' },
-  { name: 'Psoriasis', warning: true, context: 'Systemische Therapie (Biologika) prüfen. Lebendimpfstoffe ggf. kontraindiziert.' }
+  // — Immunologisch/impfrelevant (Warnung) —
+  { name: 'HIV / AIDS', warning: true, context: 'CD4-Zellzahl prüfen. Lebendimpfstoffe ab <200/µl kontraindiziert.', syn:['HIV','AIDS'] },
+  { name: 'Leukämie', warning: true, context: 'Immunsuppression wahrscheinlich. Lebendimpfstoffe kontraindiziert. Totimpfstoff-Antwort reduziert.', syn:['Blutkrebs'] },
+  { name: 'Rheumatoide Arthritis', warning: true, context: 'Immunsuppressive Therapie (Biologika/MTX) prüfen. Lebendimpfstoffe ggf. kontraindiziert.', syn:['Rheuma','Gelenkrheuma','entzündliches Rheuma'] },
+  { name: 'Chronisch entzündliche Darmerkrankung (Morbus Crohn, Colitis Ulcerosa)', warning: true, context: 'Immunsuppressive Therapie prüfen. Lebendimpfstoffe ggf. kontraindiziert.', syn:['Morbus Crohn','Colitis ulcerosa','Colitis','CED','Darmentzündung','chronische Darmentzündung'] },
+  { name: 'Niereninsuffizienz', warning: true, context: 'Immunantwort oft reduziert (v.a. Hep B). Titerkontrollen sinnvoll.', syn:['Nierenschwäche','Nierenversagen','Dialyse','dialysepflichtig','chronische Niereninsuffizienz'] },
+  { name: 'Asplenie (fehlende/funktionslose Milz)', warning: true, context: 'Dringende Indikation für Pneumokokken, Meningokokken (ACWY+B), Haemophilus influenzae.', syn:['Milzentfernung','Splenektomie','fehlende Milz','ohne Milz'] },
+  { name: 'Multiple Sklerose', warning: true, context: 'Krankheitsmodifizierende Therapie prüfen (z.B. Ocrelizumab). Lebendimpfstoffe ggf. kontraindiziert.', syn:['MS'] },
+  { name: 'Psoriasis', warning: true, context: 'Systemische Therapie (Biologika) prüfen. Lebendimpfstoffe ggf. kontraindiziert.', syn:['Schuppenflechte'] },
+  { name: 'Lupus erythematodes / Kollagenose', warning: true, context: CHR_IMMUNO, syn:['Lupus','SLE','Kollagenose','Bindegewebserkrankung','Sklerodermie'] },
+  { name: 'Maligne Tumorerkrankung (Krebs)', warning: true, context: CHR_TUMOR, syn:['Krebs','Tumor','Karzinom','Krebserkrankung','Chemotherapie','Mammakarzinom','Prostatakrebs','Darmkrebs','Lungenkrebs'] },
+  // — Kardiopulmonal / metabolisch (Influenza-/Pneumokokken-Indikation prüfen) —
+  { name: 'Diabetes Mellitus Typ II', warning: false, context: CHR_U_PNEU, syn:['Zucker','Zuckerkrankheit','Altersdiabetes','Diabetes','Blutzucker'] },
+  { name: 'Diabetes Mellitus Typ I', warning: false, context: CHR_U_PNEU, syn:['Zuckerkrankheit','Diabetes'] },
+  { name: 'Asthma bronchiale', warning: false, context: CHR_U_PNEU, syn:['Asthma'] },
+  { name: 'COPD', warning: false, context: CHR_U_PNEU, syn:['chronische Bronchitis','Raucherlunge','chronisch obstruktive Lungenerkrankung'] },
+  { name: 'Koronare Herzkrankheit', warning: false, context: CHR_U_CHRON, syn:['KHK','Herzkranzgefäßverengung','koronare Herzerkrankung'] },
+  { name: 'Herzinsuffizienz', warning: false, context: CHR_U_CHRON, syn:['Herzschwäche','Herzmuskelschwäche'] },
+  { name: 'Arterielle Hypertonie', warning: false, context: CHR_U_CHRON, syn:['Bluthochdruck','Hypertonie','hoher Blutdruck','Hochdruck'] },
+  { name: 'Schlaganfall (Z. n.)', warning: false, context: CHR_U_CHRON, syn:['Schlaganfall','Apoplex','Hirninfarkt','Hirnschlag'] },
+  { name: 'Adipositas', warning: false, context: CHR_U_CHRON, syn:['Übergewicht','Fettleibigkeit','Fettsucht'] },
+  { name: 'Chronische Lebererkrankung (z. B. MASLD/Zirrhose)', warning: false, context: CHR_U_CHRON, syn:['Fettleber','MASLD','Leberzirrhose','Leberentzündung','Leberzirrose'] },
+  { name: 'Chronische Pankreatitis', warning: false, context: CHR_U_CHRON, syn:['Bauchspeicheldrüsenentzündung','Pankreatitis'] },
+  // — Orthopädisch / neurologisch / psychisch / sonstige (reiseimpf-unkritisch) —
+  { name: 'Arthrose', warning: false, context: CHR_U_NONE, syn:['Gelenkverschleiß','Gelenkabnutzung'] },
+  { name: 'Chronische Rückenschmerzen', warning: false, context: CHR_U_NONE, syn:['Rückenschmerzen','Rücken','Bandscheibe','Bandscheibenvorfall'] },
+  { name: 'Osteoporose', warning: false, context: CHR_U_NONE, syn:['Knochenschwund'] },
+  { name: 'Gicht', warning: false, context: CHR_U_NONE, syn:['Harnsäure','erhöhte Harnsäure'] },
+  { name: 'Morbus Parkinson', warning: false, context: CHR_U_NONE, syn:['Parkinson','Schüttellähmung'] },
+  { name: 'Demenz / Alzheimer', warning: false, context: CHR_U_NONE, syn:['Demenz','Alzheimer','Vergesslichkeit'] },
+  { name: 'Epilepsie', warning: false, context: CHR_U_NONE, syn:['Krampfanfälle','Anfallsleiden','Krampfleiden'] },
+  { name: 'Migräne', warning: false, context: CHR_U_NONE, syn:['Kopfschmerzen','Migraene'] },
+  { name: 'Depression', warning: false, context: CHR_U_NONE, syn:['depressive Verstimmung','Depressionen'] },
+  { name: 'Angststörung', warning: false, context: CHR_U_NONE, syn:['Angst','Panikstörung','Panikattacken','Angststörungen'] },
+  { name: 'Suchterkrankung (Alkohol/Nikotin)', warning: false, context: CHR_U_CHRON, syn:['Alkohol','Alkoholismus','Nikotin','Rauchen','Sucht','Abhängigkeit'] },
+  { name: 'Essstörung', warning: false, context: CHR_U_NONE, syn:['Magersucht','Anorexie','Bulimie','Essstörungen'] },
+  { name: 'Chronisches Schmerzsyndrom', warning: false, context: CHR_U_NONE, syn:['chronische Schmerzen','Schmerzsyndrom','Dauerschmerzen'] },
+  { name: 'Chronische Müdigkeit / Fatigue (CFS)', warning: false, context: CHR_U_NONE, syn:['Fatigue','chronische Müdigkeit','Erschöpfung','CFS','ME/CFS'] },
+  { name: 'Allergien (Heuschnupfen u. a.)', warning: false, context: CHR_U_NONE, syn:['Allergie','Heuschnupfen','Pollenallergie','Hausstauballergie','Allergien'] },
+  { name: 'Ekzem / Neurodermitis', warning: false, context: CHR_U_NONE, syn:['Neurodermitis','Ekzem','atopische Dermatitis','atopisches Ekzem'] },
+  { name: 'Reizdarmsyndrom', warning: false, context: CHR_U_NONE, syn:['Reizdarm','RDS'] },
+  { name: 'Chronische Gastritis', warning: false, context: CHR_U_NONE, syn:['Gastritis','Magenschleimhautentzündung'] },
+  { name: 'Ulcus ventriculi / duodeni', warning: false, context: CHR_U_NONE, syn:['Magengeschwür','Zwölffingerdarmgeschwür','Ulcus','Geschwür'] },
+  { name: 'Cholelithiasis (Gallensteine)', warning: false, context: CHR_U_NONE, syn:['Gallensteine','Gallenstein','Gallenblase'] },
+  { name: 'Divertikulose / Divertikulitis', warning: false, context: CHR_U_NONE, syn:['Divertikel','Divertikulitis'] },
+  { name: 'Zöliakie', warning: false, context: CHR_U_NONE, syn:['Glutenunverträglichkeit','Sprue','Zoeliakie'] },
+  { name: 'Anämie (chronisch)', warning: false, context: CHR_U_NONE, syn:['Blutarmut','Anämie','Eisenmangel','Eisenmangelanämie'] },
+  { name: 'Schlafapnoe', warning: false, context: CHR_U_NONE, syn:['Atemaussetzer','Schlafapnoe-Syndrom','Schnarchen'] },
+  { name: 'Chronische Sinusitis', warning: false, context: CHR_U_NONE, syn:['Nasennebenhöhlenentzündung','Sinusitis'] },
+  { name: 'Chronische Otitis media', warning: false, context: CHR_U_NONE, syn:['Mittelohrentzündung','Otitis'] },
+  { name: 'Tinnitus', warning: false, context: CHR_U_NONE, syn:['Ohrgeräusche','Ohrensausen'] },
+  { name: 'Altersbedingte Makuladegeneration (AMD)', warning: false, context: CHR_U_NONE, syn:['Makuladegeneration','AMD','Netzhauterkrankung'] },
+  { name: 'Glaukom (Grüner Star)', warning: false, context: CHR_U_NONE, syn:['Grüner Star','Glaukom'] },
+  { name: 'Katarakt (Grauer Star)', warning: false, context: CHR_U_NONE, syn:['Grauer Star','Katarakt'] }
 ];
 /* Übersetzung der Kontext-Hinweise (EN/FR) für die chronischen Erkrankungen */
 const CTX_TR={
@@ -404,7 +451,10 @@ const CTX_TR={
  'Immunantwort oft reduziert (v.a. Hep B). Titerkontrollen sinnvoll.':{en:'Immune response often reduced (esp. Hep B). Titre checks advisable.',fr:'Réponse immunitaire souvent réduite (surtout hép. B). Contrôles de titre conseillés.'},
  'Dringende Indikation für Pneumokokken, Meningokokken (ACWY+B), Haemophilus influenzae.':{en:'Urgent indication for pneumococcal, meningococcal (ACWY+B), Haemophilus influenzae.',fr:'Indication urgente pour le pneumocoque, le méningocoque (ACWY+B), Haemophilus influenzae.'},
  'Krankheitsmodifizierende Therapie prüfen (z.B. Ocrelizumab). Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check disease-modifying therapy (e.g. ocrelizumab). Live vaccines possibly contraindicated.',fr:'Vérifier le traitement de fond (p. ex. ocrélizumab). Vaccins vivants éventuellement contre-indiqués.'},
- 'Systemische Therapie (Biologika) prüfen. Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check systemic therapy (biologics). Live vaccines possibly contraindicated.',fr:'Vérifier le traitement systémique (biothérapies). Vaccins vivants éventuellement contre-indiqués.'}
+ 'Systemische Therapie (Biologika) prüfen. Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check systemic therapy (biologics). Live vaccines possibly contraindicated.',fr:'Vérifier le traitement systémique (biothérapies). Vaccins vivants éventuellement contre-indiqués.'},
+ 'Unkritisch. Bei chronischer Grunderkrankung Influenza- und Pneumokokken-Impfung prüfen.':{en:'No concern. With a chronic condition, consider influenza and pneumococcal vaccination.',fr:'Non critique. En cas de maladie chronique, envisager la vaccination antigrippale et antipneumococcique.'},
+ 'Für die Reiseimpfung unkritisch.':{en:'No concern for travel vaccination.',fr:'Sans conséquence pour la vaccination du voyageur.'},
+ 'Bei Chemo-/Immuntherapie Immunsuppression prüfen. Lebendimpfstoffe ggf. kontraindiziert.':{en:'Check for immunosuppression under chemo/immunotherapy. Live vaccines possibly contraindicated.',fr:'Vérifier l\'immunosuppression sous chimio/immunothérapie. Vaccins vivants éventuellement contre-indiqués.'}
 };
 function ctxT(de){const m=CTX_TR[de]; if(!m)return de||''; return LANG==='de'?de:(LANG==='fr'?m.fr:m.en);}
 
@@ -931,6 +981,15 @@ function renderApptOverview() {
     let dateAlert = (daysDep !== null && offset > daysDep) ? '<span style="color:var(--red);font-weight:bold;font-size:12px;margin-left:8px">Nach Abreise</span>' : '';
 
     let itemsHtml = b.items.map(it => {
+       // COVID-19 wird an der Charité nicht verimpft → fest extern, nicht verschiebbar (kein Drag&Drop).
+       if (it.k === 'covid') {
+          return `<div class="sched-item covid-fixed" id="${it.id}" draggable="false" data-name="${it.name}" data-k="${it.k}" data-stkey="${it.stKey}" data-planfield="${it.planField}" data-live="${it.live}" data-reacto="${it.isReacto}" style="cursor:default;opacity:.9;">
+            <div style="flex:1;"><b>${it.displayName}</b> <span class="grp-badge" title="${LX('Nur beim Hausarzt/extern','Only at GP/external')}">${LX('Extern','External')}</span></div>
+            <div style="display:flex; gap:12px; align-items:center;">
+               <span class="icon-btn del" onclick="hRemoveItem('${it.id}'); event.stopPropagation();" title="${LX('Impfung entfernen','Remove vaccine')}">✕</span>
+            </div>
+          </div>`;
+       }
        return `<div class="sched-item" id="${it.id}" draggable="true" ondragstart="hDragStart(event)" ondragend="hDragEnd(event)" data-name="${it.name}" data-k="${it.k}" data-stkey="${it.stKey}" data-planfield="${it.planField}" data-live="${it.live}" data-reacto="${it.isReacto}">
          <div style="cursor:grab;flex:1;"><b>${it.displayName}</b> ${it.live ? '<span class="live-dot" title="Lebendimpfstoff">L</span>' : ''}</div>
          <div style="display:flex; gap:12px; align-items:center;">
@@ -1211,8 +1270,15 @@ function chronicAutocomplete(){
   if(v.length<1){ ac.innerHTML=''; ac.style.display='none'; return; }
   const out=[];
   for(const d of CHRONIC_DB){
-    if(d.name.toLowerCase().includes(v)){
-      out.push({label:d.name, add:d.name, starts:d.name.toLowerCase().startsWith(v)});
+    const nm=d.name.toLowerCase();
+    if(nm.includes(v)){
+      out.push({label:d.name, add:d.name, starts:nm.startsWith(v)});
+      continue;
+    }
+    // Umgangssprachliche Synonyme (z. B. „Bluthochdruck" → Arterielle Hypertonie)
+    const syn=(d.syn||[]).find(s=>s.toLowerCase().includes(v));
+    if(syn){
+      out.push({label:d.name+' — '+syn, add:d.name, starts:syn.toLowerCase().startsWith(v)});
     }
   }
   out.sort((a,b)=>(b.starts-a.starts)|| a.label.localeCompare(b.label));
@@ -1576,7 +1642,7 @@ function renderAge(){
   } else {txt=det.y+' '+(LX('Jahre','years'));box.className='age-box';}
   box.innerHTML='<span>'+txt+'</span><span class="yob">('+(LX('geb.','b.'))+' '+yr+')</span>';
 }
-function updatePregVisibility(){const male=el('p-sex').value==='m';const f=el('preg-field');if(f)f.style.display=male?'none':'';if(male)el('p-pregnant').value='no';}
+function updatePregVisibility(){const male=el('p-sex').value==='m';const f=el('preg-field');if(f){f.style.display=male?'none':'';const g=f.parentElement;if(g&&g.classList.contains('grid')){g.classList.toggle('g3',!male);g.classList.toggle('g2',male);}}if(male)el('p-pregnant').value='no';}
 function updateDepartureHint(){const d=el('p-departure').value;const h=el('departure-hint');if(!h)return;h.textContent=d?((LX('Tage bis Abreise: ','Days to departure: '))+Math.round((new Date(d)-new Date())/86400000)):'';}
 function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();renderContraWarn();if(typeof renderMalaria==='function')renderMalaria();}
 // Hinweise zu Akuterkrankung / Thrombose / Ohnmacht – nur für Personal, nichts für Patienten
@@ -2286,7 +2352,13 @@ function getTodaysLeistungVax() {
    // nicht mehr beeinflussen, auch wenn ein alter customSchedule sie noch enthält.
    return todaysItems
       .filter(item => { if(!item.planField) return true; const st=vaxState[item.stKey]; return !!(st && st[item.planField]); })
-      .map(item => ({ k: item.stKey, sub: item.planField || 'planned', name: item.name, priceKey: vaxPriceKey(item.stKey, item.planField || 'planned') }));
+      .map(item => {
+         let pk = vaxPriceKey(item.stKey, item.planField || 'planned');
+         // item.k ist bereits der korrekte Preis-Schlüssel (hepA/hepB/hepAB/tdap_combo/ipv_mono/…).
+         // Fallback für ältere/gespeicherte Termine ohne planField, damit z.B. Hep A (Avaxim) immer einen Preis hat.
+         if(!(pk in VAX_PRICE) && item.k && (item.k in VAX_PRICE)) pk = item.k;
+         return { k: item.stKey, sub: item.planField || 'planned', name: item.name, priceKey: pk };
+      });
 }
 function updateLeistungen() {
    const listDiv = el('leistung-vax-list');

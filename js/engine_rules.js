@@ -189,7 +189,8 @@
       }
       case "menb": {
         if (am != null && am < 24) return mk(CAT.GENERELL, "STIKO-Standard für Säuglinge", "STIKO standard for infants");
-        if (ctx.immuno && (ctx.immuno.def || ctx.immuno.high)) return mk(CAT.GENERELL, "Indikation (Immundefizienz/Asplenie)", "Indication (immunodeficiency/asplenia)");
+        // Indikation (Immundefizienz/Asplenie): kein Altersstandard, daher „Erwägen" – konsistent mit MenACWY.
+        if (ctx.immuno && (ctx.immuno.def || ctx.immuno.high)) return mk(CAT.ERWAEGEN, "Indikation (Immundefizienz/Asplenie)", "Indication (immunodeficiency/asplenia)");
         return mk(CAT.NONE, "Keine generelle MenB-Indikation", "No general MenB indication");
       }
       case "polio": {
