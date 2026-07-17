@@ -3393,14 +3393,28 @@ function computeStats(){
 function stKpi(label,val){ return '<div class="st-kpi"><div class="st-kpi-v">'+val+'</div><div class="st-kpi-l">'+label+'</div></div>'; }
 function stCountBox(title,counts){ const ents=Object.entries(counts).sort((a,b)=>b[1]-a[1]); let h='<div class="st-box"><div class="st-box-h">'+title+'</div>'; h+= ents.length ? ('<div class="st-rows">'+ents.map(e=>'<div class="st-row"><span>'+_esc(e[0])+'</span><span class="st-num">'+e[1]+'</span></div>').join('')+'</div>') : '<div class="st-empty">—</div>'; return h+'</div>'; }
 function stNiceCeil(v){ if(v<=0)return 100; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; let m; if(n<=1)m=1;else if(n<=2)m=2;else if(n<=5)m=5;else m=10; return m*p; }
+let stRevOffset=0;   // 0 = aktueller Monat, -1 = Vormonat, …
+function stRevStep(d){ stRevOffset=Math.min(0, stRevOffset+d); renderStats(); }
 function stRevenueChart(){
   const done=statDonePatients(); const byDay={};
   done.forEach(p=>{ const d=statDayOf(p); byDay[d]=(byDay[d]||0)+((p.billing&&+p.billing.total)||0); });
-  const days=[]; const today=new Date(); for(let i=27;i>=0;i--){ const dt=new Date(today); dt.setDate(today.getDate()-i); if(dt.getDay()===0) continue; days.push(dt); }
-  const vals=days.map(dt=>byDay[ymd(dt)]||0); const niceMax=stNiceCeil(Math.max(1,...vals));
-  const bars=days.map((dt,i)=>{ const v=vals[i]; const hpct=v>0?Math.max(2,Math.round(v/niceMax*100)):0; return '<div class="st-bar" title="'+ymd(dt)+': '+eur(v)+'"><div class="st-bar-fill" style="height:'+hpct+'%"></div><div class="st-bar-x">'+dt.getDate()+'</div></div>'; }).join('');
+  const now=new Date(); let tm=now.getMonth()+stRevOffset, tyr=now.getFullYear();
+  while(tm<0){ tm+=12; tyr--; }
+  const mNames=(LANG==='de')?['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
+    :['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const label=mNames[tm]+' '+tyr;
+  const daysInMonth=new Date(tyr,tm+1,0).getDate();
+  const days=[]; for(let d=1;d<=daysInMonth;d++){ days.push(new Date(tyr,tm,d)); }
+  const vals=days.map(dt=>byDay[ymd(dt)]||0);
+  const monthTotal=vals.reduce((a,b)=>a+b,0);
+  const niceMax=stNiceCeil(Math.max(1,...vals));
+  const bars=days.map((dt,i)=>{ const v=vals[i]; const sun=dt.getDay()===0; const hpct=v>0?Math.max(2,Math.round(v/niceMax*100)):0;
+    return '<div class="st-bar'+(sun?' st-bar-sun':'')+'" title="'+ymd(dt)+': '+eur(v)+'"><div class="st-bar-fill" style="height:'+hpct+'%"></div><div class="st-bar-x">'+dt.getDate()+'</div></div>'; }).join('');
   const ticks=[1,0.75,0.5,0.25,0].map(f=>'<div class="st-yt">'+eur(Math.round(niceMax*f))+'</div>').join('');
-  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Umsatz – letzte 4 Wochen (Mo–Sa)','Revenue – last 4 weeks (Mon–Sat)')+'</div>'+
+  const nav='<span class="st-navrow"><button class="st-nav" onclick="stRevStep(-1)" title="'+LX('Voriger Monat','Previous month')+'" aria-label="'+LX('Voriger Monat','Previous month')+'">‹</button><span class="st-navlbl">'+label+'</span><button class="st-nav" onclick="stRevStep(1)"'+(stRevOffset<0?'':' disabled')+' title="'+LX('Nächster Monat','Next month')+'" aria-label="'+LX('Nächster Monat','Next month')+'">›</button></span>';
+  const sub=LX('Tagesumsatz (Mo–Sa) im angezeigten Monat. Mit den Pfeilen zu früheren Monaten wechseln. Monatssumme: ','Daily revenue (Mon–Sat) for the shown month. Use the arrows to switch to earlier months. Month total: ')+'<strong>'+eur(monthTotal)+'</strong>';
+  return '<div class="st-box st-wide"><div class="st-box-h st-box-h-nav"><span>'+LX('Umsatz pro Tag','Daily revenue')+'</span>'+nav+'</div>'+
+    '<div class="st-sub2">'+sub+'</div>'+
     '<div class="st-chart-wrap"><div class="st-yaxis">'+ticks+'</div><div class="st-chart st-chart-grid">'+bars+'</div></div></div>';
 }
 function stTopCountries(){
@@ -3664,7 +3678,7 @@ const MAL_MAP_SRC = {de:'Quelle: DTG/EKRM, „Malaria 2025" (Thieme, Flug u. Rei
   en:'Source: DTG/EKRM, "Malaria 2025" (Thieme, Flug u. Reisemed. 2025). For clinical use in the Charité clinic.'};
 function malMapImg(file, cap){
   return '<figure class="mal-map-fig"><figcaption class="mal-map-cap">'+cap+'</figcaption>'+
-    '<img src="assets/karten/'+file+'?v=53" alt="'+_esc(cap)+'" class="map-full" loading="lazy" '+
+    '<img src="assets/karten/'+file+'?v=55" alt="'+_esc(cap)+'" class="map-full" loading="lazy" '+
     'onerror="this.outerHTML=\'<div class=&quot;map-missing&quot;>'+LX('Karte noch nicht hinterlegt.','Map not yet available.')+'</div>\'"></figure>';
 }
 function showMalariaMaps(){
@@ -3847,15 +3861,31 @@ async function genTestPatients(){
 function renderDeletedPatients(){
   const box=el('deleted-body'); if(!box) return;
   const del=patients.filter(p=>p.deleted).sort((a,b)=>{ const ta=(a.deleted&&a.deleted.ts)||''; const tb=(b.deleted&&b.deleted.ts)||''; return tb<ta?-1:(tb>ta?1:0); });
-  let h='<h2>'+LX('Gelöschte Patienten','Deleted patients')+'</h2><div class="card-desc">'+LX('Gelöschte Datensätze bleiben 30 Tage erhalten und können hier wiederhergestellt werden.','Deleted records are kept for 30 days and can be restored here.')+'</div>';
+  let h='<div class="del-head"><h2>'+LX('Gelöschte Patienten','Deleted patients')+'</h2>'+(del.length?'<button class="btn danger sm" onclick="purgeAllDeleted()">'+LX('Alle endgültig löschen','Delete all permanently')+'</button>':'')+'</div>';
+  h+='<div class="card-desc">'+LX('Gelöschte Datensätze bleiben 30 Tage erhalten und können wiederhergestellt werden. „Endgültig löschen" entfernt sie sofort und unwiderruflich aus der Datenbank.','Deleted records are kept for 30 days and can be restored. "Delete permanently" removes them from the database immediately and irreversibly.')+'</div>';
   if(!del.length){ box.innerHTML=h+'<div class="del-empty">'+LX('Keine gelöschten Patienten.','No deleted patients.')+'</div>'; return; }
   h+='<div class="del-list">'+del.map(p=>{
     const nm=(p.firstname?p.name+', '+p.firstname:p.name);
     const d=p.deleted||{};
     const dest=(p.destinations&&p.destinations.length)?' · '+p.destinations.map(c=>CBY[c]?cName(CBY[c]):c).join(', '):'';
-    return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+dest+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button></div>';
+    return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+dest+'</div></div><div class="del-acts"><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button><button class="btn danger sm" onclick="purgePatient(\''+p.id+'\')">'+(LX('Endgültig löschen','Delete permanently'))+'</button></div></div>';
   }).join('')+'</div>';
   box.innerHTML=h;
+}
+// Endgültiges (unwiderrufliches) Löschen aus der Datenbank – nur Admin, mit Bestätigung.
+async function purgePatient(id){
+  const p=patients.find(x=>x.id===id); const nm=p?(p.firstname?p.name+', '+p.firstname:p.name):'';
+  if(!(await uiConfirm(LX('Patient endgültig und unwiderruflich aus der Datenbank löschen?','Permanently and irreversibly delete this patient from the database?')+'\n\n'+nm,{title:LX('Endgültig löschen','Delete permanently'),ok:LX('Endgültig löschen','Delete permanently'),danger:true}))) return;
+  try{ if(typeof dbDeletePatient==='function') await dbDeletePatient(id); }catch(e){}
+  patients=patients.filter(x=>x.id!==id);
+  renderDeletedPatients(); if(typeof renderPatients==='function') renderPatients();
+}
+async function purgeAllDeleted(){
+  const del=patients.filter(p=>p.deleted); if(!del.length) return;
+  if(!(await uiConfirm(LX('Alle '+del.length+' gelöschten Patienten endgültig und unwiderruflich aus der Datenbank entfernen?','Permanently and irreversibly remove all '+del.length+' deleted patients from the database?'),{title:LX('Alle endgültig löschen','Delete all permanently'),ok:LX('Alle löschen','Delete all'),danger:true}))) return;
+  for(const p of del){ try{ if(typeof dbDeletePatient==='function') await dbDeletePatient(p.id); }catch(e){} }
+  const ids=new Set(del.map(p=>p.id)); patients=patients.filter(x=>!ids.has(x.id));
+  renderDeletedPatients(); if(typeof renderPatients==='function') renderPatients();
 }
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
