@@ -594,6 +594,7 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .treat-record .tr-row{ margin:2px 0; color:var(--text); }
 .treat-record .tr-lbl{ font-weight:700; color:var(--grey); text-transform:uppercase; font-size:10.5px; letter-spacing:.03em; }
 .treat-record .tr-ts{ color:var(--grey); }
+.m-doc{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
 .change-log { margin-top:20px; font-size:12px; color:var(--grey); border-top:1px dashed var(--line); padding-top:12px; }
 .change-log:empty { display:none; }
 .log-title { font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--grey); margin-bottom:6px; }

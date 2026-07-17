@@ -1618,6 +1618,9 @@ function showInfo(k){
   const inf=INFO[k];
   const availHtml=a?('<div class="m-sec"><h4>'+(LX('Verfügbarkeit & Alter (Ambulanz)','Availability & age (clinic)'))+'</h4><p>'+(a.avail===false?'':('<strong>'+a.prod+'</strong> · '))+L2(a)+'</p></div>'):'';
   const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
+  // Gelbfieber: Aufklärungsbogen (DTG) zum Drucken
+  const doc=DISEASE_DOCS[k];
+  const docBtn=doc?('<div class="m-doc"><button class="btn sec sm" onclick="printDoc(\''+doc+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>'+(LX('Aufklärungsbogen drucken','Print consent form'))+'</button></div>'):'';
   el('modal-content').innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
     '<h3>'+(vName(v))+(v.live?' <span class="live-dot" title="'+t('live')+'">L</span>':'')+'</h3>'+
     '<div class="m-sub">'+(LX('Vereinfachte Kurzinformation für das Patientengespräch','Simplified summary for the patient conversation'))+'</div>'+
@@ -1625,8 +1628,17 @@ function showInfo(k){
     '<div class="m-sec"><h4>'+t('mEpi')+'</h4><p>'+(inf.epi[LANG]||inf.epi.en)+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mSide')+'</h4><p>'+(inf.side[LANG]||inf.side.en)+'</p></div>'+
     '<div class="m-sec"><h4>'+t('mSchedInfo')+'</h4><p>'+(inf.sched[LANG]||inf.sched.en)+'</p></div>'+
-    availHtml+mapBtn;
+    availHtml+mapBtn+docBtn;
   el('modal-bg').classList.add('show');
+}
+// Aufklärungs-/Infobögen je Erkrankung (im Ordner assets/docs)
+const DISEASE_DOCS={ yellowfever:'gelbfieber-aufklaerung.pdf' };
+// PDF in neuem Fenster öffnen und den Druckdialog auslösen
+function printDoc(file){
+  const url='assets/docs/'+file;
+  const w=window.open(url,'_blank');
+  if(w){ try{ w.addEventListener('load',function(){ setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },300); }); }catch(_){} }
+  else { window.open(url,'_blank'); }
 }
 function closeModal(){el('modal-bg').classList.remove('show');const mc=el('modal-content');if(mc)mc.classList.remove('pi-modal');}
 function showMap(k){
