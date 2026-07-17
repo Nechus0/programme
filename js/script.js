@@ -3449,6 +3449,32 @@ function exportResearchCsv(){
   const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='reise-statistik_'+ymd(new Date())+'.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
+// Langfrist-Kennzahlen (rollierende 30 Tage): Patienten, Umsatz, Ø Umsatz/Pat., Ø Impfungen/Pat.
+function stLongKpis(done){
+  const cut=new Date(Date.now()-30*86400000);
+  const rec=done.filter(p=>{ try{ return statDateOf(p)>=cut; }catch(e){ return false; } });
+  const rev=rec.reduce((a,p)=>a+((p.billing&&+p.billing.total)||0),0);
+  const vaxN=rec.reduce((a,p)=>a+statVaxList(p).length,0);
+  return stKpi(LX('Patienten (30 T)','Patients (30 d)'),rec.length)
+    +stKpi(LX('Umsatz (30 T)','Revenue (30 d)'),eur(rev))
+    +stKpi(LX('Ø Umsatz / Patient','Avg revenue / patient'),eur(rec.length?rev/rec.length:0))
+    +stKpi(LX('Ø Impfungen / Patient','Avg vaccinations / patient'),(rec.length?vaxN/rec.length:0).toFixed(1));
+}
+// wiederverwendbare Balkenliste (wie Top-Reiseländer)
+function stHbars(title, entries){
+  const max=Math.max(1,...entries.map(e=>e[1]));
+  const rows=entries.length?entries.map(e=>'<div class="st-hrow"><span class="st-hlbl">'+_esc(e[0])+'</span><span class="st-hbar"><span style="width:'+Math.round(e[1]/max*100)+'%"></span></span><span class="st-num">'+e[1]+'</span></div>').join(''):'<div class="st-empty">—</div>';
+  return '<div class="st-box"><div class="st-box-h">'+title+'</div>'+rows+'</div>';
+}
+function stTreatmentSplit(done){
+  let b=0,f=0; done.forEach(p=>{ if(p.treatmentType==='folgeimpfung') f++; else b++; });
+  return stHbars(LX('Behandlungsart (gesamt)','Treatment type (total)'),[[LX('Beratung','Consultation'),b],[LX('Folgeimpfung','Follow-up'),f]]);
+}
+function stTopVaccines(done){
+  const c={}; done.forEach(p=>statVaxList(p).forEach(v=>{ c[v]=(c[v]||0)+1; }));
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  return stHbars(LX('Top Impfstoffe (gesamt)','Top vaccines (total)'),top);
+}
 function renderStats(){
   const box=el('stats-body'); if(!box) return;
   const isAdmin=(CURRENT_PROFILE||{}).role==='admin';
@@ -3461,9 +3487,12 @@ function renderStats(){
   h+='<div class="st-grid">'+stCountBox(LX('Impfungen heute','Vaccinations today'),s.vaxCounts)+stCountBox(LX('Leistungen heute','Services today'),s.leistCounts)+'</div>';
   // Block 2: LANGFRISTIG / GESAMT
   h+='<div class="st-section-lbl st-sep">'+LX('Gesamt & Langfristig','Overall & long-term')+'</div>';
+  h+='<div class="st-kpis">'+stLongKpis(s.done)+'</div>';
   h+='<div class="st-grid">';
   h+=stRevenueChart();
   h+=stTopCountries();
+  h+=stTreatmentSplit(s.done);
+  h+=stTopVaccines(s.done);
   if(isAdmin){ h+=stMonthlyTop3(); }
   h+='</div>';
   box.innerHTML=h;
