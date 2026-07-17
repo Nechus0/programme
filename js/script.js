@@ -3192,7 +3192,7 @@ function editLogHtml(p){
   log.slice(0,12).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(L2(SECTION_TITLES[e.section])):e.section; const flds=(e.fields&&e.fields.length)?' · '+e.fields.join(', '):''; h+='<div class="pb-log-row">'+fmtDateTime(e.ts)+' · '+_esc(e.who||'—')+' · '+_esc(sn)+_esc(flds)+'</div>'; });
   return h+'</div>';
 }
-function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LX('Neuer Patient','New patient')); enterPatient(); }
+function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LX('Neuer Patient','New patient')); enterPatient(); setTimeout(function(){ const f=el('p-firstname')||el('p-name'); if(f){ try{ f.focus(); }catch(_){} } },140); }
 async function cancelEditConfirm(){
   if(!(await uiConfirm(LX('Bearbeitung wirklich abbrechen? Nicht gespeicherte Änderungen gehen verloren.','Really cancel editing? Unsaved changes will be lost.'),{title:LX('Bearbeitung abbrechen','Cancel editing'),ok:LX('Verwerfen','Discard'),danger:true}))) return;
   cancelEdit();
@@ -3283,12 +3283,95 @@ function _fillSelect(id, items, valfn, labfn, sel){
   const e=el(id); if(!e) return;
   e.innerHTML = items.map(it=>'<option value="'+valfn(it)+'"'+(sel===valfn(it)?' selected':'')+'>'+labfn(it)+'</option>').join('');
 }
+/* ================= STATISTIK (Kasse & Admin) ================= */
+function statDurLabel(d){ return ({'<1w':'< 1 Wo','1-2w':'1–2 Wo','<2w':'< 2 Wo','2-4w':'2–4 Wo','0-7':'0–7 d','7-14':'7–14 d','14-21':'14–21 d','21-28':'21–28 d','1-3m':'1–3 Mon','3-6m':'3–6 Mon','>6m':'>6 Mon'})[d]||d||'—'; }
+function statDayOf(p){ if(p.billing&&p.billing.at){ try{ return ymd(new Date(p.billing.at)); }catch(e){} } return patientDay(p); }
+function statDateOf(p){ if(p.billing&&p.billing.at){ try{ return new Date(p.billing.at); }catch(e){} } const s=p.savedAt||p.updatedAt; return s?new Date(s):new Date(); }
+function statDonePatients(){ return patients.filter(p=>!p.deleted && patientStatus(p)==='done'); }
+function statVaxList(p){ const out=[]; const vax=p.vax||{}; VACCINES.forEach(sv=>{ const st=vax[sv.k]; if(!st)return; if(sv.hep){ if(st.plannedA)out.push('Hepatitis A'); if(st.plannedB)out.push('Hepatitis B'); if(st.plannedAB)out.push('Twinrix'); } else if(sv.tdap_polio){ if(st.planned)out.push(vName(sv)); if(st.planned_ipv)out.push('Polio (IPV)'); } else if(st.planned){ out.push(vName(sv)); } }); return out; }
+function statLeistList(p){ const L=p.leistungen||{}; const out=[]; if(L.beratung && L.beratung!=='none' && BERAT_LABEL[L.beratung]) out.push(L2(BERAT_LABEL[L.beratung])); if(L.folge) out.push(L2(I18N.leistFolge)); if(L.bescheinigung) out.push(L2(I18N.leistBescheinigung)); if(statVaxList(p).length) out.push(L2(I18N.leistImpf)); return out; }
+function statAdd(acc,arr){ arr.forEach(x=>{ acc[x]=(acc[x]||0)+1; }); }
+function computeStats(){
+  const today=ymd(new Date());
+  const done=statDonePatients();
+  const doneToday=done.filter(p=>statDayOf(p)===today);
+  const revToday=doneToday.reduce((s,p)=>s+((p.billing&&+p.billing.total)||0),0);
+  const vaxCounts={}, leistCounts={};
+  doneToday.forEach(p=>{ statAdd(vaxCounts,statVaxList(p)); statAdd(leistCounts,statLeistList(p)); });
+  return {today, done, doneToday, revToday, vaxCounts, leistCounts};
+}
+function stKpi(label,val){ return '<div class="st-kpi"><div class="st-kpi-v">'+val+'</div><div class="st-kpi-l">'+label+'</div></div>'; }
+function stCountBox(title,counts){ const ents=Object.entries(counts).sort((a,b)=>b[1]-a[1]); let h='<div class="st-box"><div class="st-box-h">'+title+'</div>'; h+= ents.length ? ('<div class="st-rows">'+ents.map(e=>'<div class="st-row"><span>'+_esc(e[0])+'</span><span class="st-num">'+e[1]+'</span></div>').join('')+'</div>') : '<div class="st-empty">—</div>'; return h+'</div>'; }
+function stRevenueChart(){
+  const done=statDonePatients(); const byDay={};
+  done.forEach(p=>{ const d=statDayOf(p); byDay[d]=(byDay[d]||0)+((p.billing&&+p.billing.total)||0); });
+  const days=[]; const today=new Date(); for(let i=27;i>=0;i--){ const dt=new Date(today); dt.setDate(today.getDate()-i); if(dt.getDay()===0) continue; days.push(dt); }
+  const vals=days.map(dt=>byDay[ymd(dt)]||0); const max=Math.max(1,...vals);
+  const bars=days.map((dt,i)=>{ const v=vals[i]; const hpct=v>0?Math.max(3,Math.round(v/max*100)):0; return '<div class="st-bar" title="'+ymd(dt)+': '+eur(v)+'"><div class="st-bar-fill" style="height:'+hpct+'%"></div><div class="st-bar-x">'+dt.getDate()+'</div></div>'; }).join('');
+  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Umsatz – letzte 4 Wochen (Mo–Sa)','Revenue – last 4 weeks (Mon–Sat)')+'</div><div class="st-chart">'+bars+'</div></div>';
+}
+function stTopCountries(){
+  const done=statDonePatients(); const c={};
+  done.forEach(p=>(p.destinations||[]).forEach(code=>{ const nm=CBY[code]?cName(CBY[code]):code; c[nm]=(c[nm]||0)+1; }));
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5); const max=Math.max(1,...top.map(t=>t[1]));
+  const rows=top.length?top.map(t=>'<div class="st-hrow"><span class="st-hlbl">'+_esc(t[0])+'</span><span class="st-hbar"><span style="width:'+Math.round(t[1]/max*100)+'%"></span></span><span class="st-num">'+t[1]+'</span></div>').join(''):'<div class="st-empty">—</div>';
+  return '<div class="st-box"><div class="st-box-h">'+LX('Top 5 Reiseländer','Top 5 destinations')+'</div>'+rows+'</div>';
+}
+function stMonthlyTop3(){
+  const yr=new Date().getFullYear(); const done=statDonePatients(); const months={};
+  done.forEach(p=>{ const dt=statDateOf(p); if(dt.getFullYear()!==yr)return; const m=dt.getMonth(); (p.destinations||[]).forEach(code=>{ const nm=CBY[code]?cName(CBY[code]):code; months[m]=months[m]||{}; months[m][nm]=(months[m][nm]||0)+1; }); });
+  const mn=(LANG==='de')?['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let rows='';
+  for(let m=0;m<12;m++){ const data=months[m]; if(!data)continue; const top=Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,3); rows+='<tr><td>'+mn[m]+'</td>'+[0,1,2].map(i=>'<td>'+(top[i]?_esc(top[i][0])+' <span class="st-num">('+top[i][1]+')</span>':'—')+'</td>').join('')+'</tr>'; }
+  if(!rows) rows='<tr><td colspan="4" class="st-empty">—</td></tr>';
+  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Top-3 Länder pro Monat','Top-3 countries per month')+' ('+yr+')</div><table class="st-table"><thead><tr><th>'+LX('Monat','Month')+'</th><th>1.</th><th>2.</th><th>3.</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function statResearchRows(){
+  const done=statDonePatients(); const map={};
+  done.forEach(p=>{ const d=statDayOf(p); const dur=statDurLabel(p.duration); (p.destinations||[]).forEach(code=>{ const nm=CBY[code]?(LANG==='de'?CBY[code].de:CBY[code].en):code; const k=d+'|'+nm+'|'+dur; map[k]=(map[k]||0)+1; }); });
+  return map;
+}
+function stResearchTable(){
+  const map=statResearchRows(); const keys=Object.keys(map).sort().reverse().slice(0,40);
+  let rows=keys.map(k=>{ const parts=k.split('|'); return '<tr><td>'+parts[0]+'</td><td>'+_esc(parts[1])+'</td><td>'+_esc(parts[2])+'</td><td class="st-num">'+map[k]+'</td></tr>'; }).join('');
+  if(!rows) rows='<tr><td colspan="4" class="st-empty">—</td></tr>';
+  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Forschungsarchiv (anonymisiert)','Research archive (anonymised)')+' <span class="st-sub">'+LX('neueste 40','latest 40')+'</span></div><table class="st-table"><thead><tr><th>'+LX('Datum','Date')+'</th><th>'+LX('Land','Country')+'</th><th>'+LX('Dauer','Duration')+'</th><th>'+LX('Anzahl','Count')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function exportResearchCsv(){
+  const map=statResearchRows();
+  const rows=[[LX('Datum','Date'),LX('Land','Country'),LX('Reisedauer','Duration'),LX('Anzahl','Count')]];
+  Object.keys(map).sort().forEach(k=>{ const p=k.split('|'); rows.push([p[0],p[1],p[2],map[k]]); });
+  const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='reise-statistik_'+ymd(new Date())+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function renderStats(){
+  const box=el('stats-body'); if(!box) return;
+  const isAdmin=(CURRENT_PROFILE||{}).role==='admin';
+  const s=computeStats();
+  const totalVaxToday=Object.values(s.vaxCounts).reduce((a,b)=>a+b,0);
+  let h='<div class="st-head"><h2>'+LX('Statistik','Statistics')+'</h2><button class="btn sec sm" onclick="exportResearchCsv()">'+LX('Forschungsdaten (CSV)','Research data (CSV)')+'</button></div>';
+  h+='<div class="st-kpis">'+stKpi(LX('Patienten heute','Patients today'),s.doneToday.length)+stKpi(LX('Umsatz heute','Revenue today'),eur(s.revToday))+stKpi(LX('Impfungen heute','Vaccinations today'),totalVaxToday)+'</div>';
+  h+='<div class="st-grid">';
+  h+=stCountBox(LX('Impfungen heute','Vaccinations today'),s.vaxCounts);
+  h+=stCountBox(LX('Leistungen heute','Services today'),s.leistCounts);
+  h+=stTopCountries();
+  h+=stRevenueChart();
+  if(isAdmin){ h+=stMonthlyTop3(); }
+  h+=stResearchTable();
+  h+='</div>';
+  box.innerHTML=h;
+}
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
   const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode);});
-  const isAdmin=(CURRENT_PROFILE||{}).role==='admin';
+  const role=(CURRENT_PROFILE||{}).role;
+  const isAdmin=role==='admin';
   const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
   if(isAdmin){ renderAdminUsers(); }
+  const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
+  if(ss){ ss.style.display=showStats?'':'none'; if(showStats) renderStats(); }
   p.classList.add('show');
 }
 function openSettings(){ openAdminPanel(); }

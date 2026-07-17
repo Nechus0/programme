@@ -846,3 +846,33 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 .amb-trash-zone.over{ background:rgba(220,38,38,.16); border-color:#b91c1c; }
 .amb-trash-zone svg{ pointer-events:none; }
 .amb-trash-zone span{ pointer-events:none; }
+
+/* ===== Statistik (Kasse & Admin) ===== */
+#stats-sec .st-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+#stats-sec .st-head h2{ margin:0; }
+.st-kpis{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+.st-kpi{ background:var(--grey-xl); border:1px solid var(--line); border-radius:12px; padding:15px 18px; }
+.st-kpi-v{ font-size:25px; font-weight:800; letter-spacing:-.01em; line-height:1.1; }
+.st-kpi-l{ font-size:12px; color:var(--grey); margin-top:3px; }
+.st-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+.st-box{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+.st-box.st-wide{ grid-column:1 / -1; }
+.st-box-h{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); margin-bottom:10px; }
+.st-box-h .st-sub{ font-weight:400; text-transform:none; letter-spacing:0; }
+.st-rows{ display:flex; flex-direction:column; }
+.st-row{ display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:5px 0; border-bottom:1px solid var(--grey-xl); }
+.st-row:last-child{ border-bottom:none; }
+.st-num{ font-weight:700; font-variant-numeric:tabular-nums; }
+.st-empty{ color:var(--grey); font-size:13px; padding:4px 0; }
+.st-hrow{ display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
+.st-hlbl{ flex:0 0 34%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.st-hbar{ flex:1; height:9px; background:var(--grey-xl); border-radius:5px; overflow:hidden; }
+.st-hbar>span{ display:block; height:100%; background:var(--blue); border-radius:5px; }
+.st-chart{ display:flex; align-items:flex-end; gap:3px; height:130px; padding-top:6px; }
+.st-bar{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+.st-bar-fill{ width:68%; background:var(--blue); border-radius:3px 3px 0 0; }
+.st-bar-x{ font-size:8px; color:var(--grey); margin-top:3px; }
+.st-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+.st-table th,.st-table td{ text-align:left; padding:6px 8px; border-bottom:1px solid var(--grey-xl); }
+.st-table th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
+@media(max-width:720px){ .st-kpis{grid-template-columns:1fr;} .st-grid{grid-template-columns:1fr;} }
