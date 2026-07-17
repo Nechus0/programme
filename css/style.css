@@ -878,6 +878,15 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 .st-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
 .st-table th,.st-table td{ text-align:left; padding:6px 8px; border-bottom:1px solid var(--grey-xl); }
 .st-table th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
+.st-groups{ display:flex; align-items:flex-end; gap:5px; height:118px; padding-top:6px; }
+.st-gcol{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+.st-gbars{ display:flex; align-items:flex-end; justify-content:center; gap:2px; height:100%; width:100%; }
+.st-gbar{ width:6px; border-radius:2px 2px 0 0; min-height:2px; }
+.st-gbar.st-gbar-x{ background:transparent!important; min-height:0; }
+.st-gcol .st-bar-x{ font-size:9px; color:var(--grey); margin-top:4px; }
+.st-legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin:11px 0 4px; }
+.st-leg{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--text); }
+.st-leg-dot{ width:9px; height:9px; border-radius:2px; display:inline-block; flex:none; margin-right:4px; }
 .st-section-lbl{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--grey); margin:0 0 10px; }
 .st-section-lbl.st-sep{ margin-top:22px; padding-top:16px; border-top:1px solid var(--line); }
 @media(max-width:720px){ .st-kpis{grid-template-columns:1fr;} .st-grid{grid-template-columns:1fr;} }
@@ -918,14 +927,26 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 .mal-days{ display:flex; align-items:center; gap:7px; }
 .mal-days input{ width:82px; height:38px; text-align:center; }
 .mal-days span{ font-size:13px; color:var(--grey); }
-.mal-rec{ border-radius:10px; padding:11px 14px; margin-bottom:14px; }
+.mal-rec{ display:flex; gap:11px; align-items:flex-start; border-radius:10px; padding:11px 14px; margin-bottom:14px; }
 .mal-rec.high{ background:var(--blue-bg); }
 .mal-rec.mid{ background:var(--yellow-bg); }
 .mal-rec.low{ background:var(--grey-xl); }
+.mal-rec-ic{ flex:none; margin-top:1px; }
+.mal-rec.high .mal-rec-ic,.mal-rec.high .mal-rec-t{ color:var(--blue); }
+.mal-rec.mid .mal-rec-ic,.mal-rec.mid .mal-rec-t{ color:var(--yellow); }
+.mal-rec.low .mal-rec-ic{ color:var(--grey); }
 .mal-rec-t{ font-size:14.5px; font-weight:700; }
-.mal-rec.high .mal-rec-t{ color:var(--blue); }
-.mal-rec.mid .mal-rec-t{ color:var(--yellow); }
 .mal-rec-s{ font-size:12.5px; color:var(--text); margin-top:2px; }
+/* Zahlen-Stepper */
+.mal-step{ display:inline-flex; align-items:center; }
+.mal-step button{ width:34px; height:38px; border:1px solid var(--line); background:#fff; cursor:pointer; font-size:17px; line-height:1; color:var(--text); font-family:var(--font); }
+.mal-step button:first-of-type{ border-radius:8px 0 0 8px; border-right:none; }
+.mal-step button:last-of-type{ border-radius:0 8px 8px 0; border-left:none; }
+.mal-step button:hover{ background:var(--grey-xl); }
+.mal-step input{ width:62px; height:38px; text-align:center; border:1px solid var(--line); border-radius:0; -moz-appearance:textfield; }
+.mal-step input::-webkit-outer-spin-button,.mal-step input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.mal-step-unit{ font-size:13px; color:var(--grey); margin-left:8px; }
+body.clinic-idle #stepM{ display:none !important; }
 .mal-standby{ display:flex; gap:9px; align-items:flex-start; background:var(--yellow-bg); border-radius:10px; padding:10px 13px; margin-bottom:12px; font-size:12.5px; color:#7a5600; }
 .mal-standby svg{ flex:none; margin-top:1px; color:var(--yellow); }
 .mal-drug-h{ font-size:12px; color:var(--grey); margin-bottom:8px; }
