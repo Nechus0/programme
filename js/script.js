@@ -2278,8 +2278,16 @@ async function assignGroup(id){
 }
 // Drag&Drop: auf eine Spalte = Status ändern; auf einen anderen Patienten = gruppieren
 async function ungroup(id){
-  const p=patients.find(x=>x.id===id);if(!p)return; p.group='';
-  await persistPatient(p); renderPatients();
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  const gl=(p.group||'').trim().toLowerCase();
+  p.group='';
+  await persistPatient(p);
+  // Bleibt nur noch eine Person in der Gruppe übrig, wird auch diese automatisch entgruppiert
+  if(gl){
+    const rest=patients.filter(x=>patientDay(x)===listDay && x.id!==id && !x.deleted && (x.group||'').trim().toLowerCase()===gl);
+    if(rest.length===1){ rest[0].group=''; await persistPatient(rest[0]); }
+  }
+  renderPatients();
 }
 let _dragPid=null, _dragGroup=null;
 document.addEventListener('dragend', () => {
@@ -2714,7 +2722,16 @@ function renderPatientCard(p,inGroup){
       +'</div>'
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
       +'</div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="openPatientCard(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LX('Schnellansicht','Preview'))+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LX('geb. ','b. '))+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
+    const timeTxt = timeMeta ? timeMeta.replace(/^\s*·\s*/,'') : '';
+    const ageTxt = (ageParen||'').replace(/[()]/g,'').trim();   // nur Alter, kein volles Geburtsdatum
+    const menuItems=(p.group?'<button onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LX('Entgruppieren','Ungroup'))+'</button>':'')+'<button class="danger" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LX('Löschen','Delete'))+'</button>';
+    const menu='<button class="menu-btn" onclick="event.stopPropagation();toggleCardMenu(\''+p.id+'\')" title="'+(LX('Optionen','Options'))+'" aria-label="Optionen">⋯</button><div class="card-menu" id="cm-'+p.id+'">'+menuItems+'</div>';
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
+      +'<div class="patient-head" onclick="openPatientCard(\''+p.id+'\')">'
+        +'<div class="ph-row1">'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-spacer"></span>'+ini+menu+'</div>'
+        +'<div class="ph-row2">'+((ageTxt?ageTxt+' · ':'')+dest)+'</div>'
+        +(timeTxt?'<div class="ph-row3"><span class="ph-time">'+timeTxt+'</span></div>':'')
+      +'</div></div>';
 }
 // Klick auf eine Karte im Fluss-Board öffnet den Patienten passend zur Stufe/Rolle
 function openPatientCard(id){

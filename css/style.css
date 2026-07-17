@@ -788,3 +788,23 @@ body.clinic-idle .shell{ max-width:1280px; }
 .shift-row-person{ display:inline-flex; align-items:center; gap:6px; font-size:13px; }
 .shift-row-nm{ white-space:nowrap; }
 .shift-row-empty{ font-size:12px; color:var(--grey); }
+
+/* ===== Kompakte Karten im Fluss-Board (vertikales Layout je Spalte) ===== */
+.amb-flow .patient-item{ background:#fff; border:0.5px solid var(--line); border-radius:10px; margin-bottom:8px; }
+.amb-flow .patient-head{ display:flex; flex-direction:column; gap:5px; padding:10px 12px; cursor:pointer; }
+.amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:8px; }
+.amb-flow .patient-head .caret{ font-size:9px; color:var(--grey); flex:none; transition:transform .12s; }
+.amb-flow .patient-item.open .caret{ transform:rotate(90deg); }
+.amb-flow .patient-head .pl-name{ font-weight:600; font-size:13.5px; line-height:1.2; white-space:normal; }
+.amb-flow .patient-head .pl-spacer{ flex:1 1 auto; }
+.amb-flow .patient-head .ph-row2{ font-size:11.5px; color:var(--grey); line-height:1.35; padding-left:23px; }
+.amb-flow .patient-head .ph-row3{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding-left:23px; margin-top:1px; }
+.amb-flow .patient-head .ph-time{ font-size:11.5px; color:var(--grey); }
+.amb-flow .patient-head .amb-behandeln{ flex:none; padding:5px 12px; font-size:12px; }
+.amb-flow .patient-head .ini-circle{ flex:none; }
+
+/* ⋯-Menü auf den Karten (Löschen/Entgruppieren) – dezent, erscheint beim Hover */
+.amb-flow .patient-item{ position:relative; }
+.amb-flow .menu-btn{ flex:none; background:none; border:none; cursor:pointer; color:var(--grey); font-size:17px; line-height:1; padding:0 4px; border-radius:5px; opacity:0; transition:opacity .12s; }
+.amb-flow .patient-item:hover .menu-btn, .amb-flow .menu-btn:focus{ opacity:1; }
+.amb-flow .menu-btn:hover{ background:var(--grey-xl); color:var(--text); }
