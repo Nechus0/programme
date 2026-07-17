@@ -19,6 +19,7 @@ function vGaps(k){
   if(k==='dengue')return [90];  // Qdenga: 0, 3 Monate
   if(k==='hepB'||k==='hepAB')return [28,150];
   if(k==='hepA')return [180];
+  if(k==='hpv'){ const a=(typeof ageYears==='function')?ageYears(EngineCtx.getDob()):null; return (a!=null&&a>=9&&a<=14)?[180]:[60,120]; }  // 9–14 J.: 0,6 Mon (2 Dosen); sonst 0,2,6 Mon (3 Dosen)
   if(k==='tbe')return [30,240];  // Encepur Standard: 0, 1, 9 Monate
   if(k==='tdap_polio' || k==='tdap_combo' || k==='ipv_mono')return [28,150];
   if(k==='menacwy')return [28];
@@ -32,7 +33,8 @@ function buildOptimalSchedule(planned, departureStr) {
     let doseCount = 1;
     if (item.k === 'hepB' || item.k === 'hepAB') { if (!st.bMono && !st.twin) doseCount = 3; }
     else if (item.k === 'hepA') { if (!st.aMono && !st.twin) doseCount = 2; }
-    else if (item.k === 'tbe' || item.k === 'rabies' || item.k === 'hpv') { if (st.done === '') doseCount = 3; }
+    else if (item.k === 'tbe' || item.k === 'rabies') { if (st.done === '') doseCount = 3; }
+    else if (item.k === 'hpv') { if (st.done === '') { const a = (typeof ageYears==='function') ? ageYears(EngineCtx.getDob()) : null; doseCount = (a!=null && a>=9 && a<=14) ? 2 : 3; } }  // STIKO: 9–14 J. → 2 Dosen, sonst 3 (0/2/6 Mon)
     else if (['jev', 'dengue', 'mpox', 'zoster', 'menb', 'varicella', 'mmr'].includes(item.k)) { if (st.done === '') doseCount = 2; }
     else if (item.k === 'tdap_combo') { const dh = st.doses_hexa==='>3'?4:parseInt(st.doses_hexa||0,10); if (!(st.gi_tdap || dh>=3)) doseCount = 3; }
     else if (item.k === 'ipv_mono') { const dh = st.doses_hexa==='>3'?4:parseInt(st.doses_hexa||0,10); if (!(st.gi_ipv || dh>=3)) doseCount = 3; }
@@ -667,7 +669,7 @@ function hepAssess(){
   else {
     const hepaR = getRisk('hepatitis_a');
     const destEndemic = hepaR ? (hepaR.level === 'recommended' || hepaR.level === 'risk_based' || hepaR.level === 'mandatory_all') : false;
-    A=destEndemic?'red':'grey';aNote={de:destEndemic?'Dringend empfohlen für die meisten Reiseziele':'',en:destEndemic?'Strongly recommended for most EngineCtx.getDestinations()':''};
+    A=destEndemic?'red':'grey';aNote={de:destEndemic?'Für die meisten Reiseziele empfohlen':'',en:destEndemic?'Recommended for most destinations':''};
   }
   const bDoses=b+tw+hexaB;let B,bNote;
   if(serHBs()){B='green';bNote={de:'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig',en:'Immune — anti-HBs sufficient, no further vaccination needed'};}

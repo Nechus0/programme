@@ -83,7 +83,7 @@ table.vax th:nth-child(4), table.vax td:nth-child(4) { width: 27%; }
 table.vax tbody tr:hover{background:#f6f8fb;}
 table.vax tbody tr{transition:background .1s;}
 /* Kompaktere, ruhigere Eingaben in der Impfstatus-Tabelle */
-table.vax input[type=text],table.vax input[type=number],table.vax select{height:38px;max-width:140px;border-radius:7px;}
+table.vax input[type=text],table.vax input[type=number],table.vax select{height:38px;max-width:160px;border-radius:7px;}
 table.vax input:focus,table.vax select:focus{outline:none;border-color:var(--black);box-shadow:0 0 0 3px rgba(0,0,0,.05);}
 table.vax input::placeholder{color:#cfcfcf;letter-spacing:.06em;}
 table.vax .age-box{max-width:none;}
@@ -103,7 +103,7 @@ table.vax .age-box{max-width:none;}
 .dose-chips{display:flex;flex-wrap:wrap;gap:4px;max-width:180px;}
 .dose-chip{border:1px solid var(--line);border-radius:6px;padding:5px 9px;font-size:12px;cursor:pointer;color:#555;user-select:none;min-width:30px;text-align:center;}
 .dose-chip:hover{border-color:var(--black);} .dose-chip.selected{background:var(--black);color:#fff;border-color:var(--black);font-weight:700;}
-.year-in{width:84px;padding:6px 8px;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;}
+.year-in{width:150px;max-width:100%;padding:6px 8px;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;}
 .year-in:focus{outline:none;border-color:var(--black);}
 .hexa-sel{width:56px;padding:6px 6px;font-size:14px;border:1px solid var(--line);border-radius:6px;background:#fff;}
 .yr-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -317,8 +317,8 @@ body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radi
 .hep-group-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .hep-group-row { flex-wrap: nowrap; }
 .hep-doses { flex: 1; min-width: 0; }
-.hep-year { width: 84px; flex-shrink: 0; text-align: left; }
-.hep-year .year-in, .hep-year input { width: 84px; text-align: center; }
+.hep-year { flex-shrink: 0; text-align: left; }
+.hep-year .year-in, .hep-year input { width: 150px; max-width: 100%; text-align: center; }
 /* Lebendimpfstoff-Kennung (violetter Kreis „L") */
 .live-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#5b2a9e;color:#fff;font-size:10.5px;font-weight:700;margin-left:6px;flex-shrink:0;vertical-align:middle;}
 /* Info-/Karten-Buttons ganz rechts in der Statusspalte */
@@ -691,6 +691,10 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .kb-note{font-size:12px;color:var(--grey);margin-top:6px;line-height:1.5;}
 .kb-pay-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);margin:18px 0 8px;}
 .kb-pay{display:flex;gap:10px;flex-wrap:wrap;}
+.kb-row .kb-p{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;}
+.kb-row .kb-l{min-width:0;color:var(--text);}
+.kb-total{box-shadow:0 4px 14px rgba(0,0,0,.12);}
+.kb-pay .chk-chip{padding:11px 16px;font-size:13.5px;}
 
 /* ===== Einklappbare Abschnitte (Kasse-Ansicht) ===== */
 .card.foldable > h2{cursor:pointer;}

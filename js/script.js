@@ -245,7 +245,7 @@ const MENHEP_FR={
  '2. Dosis überfällig (Erstschutz ~1 Jahr)':'2ᵉ dose en retard (protection initiale ~1 an)',
  '1 Dosis: ~1 Jahr Schutz; 2. Dosis für Langzeitschutz':'1 dose : ~1 an de protection ; 2ᵉ dose pour une protection durable',
  '1× Twinrix reicht für Hep A NICHT (halbe Antigenmenge) – Serie vervollständigen':"1× Twinrix ne suffit PAS pour l'hép A (moitié de l'antigène) – compléter la série",
- 'Dringend empfohlen für die meisten Reiseziele':'Fortement recommandé pour la plupart des destinations',
+ 'Für die meisten Reiseziele empfohlen':'Recommandé pour la plupart des destinations',
  'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig':'Immun – anti-HBs suffisants, aucune vaccination supplémentaire nécessaire',
  'Langzeit/Exposition':'Long séjour/exposition'
 };
