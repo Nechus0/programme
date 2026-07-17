@@ -3586,29 +3586,59 @@ function malSetWeight(v){ const n=parseFloat(v); malariaState.weight=isNaN(n)?nu
 function malSelectDrug(k){ if(!MAL_DRUGS[k])return; malariaState.drug=k; renderMalaria(); }
 // Malaria-Sektion ein-/ausklappen (auch ohne Risiko immer möglich)
 function malToggleFold(e){ if(e && e.target && e.target.closest && e.target.closest('.mal-map-btn')) return; const s=el('stepM'); if(!s) return; s.classList.add('foldable'); s.classList.toggle('folded'); }
-// Malaria-Karten (DTG) – aus Urheberrechtsgründen wird auf die offiziellen DTG-Karten verlinkt (nicht eingebettet)
-const MAL_MAP_WORLD='https://dtg.org/images/Startseite-Download-Box/Weltkarte_2024.pdf';
-const MAL_MAP_REGION='https://dtg.org/index.php/empfehlungen-und-leitlinien/empfehlungen/malaria/karten.html';
+// Malaria-Karten (DTG/EKRM, Thieme) – lokal eingebettet. Regionalzuordnung je Reiseland.
+const MAL_REGION_FILES = {
+  afrika:{file:'malaria_afrika.png', de:'Afrika (Übersicht)', en:'Africa (overview)'},
+  westafrika:{file:'malaria_westafrika.png', de:'Westafrika (Senegal–Tschad)', en:'West Africa (Senegal–Chad)'},
+  ostafrika:{file:'malaria_ostafrika.png', de:'Ostafrika / Horn (Äthiopien–Kenia)', en:'East Africa / Horn (Ethiopia–Kenya)'},
+  tansania_madagaskar:{file:'malaria_tansania_madagaskar.png', de:'Tansania & Madagaskar', en:'Tanzania & Madagascar'},
+  suedafrika:{file:'malaria_suedafrika.png', de:'Südliches Afrika', en:'Southern Africa'},
+  suedamerika:{file:'malaria_suedamerika.png', de:'Südamerika', en:'South America'},
+  mittelamerika:{file:'malaria_mittelamerika.png', de:'Mittelamerika & Karibik', en:'Central America & Caribbean'},
+  suedasien:{file:'malaria_suedasien.png', de:'Südasien', en:'South Asia'},
+  suedostasien:{file:'malaria_suedostasien.png', de:'Südostasien', en:'Southeast Asia'},
+  malaiischer_archipel:{file:'malaria_malaiischer_archipel.png', de:'Malaiischer Archipel', en:'Malay Archipelago'},
+  ozeanien:{file:'malaria_ozeanien.png', de:'Ozeanien', en:'Oceania'}
+};
+// ISO2 → Regionalkarte
+const MAL_REGION = {
+  AF:'suedasien', PK:'suedasien', IN:'suedasien', BD:'suedasien', NP:'suedasien', BT:'suedasien', IR:'suedasien',
+  TH:'suedostasien', KH:'suedostasien', LA:'suedostasien', MM:'suedostasien', VN:'suedostasien',
+  ID:'malaiischer_archipel', MY:'malaiischer_archipel', PH:'malaiischer_archipel', BN:'malaiischer_archipel',
+  PG:'ozeanien', SB:'ozeanien', VU:'ozeanien',
+  BR:'suedamerika', PE:'suedamerika', CO:'suedamerika', VE:'suedamerika', EC:'suedamerika', BO:'suedamerika', GY:'suedamerika', GF:'suedamerika',
+  PA:'mittelamerika', CR:'mittelamerika', NI:'mittelamerika', HN:'mittelamerika', GT:'mittelamerika', BZ:'mittelamerika', MX:'mittelamerika', HT:'mittelamerika', DO:'mittelamerika',
+  SN:'westafrika', GM:'westafrika', GW:'westafrika', GN:'westafrika', SL:'westafrika', LR:'westafrika', CI:'westafrika', ML:'westafrika', BF:'westafrika', GH:'westafrika', TG:'westafrika', BJ:'westafrika', NE:'westafrika', NG:'westafrika', TD:'westafrika', MR:'westafrika', CM:'westafrika',
+  ET:'ostafrika', ER:'ostafrika', DJ:'ostafrika', SO:'ostafrika', SS:'ostafrika', SD:'ostafrika', KE:'ostafrika', UG:'ostafrika', RW:'ostafrika', BI:'ostafrika',
+  TZ:'tansania_madagaskar', MG:'tansania_madagaskar', KM:'tansania_madagaskar', YT:'tansania_madagaskar',
+  ZA:'suedafrika', NA:'suedafrika', BW:'suedafrika', ZW:'suedafrika', ZM:'suedafrika', MW:'suedafrika', MZ:'suedafrika', SZ:'suedafrika', AO:'suedafrika',
+  CD:'afrika', CG:'afrika', CF:'afrika', GA:'afrika', GQ:'afrika', ST:'afrika', YE:'afrika', EH:'afrika'
+};
+const MAL_MAP_SRC = {de:'Quelle: DTG/EKRM, „Malaria 2025" (Thieme, Flug u. Reisemed. 2025). Zur klinischen Verwendung in der Charité-Ambulanz.',
+  en:'Source: DTG/EKRM, "Malaria 2025" (Thieme, Flug u. Reisemed. 2025). For clinical use in the Charité clinic.'};
+function malMapImg(file, cap){
+  return '<figure class="mal-map-fig"><figcaption class="mal-map-cap">'+cap+'</figcaption>'+
+    '<img src="assets/karten/'+file+'?v=47" alt="'+_esc(cap)+'" class="map-full" loading="lazy" '+
+    'onerror="this.outerHTML=\'<div class=&quot;map-missing&quot;>'+LX('Karte noch nicht hinterlegt.','Map not yet available.')+'</div>\'"></figure>';
+}
 function showMalariaMaps(){
-  const box=el('modal-content'); if(!box || typeof malariaAssess!=='function') return; box.classList.remove('pi-modal');
+  const bg=el('map-bg'); if(!bg || typeof malariaAssess!=='function') return;
   const a=malariaAssess(destinations||[]);
-  let list;
-  if(a.any){
-    list='<div class="mm-list">'+a.countries.map(c=>{
-      const nm=CBY[c.code]?cName(CBY[c.code]):c.code;
-      const cls=c.strategy==='P'?'high':c.strategy==='NSB'?'mid':'low';
-      const lbl=c.strategy==='P'?LX('Chemoprophylaxe','Chemoprophylaxis'):c.strategy==='NSB'?LX('Standby','Standby'):LX('Expositionsprophylaxe','Bite prevention');
-      return '<div class="mm-row"><span class="mm-c">'+_esc(nm)+'</span><span class="mal-badge '+cls+'">'+lbl+'</span><a class="btn sec sm" href="'+MAL_MAP_REGION+'" target="_blank" rel="noopener">'+LX('Regionalkarte','Regional map')+' ↗</a></div>';
-    }).join('')+'</div>';
-  } else {
-    list='<div class="mm-none">'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>';
-  }
-  box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
-    '<h3>'+LX('Malaria-Karten (DTG)','Malaria maps (DTG)')+'</h3>'+
-    '<div class="m-sub">'+LX('Offizielle Karten der DTG – öffnen in einem neuen Tab.','Official DTG maps – open in a new tab.')+'</div>'+
-    list+
-    '<div class="mm-actions"><a class="btn" href="'+MAL_MAP_WORLD+'" target="_blank" rel="noopener">'+LX('Weltkarte (DTG)','World map (DTG)')+' ↗</a><a class="btn sec" href="'+MAL_MAP_REGION+'" target="_blank" rel="noopener">'+LX('Alle Regionalkarten','All regional maps')+' ↗</a></div>';
-  const bg=el('modal-bg'); if(bg) bg.classList.add('show');
+  // relevante Regionen aus den Reisezielen (dedupliziert, Reihenfolge stabil)
+  const regions=[]; (a.countries||[]).forEach(c=>{ const r=MAL_REGION[c.code]; if(r && regions.indexOf(r)<0) regions.push(r); });
+  let imgs = malMapImg('malaria.png', LX('Weltübersicht – Malaria 2025','World overview – Malaria 2025'));
+  regions.forEach(r=>{ const m=MAL_REGION_FILES[r]; if(m) imgs+=malMapImg(m.file, LANG==='de'?m.de:m.en); });
+  const sub = a.any
+    ? LX('Weltkarte + passende Regionalkarte(n) zum Reiseziel. Regionale Unterschiede mit dem Patienten klären.','World map + matching regional map(s) for the destination. Clarify regional differences with the patient.')
+    : LX('Kein Malariarisiko im ausgewählten Reiseziel – Weltübersicht zur Orientierung.','No malaria risk for the selected destination – world overview for reference.');
+  bg.innerHTML='<button class="map-close" onclick="closeMap()" title="Schließen">×</button>'+
+    '<div class="map-inner mal-map-scroll">'+
+      '<div class="map-head">'+LX('Malaria-Karten','Malaria maps')+'</div>'+
+      '<div class="m-sub" style="margin-bottom:10px">'+sub+'</div>'+
+      imgs+
+      '<div class="map-foot">'+(LANG==='de'?MAL_MAP_SRC.de:MAL_MAP_SRC.en)+'</div>'+
+    '</div>';
+  bg.classList.add('show');
 }
 
 /* ================= VERWENDETE QUELLEN (Settings) ================= */

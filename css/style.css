@@ -768,6 +768,11 @@ body.clinic-idle #list-card{ border-top-right-radius:8px; border-bottom-right-ra
 .card.locked > :not(h2):not(.lock-btn){ pointer-events:none; }
 .card.locked > h2, .card.locked .lock-btn{ pointer-events:auto; }
 .card.locked .info-btn, .card.locked .map-btn, .card.locked .row-info{ pointer-events:auto; }
+/* Malaria-Karten-Viewer: Welt + Regionalkarten gestapelt, scrollbar */
+.mal-map-scroll{ max-height:88vh; overflow:auto; }
+.mal-map-fig{ margin:0 0 18px; }
+.mal-map-cap{ font-size:13px; font-weight:600; color:var(--text); margin:0 0 6px; }
+.mal-map-fig .map-full{ width:100%; height:auto; border:1px solid var(--line); border-radius:8px; display:block; }
 /* Länder- & Gesundheitshinweise (nur Info + externe Links) bleiben immer klickbar, auch bei gesperrter Reise-Sektion */
 .card.locked #notes-block, .card.locked #notes-block *, .card.locked .aa-link{ pointer-events:auto !important; }
 .card.locked .kasse-billing, .card.locked .kasse-billing *{ pointer-events:auto; }
