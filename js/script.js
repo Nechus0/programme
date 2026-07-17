@@ -3861,14 +3861,14 @@ async function genTestPatients(){
 function renderDeletedPatients(){
   const box=el('deleted-body'); if(!box) return;
   const del=patients.filter(p=>p.deleted).sort((a,b)=>{ const ta=(a.deleted&&a.deleted.ts)||''; const tb=(b.deleted&&b.deleted.ts)||''; return tb<ta?-1:(tb>ta?1:0); });
-  let h='<div class="del-head"><h2>'+LX('Gelöschte Patienten','Deleted patients')+'</h2>'+(del.length?'<button class="btn danger sm" onclick="purgeAllDeleted()">'+LX('Alle endgültig löschen','Delete all permanently')+'</button>':'')+'</div>';
+  let h='<div class="del-head"><h2>'+LX('Gelöschte Patienten','Deleted patients')+'</h2>'+(del.length?'<button class="btn-purge" onclick="purgeAllDeleted()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'+LX('Alle endgültig löschen','Delete all permanently')+'</button>':'')+'</div>';
   h+='<div class="card-desc">'+LX('Gelöschte Datensätze bleiben 30 Tage erhalten und können wiederhergestellt werden. „Endgültig löschen" entfernt sie sofort und unwiderruflich aus der Datenbank.','Deleted records are kept for 30 days and can be restored. "Delete permanently" removes them from the database immediately and irreversibly.')+'</div>';
   if(!del.length){ box.innerHTML=h+'<div class="del-empty">'+LX('Keine gelöschten Patienten.','No deleted patients.')+'</div>'; return; }
   h+='<div class="del-list">'+del.map(p=>{
     const nm=(p.firstname?p.name+', '+p.firstname:p.name);
     const d=p.deleted||{};
     const dest=(p.destinations&&p.destinations.length)?' · '+p.destinations.map(c=>CBY[c]?cName(CBY[c]):c).join(', '):'';
-    return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+dest+'</div></div><div class="del-acts"><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button><button class="btn danger sm" onclick="purgePatient(\''+p.id+'\')">'+(LX('Endgültig löschen','Delete permanently'))+'</button></div></div>';
+    return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+dest+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button></div>';
   }).join('')+'</div>';
   box.innerHTML=h;
 }
@@ -3930,12 +3930,13 @@ async function renderAdminUsers(){
     if(!list.length){ html+='<div class="ab-empty">'+(pending?(LX('Keine offenen Registrierungen','None')):(LX('Person hierher ziehen …','Drop person here …')))+'</div>'; }
     list.forEach(u=>{
       const nm=((u.title?u.title+' ':'')+(u.full_name||'—')).trim();
-      html+='<div class="ab-row" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role,u.gender)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+' · '+genderLabel(u.gender,'de')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
+      const gl=genderLabel(u.gender,'de');
+      html+='<div class="ab-row" draggable="true" data-uid="'+u.id+'" ondragstart="adminUserDragStart(event,\''+u.id+'\')">'+initialsCircle(u.full_name||u.email,u.role,u.gender)+'<div class="ab-main"><div class="ab-name">'+_esc(nm)+'</div><div class="ab-sub">'+_esc(u.email||'')+(gl?' · '+gl:'')+'</div></div><span class="icon-btn del" title="Zugang deaktivieren" onclick="adminSoftDeleteUI(\''+u.id+'\')">✕</span></div>';
     });
     html+='</div></div>';
   });
   if(deletedUsers.length > 0) {
-    html+='<div class="ab-sec">';
+    html+='<div class="ab-sec ab-deleted">';
     html+='<div class="ab-sec-h" style="cursor:pointer; display:flex; justify-content:space-between;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'"><div>Entfernt <span class="count-pill">'+deletedUsers.length+'</span></div><span style="font-size:0.8em;opacity:0.6">▼</span></div>';
     html+='<div class="ab-rows" style="display:none;">';
     deletedUsers.forEach(u=>{
