@@ -1697,7 +1697,7 @@ async function savePatient(finish){
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
     leistungen: document.body.classList.contains('clinic') ? readLeistungen() : ((existing&&existing.leistungen)||undefined),
     payment: (function(){ const m=paymentMethod(); const finalizing=(finish && roleIsKasse() && document.body.classList.contains('clinic')); const prevPaid=!!(existing&&existing.payment&&existing.payment.paid); if(!m && !(existing&&existing.payment)) return undefined; return {method:m||((existing&&existing.payment&&existing.payment.method)||''), label:payMethodLabel(m), paid: finalizing?true:prevPaid}; })(),
-    billing: (finish && roleIsKasse() && document.body.classList.contains('clinic')) ? {total:computeBilling().total, method:paymentMethod(), methodLabel:payMethodLabel(paymentMethod()), at:new Date().toISOString(), by:((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||myUserKey())} : ((existing&&existing.billing)||undefined),
+    billing: (finish && document.body.classList.contains('clinic')) ? {total:computeBilling().total, hasUnpriced:computeBilling().hasUnpriced, method:(roleIsKasse()?paymentMethod():((existing&&existing.billing&&existing.billing.method)||undefined)), at:new Date().toISOString(), by:((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||myUserKey())} : ((existing&&existing.billing)||undefined),
     // Medizin-Personal schließt ab → 'kasse' (Übergabe an die Kasse); die Kasse schließt ab → 'done'
     status: ((finish && document.body.classList.contains('clinic')) ? (roleIsKasse() ? 'done' : 'kasse') : ((existing&&existing.status)||(document.body.classList.contains('clinic')?'treatment':'waiting'))),
     group:(existing&&existing.group)||'',
@@ -2724,13 +2724,16 @@ function renderPatientCard(p,inGroup){
       +'</div>';
     const timeTxt = timeMeta ? timeMeta.replace(/^\s*·\s*/,'') : '';
     const ageTxt = (ageParen||'').replace(/[()]/g,'').trim();   // nur Alter, kein volles Geburtsdatum
-    const menuItems=(p.group?'<button onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LX('Entgruppieren','Ungroup'))+'</button>':'')+'<button class="danger" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LX('Löschen','Delete'))+'</button>';
-    const menu='<button class="menu-btn" onclick="event.stopPropagation();toggleCardMenu(\''+p.id+'\')" title="'+(LX('Optionen','Options'))+'" aria-label="Optionen">⋯</button><div class="card-menu" id="cm-'+p.id+'">'+menuItems+'</div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
+    const clockSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>';
+    const trashSvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+    const unlinkSvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M4 4l16 16M8.5 7.5 10 6a4 4 0 0 1 6 6l-1.5 1.5M15.5 16.5 14 18a4 4 0 0 1-6-6l1.5-1.5"/></svg>';
+    const priceTxt = (p.billing && typeof p.billing.total==='number' && (s==='kasse'||s==='done')) ? (eur(p.billing.total)+(p.billing.hasUnpriced?' +':'')) : '';
+    const rightIcons = (s==='done'?payBadge(p):'') + (((s==='treatment'||s==='done')&&ini)?ini:'');
+    const actions='<span class="pi-actions">'+(p.group?'<button class="pi-act" onclick="event.stopPropagation();ungroup(\''+p.id+'\')" title="'+(LX('Entgruppieren','Ungroup'))+'" aria-label="Entgruppieren">'+unlinkSvg+'</button>':'')+'<button class="pi-act pi-del" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')" title="'+(LX('Löschen','Delete'))+'" aria-label="Löschen">'+trashSvg+'</button></span>';
+    return '<div class="patient-item pi-'+tt+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
       +'<div class="patient-head" onclick="openPatientCard(\''+p.id+'\')">'
-        +'<div class="ph-row1">'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-spacer"></span>'+ini+menu+'</div>'
-        +'<div class="ph-row2">'+((ageTxt?ageTxt+' · ':'')+dest)+'</div>'
-        +(timeTxt?'<div class="ph-row3"><span class="ph-time">'+timeTxt+'</span></div>':'')
+        +'<div class="ph-row1">'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-spacer"></span>'+rightIcons+actions+'</div>'
+        +'<div class="ph-row2"><span class="ph-meta">'+((ageTxt?ageTxt+' · ':'')+dest)+'</span><span class="ph-spacer"></span>'+(timeTxt?'<span class="ph-time">'+clockSvg+'<span>'+timeTxt+'</span></span>':'')+(priceTxt?'<span class="ph-price">'+priceTxt+'</span>':'')+'</div>'
       +'</div></div>';
 }
 // Klick auf eine Karte im Fluss-Board öffnet den Patienten passend zur Stufe/Rolle

@@ -781,30 +781,35 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-col-treatment .amb-col-ic{ color:var(--blue); }
 .amb-col-kasse .amb-col-ic{ color:var(--yellow); }
 .amb-col-done .amb-col-ic{ color:var(--green); }
-.amb-shift-row{ display:flex; align-items:center; flex-wrap:wrap; gap:8px 18px; margin-top:12px; padding:12px 14px 2px; border-top:1px solid var(--line); flex:0 0 auto; }
-.shift-row-title{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text); }
-.shift-row-group{ display:inline-flex; align-items:center; gap:8px; }
-.shift-row-role{ font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
-.shift-row-person{ display:inline-flex; align-items:center; gap:6px; font-size:13px; }
+.amb-shift-row{ display:flex; align-items:center; flex-wrap:wrap; gap:6px 16px; margin-top:12px; padding:10px 14px 2px; border-top:1px solid var(--line); flex:0 0 auto; }
+.shift-row-title{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--grey); margin-right:2px; }
+.shift-row-group{ display:inline-flex; align-items:center; gap:7px; }
+.shift-row-role{ font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
+.shift-row-person{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; }
+.shift-row-person .ini-circle{ width:20px; height:20px; min-width:20px; font-size:9px; }
 .shift-row-nm{ white-space:nowrap; }
 .shift-row-empty{ font-size:12px; color:var(--grey); }
 
-/* ===== Kompakte Karten im Fluss-Board (vertikales Layout je Spalte) ===== */
-.amb-flow .patient-item{ background:#fff; border:0.5px solid var(--line); border-radius:10px; margin-bottom:8px; }
-.amb-flow .patient-head{ display:flex; flex-direction:column; gap:5px; padding:10px 12px; cursor:pointer; }
-.amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:8px; }
-.amb-flow .patient-head .caret{ font-size:9px; color:var(--grey); flex:none; transition:transform .12s; }
-.amb-flow .patient-item.open .caret{ transform:rotate(90deg); }
+/* ===== Standardisierte 2-Zeilen-Karten im Fluss-Board ===== */
+.amb-flow .patient-item{ position:relative; background:#fff; border:0.5px solid var(--line); border-left:3px solid var(--line); border-radius:0 10px 10px 0; margin-bottom:8px; }
+.amb-flow .patient-item.pi-beratung{ border-left-color:#2563eb; }      /* B = blau */
+.amb-flow .patient-item.pi-folgeimpfung{ border-left-color:#0e9e8e; }  /* F = teal/grün */
+.amb-flow .patient-head{ display:flex; flex-direction:column; gap:3px; padding:9px 11px; cursor:pointer; }
+.amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:8px; min-height:22px; }
 .amb-flow .patient-head .pl-name{ font-weight:600; font-size:13.5px; line-height:1.2; white-space:normal; }
 .amb-flow .patient-head .pl-spacer{ flex:1 1 auto; }
-.amb-flow .patient-head .ph-row2{ font-size:11.5px; color:var(--grey); line-height:1.35; padding-left:23px; }
-.amb-flow .patient-head .ph-row3{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding-left:23px; margin-top:1px; }
-.amb-flow .patient-head .ph-time{ font-size:11.5px; color:var(--grey); }
-.amb-flow .patient-head .amb-behandeln{ flex:none; padding:5px 12px; font-size:12px; }
+/* Zeile 2: Alter · Ziel links, Uhrzeit/Preis rechts – immer gleiche Position */
+.amb-flow .patient-head .ph-row2{ display:flex; align-items:center; gap:8px; padding-left:28px; font-size:11.5px; color:var(--grey); line-height:1.35; }
+.amb-flow .patient-head .ph-meta{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.amb-flow .patient-head .ph-spacer{ flex:1 1 auto; }
+.amb-flow .patient-head .ph-time{ flex:none; display:inline-flex; align-items:center; gap:3px; color:var(--grey); }
+.amb-flow .patient-head .ph-time svg{ opacity:.8; }
+.amb-flow .patient-head .ph-price{ flex:none; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
 .amb-flow .patient-head .ini-circle{ flex:none; }
 
-/* ⋯-Menü auf den Karten (Löschen/Entgruppieren) – dezent, erscheint beim Hover */
-.amb-flow .patient-item{ position:relative; }
-.amb-flow .menu-btn{ flex:none; background:none; border:none; cursor:pointer; color:var(--grey); font-size:17px; line-height:1; padding:0 4px; border-radius:5px; opacity:0; transition:opacity .12s; }
-.amb-flow .patient-item:hover .menu-btn, .amb-flow .menu-btn:focus{ opacity:1; }
-.amb-flow .menu-btn:hover{ background:var(--grey-xl); color:var(--text); }
+/* Aktions-Icons (Löschen/Entgruppieren) – fixe Position rechts, erscheinen beim Hover */
+.amb-flow .pi-actions{ flex:none; display:inline-flex; align-items:center; gap:1px; opacity:0; transition:opacity .12s; }
+.amb-flow .patient-item:hover .pi-actions, .amb-flow .pi-actions:focus-within{ opacity:1; }
+.amb-flow .pi-act{ background:none; border:none; cursor:pointer; color:var(--grey); padding:2px 3px; border-radius:5px; display:inline-flex; align-items:center; }
+.amb-flow .pi-act:hover{ background:var(--grey-xl); color:var(--text); }
+.amb-flow .pi-act.pi-del:hover{ color:var(--red); }
