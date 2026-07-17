@@ -878,6 +878,8 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 .st-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
 .st-table th,.st-table td{ text-align:left; padding:6px 8px; border-bottom:1px solid var(--grey-xl); }
 .st-table th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); }
+.st-section-lbl{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--grey); margin:0 0 10px; }
+.st-section-lbl.st-sep{ margin-top:22px; padding-top:16px; border-top:1px solid var(--line); }
 @media(max-width:720px){ .st-kpis{grid-template-columns:1fr;} .st-grid{grid-template-columns:1fr;} }
 
 /* ===== Verwendete Quellen ===== */
@@ -899,3 +901,55 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 .src-stand{ font-size:10.5px; color:var(--grey); white-space:nowrap; flex:none; text-align:right; }
 .src-foot{ font-size:11.5px; color:var(--grey); margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
 @media(max-width:720px){ .src-groups{ grid-template-columns:1fr; } }
+
+/* ===== Malaria & Expositionsprophylaxe ===== */
+#stepM .mal-summary{ background:var(--grey-xl); border-radius:10px; padding:10px 13px; margin-bottom:14px; }
+.mal-sum-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.mal-sum-note{ font-size:11.5px; color:var(--grey); }
+.mal-badge{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:2px 9px; border-radius:999px; white-space:nowrap; }
+.mal-badge.high{ background:var(--red-bg); color:var(--red); }
+.mal-badge.mid{ background:var(--yellow-bg); color:var(--yellow); }
+.mal-badge.low{ background:#fff; color:var(--grey); border:1px solid var(--line); }
+.mal-badge.std{ background:var(--blue-bg); color:var(--blue); }
+.mal-dests{ display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+.mal-dest{ font-size:12px; color:var(--text); background:#fff; border:1px solid var(--line); border-radius:6px; padding:2px 8px; }
+.mal-row{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.mal-lbl{ font-size:13px; font-weight:600; }
+.mal-days{ display:flex; align-items:center; gap:7px; }
+.mal-days input{ width:82px; height:38px; text-align:center; }
+.mal-days span{ font-size:13px; color:var(--grey); }
+.mal-rec{ border-radius:10px; padding:11px 14px; margin-bottom:14px; }
+.mal-rec.high{ background:var(--blue-bg); }
+.mal-rec.mid{ background:var(--yellow-bg); }
+.mal-rec.low{ background:var(--grey-xl); }
+.mal-rec-t{ font-size:14.5px; font-weight:700; }
+.mal-rec.high .mal-rec-t{ color:var(--blue); }
+.mal-rec.mid .mal-rec-t{ color:var(--yellow); }
+.mal-rec-s{ font-size:12.5px; color:var(--text); margin-top:2px; }
+.mal-standby{ display:flex; gap:9px; align-items:flex-start; background:var(--yellow-bg); border-radius:10px; padding:10px 13px; margin-bottom:12px; font-size:12.5px; color:#7a5600; }
+.mal-standby svg{ flex:none; margin-top:1px; color:var(--yellow); }
+.mal-drug-h{ font-size:12px; color:var(--grey); margin-bottom:8px; }
+.mal-drugs{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.mal-drug{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; cursor:pointer; background:#fff; transition:border-color .12s; }
+.mal-drug:hover{ border-color:#aaa; }
+.mal-drug.sel{ border:2px solid var(--blue); }
+.mal-drug-top{ display:flex; align-items:center; gap:8px; }
+.mal-chk{ color:var(--blue); flex:none; }
+.mal-drug-nm{ font-weight:700; font-size:14px; }
+.mal-drug-tag{ font-size:12px; color:var(--grey); margin-left:auto; }
+.mal-drug-body{ margin-top:11px; border-top:1px solid var(--line); padding-top:11px; display:flex; flex-direction:column; gap:8px; }
+.mal-fld{ font-size:12.5px; line-height:1.42; }
+.mal-fld-l{ display:inline-block; min-width:74px; font-size:10px; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); font-weight:700; vertical-align:top; margin-right:8px; }
+.mal-fld.cave{ color:#7a1f1f; }
+.mal-fld.cave .mal-fld-l{ color:var(--red); }
+.mal-calc{ background:var(--grey-xl); border-radius:8px; padding:11px 12px; margin-top:4px; }
+.mal-calc-row{ display:flex; align-items:center; gap:9px; margin-bottom:10px; }
+.mal-calc-row label{ font-size:12.5px; color:var(--grey); }
+.mal-calc-row input{ width:82px; height:36px; text-align:center; }
+.mal-calc-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.mal-calc-grid > div{ background:#fff; border-radius:7px; padding:7px 9px; }
+.mal-calc-l{ font-size:11px; color:var(--grey); }
+.mal-calc-v{ font-size:15px; font-weight:700; }
+.mal-calc-note{ font-size:11.5px; color:var(--grey); margin-top:8px; }
+.mal-expo{ display:flex; gap:9px; align-items:flex-start; background:var(--green-bg); border-radius:10px; padding:10px 13px; font-size:12.5px; color:#215c2a; }
+.mal-expo svg{ flex:none; margin-top:1px; color:var(--green); }

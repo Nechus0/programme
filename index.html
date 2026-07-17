@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=33">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=33">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=33">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=33">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=34">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=34">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=34">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=34">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=33">
+<link rel="stylesheet" href="css/style.css?v=34">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -48,8 +48,6 @@
         <label class="chk-chip"><input type="radio" name="treatmode" value="folgeimpfung" onchange="setMyTreatmentMode('folgeimpfung')"> <span data-i18n="treatFolge">Folgeimpfung</span></label>
       </div>
     </section>
-    <section class="card" id="stats-sec" style="display:none"><div id="stats-body"></div></section>
-    <section class="card" id="sources-sec"><div id="sources-body"></div></section>
     <div id="admin-only">
     <section class="card">
       <h2 data-i18n="adminUsersTitle">Nutzerverwaltung</h2>
@@ -62,6 +60,8 @@
       <div class="card-desc" data-i18n="adminTabletDesc">Für das ausgelegte iPad wird kein eigenes Konto benötigt. Auf der Anmeldeseite „Patienten-Tablet öffnen" wählen – das Gerät meldet sich anonym an, und Patienten füllen ihre Daten (Abschnitt 1 & 2) selbst aus. Diese erscheinen anschließend in der Ambulanzliste.</div>
     </section>
     </div>
+    <section class="card" id="stats-sec" style="display:none"><div id="stats-body"></div></section>
+    <section class="card" id="sources-sec"><div id="sources-body"></div></section>
   </div>
 </div>
 
@@ -200,6 +200,12 @@
     </div>
   </section>
 
+  <!-- MALARIA & EXPOSITIONSPROPHYLAXE (erscheint nur bei Malariarisiko im Reiseziel) -->
+  <section class="card" id="stepM" style="display:none">
+    <h2 class="sec-h"><span class="step-badge">M</span><span data-i18n="mSecTitle">Malaria &amp; Expositionsprophylaxe</span></h2>
+    <div id="malaria-body"></div>
+  </section>
+
   <!-- STEP 6: Leistungen -->
   <section class="card" id="step6" style="display:none">
     <button class="lock-btn" id="lock-step6" onclick="toggleLock('step6')" title="Bearbeiten" aria-label="Bearbeiten" style="display:none">✎</button>
@@ -278,13 +284,15 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=33"></script>
+<script src="js/auth.js?v=34"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=33"></script>
-<script src="js/engine.js?v=33"></script>
-<script src="js/script.js?v=33"></script>
+<script src="js/engine_rules.js?v=34"></script>
+<script src="js/engine.js?v=34"></script>
+<script src="js/malaria_data.js?v=34"></script>
+<script src="js/malaria_engine.js?v=34"></script>
+<script src="js/script.js?v=34"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){

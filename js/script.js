@@ -1578,7 +1578,7 @@ function renderAge(){
 }
 function updatePregVisibility(){const male=el('p-sex').value==='m';const f=el('preg-field');if(f)f.style.display=male?'none':'';if(male)el('p-pregnant').value='no';}
 function updateDepartureHint(){const d=el('p-departure').value;const h=el('departure-hint');if(!h)return;h.textContent=d?((LX('Tage bis Abreise: ','Days to departure: '))+Math.round((new Date(d)-new Date())/86400000)):'';}
-function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();renderContraWarn();}
+function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();renderContraWarn();if(typeof renderMalaria==='function')renderMalaria();}
 // Hinweise zu Akuterkrankung / Thrombose / Ohnmacht – nur für Personal, nichts für Patienten
 function renderContraWarn(){
   const box=el('contra-warn'); if(!box) return;
@@ -1823,6 +1823,8 @@ async function savePatient(finish){
     // „Behandelt von" (Medizin-Personal, Übergabe an Kasse) und „Abgerechnet von" (Kasse/Vertretung, Zahlung)
     treatedBy: (finish && _clinic && !_atKasse) ? {name:((existing&&existing.claimedByName)||_me), role:((existing&&existing.claimedByRole)||_myRole), at:new Date().toISOString()} : ((existing&&existing.treatedBy)||undefined),
     billedBy: _finalizing ? {name:_me, role:_myRole, at:new Date().toISOString()} : ((existing&&existing.billedBy)||undefined),
+    // Malaria-Plan (eigene Engine) – nur speichern, wenn ein Reiseziel mit Risiko gewählt ist
+    malaria: (typeof malariaRelevant==='function' && malariaRelevant()) ? {days:malariaState.days, weight:malariaState.weight, drug:malariaState.drug} : ((existing&&existing.malaria)||undefined),
     // Patient an der Kasse → Abschluss = 'done' (bezahlt); sonst Abschluss durch Personal → 'kasse'
     status: ((finish && _clinic) ? (_atKasse ? 'done' : 'kasse') : _prevStatus),
     group:(existing&&existing.group)||'',
@@ -2058,6 +2060,9 @@ function loadPatient(id){
   _loadedPaid = p.payment ? (p.payment.paid?'paid':'unpaid') : '';
   if(p.leistungen) applyLeistungen(p.leistungen);
 
+  // Malaria-Zustand wiederherstellen (eigene Engine)
+  if(p.malaria && typeof p.malaria==='object'){ malariaState={ days:(p.malaria.days!=null?p.malaria.days:null), weight:(p.malaria.weight!=null?p.malaria.weight:70), drug:p.malaria.drug||'malarone' }; }
+  else { resetMalariaState(); }
   renderDestChips();recompute();
   lockAllSections();   // Abschnitte sperren; Bearbeiten erst per Stift
   applySectionVisibility(p);   // Wartend → nur Abschnitte 1–3; ab „In Behandlung" existieren 4–6
@@ -3013,6 +3018,7 @@ function resetForm(){
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
   destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');
+  resetMalariaState(); if(typeof renderMalaria==='function') renderMalaria();
   if(typeof kioskUpdateView === 'function'){ kioskStep=1; kioskUpdateView(); }
   // Leistungen zurücksetzen; MFA startet mit „Keine Beratung"
   const bDefault=((CURRENT_PROFILE||{}).role==='mfa')?'none':'1';
@@ -3085,7 +3091,7 @@ function applyRole(profile){
   document.body.classList.add('clinic-idle');       // Start: kein Patient gewählt → Abschnitte eingeklappt
   document.body.classList.toggle('role-kasse', role==='kasse');
   const npb=el('new-patient-btn'); if(npb) npb.style.display=(role==='kasse')?'none':'inline-block';   // Kasse nimmt keine Patienten auf
-  const tm=el('treatmode-sec'); if(tm) tm.style.display=(role==='mfa'||role==='kasse')?'none':'';   // Standard-Behandlungsart nur für Arzt/Admin
+  const tm=el('treatmode-sec'); if(tm) tm.style.display=(role==='arzt')?'':'none';   // Standard-Behandlungsart nur für Arzt/Ärztin
   loadSecCollapse();   // gemerkten Auf-/Zuklapp-Zustand wiederherstellen (bleibt auch bei manuellem Refresh)
   moveListToTop();
   if(USE_DB){ loadPatientsFromDB(); startAmbRefresh(); } else renderPatients();
@@ -3231,6 +3237,7 @@ const SEC_NAV_ITEMS=[
   {id:'step3',label:'3',de:'Immunstatus',en:'Immune status',fr:'Statut immunitaire'},
   {id:'step4',label:'4',de:'Impfstatus',en:'Vaccination status',fr:'Statut vaccinal'},
   {id:'step5',label:'5',de:'Geplante Impfungen',en:'Planned',fr:'Vaccins planifiés'},
+  {id:'stepM',label:'M',de:'Malaria',en:'Malaria',fr:'Paludisme'},
   {id:'step6',label:'6',de:'Leistungen',en:'Services',fr:'Prestations'}
 ];
 function secNavHtml(){
@@ -3318,13 +3325,18 @@ function stTopCountries(){
   return '<div class="st-box"><div class="st-box-h">'+LX('Top 5 Reiseländer','Top 5 destinations')+'</div>'+rows+'</div>';
 }
 function stMonthlyTop3(){
-  const yr=new Date().getFullYear(); const done=statDonePatients(); const months={};
-  done.forEach(p=>{ const dt=statDateOf(p); if(dt.getFullYear()!==yr)return; const m=dt.getMonth(); (p.destinations||[]).forEach(code=>{ const nm=CBY[code]?cName(CBY[code]):code; months[m]=months[m]||{}; months[m][nm]=(months[m][nm]||0)+1; }); });
+  const yr=new Date().getFullYear(); const done=statDonePatients(); const months={}; const monthCount=new Array(12).fill(0);
+  done.forEach(p=>{ const dt=statDateOf(p); if(dt.getFullYear()!==yr)return; const m=dt.getMonth(); monthCount[m]++; (p.destinations||[]).forEach(code=>{ const nm=CBY[code]?cName(CBY[code]):code; months[m]=months[m]||{}; months[m][nm]=(months[m][nm]||0)+1; }); });
   const mn=(LANG==='de')?['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Balkendiagramm: behandelte Patienten je Monat
+  const max=Math.max(1,...monthCount);
+  const bars=monthCount.map((v,m)=>{ const hp=v>0?Math.max(4,Math.round(v/max*100)):0; return '<div class="st-bar" title="'+mn[m]+': '+v+'"><div class="st-bar-fill" style="height:'+hp+'%"></div><div class="st-bar-x">'+mn[m][0]+'</div></div>'; }).join('');
   let rows='';
   for(let m=0;m<12;m++){ const data=months[m]; if(!data)continue; const top=Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,3); rows+='<tr><td>'+mn[m]+'</td>'+[0,1,2].map(i=>'<td>'+(top[i]?_esc(top[i][0])+' <span class="st-num">('+top[i][1]+')</span>':'—')+'</td>').join('')+'</tr>'; }
   if(!rows) rows='<tr><td colspan="4" class="st-empty">—</td></tr>';
-  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Top-3 Länder pro Monat','Top-3 countries per month')+' ('+yr+')</div><table class="st-table"><thead><tr><th>'+LX('Monat','Month')+'</th><th>1.</th><th>2.</th><th>3.</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  return '<div class="st-box st-wide"><div class="st-box-h">'+LX('Top-3 Länder pro Monat','Top-3 countries per month')+' ('+yr+')</div>'+
+    '<div class="st-chart" style="height:96px;margin-bottom:12px;">'+bars+'</div>'+
+    '<table class="st-table"><thead><tr><th>'+LX('Monat','Month')+'</th><th>1.</th><th>2.</th><th>3.</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function statResearchRows(){
   const done=statDonePatients(); const map={};
@@ -3352,17 +3364,103 @@ function renderStats(){
   const s=computeStats();
   const totalVaxToday=Object.values(s.vaxCounts).reduce((a,b)=>a+b,0);
   let h='<div class="st-head"><h2>'+LX('Statistik','Statistics')+'</h2><button class="btn sec sm" onclick="exportResearchCsv()">'+LX('Forschungsdaten (CSV)','Research data (CSV)')+'</button></div>';
+  // Block 1: HEUTE
+  h+='<div class="st-section-lbl">'+LX('Heute','Today')+'</div>';
   h+='<div class="st-kpis">'+stKpi(LX('Patienten heute','Patients today'),s.doneToday.length)+stKpi(LX('Umsatz heute','Revenue today'),eur(s.revToday))+stKpi(LX('Impfungen heute','Vaccinations today'),totalVaxToday)+'</div>';
+  h+='<div class="st-grid">'+stCountBox(LX('Impfungen heute','Vaccinations today'),s.vaxCounts)+stCountBox(LX('Leistungen heute','Services today'),s.leistCounts)+'</div>';
+  // Block 2: LANGFRISTIG / GESAMT
+  h+='<div class="st-section-lbl st-sep">'+LX('Gesamt & Langfristig','Overall & long-term')+'</div>';
   h+='<div class="st-grid">';
-  h+=stCountBox(LX('Impfungen heute','Vaccinations today'),s.vaxCounts);
-  h+=stCountBox(LX('Leistungen heute','Services today'),s.leistCounts);
-  h+=stTopCountries();
   h+=stRevenueChart();
+  h+=stTopCountries();
   if(isAdmin){ h+=stMonthlyTop3(); }
-  h+=stResearchTable();
   h+='</div>';
   box.innerHTML=h;
 }
+/* ================= MALARIA-SEKTION (UI; Engine in malaria_engine.js) ================= */
+let malariaState = { days:null, weight:70, drug:'malarone' };
+function resetMalariaState(){ malariaState = { days:null, weight:70, drug:'malarone' }; }
+function malDefaultDays(){
+  const b=(el('p-duration')&&el('p-duration').value)||'';
+  const m={'<1w':5,'1-2w':10,'<2w':10,'2-4w':21,'0-7':5,'7-14':10,'14-21':17,'21-28':24,'1-3m':45,'3-6m':120,'>6m':180};
+  return m[b]||10;
+}
+function malariaRelevant(){ return (typeof malariaAssess==='function') && malariaAssess(destinations||[]).any; }
+function renderMalaria(){
+  const sec=el('stepM'), box=el('malaria-body'); if(!sec||!box||typeof malariaAssess!=='function') return;
+  const a=malariaAssess(destinations||[]);
+  const editingP=patients.find(p=>p.id===editingId);
+  const waiting=editingP && patientStatus(editingP)==='waiting';
+  const showable=a.any && document.body.classList.contains('clinic') && isStaff() && !waiting;
+  if(!showable){ sec.style.display='none'; box.innerHTML=''; if(typeof updateSecNav==='function') updateSecNav(); return; }
+  sec.style.display='';
+  if(malariaState.days==null) malariaState.days=malDefaultDays();
+  const strat=a.strategy;
+  const stratBadge = strat==='P' ? '<span class="mal-badge high">'+LX('Chemoprophylaxe-Gebiet','Chemoprophylaxis area')+'</span>'
+    : strat==='NSB' ? '<span class="mal-badge mid">'+LX('Standby-Gebiet','Standby area')+'</span>'
+    : '<span class="mal-badge low">'+LX('nur Expositionsprophylaxe','bite prevention only')+'</span>';
+  const dests=a.countries.map(c=>{ const nm=CBY[c.code]?cName(CBY[c.code]):c.code; return '<span class="mal-dest">'+_esc(nm)+(c.species?' · '+_esc(c.species):'')+'</span>'; }).join('');
+  let h='';
+  h+='<div class="mal-summary"><div class="mal-sum-head">'+stratBadge+'<span class="mal-sum-note">'+LX('Regionale Unterschiede werden mit dem Patienten geklärt.','Regional differences are clarified with the patient.')+'</span></div><div class="mal-dests">'+dests+'</div></div>';
+  h+='<div class="mal-row"><label class="mal-lbl">'+LX('Aufenthalt im Risikogebiet','Stay in risk area')+'</label><div class="mal-days"><input type="number" min="0" max="365" value="'+malariaState.days+'" oninput="malSetDays(this.value)"><span>'+LX('Tage','days')+'</span></div></div>';
+  h+='<div class="mal-rec" id="mal-rec"></div>';
+  if(strat==='P'||strat==='NSB'){
+    if(strat==='NSB') h+='<div class="mal-standby"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3"/></svg><span>'+L2(MAL_STANDBY)+'</span></div>';
+    h+='<div class="mal-drug-h">'+LX('Medikament','Medication')+'</div><div class="mal-drugs">';
+    ['malarone','mefloquin','doxycyclin'].forEach(k=>{ h+=malDrugCard(k); });
+    h+='</div>';
+  }
+  h+='<div class="mal-expo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>'+L2(MAL_EXPO)+'</span></div>';
+  box.innerHTML=h;
+  malRecUpdate();
+  if(typeof updateSecNav==='function') updateSecNav();
+}
+function malDrugCard(k){
+  const d=MAL_DRUGS[k]; const sel=malariaState.drug===k;
+  let h='<div class="mal-drug'+(sel?' sel':'')+'" onclick="malSelectDrug(\''+k+'\')">';
+  h+='<div class="mal-drug-top">'+(sel?'<svg class="mal-chk" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>':'')+'<span class="mal-drug-nm">'+_esc(d.name)+'</span><span class="mal-drug-tag">'+L2(d.tag)+'</span>'+(k==='malarone'?'<span class="mal-badge std">'+LX('Standard','Default')+'</span>':'')+'</div>';
+  if(sel){
+    h+='<div class="mal-drug-body">';
+    h+='<div class="mal-fld"><span class="mal-fld-l">'+LX('Dosis','Dose')+'</span>'+L2(d.dose)+'</div>';
+    h+='<div class="mal-fld"><span class="mal-fld-l">'+LX('Schema','Schedule')+'</span>'+L2(d.schedule)+'</div>';
+    h+='<div class="mal-fld"><span class="mal-fld-l">'+LX('Einnahme','How to take')+'</span>'+L2(d.intake)+'</div>';
+    h+='<div class="mal-fld cave"><span class="mal-fld-l">'+LX('Cave','Caution')+'</span>'+L2(d.cave)+'</div>';
+    if(k==='malarone') h+=malCalcHtml();
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+function malCalcHtml(){
+  return '<div class="mal-calc"><div class="mal-calc-row"><label>'+LX('Körpergewicht','Body weight')+'</label><input type="number" min="5" max="150" value="'+(malariaState.weight!=null?malariaState.weight:'')+'" oninput="malSetWeight(this.value)"><span>kg</span></div>'+
+    '<div class="mal-calc-grid"><div><div class="mal-calc-l">'+LX('Dosis / Tag','Dose / day')+'</div><div class="mal-calc-v" id="mal-dose">–</div></div>'+
+    '<div><div class="mal-calc-l">'+LX('Einnahmedauer','Duration')+'</div><div class="mal-calc-v" id="mal-daysv">–</div></div>'+
+    '<div><div class="mal-calc-l">'+LX('Packungen à 12','Packs of 12')+'</div><div class="mal-calc-v" id="mal-packs">–</div></div></div>'+
+    '<div class="mal-calc-note" id="mal-tot"></div></div>';
+}
+function malRecUpdate(){
+  if(typeof malariaAssess!=='function') return;
+  const a=malariaAssess(destinations||[]); const strat=a.strategy; const days=malariaState.days||0;
+  const rec=el('mal-rec');
+  if(rec){
+    let cls,title,sub;
+    if(strat==='P'){ cls='high'; title=LX('Chemoprophylaxe empfohlen','Chemoprophylaxis recommended'); sub = days<3 ? LX('Nur kurzer/kein Aufenthalt im Hochrisikogebiet – ggf. Standby statt Dauerprophylaxe (mit Patient klären).','Short/no stay in high-risk area – standby may suffice instead of continuous prophylaxis (clarify with the patient).') : LX('Durchgehende Prophylaxe für den Aufenthalt im Hochrisikogebiet.','Continuous prophylaxis for the stay in the high-risk area.'); }
+    else if(strat==='NSB'){ cls='mid'; title=LX('Notfallselbstbehandlung (Standby)','Emergency standby treatment'); sub=LX('Standby-Medikament mitgeben; Chemoprophylaxe nur bei intensiver Exposition.','Provide a standby medication; chemoprophylaxis only for intense exposure.'); }
+    else { cls='low'; title=LX('Nur Expositionsprophylaxe','Bite prevention only'); sub=LX('Kein Chemoprophylaxe-Gebiet – konsequenter Mückenschutz genügt.','No chemoprophylaxis area – consistent bite protection is sufficient.'); }
+    rec.className='mal-rec '+cls;
+    rec.innerHTML='<div class="mal-rec-t">'+title+'</div><div class="mal-rec-s">'+sub+'</div>';
+  }
+  if(el('mal-dose') && typeof malaroneCalc==='function'){
+    const c=malaroneCalc(malariaState.weight, malariaState.days);
+    el('mal-dose').textContent=c.tabLabel;
+    el('mal-daysv').textContent=c.days+' '+LX('Tage','days');
+    el('mal-packs').textContent=c.packs;
+    el('mal-tot').textContent=LX('Gesamt ','Total ')+c.tablets+' '+LX('Tabletten','tablets')+' · '+LX('1 Packung = 12 Tbl.','1 pack = 12 tabs')+(c.ped?' · '+LX('Kinderdosis','paediatric dose'):'');
+  }
+}
+function malSetDays(v){ malariaState.days=Math.max(0,parseInt(v,10)||0); malRecUpdate(); }
+function malSetWeight(v){ const n=parseFloat(v); malariaState.weight=isNaN(n)?null:n; malRecUpdate(); }
+function malSelectDrug(k){ if(!MAL_DRUGS[k])return; malariaState.drug=k; renderMalaria(); }
+
 /* ================= VERWENDETE QUELLEN (Settings) ================= */
 const USED_SOURCES=[
   { aspect:{de:'Impfempfehlungen & Altersfreigaben',en:'Vaccination recommendations & age limits'}, status:'active', items:[
