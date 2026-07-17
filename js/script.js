@@ -1682,12 +1682,15 @@ function printMeaslesCertificate(){
   const today=fmtDate(new Date());
   const physTitle=(CURRENT_PROFILE&&CURRENT_PROFILE.title)?CURRENT_PROFILE.title+' ':'';
   const physName=(p.claimedByName||(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'').trim();
-  const physFull=(physTitle+physName).trim()||'—';
+  const physRoleRaw=(p.claimedByRole||(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'');
+  const physGender=(p.claimedByGender||(CURRENT_PROFILE&&CURRENT_PROFILE.gender)||'');
+  const physRole=(typeof formatRoleTitle==='function')?formatRoleTitle(physRoleRaw,physGender):'';
+  const physFull=((physTitle+physName).trim()+((physName&&physRole)?', '+physRole:''))||'—';
   const cb=(v)=>(v===sel)?'☒':'☐';
   const optRow=(o)=>'<div class="c-opt"><span class="c-box">'+cb(o.v)+'</span><span class="c-txt"><span class="c-de">'+_esc(o.de)+'</span><span class="c-en">'+_esc(o.en)+'</span></span></div>';
   const proof=MEASLES_CERT_OPTS.filter(o=>o.group==='proof').map(optRow).join('');
   const exempt=MEASLES_CERT_OPTS.filter(o=>o.group==='exempt').map(optRow).join('');
-  const css='@page{size:A4;margin:22mm 20mm;}*{box-sizing:border-box;}body{font-family:Helvetica,Arial,sans-serif;color:#111;font-size:12px;line-height:1.5;}'+
+  const css='@page{size:A4;margin:0;}*{box-sizing:border-box;}body{font-family:Helvetica,Arial,sans-serif;color:#111;font-size:12px;line-height:1.5;margin:0;padding:20mm 18mm;}'+
     'h1{font-size:19px;margin:0 0 2px;}h1 .en{display:block;font-size:13px;font-weight:400;color:#444;}'+
     '.sub{font-size:11px;color:#555;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;}'+
     '.pat{width:100%;border-collapse:collapse;margin-bottom:18px;}'+
@@ -1730,8 +1733,7 @@ function printMeaslesCertificate(){
   const w=window.open('','_blank');
   if(!w){ uiAlert(LX('Bitte Pop-ups für diese Seite erlauben, um die Bescheinigung zu drucken.','Please allow pop-ups for this page to print the certificate.')); return; }
   w.document.open(); w.document.write(html); w.document.close();
-  // Zusätzlicher Fallback zum eingebetteten onload-Print (falls onload nicht feuert)
-  setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} }, 400);
+  // Druck wird ausschließlich über das eingebettete window.onload im neuen Fenster ausgelöst (kein Doppeldruck)
   closeModal();
 }
 function closeModal(){el('modal-bg').classList.remove('show');const mc=el('modal-content');if(mc)mc.classList.remove('pi-modal');}
@@ -2053,7 +2055,8 @@ function loadPatient(id){
   renderDestChips();recompute();
   lockAllSections();   // Abschnitte sperren; Bearbeiten erst per Stift
   applySectionVisibility(p);   // Wartend → nur Abschnitte 1–3; ab „In Behandlung" existieren 4–6
-  if(roleIsKasse()) setupKasseFolds(); else clearFolds();   // Kasse: 2–5 eingeklappt, 1 & 6 offen
+  // An der Kasse (Rolle Kasse ODER Patient in Kasse-Stufe): Abschnitte 2–5 eingeklappt (aufklappbar), 1 & 6 offen
+  if(roleIsKasse() || patientStatus(p)==='kasse') setupKasseFolds(); else clearFolds();
   if(document.body.classList.contains('clinic')) enterPatient();
   else if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
 }
@@ -2424,8 +2427,38 @@ document.addEventListener('dragend', () => {
   document.querySelectorAll('.drag-over, .group-target').forEach(el => el.classList.remove('drag-over', 'group-target'));
   hideTpTooltip();
 });
-function pDragStart(e,id){hideTpTooltip();_dragPid=id;_dragGroup=null;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
-function gDragStart(e,g){ if(e.target.closest('.patient-item'))return; _dragGroup=g;_dragPid=null;try{e.dataTransfer.effectAllowed='move';}catch(_){}}
+function pDragStart(e,id){hideTpTooltip();_dragPid=id;_dragGroup=null;document.body.classList.add('amb-dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
+function gDragStart(e,g){ if(e.target.closest('.patient-item'))return; _dragGroup=g;_dragPid=null;document.body.classList.add('amb-dragging');try{e.dataTransfer.effectAllowed='move';}catch(_){}}
+function pDragEnd(e){ document.body.classList.remove('amb-dragging'); const tz=el('amb-trash'); if(tz)tz.classList.remove('over'); }
+// Löschzone (untere Zeile): erscheint beim Ziehen; Ablegen löscht nach Rückfrage
+function trashOver(e){ e.preventDefault(); e.currentTarget.classList.add('over'); try{e.dataTransfer.dropEffect='move';}catch(_){} }
+function trashLeave(e){ e.currentTarget.classList.remove('over'); }
+async function trashDrop(e){
+  e.preventDefault(); e.currentTarget.classList.remove('over');
+  const grp=_dragGroup; let id=_dragPid;
+  if(!id && !grp){ try{ id=e.dataTransfer.getData('text/plain'); }catch(_){} }
+  _dragPid=null; _dragGroup=null; document.body.classList.remove('amb-dragging');
+  const who=((CURRENT_PROFILE&&CURRENT_PROFILE.title?CURRENT_PROFILE.title+' ':'')+((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'')).trim()||myUserKey();
+  const stamp=()=>({ts:new Date().toISOString(), who, role:(CURRENT_PROFILE&&CURRENT_PROFILE.role)||''});
+  if(grp){
+    const gl=grp.trim().toLowerCase();
+    const members=patients.filter(p=>patientDay(p)===listDay && !p.deleted && (p.group||'').trim().toLowerCase()===gl);
+    if(!members.length) return;
+    if(!(await uiConfirm((LANG==='de'?('Ganze Gruppe „'+grp+'" ('+members.length+' Patienten) löschen?'):(LANG==='fr'?('Supprimer tout le groupe « '+grp+' » ('+members.length+' patients) ?'):('Delete whole group "'+grp+'" ('+members.length+' patients)?'))),{title:LX('Löschen','Delete'),ok:LX('Löschen','Delete'),danger:true}))) return;
+    for(const m of members){ m.deleted=stamp(); await persistPatient(m); if(editingId===m.id) cancelEdit(); }
+    if(USE_DB && roleSeesClinic((CURRENT_PROFILE||{}).role)) await loadPatientsFromDB();
+    renderPatients();
+  } else if(id){
+    const p=patients.find(x=>x.id===id); if(!p) return;
+    const nm=(p.firstname?p.name+', '+p.firstname:p.name);
+    if(!(await uiConfirm((LANG==='de'?('„'+nm+'" wirklich löschen?'):(LANG==='fr'?('Supprimer vraiment « '+nm+' » ?'):('Really delete "'+nm+'"?'))),{title:LX('Patient löschen','Delete patient'),ok:LX('Löschen','Delete'),danger:true}))) return;
+    p.deleted=stamp(); const ok=await persistPatient(p); if(!ok) return;
+    if(editingId===id) cancelEdit();
+    if(USE_DB && roleSeesClinic((CURRENT_PROFILE||{}).role)) await loadPatientsFromDB();
+    renderPatients();
+  }
+}
+document.addEventListener('dragend',function(){ document.body.classList.remove('amb-dragging'); const tz=el('amb-trash'); if(tz)tz.classList.remove('over'); });
 function pDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');const sec=e.currentTarget.closest('.amb-section');if(sec)sec.classList.remove('collapsed');}
 function pDragLeave(e){e.currentTarget.classList.remove('drag-over');}
 function pDrop(e,status,type){
@@ -2553,6 +2586,8 @@ function renderPatients(){
   const slot=el('amb-filter-slot'); if(slot) slot.innerHTML=fchip('all',LX('Alle','All'))+fchip('beratung',LX('Beratung','Consultation'))+fchip('folgeimpfung',LX('Folgeimpfung','Follow-up'));
   let html='<div class="amb-flow">'+cols+'</div>';
   html+='<div class="amb-shift-row">'+shiftRowHtml()+'</div>';   // „Im Dienst" als Zeile unter dem Board
+  // Löschzone – nur beim Ziehen sichtbar (untere Zeile)
+  html+='<div class="amb-trash-zone" id="amb-trash" ondragover="trashOver(event)" ondragleave="trashLeave(event)" ondrop="trashDrop(event)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>'+(LX('Zum Löschen hierher ziehen','Drag here to delete'))+'</span></div>';
   // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
   if((CURRENT_PROFILE||{}).role==='admin'){
     const del=dayPats.filter(p=>p.deleted);
@@ -2647,7 +2682,8 @@ function renderTreatPanel(){
   // Wird ein wartender Patient geöffnet (Patientenansicht), ist noch niemand Behandler → kein „In Behandlung", kein Behandler-Icon
   const _curEdit=patients.find(p=>p.id===editingId);
   const _waitingView=editing && _curEdit && patientStatus(_curEdit)==='waiting';
-  const _headTitle=_waitingView ? LX('Patient','Patient') : LX('In Behandlung','In treatment');
+  const _kasseStage=editing && _curEdit && patientStatus(_curEdit)==='kasse';
+  const _headTitle=_waitingView ? LX('Patient','Patient') : (_kasseStage ? LX('Kasse','Billing') : LX('In Behandlung','In treatment'));
   const _headAvatar=_waitingView ? '' : (docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'');
   h+='<div class="tp-head"><span class="tp-title">'+_headTitle+'</span>'+_headAvatar+'</div>';
   if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top: 8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
@@ -2836,7 +2872,7 @@ function renderPatientCard(p,inGroup){
     if (!inGroup) {
       if (p.handlers && p.handlers.length > 0) {
         ini = '<div class="handlers-circles">' + p.handlers.map(h => initialsCircle(h.name, h.role, h.gender)).join('') + '</div>';
-      } else if ((s==='treatment'||s==='done')&&p.claimedByName) {
+      } else if ((s==='treatment'||s==='kasse'||s==='done')&&p.claimedByName) {
         ini = initialsCircle(p.claimedByName, p.claimedByRole, p.claimedByGender);
       }
     }
@@ -2860,22 +2896,21 @@ function renderPatientCard(p,inGroup){
     const timeTxt = timeMeta ? timeMeta.replace(/^\s*·\s*/,'') : '';
     const ageTxt = (ageParen||'').replace(/[()]/g,'').trim();   // nur Alter, kein volles Geburtsdatum
     const clockSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>';
-    const trashSvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
-    const unlinkSvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M4 4l16 16M8.5 7.5 10 6a4 4 0 0 1 6 6l-1.5 1.5M15.5 16.5 14 18a4 4 0 0 1-6-6l1.5-1.5"/></svg>';
     const priceTxt = (p.billing && typeof p.billing.total==='number' && (s==='kasse'||s==='done')) ? (eur(p.billing.total)+(p.billing.hasUnpriced?' +':'')) : '';
-    const rightIcons = (s==='done'?payBadge(p):'') + (((s==='treatment'||s==='done')&&ini)?ini:'');
-    const actions='<span class="pi-actions">'+(p.group?'<button class="pi-act" onclick="event.stopPropagation();ungroup(\''+p.id+'\')" title="'+(LX('Entgruppieren','Ungroup'))+'" aria-label="Entgruppieren">'+unlinkSvg+'</button>':'')+'<button class="pi-act pi-del" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')" title="'+(LX('Löschen','Delete'))+'" aria-label="Löschen">'+trashSvg+'</button></span>';
-    return '<div class="patient-item pi-'+tt+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
+    const rightIcons = (s==='done'?payBadge(p):'') + (((s==='treatment'||s==='kasse'||s==='done')&&ini)?ini:'');
+    return '<div class="patient-item pi-'+tt+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragend="pDragEnd(event)" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
       +'<div class="patient-head" onclick="openPatientCard(\''+p.id+'\')">'
         +'<div class="ph-row1"><span class="pl-name">'+dispName+grpBadge+'</span>'+(ageTxt?'<span class="pl-age">'+ageTxt+'</span>':'')+'<span class="pl-spacer"></span>'+rightIcons+'</div>'
         +'<div class="ph-row2">'+typeBadge+'<span class="ph-meta">'+dest+'</span><span class="ph-spacer"></span>'+(timeTxt?'<span class="ph-time">'+clockSvg+'<span>'+timeTxt+'</span></span>':'')+(priceTxt?'<span class="ph-price">'+priceTxt+'</span>':'')+'</div>'
-      +'</div>'+actions+'</div>';
+      +'</div></div>';
 }
 // Klick auf eine Karte im Fluss-Board öffnet den Patienten passend zur Stufe/Rolle
 function openPatientCard(id){
   // Jede Rolle kann einen Patienten öffnen. Wartend → Patientenansicht (nur Abschnitte 1–3, kein Claim).
   // Übernahme in die eigene Behandlung geschieht ausschließlich per Drag&Drop in „In Behandlung".
   const p=patients.find(x=>x.id===id); if(!p) return;
+  // Kasse darf Patienten überall öffnen – NUR während der Behandlung (Spalte „In Behandlung") nicht.
+  if(roleIsKasse() && patientStatus(p)==='treatment') return;
   loadPatient(id);   // Anspruchsprüfung (bereits in Behandlung durch andere) erfolgt in loadPatient
 }
 

@@ -824,7 +824,7 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-item{ position:relative; background:#fff; border:0.5px solid var(--line); border-left:3px solid var(--line); border-radius:0 10px 10px 0; margin-bottom:8px; }
 .amb-flow .patient-item.pi-beratung{ border-left-color:#2563eb; }      /* B = blau */
 .amb-flow .patient-item.pi-folgeimpfung{ border-left-color:#0e9e8e; }  /* F = teal/grün */
-.amb-flow .patient-head{ display:flex; flex-direction:column; align-items:stretch; gap:3px; padding:9px 32px 9px 11px; cursor:pointer; }
+.amb-flow .patient-head{ display:flex; flex-direction:column; align-items:stretch; gap:3px; padding:9px 12px; cursor:pointer; }
 .amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:6px; min-height:20px; }
 .amb-flow .patient-head .pl-name{ font-weight:600; font-size:13.5px; line-height:1.2; white-space:normal; }
 .amb-flow .patient-head .pl-age{ font-weight:400; font-size:11.5px; color:var(--grey); white-space:nowrap; }
@@ -840,9 +840,9 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-head .ph-price{ flex:none; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
 .amb-flow .patient-head .ini-circle{ flex:none; }
 
-/* Löschen/Entgruppieren – fixe Position unten rechts, erscheinen beim Hover */
-.amb-flow .pi-actions{ position:absolute; right:5px; top:50%; transform:translateY(-50%); display:inline-flex; flex-direction:column; align-items:center; gap:1px; opacity:0; transition:opacity .12s; }
-.amb-flow .patient-item:hover .pi-actions, .amb-flow .pi-actions:focus-within{ opacity:1; }
-.amb-flow .pi-act{ background:rgba(255,255,255,.85); border:none; cursor:pointer; color:var(--grey); padding:2px 3px; border-radius:5px; display:inline-flex; align-items:center; }
-.amb-flow .pi-act:hover{ background:var(--grey-xl); color:var(--text); }
-.amb-flow .pi-act.pi-del:hover{ color:var(--red); }
+/* Löschzone (untere Zeile) – nur beim Ziehen sichtbar; Patient/Gruppe hierher ziehen zum Löschen */
+.amb-trash-zone{ display:none; }
+body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px; padding:15px; border:2px dashed var(--red); border-radius:10px; color:var(--red); font-size:13px; font-weight:600; background:rgba(220,38,38,.05); transition:background .12s, border-color .12s; }
+.amb-trash-zone.over{ background:rgba(220,38,38,.16); border-color:#b91c1c; }
+.amb-trash-zone svg{ pointer-events:none; }
+.amb-trash-zone span{ pointer-events:none; }
