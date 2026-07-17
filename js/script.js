@@ -2387,7 +2387,13 @@ function renderPatients(){
     h+='</div></div>';
     return h;
   };
-  // Fluss-Board: eine durchgehende Reihe entlang des Patientenwegs
+  // Fluss-Board: eine durchgehende Reihe entlang des Patientenwegs (mit Stufen-Icons)
+  const SI={
+    waiting:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    treatment:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M10 17v2a3 3 0 0 0 6 0v-3"/><circle cx="18" cy="13" r="2.2"/></svg>',
+    kasse:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9v6M18 9v6"/></svg>',
+    done:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>'
+  };
   const STAGES=[
     {status:'waiting',   de:'Wartend',       en:'Waiting',      fr:'En attente'},
     {status:'treatment', de:'In Behandlung', en:'In treatment', fr:'En traitement'},
@@ -2400,7 +2406,7 @@ function renderPatients(){
   STAGES.forEach(s=>{
     const inSec=filtT.filter(p=>!p.deleted && patientStatus(p)===s.status);
     const title=(LANG==='de'?s.de:(LANG==='fr'?s.fr:s.en));
-    cols+='<div class="amb-col amb-col-'+s.status+'"><div class="amb-col-h"><span class="amb-col-title">'+title+'</span><span class="count-pill">'+inSec.length+'</span></div>';
+    cols+='<div class="amb-col amb-col-'+s.status+'"><div class="amb-col-h"><span class="amb-col-title"><span class="amb-col-ic">'+(SI[s.status]||'')+'</span>'+title+'</span><span class="count-pill">'+inSec.length+'</span></div>';
     cols+='<div class="patient-list drop-zone" data-status="'+s.status+'" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\',null)">';
     cols+= inSec.length ? renderSectionCards(inSec) : '<div class="amb-empty">'+(LX('Hierher ziehen …','Drop here …'))+'</div>';
     cols+='</div></div>';
@@ -2408,6 +2414,7 @@ function renderPatients(){
   const fchip=(v,lbl)=>'<button class="amb-filter'+(tf===v?' active':'')+'" onclick="setTypeFilter(\''+v+'\')">'+lbl+'</button>';
   let html='<div class="amb-filterbar">'+fchip('all',LX('Alle','All'))+fchip('beratung',LX('Beratung','Consultation'))+fchip('folgeimpfung',LX('Folgeimpfung','Follow-up'))+'</div>';
   html+='<div class="amb-flow">'+cols+'</div>';
+  html+='<div class="amb-shift-row">'+shiftRowHtml()+'</div>';   // „Im Dienst" als Zeile unter dem Board
   // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
   if((CURRENT_PROFILE||{}).role==='admin'){
     const del=dayPats.filter(p=>p.deleted);
@@ -2477,7 +2484,9 @@ function renderTreatPanel(){
   const box=el('treat-panel'); if(!box) return;
   const clinic=document.body.classList.contains('clinic');
   const editing=!!editingId && !document.body.classList.contains('clinic-idle');
-  if(!clinic){ box.innerHTML=''; box.classList.remove('show'); return; }
+  // In der Listenansicht (idle) kein linkes Panel – das Fluss-Board nimmt die volle Breite ein.
+  // Nur während der Behandlung eines Patienten erscheint links die Sektions-Navigation.
+  if(!clinic || !editing){ box.innerHTML=''; box.classList.remove('show'); return; }
   const kasse=roleIsKasse();
   const docName=(CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||'';
   const docRole=(CURRENT_PROFILE&&CURRENT_PROFILE.role)||'';
@@ -2534,18 +2543,31 @@ async function loadShiftToday(){
     if(typeof renderTreatPanel==='function') renderTreatPanel();
   }catch(_){}
 }
-function shiftPanelHtml(){
+function gatherShiftPeople(){
   const people={};
   const add=(name,role,gender)=>{ if(!name||!role||role==='admin') return; const k=(role+'|'+name).toLowerCase(); if(!people[k]) people[k]={name:name,role:role,gender:gender||''}; };
-  // 1) alle heute eingeloggten Profile (bleiben den ganzen Tag sichtbar)
-  Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender));
-  // 2) zusätzlich aus heutigen Behandlungen/Abrechnungen (Fallback, falls audit_logs nicht lesbar)
-  patients.filter(p=>patientDay(p)===listDay && !p.deleted).forEach(p=>{
+  Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender));           // heute eingeloggte Profile
+  patients.filter(p=>patientDay(p)===listDay && !p.deleted).forEach(p=>{         // + aus heutigen Behandlungen/Abrechnungen
     (p.handlers||[]).forEach(h=>add(h.name,h.role,h.gender));
     if(p.billing && p.billing.by) add(p.billing.by,'kasse','');
   });
   if(CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin') add(CURRENT_PROFILE.full_name,CURRENT_PROFILE.role,CURRENT_PROFILE.gender);
-  const lang=(LANG==='de'?'de':'en');
+  return people;
+}
+// „Im Dienst" als horizontale Zeile unter dem Fluss-Board
+function shiftRowHtml(){
+  const people=gatherShiftPeople(); const lang=(LANG==='de'?'de':'en');
+  let h='<span class="shift-row-title">'+L2(I18N.shiftTitle)+'</span>';
+  ['arzt','mfa','kasse'].forEach(r=>{
+    const list=Object.values(people).filter(pp=>pp.role===r);
+    h+='<span class="shift-row-group"><span class="shift-row-role">'+_esc(roleLabel(r,lang))+'</span>';
+    h+= list.length ? list.map(pp=>'<span class="shift-row-person">'+initialsCircle(pp.name,pp.role,pp.gender)+'<span class="shift-row-nm">'+_esc(pp.name)+'</span></span>').join('') : '<span class="shift-row-empty">—</span>';
+    h+='</span>';
+  });
+  return h;
+}
+function shiftPanelHtml(){
+  const people=gatherShiftPeople(); const lang=(LANG==='de'?'de':'en');
   let h='<div class="tp-head"><span class="tp-title">'+L2(I18N.shiftTitle)+'</span></div>';
   ['arzt','mfa','kasse'].forEach(r=>{
     const list=Object.values(people).filter(pp=>pp.role===r);
@@ -2692,7 +2714,14 @@ function renderPatientCard(p,inGroup){
       +'</div>'
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
       +'</div>';
-    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="togglePatient(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LX('Schnellansicht','Preview'))+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LX('geb. ','b. '))+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
+    return '<div class="patient-item'+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)"><div class="patient-head" onclick="openPatientCard(\''+p.id+'\')"><span class="caret" onclick="event.stopPropagation();togglePatient(\''+p.id+'\')" title="'+(LX('Schnellansicht','Preview'))+'">▶</span>'+typeBadge+'<span class="pl-name">'+dispName+grpBadge+'</span><span class="pl-meta">'+(LX('geb. ','b. '))+dobStr+ageParen+' · '+dest+timeMeta+'</span><span class="pl-spacer"></span>'+behandeln+ini+'</div>'+body+'</div>';
+}
+// Klick auf eine Karte im Fluss-Board öffnet den Patienten passend zur Stufe/Rolle
+function openPatientCard(id){
+  const p=patients.find(x=>x.id===id); if(!p) return;
+  const s=patientStatus(p);
+  if(s==='waiting'){ if(!roleIsKasse()) takeIntoTreatment(id); return; }   // Wartend → in Behandlung nehmen (nur Personal)
+  loadPatient(id);   // In Behandlung / Kasse / Behandelt → öffnen (Anspruchsprüfung in loadPatient)
 }
 
 function fmtDate(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}
