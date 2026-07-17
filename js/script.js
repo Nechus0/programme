@@ -3897,7 +3897,15 @@ function openAdminPanel(){
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
   if(ss){ ss.style.display=showStats?'':'none'; if(showStats) renderStats(); }
   renderSources();
+  // Einstellungs-Reiter nur für Admin (Nutzerverwaltung / Statistik / Testing / Quellen)
+  const tabs=el('admin-tabs'); if(tabs) tabs.style.display=isAdmin?'':'none';
+  if(isAdmin) adminTab('users');
   p.classList.add('show');
+}
+// Reiter-Umschaltung im Admin-Einstellungsmenü
+function adminTab(name){
+  const bar=el('admin-tabs'); if(bar) bar.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.atab===name));
+  document.querySelectorAll('#admin-panel [data-atab]').forEach(sec=>{ sec.style.display=(sec.dataset.atab===name)?'':'none'; });
 }
 function openSettings(){ openAdminPanel(); }
 function closeAdminPanel(){ const p=el('admin-panel'); if(p) p.classList.remove('show'); }

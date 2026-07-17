@@ -418,6 +418,11 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 .ab-row .icon-btn{flex-shrink:0;opacity:.35;transition:opacity .12s;}
 .ab-row:hover .icon-btn{opacity:1;}
 @media(max-width:720px){.admin-board{grid-template-columns:1fr;}}
+/* Admin-Einstellungen: Reiter (Nutzerverwaltung / Statistik / Testing / Quellen) */
+.admin-tabs{ display:flex; gap:2px; border-bottom:1px solid var(--line); margin:0 0 20px; flex-wrap:wrap; }
+.admin-tabs button{ background:none; border:none; border-bottom:2px solid transparent; padding:10px 15px; font-family:var(--font); font-size:14px; font-weight:600; color:var(--grey); cursor:pointer; margin-bottom:-1px; transition:color .12s,border-color .12s; }
+.admin-tabs button:hover{ color:var(--text); }
+.admin-tabs button.active{ color:var(--text); border-bottom-color:var(--black); }
 
 .admin-group{margin-bottom:18px;}
 .admin-group-h{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);font-weight:700;padding:0 0 6px;border-bottom:1px solid var(--line);margin-bottom:4px;}
