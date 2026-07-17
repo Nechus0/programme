@@ -2330,13 +2330,38 @@ function showPriceInfo(){
   const bg=el('modal-bg'); if(bg) bg.classList.add('show');
 }
 // Abrechnungsblock (Sektion 6) rendern – zentrale Ansicht der Kasse
+// Gruppen-Umschalter an der Kasse: alle Mitglieder derselben Gruppe des Tages, mit Zahlstatus.
+function kasseGroupBar(){
+  const cur=patients.find(p=>p.id===editingId); if(!cur) return '';
+  const grp=(cur.group||'').trim().toLowerCase(); if(!grp) return '';
+  const members=patients.filter(p=>patientDay(p)===listDay && !p.deleted && (p.group||'').trim().toLowerCase()===grp && (p.status==='kasse'||p.status==='done'));
+  if(members.length<2) return '';
+  let h='<div class="kb-group"><div class="kb-group-h">'+(LX('Gruppe: ','Group: '))+_esc(cur.group)+' · '+(LX('an der Kasse','at billing'))+'</div><div class="kb-group-members">';
+  members.forEach(m=>{
+    const isCur=m.id===editingId;
+    const paid=(m.status==='done')||!!(m.payment&&m.payment.paid);
+    const settled=paid||!!(m.payment&&m.payment.method);
+    const cls='kb-gm'+(isCur?' cur':'')+(paid?' paid':(settled?' settled':' open'));
+    const nm=m.firstname? (m.name+', '+m.firstname):m.name;
+    const dot=paid?'✓':(settled?'€':'○');
+    h+='<button type="button" class="'+cls+'" '+(isCur?'disabled':('onclick="kasseSwitchMember(\''+m.id+'\')"'))+'><span class="kb-gm-dot">'+dot+'</span><span class="kb-gm-nm">'+_esc(nm)+'</span></button>';
+  });
+  h+='</div><div class="kb-group-hint">'+(LX('Jedes Mitglied abrechnen (bezahlt/auf Rechnung); beim Abschluss werden alle bezahlten Mitglieder gemeinsam auf „Behandelt" gesetzt.','Bill each member (paid/invoice); on sign-off all settled members move to “Done” together.'))+'</div></div>';
+  return h;
+}
+// Zwischenspeichern und zum ausgewählten Gruppenmitglied wechseln (Zahlungsart bleibt erhalten).
+async function kasseSwitchMember(id){
+  if(!id||id===editingId) return;
+  try{ await savePatient(false); }catch(_){}
+  openPatientCard(id);
+}
 function renderKasseBilling(){
   const box=el('kasse-billing'); if(!box) return;
   // Grünes „Bezahlt"-Feld, sobald der Patient finalisiert wurde – in jeder Rolle sichtbar
   const paidField = (_loadedPaid==='paid') ? '<div class="kb-paid-field">'+L2(I18N.kassePaid)+'</div>' : '';
   if(!canBill()){ box.innerHTML = paidField; return; }   // Abrechnungsblock nur wenn Patient an der Kasse (Kasse ODER vertretendes Personal)
   const b=computeBilling();
-  let h='<div class="kb-title">'+L2(I18N.kasseBillTitle)+'</div>';
+  let h=kasseGroupBar()+'<div class="kb-title">'+L2(I18N.kasseBillTitle)+'</div>';
   if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'+paidField; return; }
   h+='<div class="kb-rows">';
   b.rows.forEach(r=>{ h+='<div class="kb-row'+(r.vax?' kb-vax':'')+'"><span class="kb-l">'+_esc(r.label)+'</span><span class="kb-p">'+(r.unpriced?('<span class="kb-manual">'+L2(I18N.kassePriceManual)+'</span>'):eur(r.price))+'</span></div>'; });
@@ -2510,9 +2535,24 @@ async function finishTreatment(){
   const ok=await savePatient(true);   // setzt Status auf 'kasse' (Personal) bzw. 'done' (Kasse) + exitToList()
   if(!ok) return;
   if(grp){
-    const mates=patients.filter(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===grp && p.status!==target);
-    for(const m of mates){ m.status=target; await persistPatient(m); }
-    renderPatients();
+    if(kasse){
+      // Kasse: nur bereits abgerechnete Gruppenmitglieder (Zahlungsart hinterlegt) mit abschließen.
+      // Noch nicht abgerechnete Mitglieder bleiben an der Kasse – die Gruppe wird erst „Behandelt", wenn alle bezahlt/auf Rechnung sind.
+      const kasseMates=patients.filter(p=>patientDay(p)===listDay && p.id!==cur.id && (p.group||'').trim().toLowerCase()===grp && p.status==='kasse');
+      const settled=kasseMates.filter(m=> m.payment && m.payment.method);
+      const open=kasseMates.filter(m=> !(m.payment && m.payment.method));
+      for(const m of settled){ if(!m.payment) m.payment={}; m.payment.paid=true; m.status='done'; await persistPatient(m); }
+      renderPatients();
+      if(open.length){
+        const names=open.map(m=> m.firstname? (m.name+', '+m.firstname) : m.name).join(', ');
+        await uiAlert(LX('Gruppe „'+cur.group+'": noch nicht alle abgerechnet. Bitte auch abrechnen und abschließen: '+names,'Group “'+cur.group+'”: not everyone billed yet. Please also bill and complete: '+names));
+      }
+    } else {
+      // Behandlung → Kasse: ganze Gruppe zusammen weiterreichen.
+      const mates=patients.filter(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===grp && p.status!==target);
+      for(const m of mates){ m.status=target; await persistPatient(m); }
+      renderPatients();
+    }
   }
 }
 async function assignGroup(id){

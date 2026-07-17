@@ -682,6 +682,18 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .kasse-billing{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;}
 .kasse-billing:empty{display:none;}
 .kb-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);margin-bottom:10px;}
+/* Gruppen-Umschalter an der Kasse */
+.kb-group{border:1px dashed var(--violet);background:#faf7fd;border-radius:10px;padding:12px 14px;margin-bottom:16px;}
+.kb-group-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--violet);margin-bottom:9px;}
+.kb-group-members{display:flex;flex-wrap:wrap;gap:8px;}
+.kb-gm{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:500;font-family:var(--font);color:var(--text);cursor:pointer;transition:border-color .12s,background .12s;}
+.kb-gm:hover{border-color:var(--violet);}
+.kb-gm.cur{border-color:var(--violet);background:#f3ebfb;font-weight:700;cursor:default;}
+.kb-gm-dot{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;font-size:10px;font-weight:700;background:var(--grey-xl);color:var(--grey);}
+.kb-gm.paid .kb-gm-dot{background:var(--green-bg);color:var(--green);}
+.kb-gm.settled .kb-gm-dot{background:var(--blue-bg);color:var(--blue);}
+.kb-gm.open .kb-gm-dot{background:var(--yellow-bg);color:var(--yellow);}
+.kb-group-hint{font-size:11.5px;color:var(--grey);line-height:1.45;margin-top:9px;}
 .kb-rows{display:flex;flex-direction:column;gap:2px;margin-bottom:6px;}
 .kb-row{display:flex;justify-content:space-between;gap:12px;padding:7px 10px;border-radius:7px;font-size:14px;}
 .kb-row:nth-child(odd){background:var(--grey-xl);}
