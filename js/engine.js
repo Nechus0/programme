@@ -671,14 +671,25 @@ function hepAssess(){
     const destEndemic = hepaR ? (hepaR.level === 'recommended' || hepaR.level === 'risk_based' || hepaR.level === 'mandatory_all') : false;
     A=destEndemic?'red':'grey';aNote={de:destEndemic?'Für die meisten Reiseziele empfohlen':'',en:destEndemic?'Recommended for most destinations':''};
   }
-  const bDoses=b+tw+hexaB;let B,bNote;
-  if(serHBs()){B='green';bNote={de:'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig',en:'Immune — anti-HBs sufficient, no further vaccination needed'};}
-  else if(bDoses>=3){B='green';bNote={de:'Grundimmunisierung komplett ('+bDoses+' Dosen; STIKO: keine Auffrischung bei Anti-HBs >100)',en:'Primary series complete ('+bDoses+' doses; STIKO: no booster if anti-HBs >100)'};}
-  else if(bDoses>=1){B='yellow';bNote={de:'Grundimmunisierung unvollständig ('+bDoses+' von 3 Dosen)',en:'Primary series incomplete ('+bDoses+' of 3 doses)'};}
+  const bDoses=b+tw+hexaB;let B,bNote,bTier='';
+  if(serHBs()){B='green';bTier='immune';bNote={de:'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig',en:'Immune — anti-HBs sufficient, no further vaccination needed'};}
+  else if(bDoses>=3){B='green';bTier='complete';bNote={de:'Grundimmunisierung komplett ('+bDoses+' Dosen; STIKO: keine Auffrischung bei Anti-HBs >100)',en:'Primary series complete ('+bDoses+' doses; STIKO: no booster if anti-HBs >100)'};}
+  else if(bDoses>=1){B='yellow';bTier='incomplete';bNote={de:'Grundimmunisierung unvollständig ('+bDoses+' von 3 Dosen) – vervollständigen',en:'Primary series incomplete ('+bDoses+' of 3 doses) — complete it'};}
   else {
+    // STIKO-orientierte Reise-Graduierung Hep B:
+    //  – niedriges Risiko/Endemiegebiet → Erwägen
+    //  – Hochprävalenzland, keine Risikogruppe → Empfohlen
+    //  – Risikogruppe (chron. Erkrankung/Immunschwäche/berufl. Exposition) + Langzeit (>4 Wo) → Dringend empfohlen
+    //  – ohne Reise-Risiko: STIKO-Standardimpfung (Grundimmunisierung nachholen)
     const hepbR = getRisk('hepatitis_b');
-    const destEndemicB = hepbR ? (hepbR.level === 'recommended' || hepbR.level === 'risk_based' || hepbR.level === 'mandatory_all') : false;
-    const strong=(ls&&destEndemicB)||c.includes('health')||c.includes('animal');B=strong?'red':'blue';bNote={de:strong?'Langzeit/Exposition':'',en:strong?'Long stay/exposure':''};
+    const lvl = hepbR ? hepbR.level : 'none';
+    const highRisk = (lvl==='recommended' || lvl==='mandatory_all');
+    const someRisk = highRisk || lvl==='risk_based';
+    const hbRiskGroup = (typeof hasChronic==='function'&&hasChronic()) || (typeof immunocompromised==='function'&&immunocompromised()) || c.includes('health') || c.includes('animal');
+    if(someRisk && hbRiskGroup && ls){ B='red'; bTier='dringend'; bNote={de:'Dringend empfohlen: Risikogruppe + Langzeitaufenthalt (>4 Wochen)',en:'Strongly recommended: risk group + long stay (>4 weeks)'}; }
+    else if(highRisk){ B='red'; bTier='empfohlen'; bNote={de:'Empfohlen: Hochprävalenz-/Hochrisikoland',en:'Recommended: high-prevalence / high-risk country'}; }
+    else if(someRisk){ B='yellow'; bTier='erwaegen'; bNote={de:'Erwägen: Endemiegebiet mit niedrigem Risiko',en:'Consider: low-risk endemic area'}; }
+    else { B='blue'; bTier='standard'; bNote={de:'STIKO-Standardimpfung – Grundimmunisierung empfohlen',en:'STIKO standard vaccination – complete primary series'}; }
   }
   const needA=(A!=='green'),needB=(B!=='green');const childForm=age!==null&&age<16;const infant=age!==null&&age<1;
   function form(kind){
@@ -690,7 +701,7 @@ function hepAssess(){
   if(needA&&needB)rec={de:'→ Heute: '+form('ab')+' (Hep A+B)',en:'→ Today: '+form('ab')+' (Hep A+B)'};
   else if(needA)rec={de:'→ Heute: '+form('a')+' (Hep A)',en:'→ Today: '+form('a')+' (Hep A)'};
   else if(needB)rec={de:'→ Heute: '+form('b')+' (Hep B)',en:'→ Today: '+form('b')+' (Hep B)'};
-  return {A,B,aNote,bNote,rec,childForm};
+  return {A,B,aNote,bNote,bTier,rec,childForm};
 }
 function hepTodayWarn(){
   const st=EngineCtx.getVaxState().hepatitis;const age=ageExact(EngineCtx.getDob());if(age===null)return null;

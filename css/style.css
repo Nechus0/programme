@@ -696,9 +696,8 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 .kb-pay .chk-chip{padding:11px 16px;font-size:13.5px;}
 
 /* ===== Einklappbare Abschnitte (Kasse-Ansicht) ===== */
-.card.foldable > h2{cursor:pointer;}
-.card.foldable > h2::after{content:'\25BE';color:var(--grey);font-size:12px;font-weight:400;margin-left:auto;padding-left:10px;}
-.card.foldable:not([style*="flex"]) > h2::after{float:right;}
+.card.foldable > h2{cursor:pointer;padding-right:46px;}   /* Platz für den absoluten Stift rechts */
+.card.foldable > h2::after{content:'\25BE';color:var(--grey);font-size:12px;font-weight:400;margin-left:auto;padding-left:14px;}
 .card.foldable.folded > h2::after{content:'\25B8';}
 .card.folded > :not(h2):not(.lock-btn){display:none !important;}
 .card.folded{padding-bottom:16px;}
@@ -996,7 +995,7 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 .mal-step input::-webkit-outer-spin-button,.mal-step input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
 .mal-step-unit{ font-size:13px; color:var(--grey); margin-left:8px; }
 body.clinic-idle #stepM{ display:none !important; }
-.mal-none{ font-size:13px; color:var(--grey); display:flex; align-items:center; }
+.mal-none{ font-size:13px; color:var(--grey); display:flex; align-items:center; line-height:1.5; margin-bottom:14px; }
 #stepM.foldable > h2{ cursor:pointer; }
 #stepM.foldable > h2::after{ content:'▾'; margin-left:auto; color:var(--grey); font-size:12px; transition:transform .15s; }
 #stepM.folded > h2::after{ transform:rotate(-90deg); }
@@ -1032,7 +1031,7 @@ body.clinic-idle #stepM{ display:none !important; }
 .btn-purge:hover{ background:var(--red); color:#fff; }
 .btn-purge svg{ flex:none; }
 .del-empty{ font-size:13px; color:var(--grey); padding:6px 0; }
-.mal-standby{ display:flex; gap:9px; align-items:flex-start; background:var(--yellow-bg); border-radius:10px; padding:10px 13px; margin-bottom:12px; font-size:12.5px; color:#7a5600; }
+.mal-standby{ display:flex; gap:10px; align-items:flex-start; background:var(--yellow-bg); border-radius:10px; padding:13px 15px; margin-bottom:14px; font-size:12.5px; line-height:1.55; color:#7a5600; }
 .mal-standby svg{ flex:none; margin-top:1px; color:var(--yellow); }
 .mal-drug-h{ font-size:12px; color:var(--grey); margin-bottom:8px; }
 .mal-drugs{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
@@ -1057,8 +1056,15 @@ body.clinic-idle #stepM{ display:none !important; }
 .mal-calc-l{ font-size:11px; color:var(--grey); }
 .mal-calc-v{ font-size:15px; font-weight:700; }
 .mal-calc-note{ font-size:11.5px; color:var(--grey); margin-top:8px; }
-.mal-expo{ display:flex; gap:9px; align-items:flex-start; background:var(--green-bg); border-radius:10px; padding:10px 13px; font-size:12.5px; color:#215c2a; }
-.mal-expo svg{ flex:none; margin-top:1px; color:var(--green); }
+.mal-expo{ display:flex; gap:10px; align-items:flex-start; background:var(--green-bg); border-radius:10px; padding:13px 15px; font-size:12.5px; line-height:1.55; color:#215c2a; }
+.mal-expo svg{ flex:none; margin-top:2px; color:var(--green); }
+/* Modus-Umschalter Chemoprophylaxe / Notfallselbstbehandlung (segmentiert) */
+.mal-mode-toggle{ display:inline-flex; gap:3px; background:var(--grey-xl); border:1px solid var(--line); border-radius:10px; padding:3px; margin-bottom:14px; }
+.mal-mode{ border:none; background:transparent; cursor:pointer; font-family:var(--font); font-size:12.5px; font-weight:600; color:var(--grey); padding:7px 15px; border-radius:7px; transition:background .12s,color .12s,box-shadow .12s; }
+.mal-mode:hover{ color:var(--black); }
+.mal-mode.active{ background:#fff; color:var(--black); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.mal-drug.sbet{ border:2px solid var(--yellow); }
+.mal-drug.sbet .mal-chk{ color:var(--yellow); }
 /* Patienteneingabe-Sperre (Tablet) im Admin-Bereich */
 .lock-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; padding:14px 16px; border:1px solid var(--line); border-radius:10px; background:#fafbfc; flex-wrap:wrap; }
 .lock-meta{ display:flex; flex-direction:column; gap:3px; min-width:0; }

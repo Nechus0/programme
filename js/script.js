@@ -327,7 +327,7 @@ const INFO={
  pneumo:{disease:{de:'Pneumokokken; Lungenentzündung, Sepsis, Meningitis.',en:'Pneumococcus; pneumonia, sepsis, meningitis.'},epi:{de:'Weltweit; höchstes Risiko Ältere/chron. Kranke/Säuglinge.',en:'Worldwide; highest risk elderly/chronically ill/infants.'},side:{de:'Lokalreaktion, selten Fieber. Bei zeitgleicher Gabe mit z.B. Influenza oder COVID-19 an getrennten Körperstellen (anderer Arm) impfen.',en:'Local reaction, rarely fever. If co-administered with flu or COVID-19, use separate injection sites (different arm).'},sched:{de:'PCV20: Erwachsene 1 Dosis (Standard ab 60 J.). Säuglinge nach Impfkalender (nicht Prevenar20).',en:'PCV20: adults 1 dose (standard from 60). Infants per schedule (not Prevenar20).'}},
  mpox:{disease:{de:'Pockenähnliche Erkrankung mit Hautläsionen; meist selbstlimitierend.',en:'Smallpox-like illness; usually self-limiting.'},epi:{de:'Ausbrüche u.a. Zentral-/Westafrika; enger Kontakt.',en:'Outbreaks incl. Central/West Africa; close contact.'},side:{de:'Lokalreaktion; MVA-BN nicht-replizierend, auch bei Immunschwäche einsetzbar.',en:'Local reaction; MVA-BN non-replicating, usable in immunocompromise.'},sched:{de:'MVA-BN: 2 Dosen (≥28 d). Für Indikationsgruppen.',en:'MVA-BN: 2 doses (≥28 d). For indication groups.'}},
  dengue:{disease:{de:'Mückenübertragenes Fieber; Zweitinfektion kann schwer verlaufen.',en:'Mosquito-borne fever; second infection can be severe.'},epi:{de:'Tropen/Subtropen weltweit.',en:'Tropics/subtropics worldwide.'},side:{de:'Lokalreaktion. Lebendimpfstoff (Qdenga). Bei zeitgleicher Gabe mit anderen Impfstoffen an getrennten Körperstellen (anderer Arm) impfen.',en:'Local reaction. Live vaccine (Qdenga). If co-administered, use separate injection sites (different arm).'},sched:{de:'<ul style="margin:4px 0 0 20px;padding:0"><li>Qdenga: 2 Dosen (0 / 3 Mon)</li><li>Empfehlung NUR nach durchgemachter Dengue-Infektion</li><li>Risiko schwererer Verläufe bei Erstinfektion nach Impfung Seronegativer!</li></ul>',en:'<ul style="margin:4px 0 0 20px;padding:0"><li>Qdenga: 2 doses (0 / 3 mo)</li><li>Recommended ONLY after prior dengue infection</li><li>Risk of severe disease in seronegatives upon first natural infection!</li></ul>'}},
- chikungunya:{disease:{de:'Mückenübertragenes Fieber mit teils langanhaltenden Gelenkschmerzen.',en:'Mosquito-borne fever with sometimes prolonged joint pain.'},epi:{de:'Aktuelle Ausbrüche (Stand März 2026, ECDC): Bolivien, Brasilien, Kuba, Madagaskar, Mauritius, Mayotte, Réunion, Seychellen, Suriname. Erhöhtes Hintergrundrisiko u.a.: Argentinien, Kolumbien, Mexiko, Peru, Indien, Indonesien, Nigeria, Pakistan, Philippinen, Thailand. Verbreitungskarte über den „K"-Button.',en:'Current outbreaks (as of March 2026, ECDC): Bolivia, Brazil, Cuba, Madagascar, Mauritius, Mayotte, Réunion, Seychelles, Suriname. Elevated background risk incl.: Argentina, Colombia, Mexico, Peru, India, Indonesia, Nigeria, Pakistan, Philippines, Thailand. Distribution map via the "K" button.'},side:{de:'Lokalreaktion; Vimkunya = Totimpfstoff. <strong>Wichtig:</strong> Bei zeitgleicher Gabe mit anderen Impfstoffen zwingend an getrennten Körperstellen (z.B. anderer Arm) impfen. (IXCHIQ = Lebendimpfstoff, Vorsicht ≥65 J.)',en:'Local reaction; Vimkunya = inactivated. <strong>Important:</strong> If given simultaneously with other vaccines, strictly use separate injection sites (e.g., different arm). (IXCHIQ = live, caution ≥65 yrs.)'},sched:{de:'Vimkunya: 1 Dosis. Indikation je nach Ziel/Ausbruchslage.',en:'Vimkunya: 1 dose. Indication per destination/outbreak.'}},
+ chikungunya:{disease:{de:'Mückenübertragenes Fieber mit teils langanhaltenden Gelenkschmerzen.',en:'Mosquito-borne fever with sometimes prolonged joint pain.'},epi:{de:'Nur ECDC-gelistete Länder (Stand März 2026). Aktuelle Ausbrüche: Bolivien, Brasilien, Kuba, Madagaskar, Mauritius, Mayotte, Réunion, Seychellen, Suriname. Erhöhtes Risiko (fortlaufende Übertragung): Argentinien, Kolumbien, Mexiko, Pakistan, Franz.-Guayana. Andere Länder (z.B. Thailand, Indien, Indonesien) sind aktuell nicht gelistet. Verbreitungskarte über den „K"-Button.',en:'Only ECDC-listed countries (as of March 2026). Current outbreaks: Bolivia, Brazil, Cuba, Madagascar, Mauritius, Mayotte, Réunion, Seychelles, Suriname. Elevated risk (ongoing transmission): Argentina, Colombia, Mexico, Pakistan, French Guiana. Other countries (e.g. Thailand, India, Indonesia) are not currently listed. Distribution map via the "K" button.'},side:{de:'Lokalreaktion; Vimkunya = Totimpfstoff. <strong>Wichtig:</strong> Bei zeitgleicher Gabe mit anderen Impfstoffen zwingend an getrennten Körperstellen (z.B. anderer Arm) impfen. (IXCHIQ = Lebendimpfstoff, Vorsicht ≥65 J.)',en:'Local reaction; Vimkunya = inactivated. <strong>Important:</strong> If given simultaneously with other vaccines, strictly use separate injection sites (e.g., different arm). (IXCHIQ = live, caution ≥65 yrs.)'},sched:{de:'Vimkunya: 1 Dosis. Indikation je nach Ziel/Ausbruchslage.',en:'Vimkunya: 1 dose. Indication per destination/outbreak.'}},
  varicella:{disease:{de:'Windpocken (Varizellen): hochansteckende Viruserkrankung mit juckendem Bläschenausschlag und Fieber. Bei Erwachsenen, Immungeschwächten und in der Schwangerschaft (Fehlbildungsrisiko/schwere Verläufe) deutlich schwerer.',en:'Chickenpox (varicella): highly contagious viral illness with itchy blistering rash and fever. Markedly more severe in adults, the immunocompromised and in pregnancy (fetal malformation risk / severe course).'},epi:{de:'Weltweit verbreitet; ohne Impfung/durchgemachte Erkrankung erkranken fast alle. Übertragung per Tröpfchen/Schmierinfektion, sehr hohe Kontagiosität.',en:'Worldwide; without vaccination/prior disease nearly everyone becomes infected. Droplet/contact transmission, very high contagiousness.'},side:{de:'Lebendimpfstoff. Lokalreaktion, gelegentlich leichtes Fieber; 5–26 Tage nach Impfung selten milder varizellenähnlicher Ausschlag. <strong>Kontraindiziert</strong> in der Schwangerschaft und bei relevanter Immunsuppression.',en:'Live vaccine. Local reaction, occasional mild fever; rarely a mild varicella-like rash 5–26 days after vaccination. <strong>Contraindicated</strong> in pregnancy and relevant immunosuppression.'},sched:{de:'Varilrix / Varivax: 2 Dosen (Mindestabstand 4–6 Wochen). Indikation v.a. bei fehlender Immunität und med. Personal oder Kinderwunsch (gebärfähiges Alter). Bei unklarer Anamnese Serologie (VZV-IgG) erwägen; durchgemachte Windpocken = Immunität.',en:'Varilrix / Varivax: 2 doses (min. 4–6 weeks apart). Indicated esp. when non-immune and medical staff or planned pregnancy (childbearing age). Consider serology (VZV-IgG) if history unclear; prior chickenpox = immunity.'}},
 };
 /* ---- Français (FR) pour les fenêtres « i » (fusionné dans INFO ci-dessous). Repli EN via showInfo. ---- */
@@ -498,11 +498,10 @@ function gapText(d){
   if(d<=7)return {de:'Mindestabstand 1 Woche',en:'min. interval 1 week',fr:'intervalle min. 1 semaine'};
   if(d<=14)return {de:'Mindestabstand 2 Wochen',en:'min. 2 weeks',fr:'intervalle min. 2 semaines'};
   if(d<=21)return {de:'Mindestabstand 3 Wochen',en:'min. 3 weeks',fr:'intervalle min. 3 semaines'};
-  if(d<=31)return {de:'Mindestabstand 1 Monat',en:'min. 1 month',fr:'intervalle min. 1 mois'};
-  if(d<=62)return {de:'Mindestabstand 2 Monate',en:'min. 2 months',fr:'intervalle min. 2 mois'};
-  if(d<=100)return {de:'Mindestabstand 3 Monate',en:'min. 3 months',fr:'intervalle min. 3 mois'};
-  if(d<=200)return {de:'Mindestabstand ca. 6 Monate',en:'min. ~6 months',fr:'intervalle min. ~6 mois'};
-  return {de:'Mindestabstand ca. '+Math.round(d/30)+' Monate',en:'min. ~'+Math.round(d/30)+' months',fr:'intervalle min. ~'+Math.round(d/30)+' mois'};
+  if(d<=35)return {de:'Mindestabstand 1 Monat',en:'min. 1 month',fr:'intervalle min. 1 mois'};
+  // Ab hier auf ganze Monate runden (d/30,4), damit z.B. 150 Tage = „ca. 5 Monate" und nicht „6".
+  const m=Math.round(d/30.4);
+  return {de:'Mindestabstand ca. '+m+' Monate',en:'min. ~'+m+' months',fr:'intervalle min. ~'+m+' mois'};
 }
 let _planDob=null;
 function ctxDob(){return _planDob!==null?_planDob:el('p-dob').value;}
@@ -1451,10 +1450,17 @@ function renderVaxTable(){
         return LANG==='de'?'Nicht relevant':(LANG==='fr'?'Non pertinent':'Not relevant');
       };
       const aBadgeTxt = hepLbl(ha.A);
-      let bBadgeTxt = hepLbl(ha.B);
-      if (ha.B === 'red' && conds().includes('health')) {
-          bBadgeTxt = LANG === 'de' ? 'Dringend empfohlen' : (LANG === 'fr' ? 'Fortement recommandé' : 'Strongly recommended');
-      }
+      const bTierLbl = {
+        dringend:{de:'Dringend empfohlen',en:'Strongly recommended',fr:'Fortement recommandé'},
+        empfohlen:{de:'Empfohlen',en:'Recommended',fr:'Recommandé'},
+        erwaegen:{de:'Erwägen',en:'Consider',fr:'À envisager'},
+        standard:{de:'Empfohlen',en:'Recommended',fr:'Recommandé'},
+        incomplete:{de:'Empfohlen',en:'Recommended',fr:'Recommandé'}
+      };
+      let bBadgeTxt;
+      if (ha.B === 'green') bBadgeTxt = hepLbl('green');
+      else if (ha.bTier && bTierLbl[ha.bTier]) bBadgeTxt = bTierLbl[ha.bTier][LANG] || bTierLbl[ha.bTier].en;
+      else bBadgeTxt = hepLbl(ha.B);
 
       const aBadge='<div class="hep-stat"><span class="badge '+ha.A+'">'+aBadgeTxt+'</span></div>'+
         '<div class="reason">'+frNote(ha.aNote.de,ha.aNote.en)+'</div>';
@@ -3536,13 +3542,25 @@ if (typeof MALARIA_DATA === 'undefined') {
     doxycyclin:{ name:'Doxycyclin', tag:{de:'täglich',en:'daily'}, dose:{de:'Erwachsene: 1 Tbl. (100 mg) täglich.',en:'Adults: 1 tab (100 mg) daily.'}, schedule:{de:'1–2 Tage vor Einreise · täglich · bis 4 Wochen danach.',en:'1–2 days before entry · daily · until 4 weeks after.'}, intake:{de:'Mit reichlich Wasser im Sitzen oder Stehen einnehmen, nicht direkt vor dem Hinlegen (Speiseröhrenreizung), zu einer Mahlzeit.',en:'Take with plenty of water sitting or standing, not right before lying down (oesophageal irritation), with a meal.'}, cave:{de:'Photosensibilität (Sonnenschutz); nicht in Schwangerschaft/Stillzeit; nicht bei Kindern < 8 Jahre.',en:'Photosensitivity (sun protection); not in pregnancy/breastfeeding; not in children < 8 years.'}, pack:'' }
   };
   window.MAL_EXPO = { de:'Konsequenter Mückenschutz: Repellent mit DEET (20–30 %) oder Icaridin auf unbedeckte Haut (Anopheles v. a. dämmerungs- und nachtaktiv), lange helle Kleidung, imprägniertes Moskitonetz, klimatisierte oder vergitterte Räume.', en:'Consistent bite protection: repellent with DEET (20–30 %) or Icaridin on exposed skin (Anopheles bite mainly at dusk and night), long light-coloured clothing, an impregnated bed net, air-conditioned or screened rooms.' };
-  window.MAL_STANDBY = { de:'Notfallselbstbehandlung (Standby): Artemether-Lumefantrin (Riamet) für die Notfallbehandlung mitgeben, wenn innerhalb von 24 h keine ärztliche Hilfe erreichbar ist. Einnahme mit fetthaltiger Mahlzeit.', en:'Emergency standby treatment: carry artemether-lumefantrine (Riamet) for self-treatment if no medical help is reachable within 24 h. Take with a fatty meal.' };
+  window.MAL_STANDBY = { de:'Notfallselbstbehandlung (Standby): keine Dauerprophylaxe – stattdessen Malarone als Notfallmedikament mitgeben. Bei Fieber (≥ 38,5 °C) und wenn nicht innerhalb von 24 h ärztliche Hilfe erreichbar ist, Malarone als <strong>Behandlung</strong> (nicht als Prophylaxe) einnehmen und danach umgehend ärztliche Abklärung suchen.', en:'Emergency standby treatment: no continuous prophylaxis – instead provide Malarone as a standby medication. If fever (≥ 38.5 °C) occurs and no medical help is reachable within 24 h, take Malarone as <strong>treatment</strong> (not prophylaxis) and seek medical care as soon as possible afterwards.' };
+  // Therapeutische (Notfall-)Dosis Atovaquon-Proguanil: 1× täglich über 3 Tage, gewichtsabhängig.
+  window.malaroneTreatTabs = function(kg){
+    if(kg==null||isNaN(kg)) return {tabs:4,label:'4 Tbl. (250/100 mg)',ped:false};
+    if(kg<5)  return {tabs:0,label:'nicht zugelassen (< 5 kg)',ped:true};
+    if(kg<=8) return {tabs:2,label:'2 Junior-Tbl. (62,5/25 mg)',ped:true};
+    if(kg<=10)return {tabs:3,label:'3 Junior-Tbl. (62,5/25 mg)',ped:true};
+    if(kg<=20)return {tabs:1,label:'1 Tbl. (250/100 mg)',ped:true};
+    if(kg<=30)return {tabs:2,label:'2 Tbl. (250/100 mg)',ped:true};
+    if(kg<=40)return {tabs:3,label:'3 Tbl. (250/100 mg)',ped:true};
+    return {tabs:4,label:'4 Tbl. (250/100 mg)',ped:false};
+  };
+  window.malaroneTreatCalc = function(kg){ const t=malaroneTreatTabs(kg); const tablets=Math.ceil(t.tabs*3); const packs=Math.max(1,Math.ceil(tablets/12)); return {tabsPerDay:t.tabs,tabLabel:t.label,ped:t.ped,days:3,tablets:tablets,packs:packs}; };
 }
 /* ================= MALARIA-SEKTION (UI) ================= */
-let malariaState = { days:null, weight:null, drug:'malarone' };
+let malariaState = { days:null, weight:null, drug:'malarone', mode:null };
 let malIsChild = false;
 let malFoldPatient = null;   // merkt sich, für welchen Patienten bereits automatisch ein-/ausgeklappt wurde
-function resetMalariaState(){ malariaState = { days:null, weight:null, drug:'malarone' }; malIsChild=false; }
+function resetMalariaState(){ malariaState = { days:null, weight:null, drug:'malarone', mode:null }; malIsChild=false; }
 // Zahlen-Stepper (− / Eingabe / +) für Aufenthaltsdauer und Kindergewicht
 function malStepper(id,val,stepFn,setFn,unit,min,max){
   return '<div class="mal-step"><button type="button" class="mal-step-btn" onclick="'+stepFn+'(-1)" aria-label="minus">−</button>'+
@@ -3592,10 +3610,21 @@ function renderMalaria(){
   h+='<div class="mal-row"><label class="mal-lbl">'+LX('Aufenthalt im Risikogebiet','Stay in risk area')+'</label>'+malStepper('mal-days-in',malariaState.days,'malDaysStep','malSetDays',LX('Tage','days'),0,365)+'</div>';
   h+='<div class="mal-rec" id="mal-rec"></div>';
   if(strat==='P'||strat==='NSB'){
-    if(strat==='NSB') h+='<div class="mal-standby"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3"/></svg><span>'+L2(MAL_STANDBY)+'</span></div>';
-    h+='<div class="mal-drug-h">'+LX('Medikament','Medication')+'</div><div class="mal-drugs">';
-    ['malarone','mefloquin','doxycyclin'].forEach(k=>{ h+=malDrugCard(k); });
-    h+='</div>';
+    // Modus (Chemoprophylaxe / Notfallselbstbehandlung) ist immer umschaltbar.
+    if(malariaState.mode==null) malariaState.mode = (strat==='P' ? 'prophylaxis' : 'standby');
+    const mode=malariaState.mode;
+    h+='<div class="mal-mode-toggle" role="group">'
+      +'<button type="button" class="mal-mode'+(mode==='prophylaxis'?' active':'')+'" onclick="malSetMode(\'prophylaxis\')">'+LX('Chemoprophylaxe','Chemoprophylaxis')+'</button>'
+      +'<button type="button" class="mal-mode'+(mode==='standby'?' active':'')+'" onclick="malSetMode(\'standby\')">'+LX('Notfallselbstbehandlung','Standby treatment')+'</button>'
+      +'</div>';
+    if(mode==='standby'){
+      h+='<div class="mal-standby"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3"/></svg><span>'+L2(MAL_STANDBY)+'</span></div>';
+      h+='<div class="mal-drug-h">'+LX('Notfallmedikament','Standby medication')+'</div><div class="mal-drugs">'+malSbetCard()+'</div>';
+    } else {
+      h+='<div class="mal-drug-h">'+LX('Medikament','Medication')+'</div><div class="mal-drugs">';
+      ['malarone','mefloquin','doxycyclin'].forEach(k=>{ h+=malDrugCard(k); });
+      h+='</div>';
+    }
   }
   h+='<div class="mal-expo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>'+L2(MAL_EXPO)+'</span></div>';
   box.innerHTML=h;
@@ -3616,6 +3645,20 @@ function malDrugCard(k){
     h+='</div>';
   }
   return h+'</div>';
+}
+// Malarone als Notfallselbstbehandlung (therapeutische Dosis, keine Prophylaxe-Menge)
+function malSbetCard(){
+  const d=MAL_DRUGS.malarone;
+  let h='<div class="mal-drug sel sbet">';
+  h+='<div class="mal-drug-top"><svg class="mal-chk" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span class="mal-drug-nm">'+_esc(d.name)+'</span><span class="mal-drug-tag">'+LX('Notfallbehandlung','standby treatment')+'</span></div>';
+  h+='<div class="mal-drug-body">';
+  h+='<div class="mal-fld"><span class="mal-fld-l">'+LX('Dosis','Dose')+'</span>'+LX('Erwachsene / ≥ 40 kg: 4 Tbl. (250/100 mg) auf einmal, 1× täglich. Kinder gewichtsabhängig.','Adults / ≥ 40 kg: 4 tabs (250/100 mg) together, once daily. Children weight-based.')+'</div>';
+  h+='<div class="mal-fld"><span class="mal-fld-l">'+LX('Schema','Schedule')+'</span>'+LX('1× täglich an <strong>3 aufeinanderfolgenden Tagen</strong> – nur im Notfall, nicht als Dauerprophylaxe.','once daily on <strong>3 consecutive days</strong> – only in an emergency, not as continuous prophylaxis.')+'</div>';
+  h+='<div class="mal-fld"><span class="mal-fld-l">'+LX('Einnahme','How to take')+'</span>'+L2(d.intake)+'</div>';
+  h+='<div class="mal-fld cave"><span class="mal-fld-l">'+LX('Cave','Caution')+'</span>'+L2(d.cave)+'</div>';
+  h+=malCalcHtml();
+  h+='</div></div>';
+  return h;
 }
 function malCalcHtml(){
   const wRow = malIsChild ? ('<div class="mal-calc-row"><label>'+LX('Körpergewicht (Kind)','Body weight (child)')+'</label>'+malStepper('mal-wt-in',malariaState.weight,'malWeightStep','malSetWeight','kg',5,150)+'</div>') : '';
@@ -3640,17 +3683,22 @@ function malRecUpdate(){
     rec.className='mal-rec '+cls;
     rec.innerHTML='<svg class="mal-rec-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ic+'</svg><div class="mal-rec-txt"><div class="mal-rec-t">'+title+'</div><div class="mal-rec-s">'+sub+'</div></div>';
   }
-  if(el('mal-dose') && typeof malaroneCalc==='function'){
-    const c=malaroneCalc(malariaState.weight, malariaState.days);
-    el('mal-dose').textContent=c.tabLabel;
-    el('mal-daysv').textContent=c.days+' '+LX('Tage','days');
-    el('mal-packs').textContent=c.packs;
-    el('mal-tot').textContent=LX('Gesamt ','Total ')+c.tablets+' '+LX('Tabletten','tablets')+' · '+LX('1 Packung = 12 Tbl.','1 pack = 12 tabs')+(c.ped?' · '+LX('Kinderdosis','paediatric dose'):'');
+  if(el('mal-dose')){
+    const sbet = (malariaState.mode==='standby');
+    const c = (sbet && typeof malaroneTreatCalc==='function') ? malaroneTreatCalc(malariaState.weight)
+            : (typeof malaroneCalc==='function' ? malaroneCalc(malariaState.weight, malariaState.days) : null);
+    if(c){
+      el('mal-dose').textContent=c.tabLabel;
+      el('mal-daysv').textContent = sbet ? LX('3 Tage (Behandlung)','3 days (treatment)') : (c.days+' '+LX('Tage','days'));
+      el('mal-packs').textContent=c.packs;
+      el('mal-tot').textContent=LX('Gesamt ','Total ')+c.tablets+' '+LX('Tabletten','tablets')+' · '+LX('1 Packung = 12 Tbl.','1 pack = 12 tabs')+(c.ped?' · '+LX('Kinderdosis','paediatric dose'):'');
+    }
   }
 }
 function malSetDays(v){ malariaState.days=Math.max(0,parseInt(v,10)||0); malRecUpdate(); }
 function malSetWeight(v){ const n=parseFloat(v); malariaState.weight=isNaN(n)?null:n; malRecUpdate(); }
 function malSelectDrug(k){ if(!MAL_DRUGS[k])return; malariaState.drug=k; renderMalaria(); }
+function malSetMode(m){ if(m!=='prophylaxis'&&m!=='standby')return; malariaState.mode=m; if(m==='standby') malariaState.drug='malarone'; renderMalaria(); }
 // Malaria-Sektion ein-/ausklappen (auch ohne Risiko immer möglich)
 function malToggleFold(e){ if(e && e.target && e.target.closest && e.target.closest('.mal-map-btn')) return; const s=el('stepM'); if(!s) return; s.classList.add('foldable'); s.classList.toggle('folded'); }
 // Malaria-Karten (DTG/EKRM, Thieme) – lokal eingebettet. Regionalzuordnung je Reiseland.
@@ -3908,6 +3956,7 @@ function openAdminPanel(){
   const tabs=el('admin-tabs'); if(tabs) tabs.style.display=isAdmin?'':'none';
   if(isAdmin) adminTab('users');
   p.classList.add('show');
+  p.scrollTop=0;   // immer oben öffnen, damit die Reiter-Leiste nicht hinter der Kopfzeile liegt
 }
 // Reiter-Umschaltung im Admin-Einstellungsmenü
 function adminTab(name){
