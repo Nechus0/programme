@@ -2091,6 +2091,7 @@ async function restorePatient(id){
   const ok=await persistPatient(p); if(!ok)return;
   if(USE_DB && roleSeesClinic((CURRENT_PROFILE||{}).role)) await loadPatientsFromDB();
   renderPatients();
+  if(typeof renderDeletedPatients==='function') renderDeletedPatients();
 }
 function togglePatient(id){const e=el('pi-'+id);if(e)e.classList.toggle('open');}
 
@@ -2600,15 +2601,7 @@ function renderPatients(){
   // Löschzone – nur beim Ziehen sichtbar (untere Zeile)
   html+='<div class="amb-trash-zone" id="amb-trash" ondragover="trashOver(event)" ondragleave="trashLeave(event)" ondrop="trashDrop(event)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>'+(LX('Zum Löschen hierher ziehen','Drag here to delete'))+'</span></div>';
   // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
-  if((CURRENT_PROFILE||{}).role==='admin'){
-    const del=dayPats.filter(p=>p.deleted);
-    if(del.length){
-      const collapsed=('del' in SEC_COLLAPSE)?SEC_COLLAPSE.del:true;
-      html+='<div class="amb-section amb-deleted'+(collapsed?' collapsed':'')+'"><div class="amb-sec-h" onclick="toggleSection(\'del\',this)"><span>'+(LX('Gelöscht','Deleted'))+' <span class="count-pill">'+del.length+'</span></span><span class="amb-toggle">▾</span></div><div class="patient-list">'+
-        del.map(p=>{const nm=(p.firstname?p.name+', '+p.firstname:p.name);const d=p.deleted||{};return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button></div>';}).join('')+
-        '</div></div>';
-    }
-  }
+  // Gelöschte Patienten erscheinen NICHT mehr im Board – siehe Einstellungen (Gelöschte Patienten).
   const scrollTops = {};
   if(listEl) listEl.querySelectorAll('.drop-zone').forEach(z => {
     const key = z.dataset.status + '|' + z.dataset.type;
@@ -3413,9 +3406,7 @@ function renderMalaria(){
   const showable = editing && isStaff() && !waiting;   // Sektion 6 ist immer vorhanden (ohne Risiko eingeklappt)
   if(!showable){ sec.style.display='none'; box.innerHTML=''; if(typeof updateSecNav==='function') updateSecNav(); return; }
   sec.style.display='';
-  // Immer faltbar; Kopfzeile klickbar zum Ein-/Ausklappen
-  sec.classList.add('foldable');
-  if(!sec._malFoldWired){ const hh=sec.querySelector('h2'); if(hh){ hh.style.cursor='pointer'; hh.addEventListener('click',function(e){ if(e.target.closest('.lock-btn'))return; sec.classList.toggle('folded'); }); } sec._malFoldWired=true; }
+  sec.classList.add('foldable');   // Kopfzeile ist per Inline-Handler (malToggleFold) immer klickbar
   const a=malariaAssess(destinations||[]);
   if(!a.any){
     box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>';
@@ -3501,6 +3492,8 @@ function malRecUpdate(){
 function malSetDays(v){ malariaState.days=Math.max(0,parseInt(v,10)||0); malRecUpdate(); }
 function malSetWeight(v){ const n=parseFloat(v); malariaState.weight=isNaN(n)?null:n; malRecUpdate(); }
 function malSelectDrug(k){ if(!MAL_DRUGS[k])return; malariaState.drug=k; renderMalaria(); }
+// Malaria-Sektion ein-/ausklappen (auch ohne Risiko immer möglich)
+function malToggleFold(e){ if(e && e.target && e.target.closest && e.target.closest('.mal-map-btn')) return; const s=el('stepM'); if(s) s.classList.toggle('folded'); }
 // Malaria-Karten (DTG) – aus Urheberrechtsgründen wird auf die offiziellen DTG-Karten verlinkt (nicht eingebettet)
 const MAL_MAP_WORLD='https://dtg.org/images/Startseite-Download-Box/Weltkarte_2024.pdf';
 const MAL_MAP_REGION='https://dtg.org/index.php/empfehlungen-und-leitlinien/empfehlungen/malaria/karten.html';
@@ -3585,7 +3578,6 @@ function renderSources(){
     h+='</div>';
   });
   h+='</div>';
-  h+='<div class="src-foot">'+LX('Diese Übersicht dokumentiert die Grundlagen der Empfehlungen und ersetzt keine ärztliche Beurteilung.','This overview documents the basis of the recommendations and does not replace clinical judgement.')+'</div>';
   box.innerHTML=h;
 }
 /* ================= TESTDATEN – Patienten-Generator (nur Admin) ================= */
@@ -3683,13 +3675,27 @@ async function genTestPatients(){
   tlog(ok+' von '+list.length+' Patienten angelegt.', ok===list.length?'tg-ok':'tg-err');
   if(typeof loadPatientsFromDB==='function') await loadPatientsFromDB();
 }
+// Gelöschte Patienten (Archiv) – nur Admin; im Board nicht mehr sichtbar
+function renderDeletedPatients(){
+  const box=el('deleted-body'); if(!box) return;
+  const del=patients.filter(p=>p.deleted).sort((a,b)=>{ const ta=(a.deleted&&a.deleted.ts)||''; const tb=(b.deleted&&b.deleted.ts)||''; return tb<ta?-1:(tb>ta?1:0); });
+  let h='<h2>'+LX('Gelöschte Patienten','Deleted patients')+'</h2><div class="card-desc">'+LX('Gelöschte Datensätze bleiben 30 Tage erhalten und können hier wiederhergestellt werden.','Deleted records are kept for 30 days and can be restored here.')+'</div>';
+  if(!del.length){ box.innerHTML=h+'<div class="del-empty">'+LX('Keine gelöschten Patienten.','No deleted patients.')+'</div>'; return; }
+  h+='<div class="del-list">'+del.map(p=>{
+    const nm=(p.firstname?p.name+', '+p.firstname:p.name);
+    const d=p.deleted||{};
+    const dest=(p.destinations&&p.destinations.length)?' · '+p.destinations.map(c=>CBY[c]?cName(CBY[c]):c).join(', '):'';
+    return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+dest+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button></div>';
+  }).join('')+'</div>';
+  box.innerHTML=h;
+}
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
   const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode);});
   const role=(CURRENT_PROFILE||{}).role;
   const isAdmin=role==='admin';
   const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
-  if(isAdmin){ renderAdminUsers(); }
+  if(isAdmin){ renderAdminUsers(); renderDeletedPatients(); }
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
   if(ss){ ss.style.display=showStats?'':'none'; if(showStats) renderStats(); }
   renderSources();

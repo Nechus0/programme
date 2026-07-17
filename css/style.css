@@ -899,8 +899,8 @@ body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-con
 /* ===== Verwendete Quellen ===== */
 #sources-sec .st-head{ margin-bottom:14px; }
 #sources-sec .st-head h2{ margin:0; }
-.src-groups{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
-.src-group{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+.src-groups{ column-count:2; column-gap:14px; }
+.src-group{ break-inside:avoid; -webkit-column-break-inside:avoid; page-break-inside:avoid; display:inline-block; width:100%; margin-bottom:14px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
 .src-group-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; font-weight:700; margin-bottom:10px; }
 .src-badge{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:2px 8px; border-radius:999px; white-space:nowrap; }
 .src-badge.active{ background:var(--green-bg); color:var(--green); }
@@ -973,6 +973,15 @@ body.clinic-idle #stepM{ display:none !important; }
 .tg-log div{ padding:2px 0; }
 .tg-log .tg-ok{ color:var(--green); }
 .tg-log .tg-err{ color:var(--red); }
+/* Gelöschte Patienten (Einstellungen) */
+#deleted-sec .del-list{ display:flex; flex-direction:column; }
+.del-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--grey-xl); }
+.del-row:first-child{ border-top:none; }
+.del-main{ min-width:0; }
+.del-name{ font-size:14px; font-weight:600; }
+.del-sub{ font-size:11.5px; color:var(--grey); margin-top:1px; }
+.del-row .btn{ flex:none; }
+.del-empty{ font-size:13px; color:var(--grey); padding:6px 0; }
 .mal-standby{ display:flex; gap:9px; align-items:flex-start; background:var(--yellow-bg); border-radius:10px; padding:10px 13px; margin-bottom:12px; font-size:12.5px; color:#7a5600; }
 .mal-standby svg{ flex:none; margin-top:1px; color:var(--yellow); }
 .mal-drug-h{ font-size:12px; color:var(--grey); margin-bottom:8px; }

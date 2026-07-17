@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=41">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=41">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=41">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=41">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=42">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=42">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=42">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=42">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=41">
+<link rel="stylesheet" href="css/style.css?v=42">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -71,6 +71,7 @@
       <div class="row-flex" style="margin-top:8px;"><button class="btn" onclick="genTestPatients()">Patienten generieren</button></div>
       <div id="tg-log" class="tg-log"></div>
     </section>
+    <section class="card" id="deleted-sec"><div id="deleted-body"></div></section>
     </div>
     <section class="card" id="stats-sec" style="display:none"><div id="stats-body"></div></section>
     <section class="card" id="sources-sec"><div id="sources-body"></div></section>
@@ -213,8 +214,8 @@
   </section>
 
   <!-- MALARIA & EXPOSITIONSPROPHYLAXE (erscheint nur bei Malariarisiko im Reiseziel) -->
-  <section class="card" id="stepM" style="display:none">
-    <h2 class="sec-h"><span class="step-badge">6</span><span data-i18n="mSecTitle">Malaria &amp; Expositionsprophylaxe</span><button class="mal-map-btn" onclick="event.stopPropagation();showMalariaMaps()" title="Malaria-Karten (DTG)" aria-label="Malaria-Karten"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg></button></h2>
+  <section class="card foldable" id="stepM" style="display:none">
+    <h2 class="sec-h" onclick="malToggleFold(event)"><span class="step-badge">6</span><span data-i18n="mSecTitle">Malaria &amp; Expositionsprophylaxe</span><button class="mal-map-btn" onclick="event.stopPropagation();showMalariaMaps()" title="Malaria-Karten (DTG)" aria-label="Malaria-Karten"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg></button></h2>
     <div id="malaria-body"></div>
   </section>
 
@@ -296,15 +297,15 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=41"></script>
+<script src="js/auth.js?v=42"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=41"></script>
-<script src="js/engine.js?v=41"></script>
-<script src="js/malaria_data.js?v=41"></script>
-<script src="js/malaria_engine.js?v=41"></script>
-<script src="js/script.js?v=41"></script>
+<script src="js/engine_rules.js?v=42"></script>
+<script src="js/engine.js?v=42"></script>
+<script src="js/malaria_data.js?v=42"></script>
+<script src="js/malaria_engine.js?v=42"></script>
+<script src="js/script.js?v=42"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){
