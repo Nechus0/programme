@@ -239,6 +239,7 @@ const MENHEP_FR={
  'STIKO: Nachholimpfung bis <25 J.':"STIKO : rattrapage jusqu'à <25 ans",
  'STIKO-Standard (ab 12 J.) – vorgezogene Impfung erwägen':'Standard STIKO (dès 12 ans) – envisager une vaccination anticipée',
  'Indikation bei Risiko/Labor/Ausland':'Indication en cas de risque/laboratoire/voyage',
+ 'Indikation (Immundefizienz/Asplenie)':'Indication (immunodéficience/asplénie)',
  'Serie vollständig, aber letzte Dosis >10 J. – Auffrischung bei fortbestehender Exposition':'Série complète, mais dernière dose >10 ans – rappel si exposition persistante',
  'Langzeitschutz (vollständige Serie)':'Protection à long terme (série complète)',
  '2. Dosis überfällig (Erstschutz ~1 Jahr)':'2ᵉ dose en retard (protection initiale ~1 an)',
@@ -1645,6 +1646,19 @@ function renderAge(){
 function updatePregVisibility(){const male=el('p-sex').value==='m';const f=el('preg-field');if(f){f.style.display=male?'none':'';const g=f.parentElement;if(g&&g.classList.contains('grid')){g.classList.toggle('g3',!male);g.classList.toggle('g2',male);}}if(male)el('p-pregnant').value='no';}
 function updateDepartureHint(){const d=el('p-departure').value;const h=el('departure-hint');if(!h)return;h.textContent=d?((LX('Tage bis Abreise: ','Days to departure: '))+Math.round((new Date(d)-new Date())/86400000)):'';}
 function recompute(){updatePregVisibility();renderAge();updateDepartureHint();renderVaxTable();renderApptOverview();renderNotes();renderImmunoWarn();renderContraWarn();if(typeof renderMalaria==='function')renderMalaria();}
+// Barrierefreiheit: jedes sichtbare Feldlabel programmatisch mit seinem Eingabefeld verknüpfen
+// (Screenreader liest sonst nur den Platzhalter). WCAG 1.3.1 / 3.3.2 / 4.1.2.
+function wireFieldLabels(){
+  try{
+    document.querySelectorAll('label.fld').forEach(function(lab){
+      if(lab.htmlFor) return;
+      var box=lab.closest('div')||lab.parentElement;
+      var ctrl=box?box.querySelector('input:not([type=hidden]),select,textarea'):null;
+      if(ctrl){ if(!ctrl.id){ ctrl.id='fld-'+Math.random().toString(36).slice(2,8); } lab.htmlFor=ctrl.id; }
+    });
+  }catch(e){}
+}
+if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',wireFieldLabels); } else { setTimeout(wireFieldLabels,0); }
 // Hinweise zu Akuterkrankung / Thrombose / Ohnmacht – nur für Personal, nichts für Patienten
 function renderContraWarn(){
   const box=el('contra-warn'); if(!box) return;

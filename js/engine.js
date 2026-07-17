@@ -722,7 +722,7 @@ function menacwyAssess(){
     else if(age!==null&&age>=12&&age<15){ status=protectedNow?'green':'blue';note={de:'STIKO: Standardimpfung 12–14 J.',en:'STIKO: standard 12–14 yrs'}; }
     else if(age!==null&&age>=15&&age<25){ status=protectedNow?'green':'blue';note={de:'STIKO: Nachholimpfung bis <25 J.',en:'STIKO: catch-up until <25 yrs'}; }
     else if(age!==null&&age<12){ status=protectedNow?'green':'yellow';note={de:'STIKO-Standard (ab 12 J.) – vorgezogene Impfung erwägen',en:'STIKO standard (from 12) — consider early vaccination'}; }
-    else if(immunocompromised()){ status=protectedNow?'green':'yellow';note={de:'Indikation bei Risiko/Labor/Ausland',en:'Indicated for risk/lab/travel'}; }
+    else if(immunocompromised()){ status=protectedNow?'green':'yellow';note={de:'Indikation (Immundefizienz/Asplenie)',en:'Indication (immunodeficiency/asplenia)'}; }
     else{status=protectedNow?'green':'grey';note={de:'',en:''};}
   }
   return {status,noteDe:note.de,noteEn:note.en,mand};

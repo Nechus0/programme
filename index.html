@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=51">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=51">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=51">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=51">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=53">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=53">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=53">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=53">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=51">
+<link rel="stylesheet" href="css/style.css?v=53">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -117,23 +117,23 @@
     <h2 class="sec-h"><span class="step-badge">1</span><span data-i18n="s1Title">Stammdaten</span></h2>
     <div class="card-desc" data-i18n="s1Desc">Persönliche Daten und Kontakt.</div>
     <div class="grid g4">
-      <div><label class="fld" data-i18n="fFirstname">Vorname</label><input type="text" id="p-firstname" placeholder="—"></div>
-      <div><label class="fld" data-i18n="fName">Nachname</label><input type="text" id="p-name" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fFirstname">Vorname</label><input type="text" id="p-firstname"></div>
+      <div><label class="fld" data-i18n="fName">Nachname</label><input type="text" id="p-name"></div>
       <div><label class="fld" data-i18n="fDob">Geburtsdatum</label><input type="date" id="p-dob" onchange="recompute()" oninput="recompute()"></div>
       <div><label class="fld" data-i18n="fSex">Geschlecht</label><select id="p-sex" onchange="recompute()"><option value="f" data-i18n="sexF">weiblich</option><option value="m" data-i18n="sexM">männlich</option><option value="d" data-i18n="sexD">divers</option></select></div>
     </div>
     <div class="grid g4" style="margin-top:14px;">
-      <div><label class="fld" data-i18n="fPhone">Telefon</label><input type="text" id="p-phone" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fPhone">Telefon</label><input type="text" id="p-phone"></div>
       <div style="grid-column:span 2;"><label class="fld" data-i18n="fEmailAddr">E-Mail</label><input type="email" id="p-email" placeholder="name@example.de"></div>
-      <div><label class="fld" data-i18n="fInsurance">Krankenkasse</label><input type="text" id="p-insurance" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fInsurance">Krankenkasse</label><input type="text" id="p-insurance"></div>
     </div>
     <div class="grid g4" style="margin-top:14px;">
       <div style="grid-column:span 2;"><label class="fld" data-i18n="fAddress">Anschrift</label><input type="text" id="p-address" placeholder="Straße, Nr."></div>
-      <div><label class="fld" data-i18n="fZip">PLZ</label><input type="text" id="p-zip" placeholder="—"></div>
-      <div><label class="fld" data-i18n="fCity">Wohnort</label><input type="text" id="p-city" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fZip">PLZ</label><input type="text" id="p-zip"></div>
+      <div><label class="fld" data-i18n="fCity">Wohnort</label><input type="text" id="p-city"></div>
     </div>
     <div class="grid g4" style="margin-top:14px;">
-      <div><label class="fld" data-i18n="fProfession">Beruf (freiwillig)</label><input type="text" id="p-profession" placeholder="—"></div>
+      <div><label class="fld" data-i18n="fProfession">Beruf (freiwillig)</label><input type="text" id="p-profession"></div>
     </div>
   </section>
 
@@ -297,14 +297,14 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=51"></script>
+<script src="js/auth.js?v=53"></script>
 <script src="data/country_data.js"></script>
 <script src="data/drugs_db.js"></script>
 <script src="data/engine_data.js"></script>
-<script src="js/engine_rules.js?v=51"></script>
-<script src="js/engine.js?v=51"></script>
+<script src="js/engine_rules.js?v=53"></script>
+<script src="js/engine.js?v=53"></script>
 <!-- Malaria-Daten + Engine sind inline in script.js eingebettet (Deploy-Sicherheit) -->
-<script src="js/script.js?v=51"></script>
+<script src="js/script.js?v=53"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){
