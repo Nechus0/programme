@@ -713,6 +713,9 @@ table.vax td.status .reason{ font-size:11.5px; line-height:1.45; }
 /* ===== Einklappbare Abschnitte (Kasse-Ansicht) ===== */
 .card.foldable > h2{cursor:pointer;padding-right:46px;}   /* Platz für den absoluten Stift rechts */
 .card.foldable > h2::after{content:'\25BE';color:var(--grey);font-size:12px;font-weight:400;margin-left:auto;padding-left:14px;}
+/* Wenn ein „€ Preise"-Button im Kopf sitzt (Sektion 7), schiebt DER den Inhalt nach rechts –
+   der Aufklapp-Pfeil folgt direkt dahinter, statt mit einem zweiten margin:auto den Button in die Mitte zu ziehen. */
+.card.foldable > h2:has(.price-info-btn)::after{margin-left:10px;padding-left:0;}
 .card.foldable.folded > h2::after{content:'\25B8';}
 .card.folded > :not(h2):not(.lock-btn){display:none !important;}
 .card.folded{padding-bottom:16px;}

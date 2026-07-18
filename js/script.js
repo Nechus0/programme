@@ -3940,7 +3940,7 @@ function tgMake(opts,idx){
   const savedAt=new Date(Date.now()-idx*13*60000).toISOString();
   return { id:tgUuid(), name:name, firstname:firstname, dob:tgDob(age), age:age, sex:female?'f':'m',
     phone:'0'+(150+Math.floor(Math.random()*20))+' '+(1000000+Math.floor(Math.random()*8999999)), email:'', insurance:tgRand(TG_INS), profession:'', address:tgRand(TG_STREET)+' '+(1+Math.floor(Math.random()*120)), zip:tgRand(TG_ZIP), city:tgRand(TG_CITY),
-    duration:tgRand(TG_DUR), departure:'', destinations:dests,
+    duration:tgRand(TG_DUR), departure:(function(){ const d=new Date(); d.setDate(d.getDate()+14+Math.floor(Math.random()*77)); return d.toISOString().slice(0,10); })(), destinations:dests,
     pregnant:pregnant, allergy:tgChance(0.15)?'Penicillin':'', meds:meds, immuno:immuno, recentVax:'',
     conds:[], acute:false, chronicText:chronicText, chronic:chronic, immunodef:immunodef, thrombosis:false, faint:false,
     serology:{measles:false,vzv:false,hbs:false}, childhood:false,
