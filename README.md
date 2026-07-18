@@ -63,6 +63,16 @@ python3 -m http.server 8000     # dann http://localhost:8000
 - Auth: E-Mail/Passwort (Personal) + anonyme Anmeldung (Patienten-Tablet). Rollen:
   `admin`, `arzt`, `mfa`, `kasse`, `patient`; Freischaltung neuer Konten per Drag-&-Drop im Admin-Board.
   Automatische Abmeldung nach 1 h Inaktivität.
+- **„Im Dienst" nach Funktion (nicht Rolle):** Beratung / Folgeimpfung / Kasse. MFA immer Folgeimpfung,
+  Kasse immer Kasse, Arzt wählt in den Einstellungen (Beratung oder Folgeimpfung). Die gewählte Funktion
+  liegt als `shift_func` in der `presence`-Tabelle.
+- **Folgeimpfung (MFA-Standardarbeit):** Wiederkehrer werden über Name + Geburtsdatum erkannt (Abgleich
+  mit letztem `done`-Besuch). Der nächste Charité-Termin wird zum Fokus: „Fällig heute"-Banner mit den
+  fälligen Dosen, automatischer Prüfung der STIKO-Mindestabstände (Warnung, aber Gabe möglich) und dem
+  Hinweis auf den übernächsten Termin. Abschnitt 4 (Impfstatus) und Malaria sind eingeklappt (aufklappbar),
+  Abschnitt 5 (Geplante Impfungen) und 7 (Leistungen) stehen im Vordergrund; „Beratung" ist per Default
+  aus, „Impfleistung" wird bei Injektionen automatisch gesetzt. Die letzte Konsultation ist read-only
+  einsehbar.
 - `supabase_app_settings.sql` einmalig ausführen (Tabelle `app_settings`, u. a. Sperre der
   Tablet-Selbstanmeldung).
 - `supabase_presence.sql` einmalig ausführen (Tabelle `presence`, siehe unten).

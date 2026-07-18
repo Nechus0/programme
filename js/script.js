@@ -11,7 +11,7 @@ const I18N={
  appTitle:{de:'Reisemedizinische Ambulanz',en:'Travel Medicine Clinic'},appSub:{de:'Institut für Internationale Gesundheit · Reiseimpf-Assistent',en:'Institute of International Health · Travel Vaccination Assistant'},
  fFirstname:{de:'Vorname',en:'First name'},fPhone:{de:'Telefon',en:'Phone'},fInsurance:{de:'Krankenkasse',en:'Health insurance'},fProfession:{de:'Beruf (freiwillig)',en:'Profession (optional)'},fAddress:{de:'Anschrift',en:'Address'},fZip:{de:'PLZ',en:'Postal code'},fCity:{de:'Wohnort',en:'City'},
  fMeds:{de:'Aktuelle Medikamente (welche?)',en:'Current medication (which?)'},fRecentVax:{de:'Impfung/Injektion in den letzten 4 Wochen (welche, wann?)',en:'Vaccination/injection in the last 4 weeks (which, when?)'},fAcute:{de:'Akute Erkrankung (z. B. fieberhafter Infekt)',en:'Acute illness (e.g. febrile infection)'},fThrombosis:{de:'Thrombose in der Vorgeschichte',en:'History of thrombosis'},fFaint:{de:'Ohnmacht bei Impfung/Blutabnahme',en:'Weakness/fainting during vaccination/blood draw'},
- adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},settingsTitle:{de:'Einstellungen',en:'Settings'},setGeneral:{de:'Allgemein',en:'General'},setTreatModeDesc:{de:'Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.',en:'Default treatment type when you take a patient into treatment.'},treatBeratung:{de:'Beratung',en:'Consultation'},treatFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
+ adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},settingsTitle:{de:'Einstellungen',en:'Settings'},setGeneral:{de:'Allgemein',en:'General'},setTreatModeDesc:{de:'Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.',en:'Default treatment type when you take a patient into treatment.'},setTreatModeMfa:{de:'Als MFA bist du im Dienst immer für Folgeimpfungen eingeteilt.',en:'As an MFA you are always assigned to follow-up vaccinations during your shift.'},treatBeratung:{de:'Beratung',en:'Consultation'},treatFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
  fEmail:{de:'E-Mail',en:'Email'},fTitle:{de:'Titel',en:'Title'},fRole:{de:'Funktion',en:'Role'},fFullname:{de:'Name (Vor- und Nachname)',en:'Name (first and last)'},fGender:{de:'Geschlecht',en:'Gender'},btnCreateUser:{de:'Nutzer anlegen',en:'Create user'},
  thName:{de:'Name',en:'Name'},thTitle:{de:'Titel',en:'Title'},thGender:{de:'Geschlecht',en:'Gender'},thRole:{de:'Funktion',en:'Role'},thStatusReg:{de:'Status',en:'Status'},
  kasseTitle:{de:'Kasse',en:'Reception / Billing'},kasseDesc:{de:'Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.',en:'No function is assigned to the "Reception/Billing" role yet.'},
@@ -82,7 +82,7 @@ const I18N_FR={
  appTitle:'Consultation de médecine des voyages', appSub:'Institut de Santé Internationale · Assistant de vaccination du voyageur',
  fFirstname:'Prénom', fPhone:'Téléphone', fInsurance:'Assurance maladie', fProfession:'Profession (facultatif)', fAddress:'Adresse', fZip:'Code postal', fCity:'Ville',
  fMeds:'Médicaments actuels (lesquels ?)', fRecentVax:'Vaccination/injection au cours des 4 dernières semaines (laquelle, quand ?)', fAcute:'Maladie aiguë (p. ex. infection fébrile)', fThrombosis:'Antécédent de thrombose', fFaint:"Évanouissement lors d'une vaccination/prise de sang",
- adminBack:'Retour', adminTitle:'Gestion des utilisateurs', settingsTitle:'Paramètres', setGeneral:'Général', setTreatModeDesc:'Type de prise en charge par défaut lorsque vous prenez un patient en charge.', treatBeratung:'Consultation', treatFolge:'Vaccination de suivi', adminNewUser:'Créer un utilisateur', adminNewDesc:"L'utilisateur obtient l'accès dès qu'il définit un mot de passe avec cet e-mail via la page d'inscription.", adminUserList:'Utilisateurs créés',
+ adminBack:'Retour', adminTitle:'Gestion des utilisateurs', settingsTitle:'Paramètres', setGeneral:'Général', setTreatModeDesc:'Type de prise en charge par défaut lorsque vous prenez un patient en charge.', setTreatModeMfa:'En tant qu\'AMA, vous êtes toujours affecté aux vaccinations de suivi pendant votre service.', treatBeratung:'Consultation', treatFolge:'Vaccination de suivi', adminNewUser:'Créer un utilisateur', adminNewDesc:"L'utilisateur obtient l'accès dès qu'il définit un mot de passe avec cet e-mail via la page d'inscription.", adminUserList:'Utilisateurs créés',
  fEmail:'E-mail', fTitle:'Titre', fRole:'Fonction', fFullname:'Nom (prénom et nom)', fGender:'Sexe', btnCreateUser:"Créer l'utilisateur",
  thName:'Nom', thTitle:'Titre', thGender:'Sexe', thRole:'Fonction', thStatusReg:'Statut',
  kasseTitle:'Accueil / Facturation', kasseDesc:"Aucune fonction n'est encore associée au rôle « Accueil/Facturation ».",
@@ -2028,6 +2028,124 @@ function fuzzyNameMatch(n1, f1, n2, f2) {
   return false;
 }
 
+// ================= Folgeimpfung: Fokus auf den nächsten Termin =================
+// FOLGE hält den Kontext des aktuell geöffneten Wiederkehrers:
+//  due[]         – heute fällige Dosen (Fokus-Termin) inkl. Mindestabstands-Status
+//  nextInDays    – Tage bis zum übernächsten Termin
+//  prevGiven[]   – beim letzten Besuch verabreichte Impfungen
+let FOLGE = null;
+function folgeReset(){ FOLGE=null; if(typeof renderFolgeBanner==='function') renderFolgeBanner(); }
+function _folgeDateDE(d){ try{ return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear(); }catch(e){ return ''; } }
+// Setzt das passende „geplant"-Flag für eine Dosis aus dem Terminplan.
+function _folgeSetPlanned(it){
+  const st = vaxState[it.stKey] || vaxState[it.k];
+  if(!st) return;
+  if(it.k==='hepA') st.plannedA=true;
+  else if(it.k==='hepB') st.plannedB=true;
+  else if(it.k==='hepAB') st.plannedAB=true;
+  else if(it.k==='ipv_mono') st.planned_ipv=true;
+  else st.planned=true;
+}
+function buildFolgeContext(lastP){
+  FOLGE=null;
+  if(!lastP || !customSchedule || !lastP.savedAt){ renderFolgeBanner(); return; }
+  const today=new Date(); const startD=new Date(lastP.savedAt); const DAY=24*60*60*1000;
+  // Nicht-leere Termine mit Zieldatum (Offsets kodieren bereits die STIKO-Mindestabstände).
+  const appts=(customSchedule||[]).filter(b=>b.items&&b.items.length)
+     .map(b=>({offset:b.offset, items:b.items, targetD:new Date(startD.getTime()+b.offset*DAY)}))
+     .sort((a,b)=>a.offset-b.offset);
+  if(!appts.length){ renderFolgeBanner(); return; }
+  // Fokus = Folgetermin (offset>0), dessen Zieldatum heute am nächsten liegt.
+  const future=appts.filter(a=>a.offset>0);
+  const pool=future.length?future:appts;
+  let focus=pool[0], bestDiff=Math.abs(pool[0].targetD-today);
+  pool.forEach(a=>{ const d=Math.abs(a.targetD-today); if(d<bestDiff){bestDiff=d;focus=a;} });
+  // Beim letzten Besuch gegeben = der Tag-0-Termin (nur, wenn er nicht selbst der Fokus ist).
+  const prevGiven=(appts[0].offset<=0 && focus!==appts[0]) ? appts[0].items.map(it=>it.name) : [];
+  // Mindestabstand: erreicht, wenn heute ≥ Zieldatum des Fokus-Termins (1 Tag Toleranz).
+  const earliest=focus.targetD;
+  const intervalOK = today >= new Date(earliest.getTime()-DAY);
+  const due=[];
+  focus.items.forEach(it=>{ _folgeSetPlanned(it); due.push({name:it.name, k:it.k, intervalOK:intervalOK, earliest:earliest}); });
+  // Übernächster Termin nach dem Fokus.
+  let nextInDays=null;
+  const after=appts.filter(a=>a.offset>focus.offset);
+  if(after.length) nextInDays=Math.round((after[0].targetD-today)/DAY);
+  FOLGE={ lastVisit:startD, due:due, nextInDays:nextInDays, prevGiven:prevGiven, intervalIssue:!intervalOK, lastP:lastP };
+  renderFolgeBanner();
+}
+function renderFolgeBanner(){
+  const host=el('folge-banner'); if(!host) return;
+  if(!FOLGE || !FOLGE.due || !FOLGE.due.length){ host.classList.remove('show'); host.innerHTML=''; return; }
+  const de=(LANG==='de'), fr=(LANG==='fr');
+  const tDue = de?'Fällig heute · Charité':(fr?'À faire aujourd’hui · Charité':'Due today · Charité');
+  const tPrev= de?'Beim letzten Besuch gegeben':(fr?'Administré à la dernière visite':'Given at last visit');
+  const tNext= de?'Nächster Termin danach':(fr?'Prochain rendez-vous ensuite':'Next appointment after');
+  const tDays= de?('in '+FOLGE.nextInDays+' Tagen'):(fr?('dans '+FOLGE.nextInDays+' jours'):('in '+FOLGE.nextInDays+' days'));
+  const tEarly=(d)=> de?('Mindestabstand noch nicht erreicht – frühestens ab '+d):(fr?('Intervalle minimal non atteint – au plus tôt le '+d):('Minimum interval not yet met – earliest from '+d));
+  const tPrevBtn = de?'Letzte Konsultation ansehen':(fr?'Voir la dernière consultation':'View last consultation');
+  const prevBtn = (FOLGE.lastP) ? '<button type="button" class="fb-prevbtn" onclick="folgeShowPrevious()">'+_esc(tPrevBtn)+'</button>' : '';
+  let h='<div class="fb-head"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>'+_esc(tDue)+'</span>'+prevBtn+'</div><ul class="fb-list">';
+  FOLGE.due.forEach(d=>{
+    const warn = !d.intervalOK ? '<span class="fb-warn">⚠ '+_esc(tEarly(_folgeDateDE(d.earliest)))+'</span>' : '';
+    h+='<li'+(!d.intervalOK?' class="fb-li-warn"':'')+'><span class="fb-dot"></span><span class="fb-nm">'+_esc(d.name)+'</span>'+warn+'</li>';
+  });
+  h+='</ul>';
+  if(FOLGE.nextInDays!=null && FOLGE.nextInDays>0){ h+='<div class="fb-next">'+_esc(tNext)+': <strong>'+_esc(tDays)+'</strong></div>'; }
+  if(FOLGE.prevGiven && FOLGE.prevGiven.length){ h+='<div class="fb-prev"><span class="fb-prev-l">'+_esc(tPrev)+':</span> '+FOLGE.prevGiven.map(n=>'<span class="fb-chip">✓ '+_esc(n)+'</span>').join(' ')+'</div>'; }
+  host.innerHTML=h; host.classList.add('show');
+}
+// Read-only-Ansicht der letzten Konsultation (Abschnitte 1–3 + verabreichte Impfungen).
+function folgeClosePrevious(){ const bg=el('folge-prev-bg'); if(bg) bg.remove(); }
+function folgeShowPrevious(){
+  if(!FOLGE || !FOLGE.lastP) return;
+  const lp=FOLGE.lastP; const de=(LANG==='de'), fr=(LANG==='fr');
+  const L=(d,e,f)=>de?d:(fr?(f||e):e);
+  const row=(label,val)=>{ val=(val==null||val==='')?'—':val; return '<div class="fp-row"><span class="fp-k">'+_esc(label)+'</span><span class="fp-v">'+_esc(val)+'</span></div>'; };
+  const dateStr = lp.savedAt ? _folgeDateDE(new Date(lp.savedAt)) : '—';
+  const fullName = (lp.firstname?lp.firstname+' ':'')+(lp.name||'');
+  // Abschnitt 1 – Stammdaten
+  let s1 = row(L('Name','Name'), fullName)
+    + row(L('Geburtsdatum','Date of birth'), lp.dob||'')
+    + row(L('Geschlecht','Sex'), (typeof genderLabel==='function'?genderLabel(lp.sex,de?'de':'en'):(lp.sex||'')))
+    + row('E-Mail', lp.email||'') + row(L('Telefon','Phone'), lp.phone||'');
+  // Abschnitt 2 – Reise
+  const dests=(lp.destinations||[]).map(c=>CBY[c]?cName(CBY[c]):c).join(', ');
+  let s2 = row(L('Reiseziele','Destinations'), dests)
+    + row(L('Abreise','Departure'), lp.departure||'')
+    + row(L('Reisedauer','Duration'), lp.duration||'');
+  // Abschnitt 3 – Immunstatus / Anamnese
+  const condsTxt=(lp.conds||[]).join(', ');
+  let s3 = row(L('Schwangerschaft/Stillen','Pregnancy/breastfeeding'), lp.pregnant||'')
+    + row(L('Chronische Erkrankungen','Chronic conditions'), lp.chronicText||condsTxt||'')
+    + row(L('Allergien','Allergies'), lp.allergy||'')
+    + row(L('Medikamente','Medication'), (lp.meds||[]).join(', '));
+  // Verabreichte Impfungen beim letzten Besuch (aus vax: Jahr gesetzt oder „heute"-Termin).
+  const given=[];
+  (typeof VACCINES!=='undefined'?VACCINES:[]).forEach(v=>{
+    const st=(lp.vax||{})[v.k]; if(!st) return;
+    const appts=[].concat(st.appts||[],st.apptsA||[],st.apptsB||[],st.apptsAB||[]);
+    const wasGiven = appts.includes('today') || (st.done && /^\d{4}$/.test(''+st.done));
+    if(wasGiven){ const yr=(st.done&&/^\d{4}$/.test(''+st.done))?(' ('+st.done+')'):''; given.push(vName(v)+yr); }
+  });
+  const givenHtml = given.length ? given.map(n=>'<span class="fp-chip">✓ '+_esc(n)+'</span>').join(' ') : '<span class="fp-none">'+_esc(L('Keine Angaben','No entries'))+'</span>';
+  const title=L('Letzte Konsultation','Last consultation','Dernière consultation')+' · '+dateStr;
+  const secT=(n,t)=>'<div class="fp-sec-h"><span class="fp-badge">'+n+'</span>'+_esc(t)+'</div>';
+  const html='<div class="folge-prev-modal" onclick="event.stopPropagation()">'
+    + '<div class="fp-head"><span class="fp-title">'+_esc(title)+'</span><button type="button" class="fp-x" onclick="folgeClosePrevious()" aria-label="'+_esc(L('Schließen','Close'))+'">✕</button></div>'
+    + '<div class="fp-note">'+_esc(L('Nur-Lese-Ansicht des letzten Besuchs. Der aktuelle Besuch wird davon nicht verändert.','Read-only view of the last visit. The current visit is unaffected.'))+'</div>'
+    + '<div class="fp-body">'
+    + secT('1',L('Stammdaten','Master data'))+s1
+    + secT('2',L('Reise','Travel'))+s2
+    + secT('3',L('Immunstatus / Anamnese','Immune status / history'))+s3
+    + '<div class="fp-sec-h"><span class="fp-badge">✓</span>'+_esc(L('Beim letzten Besuch verabreicht','Given at the last visit'))+'</div><div class="fp-given">'+givenHtml+'</div>'
+    + '</div></div>';
+  folgeClosePrevious();
+  const bg=document.createElement('div'); bg.id='folge-prev-bg'; bg.className='folge-prev-bg'; bg.innerHTML=html;
+  bg.onclick=folgeClosePrevious;
+  document.body.appendChild(bg);
+}
+
 function renderChangeLogs(p){
   ['step1','step2','step3','step4','step5','step6'].forEach(sid=>{
     let logEl=el('log-'+sid);
@@ -2096,7 +2214,15 @@ function loadPatient(id){
   
   // Rendere Change Logs
   renderChangeLogs(p);
-  
+  FOLGE=null;   // Folgeimpfung-Fokus zurücksetzen (wird unten ggf. neu aufgebaut)
+
+  // Bereits zusammengeführte Wiederkehrer: Fokus/Banner auch beim erneuten Öffnen aufbauen.
+  if (p.treatmentType === 'folgeimpfung' && p.vaxMerged) {
+     const prev = patients.filter(x => x.id !== p.id && x.status === 'done' && x.dob === p.dob &&
+        fuzzyNameMatch(p.name, p.firstname, x.name, x.firstname)).sort((a,b)=>(a.savedAt<b.savedAt)?1:-1);
+     if (prev.length) buildFolgeContext(prev[0]);
+  }
+
   if (p.treatmentType === 'folgeimpfung' && !p.vaxMerged) {
      const past = patients.filter(x => 
        x.id !== p.id && 
@@ -2117,30 +2243,7 @@ function loadPatient(id){
         });
         if (lastP.customSchedule) customSchedule = JSON.parse(JSON.stringify(lastP.customSchedule));
         p.customSchedule = customSchedule;
-        
-        if (customSchedule && lastP.savedAt) {
-           const today = new Date();
-           const startD = new Date(lastP.savedAt);
-           let earlyWarning = false;
-           customSchedule.forEach(b => {
-              const targetD = new Date(startD.getTime() + b.offset * 24*60*60*1000);
-              const diffDays = (targetD - today) / (1000 * 60 * 60 * 24);
-              if (diffDays > 14) earlyWarning = true;
-              
-              if (Math.abs(diffDays) <= 14) {
-                 b.items.forEach(it => {
-                    let st = vaxState[it.k];
-                    if (st) {
-                       if (it.sub) st[it.sub] = true;
-                       else st.planned = true;
-                    }
-                 });
-              }
-           });
-           if (earlyWarning) {
-              setTimeout(() => uiAlert('Achtung: Der Patient erscheint deutlich zu früh für mindestens eine geplante Impfung!'), 500);
-           }
-        }
+        buildFolgeContext(lastP);   // Fokus auf den nächsten Termin + Mindestabstands-Prüfung
      }
   }
 
@@ -2160,10 +2263,13 @@ function loadPatient(id){
   if(p.malaria && typeof p.malaria==='object'){ malariaState={ days:(p.malaria.days!=null?p.malaria.days:null), weight:(p.malaria.weight!=null?p.malaria.weight:70), drug:p.malaria.drug||'malarone' }; }
   else { resetMalariaState(); }
   renderDestChips();recompute();
+  renderFolgeBanner();   // Folgeimpfung: „Fällig heute"-Banner (falls Wiederkehrer erkannt)
   lockAllSections();   // Abschnitte sperren; Bearbeiten erst per Stift
   applySectionVisibility(p);   // Wartend → nur Abschnitte 1–3; ab „In Behandlung" existieren 4–6
   // An der Kasse (Rolle Kasse ODER Patient in Kasse-Stufe): Abschnitte 2–5 eingeklappt (aufklappbar), 1 & 6 offen
-  if(roleIsKasse() || patientStatus(p)==='kasse') setupKasseFolds(); else clearFolds();
+  if(roleIsKasse() || patientStatus(p)==='kasse') setupKasseFolds();
+  else if(patientTreatType(p)==='folgeimpfung' && patientStatus(p)!=='waiting') setupFolgeFolds();
+  else clearFolds();
   if(document.body.classList.contains('clinic')) enterPatient();
   else if(window.scrollTo)try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
 }
@@ -2209,8 +2315,20 @@ const AMB_SECTIONS=[
   {status:'treatment', type:'folgeimpfung', de:'Folgeimpfung · In Behandlung', en:'Follow-up · In treatment'},
   {status:'done', de:'Behandelt', en:'Treated', fr:'Traité'}
 ];
-function myTreatmentMode(){ let m=null; try{m=localStorage.getItem('charite_treatmentmode');}catch(e){} if(m==='beratung'||m==='folgeimpfung')return m; return ((CURRENT_PROFILE||{}).role==='mfa')?'folgeimpfung':'beratung'; }
-function setMyTreatmentMode(m){ if(m!=='beratung'&&m!=='folgeimpfung')return; try{localStorage.setItem('charite_treatmentmode',m);}catch(e){} }
+function myTreatmentMode(){ const role=(CURRENT_PROFILE||{}).role; if(role==='mfa')return 'folgeimpfung'; let m=null; try{m=localStorage.getItem('charite_treatmentmode');}catch(e){} if(m==='beratung'||m==='folgeimpfung')return m; return 'beratung'; }
+function setMyTreatmentMode(m){ if(m!=='beratung'&&m!=='folgeimpfung')return; if((CURRENT_PROFILE||{}).role==='mfa')return; try{localStorage.setItem('charite_treatmentmode',m);}catch(e){}
+  // Präsenz „Im Dienst" sofort mit der neuen Funktion aktualisieren (nicht erst beim nächsten Heartbeat).
+  try{ if(typeof dbPresenceUpsert==='function') dbPresenceUpsert(); }catch(e){}
+  if(typeof renderTreatPanel==='function') renderTreatPanel();
+}
+// Funktion der Person im Dienst (nicht die Rolle): Beratung / Folgeimpfung / Kasse.
+// MFA immer Folgeimpfung, Kasse immer Kasse, Arzt gemäß eigener Einstellung.
+function myShiftFunction(){ const role=(CURRENT_PROFILE||{}).role; if(role==='kasse')return 'kasse'; if(role==='mfa')return 'folgeimpfung'; if(role==='arzt')return myTreatmentMode(); return null; }
+// Funktion aus einem Präsenz-/Personendatensatz ableiten (Fallback über die Rolle, falls func fehlt).
+function personShiftFunc(p){ const f=p.func||p.shift_func; if(f==='beratung'||f==='folgeimpfung'||f==='kasse')return f; const r=p.role; if(r==='kasse')return 'kasse'; if(r==='mfa')return 'folgeimpfung'; return 'beratung'; }
+const SHIFT_FUNC_ORDER=['beratung','folgeimpfung','kasse'];
+const SHIFT_FUNC_LABEL={beratung:{de:'Beratung',en:'Consultation',fr:'Consultation'},folgeimpfung:{de:'Folgeimpfung',en:'Follow-up',fr:'Rappel'},kasse:{de:'Kasse',en:'Checkout',fr:'Caisse'}};
+function shiftFuncLabel(f,lang){ const o=SHIFT_FUNC_LABEL[f]; return o?(o[lang]||o.de):f; }
 function patientTreatType(p){ return (p.treatmentType==='folgeimpfung'||p.treatmentType==='beratung')?p.treatmentType:'beratung'; }
 function patientDay(p){const s=p.savedAt||p.updatedAt;if(!s)return listDay;try{return ymd(new Date(s));}catch(e){return listDay;}}
 function patientStatus(p){return p.status||'waiting';}
@@ -2881,7 +2999,7 @@ async function loadShiftToday(){
         data.forEach(r=>{
           const role=r.role; if(!role||role==='admin') return;
           if(!r.name) return;
-          m[(role+'|'+r.name).toLowerCase()]={name:r.name,role:role,gender:r.gender||''};
+          m[(role+'|'+r.name).toLowerCase()]={name:r.name,role:role,gender:r.gender||'',func:r.shift_func||''};
         });
         SHIFT_TODAY=m;
         if(typeof renderTreatPanel==='function') renderTreatPanel();
@@ -2946,30 +3064,31 @@ function startIdleLogout(){
 }
 function gatherShiftPeople(){
   const people={};
-  const add=(name,role,gender)=>{ if(!name||!role||role==='admin') return; const k=(role+'|'+name).toLowerCase(); if(!people[k]) people[k]={name:name,role:role,gender:gender||''}; };
+  const add=(name,role,gender,func)=>{ if(!name||!role||role==='admin') return; const k=(role+'|'+name).toLowerCase(); if(!people[k]) people[k]={name:name,role:role,gender:gender||'',func:func||''}; };
   // Nur AKTUELL eingeloggte Personen (Präsenz aus SHIFT_TODAY) – nicht mehr „irgendwann heute behandelt/abgerechnet".
-  Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender));
-  if(CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin') add(CURRENT_PROFILE.full_name,CURRENT_PROFILE.role,CURRENT_PROFILE.gender);
+  Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender,p.func));
+  // Eigene Person: Funktion live aus der eigenen Einstellung (überschreibt ggf. veraltete Präsenz).
+  if(CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin'){ const k=(CURRENT_PROFILE.role+'|'+(CURRENT_PROFILE.full_name||'')).toLowerCase(); const mf=myShiftFunction(); if(people[k]) people[k].func=mf||people[k].func; else add(CURRENT_PROFILE.full_name,CURRENT_PROFILE.role,CURRENT_PROFILE.gender,mf); }
   return people;
 }
 // „Im Dienst" als horizontale Zeile unter dem Fluss-Board
 function shiftRowHtml(){
-  const people=gatherShiftPeople(); const lang=(LANG==='de'?'de':'en');
+  const people=gatherShiftPeople(); const lang=(LANG==='de'?'de':(LANG==='fr'?'fr':'en'));
   let h='<span class="shift-row-title">'+L2(I18N.shiftTitle)+'</span>';
-  ['arzt','mfa','kasse'].forEach(r=>{
-    const list=Object.values(people).filter(pp=>pp.role===r);
-    h+='<span class="shift-row-group"><span class="shift-row-role">'+_esc(roleLabel(r,lang))+'</span>';
+  SHIFT_FUNC_ORDER.forEach(f=>{
+    const list=Object.values(people).filter(pp=>personShiftFunc(pp)===f);
+    h+='<span class="shift-row-group"><span class="shift-row-role">'+_esc(shiftFuncLabel(f,lang))+'</span>';
     h+= list.length ? list.map(pp=>'<span class="shift-row-person">'+initialsCircle(pp.name,pp.role,pp.gender)+'<span class="shift-row-nm">'+_esc(pp.name)+'</span></span>').join('') : '<span class="shift-row-empty">—</span>';
     h+='</span>';
   });
   return h;
 }
 function shiftPanelHtml(){
-  const people=gatherShiftPeople(); const lang=(LANG==='de'?'de':'en');
+  const people=gatherShiftPeople(); const lang=(LANG==='de'?'de':(LANG==='fr'?'fr':'en'));
   let h='<div class="tp-head"><span class="tp-title">'+L2(I18N.shiftTitle)+'</span></div>';
-  ['arzt','mfa','kasse'].forEach(r=>{
-    const list=Object.values(people).filter(pp=>pp.role===r);
-    h+='<div class="shift-group"><div class="shift-role">'+_esc(roleLabel(r,lang))+'</div>';
+  SHIFT_FUNC_ORDER.forEach(f=>{
+    const list=Object.values(people).filter(pp=>personShiftFunc(pp)===f);
+    h+='<div class="shift-group"><div class="shift-role">'+_esc(shiftFuncLabel(f,lang))+'</div>';
     h+= list.length ? list.map(pp=>'<div class="shift-person">'+initialsCircle(pp.name,pp.role,pp.gender)+'<span class="shift-nm">'+_esc(pp.name)+'</span></div>').join('') : '<div class="shift-empty">—</div>';
     h+='</div>';
   });
@@ -3403,6 +3522,16 @@ function setupKasseFolds(){
   const l=el('step6'); if(l) l.classList.remove('foldable','folded');   // Leistungen immer offen
 }
 function clearFolds(){ ['step1','step2','step3','step4','step5','step6'].forEach(id=>{ const s=el(id); if(s) s.classList.remove('foldable','folded'); }); }
+// Folgeimpfung (MFA-Standardarbeit): Fokus auf die geplanten Impfungen (Abschnitt 5) und Leistungen (7).
+// Abschnitte 1–3 offen (Patient hat sie ggf. neu ausgefüllt → prüfen). Abschnitt 4 (Impfstatus) ist
+// eingeklappt, aber jederzeit aufklappbar (Daten des letzten Besuchs bleiben erreichbar). Malaria klappt
+// renderMalaria selbst ein. Abschnitt 5 und Leistungen bleiben offen.
+function setupFolgeFolds(){
+  clearFolds();
+  wireFoldHeaders();
+  const s4=el('step4'); if(s4){ s4.classList.add('foldable'); s4.classList.add('folded'); }   // Impfstatus eingeklappt
+  const l=el('step6'); if(l) l.classList.remove('foldable','folded');   // Leistungen immer offen
+}
 function editLogHtml(p){
   const log=(p.editLog||[]).slice().reverse();
   const del=p.deleted;
@@ -3682,9 +3811,14 @@ function renderMalaria(){
   const editing = !!editingId && document.body.classList.contains('clinic') && !document.body.classList.contains('clinic-idle');
   const showable = editing && isStaff() && !waiting;   // Sektion 6 ist immer vorhanden (ohne Risiko eingeklappt)
   if(!showable){ sec.style.display='none'; box.innerHTML=''; if(typeof updateSecNav==='function') updateSecNav(); return; }
-  // Sektion ist während der Behandlung IMMER vollständig sichtbar (kein Ein-/Ausklappen mehr).
+  // Sektion ist während der Behandlung sichtbar.
   sec.style.display='';
   sec.classList.remove('foldable','folded');
+  // Folgeimpfung: Malaria standardmäßig eingeklappt (einmal je Patient; manuelles Aufklappen bleibt erhalten).
+  if(editingP && patientTreatType(editingP)==='folgeimpfung'){
+    sec.classList.add('foldable');
+    if(malFoldPatient!==editingId){ sec.classList.add('folded'); malFoldPatient=editingId; }
+  }
   const a=malariaAssess(destinations||[]);
   if(!a.any){
     box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>'
@@ -4043,9 +4177,13 @@ async function purgeAllDeleted(){
 }
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
-  const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode);});
   const role=(CURRENT_PROFILE||{}).role;
   const isAdmin=role==='admin';
+  // Standard-Funktion: nur der Arzt wählt frei zwischen Beratung/Folgeimpfung.
+  // MFA ist im Dienst immer „Folgeimpfung" (Auswahl gesperrt); Kasse/Admin haben keine Wahl (Sektion aus).
+  const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode); r.disabled=(role!=='arzt');});
+  const tms=el('treatmode-sec'); if(tms) tms.style.display=(role==='arzt'||role==='mfa')?'':'none';
+  const tmHint=el('treatmode-hint'); if(tmHint) tmHint.style.display=(role==='mfa')?'':'none';
   const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
   if(isAdmin){ renderAdminUsers(); renderDeletedPatients(); renderTabletLock(); }
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');

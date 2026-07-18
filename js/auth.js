@@ -216,11 +216,14 @@ async function setPatientInputLocked(locked) {
 // zurück und script.js fällt auf das audit_logs-Verfahren zurück.
 async function dbPresenceUpsert() {
   if (!supabaseClient || !CURRENT_PROFILE || !CURRENT_PROFILE.id) return { error: { message: 'no-user' } };
+  // Funktion im Dienst (Beratung/Folgeimpfung/Kasse) aus script.js, falls verfügbar.
+  const func = (typeof myShiftFunction === 'function') ? myShiftFunction() : null;
   return await supabaseClient.from('presence').upsert({
     user_id: CURRENT_PROFILE.id,
     name: CURRENT_PROFILE.full_name || '',
     role: CURRENT_PROFILE.role || '',
     gender: CURRENT_PROFILE.gender || '',
+    shift_func: func,
     last_seen: new Date().toISOString()
   }, { onConflict: 'user_id' });
 }
@@ -231,7 +234,7 @@ async function dbPresenceClear() {
 async function dbPresenceList(withinMs) {
   if (!supabaseClient) return { data: null, error: { message: 'offline' } };
   const since = new Date(Date.now() - (withinMs || 150000)).toISOString();
-  return await supabaseClient.from('presence').select('user_id,name,role,gender,last_seen').gte('last_seen', since);
+  return await supabaseClient.from('presence').select('user_id,name,role,gender,shift_func,last_seen').gte('last_seen', since);
 }
 
 // --- Audit Log ----------------------------------

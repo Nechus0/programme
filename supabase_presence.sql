@@ -8,8 +8,12 @@ create table if not exists public.presence (
   name       text,
   role       text,
   gender     text,
+  shift_func text,              -- Funktion im Dienst: 'beratung' | 'folgeimpfung' | 'kasse'
   last_seen  timestamptz not null default now()
 );
+
+-- Falls die Tabelle aus einer früheren Version ohne shift_func stammt: Spalte nachrüsten.
+alter table public.presence add column if not exists shift_func text;
 
 alter table public.presence enable row level security;
 
