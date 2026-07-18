@@ -1895,7 +1895,9 @@ async function savePatient(finish){
   // Statusgesteuerter Abschluss: Patient an der Kasse → Abschluss bedeutet „bezahlt" (→ done),
   // sonst → Übergabe an die Kasse (→ kasse). So kann auch Medizin-Personal die Kasse vertreten.
   const _clinic = document.body.classList.contains('clinic');
-  const _prevStatus = (existing&&existing.status)||(_clinic?'treatment':'waiting');
+  // Neuer Patient (Personal-Registrierung): landet als „Wartend", nicht direkt in Behandlung.
+  const _isNewReg = (typeof NEW_PATIENT_MODE!=='undefined' && NEW_PATIENT_MODE && !existing);
+  const _prevStatus = (existing&&existing.status)||(_isNewReg?'waiting':(_clinic?'treatment':'waiting'));
   const _atKasse = _prevStatus==='kasse';
   const _finalizing = finish && _clinic && _atKasse;   // Zahlung wird bestätigt (jede Personalrolle)
   const _me = ((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||myUserKey());
@@ -1930,8 +1932,8 @@ async function savePatient(finish){
     })(),
     // Malaria-Plan (eigene Engine) – nur speichern, wenn ein Reiseziel mit Risiko gewählt ist
     malaria: (typeof malariaRelevant==='function' && malariaRelevant()) ? {days:malariaState.days, weight:malariaState.weight, drug:malariaState.drug} : ((existing&&existing.malaria)||undefined),
-    // Patient an der Kasse → Abschluss = 'done' (bezahlt); sonst Abschluss durch Personal → 'kasse'
-    status: ((finish && _clinic) ? (_atKasse ? 'done' : 'kasse') : _prevStatus),
+    // Neuer Patient (Registrierung) → immer „Wartend". Sonst: an der Kasse → 'done', durch Personal → 'kasse'.
+    status: _isNewReg ? 'waiting' : ((finish && _clinic) ? (_atKasse ? 'done' : 'kasse') : _prevStatus),
     group:(existing&&existing.group)||'',
     treatmentType:(existing&&existing.treatmentType)||INTAKE_TYPE||undefined,
     claimedBy:(existing&&existing.claimedBy)||(document.body.classList.contains('clinic')?myUserKey():null),
@@ -2220,6 +2222,7 @@ function renderChangeLogs(p){
 }
 function loadPatient(id){
   const p=patients.find(x=>x.id===id);if(!p)return;
+  NEW_PATIENT_MODE=false; { const bar=el('new-intake-bar'); if(bar) bar.classList.remove('show'); }   // kein Neu-Patient-Modus beim Laden
   if(p.status === 'treatment' && p.claimedBy && p.claimedBy !== myUserKey()) {
     uiAlert('Patient wird derzeit von ' + (p.claimedByName || 'anderem Personal') + ' behandelt und ist gesperrt.');
     return;
@@ -2341,9 +2344,30 @@ let SEC_COLLAPSE={};   // gemerkter Auf-/Zuklapp-Zustand der Ambulanz-Sektionen
 function loadSecCollapse(){ try{ const s=localStorage.getItem('charite_seccollapse'); SEC_COLLAPSE=s?JSON.parse(s):{}; }catch(e){ SEC_COLLAPSE={}; } }
 function saveSecCollapse(){ try{ localStorage.setItem('charite_seccollapse', JSON.stringify(SEC_COLLAPSE)); }catch(e){} }
 let INTAKE_TYPE=null;  // Kiosk-Auswahl: 'beratung' | 'folgeimpfung'
+let NEW_PATIENT_MODE=false;   // Personal registriert einen neuen Patienten (nur Abschnitte 1–3 + Auswahl)
 function icLang(l){ if(typeof setLang==='function') setLang(l); ['de','en','fr'].forEach(x=>{const b=el('ic-'+x);if(b)b.classList.toggle('active',l===x);}); }
 function showIntakeChoice(){ INTAKE_TYPE=null; const o=el('intake-choice'); if(o)o.classList.add('show'); icLang(typeof LANG!=='undefined'?LANG:'de'); }
 function chooseIntake(t){ INTAKE_TYPE=t; const o=el('intake-choice'); if(o)o.classList.remove('show'); try{window.scrollTo({top:0});}catch(e){} }
+// Änderungsprotokoll + Behandelt/Abgerechnet-Vermerk aus dem Formular entfernen (z. B. für neuen Patienten).
+function clearChangeLogs(){ ['step1','step2','step3','step4','step5','step6'].forEach(sid=>{ const e=el('log-'+sid); if(e) e.innerHTML=''; }); const rec=el('treat-record'); if(rec) rec.innerHTML=''; }
+// Neuer Patient (Registrierung durch Personal): nur Abschnitte 1–3, Auswahl Beratung/Folgeimpfung oben.
+function applyNewPatientView(){
+  const on = !!NEW_PATIENT_MODE;
+  ['step4','step5','stepM','step6'].forEach(id=>{ const s=el(id); if(s) s.style.display = on ? 'none' : ''; });
+  const bar=el('new-intake-bar');
+  if(bar){
+    const showBar = on && (typeof isStaff==='function' ? isStaff() : true);
+    bar.classList.toggle('show', showBar);
+    if(showBar){
+      const isMfa=((CURRENT_PROFILE||{}).role==='mfa');
+      const b=el('ib-beratung'), f=el('ib-folge');
+      if(b){ b.classList.toggle('active', INTAKE_TYPE!=='folgeimpfung'); b.disabled=isMfa; }
+      if(f){ f.classList.toggle('active', INTAKE_TYPE==='folgeimpfung'); }
+    }
+  }
+  if(typeof updateSecNav==='function') updateSecNav();
+}
+function setNewIntake(t){ if(t!=='beratung'&&t!=='folgeimpfung')return; if(t==='beratung' && (CURRENT_PROFILE||{}).role==='mfa')return; INTAKE_TYPE=t; applyNewPatientView(); }
 const AMB_SECTIONS=[
   {status:'waiting',   type:'beratung',     de:'Beratung · Wartend',        en:'Consultation · Waiting'},
   {status:'treatment', type:'beratung',     de:'Beratung · In Behandlung',  en:'Consultation · In treatment'},
@@ -2662,7 +2686,11 @@ async function takeGroupIntoTreatment(g){
 async function startTreatment(id){ await takeIntoTreatment(id); }
 // Grüner Haken: Medizin-Personal → Patient an die Kasse übergeben ('kasse'); Kasse → Zahlung bestätigen ('done')
 async function finishTreatment(){
-  if(!editingId){ exitToList(); return; }
+  if(!editingId){
+    // Neuer Patient: als „Wartend" registrieren (nur Abschnitte 1–3), danach zurück zur Liste.
+    if(NEW_PATIENT_MODE){ const ok=await savePatient(false); if(ok){ NEW_PATIENT_MODE=false; exitToList(); } return; }
+    exitToList(); return;
+  }
   const cur=patients.find(p=>p.id===editingId);
   const curStatus = cur ? patientStatus(cur) : 'treatment';
   // Wartende Patienten (Patientenansicht, noch nicht übernommen) → nur zwischenspeichern, kein Abschluss
@@ -3393,6 +3421,10 @@ function resetForm(){
   ['leistung_folge','leistung_bescheinigung'].forEach(id=>_sc(id,false));
   _loadedPayment=''; _loadedPaid=''; clearFolds();
   const kb=el('kasse-billing'); if(kb) kb.innerHTML='';
+  // Reste des vorher geöffneten Patienten entfernen: Änderungsprotokoll, Folge-Banner, Neu-Patient-Ansicht.
+  NEW_PATIENT_MODE=false; clearChangeLogs();
+  FOLGE=null; if(typeof renderFolgeBanner==='function') renderFolgeBanner();
+  applyNewPatientView();
   renderDestChips();recompute();
 }
 
@@ -3588,7 +3620,17 @@ function editLogHtml(p){
   log.slice(0,12).forEach(e=>{ const sn=SECTION_TITLES[e.section]?(L2(SECTION_TITLES[e.section])):e.section; const flds=(e.fields&&e.fields.length)?' · '+e.fields.join(', '):''; h+='<div class="pb-log-row">'+fmtDateTime(e.ts)+' · '+_esc(e.who||'—')+' · '+_esc(sn)+_esc(flds)+'</div>'; });
   return h+'</div>';
 }
-function startNewPatient(){ resetForm(); unlockAllSections(); const et=el('editing-text'); if(et) et.textContent=(LX('Neuer Patient','New patient')); enterPatient(); setTimeout(function(){ const f=el('p-firstname')||el('p-name'); if(f){ try{ f.focus(); }catch(_){} } },140); }
+function startNewPatient(){
+  resetForm(); unlockAllSections();
+  // Registrierung: nur Abschnitte 1–3, Grund des Besuchs (Beratung/Folgeimpfung) oben wählbar.
+  NEW_PATIENT_MODE=true;
+  INTAKE_TYPE=(typeof myTreatmentMode==='function' ? myTreatmentMode() : 'beratung');   // MFA → folgeimpfung
+  const et=el('editing-text'); if(et) et.textContent=(LX('Neuer Patient','New patient'));
+  applyNewPatientView();
+  enterPatient();
+  applyNewPatientView();   // nach enterPatient erneut, damit die Abschnitts-Sichtbarkeit sicher greift
+  setTimeout(function(){ const f=el('p-firstname')||el('p-name'); if(f){ try{ f.focus(); }catch(_){} } },140);
+}
 async function cancelEditConfirm(){
   if(!(await uiConfirm(LX('Bearbeitung wirklich abbrechen? Nicht gespeicherte Änderungen gehen verloren.','Really cancel editing? Unsaved changes will be lost.'),{title:LX('Bearbeitung abbrechen','Cancel editing'),ok:LX('Verwerfen','Discard'),danger:true}))) return;
   cancelEdit();

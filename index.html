@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=75">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=75">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=75">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=75">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=76">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=76">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=76">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=76">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=75">
+<link rel="stylesheet" href="css/style.css?v=76">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -125,6 +125,14 @@
 <main>
   <div class="editing-banner" id="editing-banner" style="display:none"><span id="editing-text"></span></div>
   <div class="folge-banner" id="folge-banner"></div>
+  <!-- Neuer Patient (Personal): Grund des Besuchs wählen; erst danach die eigentliche Behandlung -->
+  <div class="intake-bar" id="new-intake-bar" style="display:none">
+    <span class="ib-label" data-i18n="icSub">Bitte wählen Sie den Grund Ihres Besuchs.</span>
+    <div class="ib-seg" role="group" aria-label="Grund des Besuchs">
+      <button type="button" id="ib-beratung" onclick="setNewIntake('beratung')" data-i18n="treatBeratung">Beratung</button>
+      <button type="button" id="ib-folge" onclick="setNewIntake('folgeimpfung')" data-i18n="treatFolge">Folgeimpfung</button>
+    </div>
+  </div>
 
   <!-- STEP 1 -->
   <section class="card" id="step1">
@@ -312,16 +320,16 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=75"></script>
-<script src="data/country_data.js?v=75"></script>
-<script src="data/drugs_db.js?v=75"></script>
-<script src="data/engine_data.js?v=75"></script>
-<script src="js/engine_rules.js?v=75"></script>
-<script src="js/engine.js?v=75"></script>
+<script src="js/auth.js?v=76"></script>
+<script src="data/country_data.js?v=76"></script>
+<script src="data/drugs_db.js?v=76"></script>
+<script src="data/engine_data.js?v=76"></script>
+<script src="js/engine_rules.js?v=76"></script>
+<script src="js/engine.js?v=76"></script>
 <!-- Malaria-Daten + Engine: EINE gemeinsame Quelle für App und Tests -->
-<script src="js/malaria_data.js?v=75"></script>
-<script src="js/malaria_engine.js?v=75"></script>
-<script src="js/script.js?v=75"></script>
+<script src="js/malaria_data.js?v=76"></script>
+<script src="js/malaria_engine.js?v=76"></script>
+<script src="js/script.js?v=76"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){
