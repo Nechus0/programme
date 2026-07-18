@@ -74,18 +74,50 @@ const MAL_DRUGS = {
   }
 };
 
-/* Expositionsprophylaxe (Repellents nach Lupi/Schlagenhauf 2013). */
+/* Expositionsprophylaxe: DEET bis 50 %, Icaridin i. d. R. niedriger (20 %). */
 const MAL_EXPO = {
-  de: 'Konsequenter Mückenschutz: Repellent mit DEET (20–30 %) oder Icaridin auf unbedeckte Haut (Anopheles v. a. dämmerungs- und nachtaktiv), lange helle Kleidung, imprägniertes Moskitonetz, klimatisierte oder vergitterte Räume.',
-  en: 'Consistent bite protection: repellent with DEET (20–30 %) or Icaridin on exposed skin (Anopheles bite mainly at dusk and night), long light-coloured clothing, an impregnated bed net, air-conditioned or screened rooms.'
+  de: 'Konsequenter Mückenschutz: Repellent mit DEET (30–50 %) oder Icaridin (20 %) auf unbedeckte Haut (Anopheles v. a. dämmerungs- und nachtaktiv), lange helle Kleidung, imprägniertes Moskitonetz, klimatisierte oder vergitterte Räume.',
+  en: 'Consistent bite protection: repellent with DEET (30–50 %) or Icaridin (20 %) on exposed skin (Anopheles bite mainly at dusk and night), long light-coloured clothing, an impregnated bed net, air-conditioned or screened rooms.'
 };
 
-/* Standby-Notfallmedikament (nur Hinweis; Dosierung im Gespräch). */
+/* Notfallselbstbehandlung (Standby): keine Dauerprophylaxe – Malarone als Notfall-THERAPIE. */
 const MAL_STANDBY = {
-  de: 'Notfallselbstbehandlung (Standby): Artemether-Lumefantrin (Riamet) für die Notfallbehandlung mitgeben, wenn innerhalb von 24 h keine ärztliche Hilfe erreichbar ist. Einnahme mit fetthaltiger Mahlzeit.',
-  en: 'Emergency standby treatment: carry artemether-lumefantrine (Riamet) for self-treatment if no medical help is reachable within 24 h. Take with a fatty meal.'
+  de: 'Notfallselbstbehandlung (Standby): keine Dauerprophylaxe – stattdessen Malarone als Notfallmedikament mitgeben. Bei Fieber (≥ 38,5 °C) und wenn nicht innerhalb von 24 h ärztliche Hilfe erreichbar ist, Malarone als <strong>Behandlung</strong> (nicht als Prophylaxe) einnehmen und danach umgehend ärztliche Abklärung suchen.',
+  en: 'Emergency standby treatment: no continuous prophylaxis – instead provide Malarone as a standby medication. If fever (≥ 38.5 °C) occurs and no medical help is reachable within 24 h, take Malarone as <strong>treatment</strong> (not prophylaxis) and seek medical care as soon as possible afterwards.'
 };
 
+/* Therapeutische (Notfall-)Dosis Atovaquon-Proguanil: 1× täglich über 3 Tage, gewichtsabhängig. */
+function malaroneTreatTabs(kg) {
+  if (kg == null || isNaN(kg)) return { tabs: 4, label: '4 Tbl. (250/100 mg)', ped: false };
+  if (kg < 5)   return { tabs: 0, label: 'nicht zugelassen (< 5 kg)', ped: true };
+  if (kg <= 8)  return { tabs: 2, label: '2 Junior-Tbl. (62,5/25 mg)', ped: true };
+  if (kg <= 10) return { tabs: 3, label: '3 Junior-Tbl. (62,5/25 mg)', ped: true };
+  if (kg <= 20) return { tabs: 1, label: '1 Tbl. (250/100 mg)', ped: true };
+  if (kg <= 30) return { tabs: 2, label: '2 Tbl. (250/100 mg)', ped: true };
+  if (kg <= 40) return { tabs: 3, label: '3 Tbl. (250/100 mg)', ped: true };
+  return { tabs: 4, label: '4 Tbl. (250/100 mg)', ped: false };
+}
+/* Bedarf für die 3-Tage-Notfalltherapie (Packung 12 Tbl.). */
+function malaroneTreatCalc(kg) {
+  const t = malaroneTreatTabs(kg);
+  const tablets = Math.ceil(t.tabs * 3);
+  const packs = Math.max(1, Math.ceil(tablets / 12));
+  return { tabsPerDay: t.tabs, tabLabel: t.label, ped: t.ped, days: 3, tablets: tablets, packs: packs };
+}
+
+// Browser: als Globals bereitstellen (script.js liest diese direkt).
+if (typeof window !== 'undefined') {
+  window.MAL_STRAT_RANK = MAL_STRAT_RANK;
+  window.malariaAssess = malariaAssess;
+  window.malaroneTabsPerDay = malaroneTabsPerDay;
+  window.malaroneCalc = malaroneCalc;
+  window.malaroneTreatTabs = malaroneTreatTabs;
+  window.malaroneTreatCalc = malaroneTreatCalc;
+  window.MAL_DRUGS = MAL_DRUGS;
+  window.MAL_EXPO = MAL_EXPO;
+  window.MAL_STANDBY = MAL_STANDBY;
+}
+// Node (Tests): CommonJS-Export.
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { malariaAssess, malaroneTabsPerDay, malaroneCalc, MAL_DRUGS, MAL_EXPO, MAL_STANDBY, MAL_STRAT_RANK };
+  module.exports = { malariaAssess, malaroneTabsPerDay, malaroneCalc, malaroneTreatTabs, malaroneTreatCalc, MAL_DRUGS, MAL_EXPO, MAL_STANDBY, MAL_STRAT_RANK };
 }

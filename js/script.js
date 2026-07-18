@@ -2872,6 +2872,24 @@ function renderTreatPanel(){
 let SHIFT_TODAY={};   // wer war heute eingeloggt (aus audit_logs 'shift_login')
 const SHIFT_ONLINE_MS=150000;   // „Im Dienst" nur, wenn letzter Heartbeat < 150 s alt (2 verpasste Beats)
 async function loadShiftToday(){
+  // 1) Bevorzugt die schlanke Präsenztabelle (genau 1 Zeile/Nutzer, beschränktes Wachstum).
+  if(typeof dbPresenceList==='function'){
+    try{
+      const { data, error } = await dbPresenceList(SHIFT_ONLINE_MS);
+      if(!error && Array.isArray(data)){
+        const m={};
+        data.forEach(r=>{
+          const role=r.role; if(!role||role==='admin') return;
+          if(!r.name) return;
+          m[(role+'|'+r.name).toLowerCase()]={name:r.name,role:role,gender:r.gender||''};
+        });
+        SHIFT_TODAY=m;
+        if(typeof renderTreatPanel==='function') renderTreatPanel();
+        return;
+      }
+    }catch(_){}   // Tabelle fehlt/RLS → Fallback auf audit_logs
+  }
+  // 2) Fallback: Präsenz aus audit_logs-Heartbeats ableiten.
   if(typeof dbListAuditToday!=='function') return;
   try{
     const { data, error } = await dbListAuditToday();
@@ -2898,11 +2916,21 @@ async function loadShiftToday(){
 let SHIFT_HB_TIMER=null;
 function startShiftHeartbeat(){
   if(SHIFT_HB_TIMER) return;
-  SHIFT_HB_TIMER=setInterval(()=>{
-    if(USE_DB && CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin' && typeof dbAuditLog==='function'){
+  const beat=()=>{
+    if(!(USE_DB && CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin')) return;
+    // Bevorzugt Präsenz-Upsert (1 Zeile/Nutzer); nur wenn die Tabelle fehlt, auf audit_logs zurückfallen.
+    if(typeof dbPresenceUpsert==='function'){
+      dbPresenceUpsert().then(res=>{
+        if(res && res.error && typeof dbAuditLog==='function'){
+          try{ dbAuditLog('shift_login',{name:CURRENT_PROFILE.full_name, gender:CURRENT_PROFILE.gender||'', role:CURRENT_PROFILE.role}); }catch(_){}
+        }
+      }).catch(()=>{ if(typeof dbAuditLog==='function'){ try{ dbAuditLog('shift_login',{name:CURRENT_PROFILE.full_name, gender:CURRENT_PROFILE.gender||'', role:CURRENT_PROFILE.role}); }catch(_){} } });
+    } else if(typeof dbAuditLog==='function'){
       try{ dbAuditLog('shift_login',{name:CURRENT_PROFILE.full_name, gender:CURRENT_PROFILE.gender||'', role:CURRENT_PROFILE.role}); }catch(_){}
     }
-  }, 60000);
+  };
+  beat();   // sofort präsent, nicht erst nach 60 s
+  SHIFT_HB_TIMER=setInterval(beat, 60000);
 }
 // Automatische Abmeldung nach 1 h ohne Eingabe (nur Personal).
 let IDLE_TIMER=null;
@@ -3614,37 +3642,17 @@ function renderStats(){
   h+='</div>';
   box.innerHTML=h;
 }
-/* ================= MALARIA-ENGINE + DATEN (inline; getrennt von der Impf-Logik) =================
-   Inline eingebettet, damit die Sektion nicht von separaten Dateien abhängt (Deploy-Sicherheit).
-   Quelle: DTG-Ländertabelle 2025. Fällt zurück, falls externe malaria_*.js bereits geladen sind. */
+/* ================= MALARIA-ENGINE + DATEN =================
+   Einzige Quelle: js/malaria_data.js + js/malaria_engine.js (vor script.js geladen; auch von
+   den Tests genutzt). Deren Globals (MALARIA_DATA, malariaAssess, MAL_DRUGS, malaroneTreatCalc …)
+   werden hier direkt verwendet. Defensive Notlösung, falls die Module ausnahmsweise fehlen: */
 if (typeof MALARIA_DATA === 'undefined') {
-  window.MALARIA_STAND = "DTG-Ländertabelle 2025 (Stand Juni 2025)";
-  window.MALARIA_DATA = {
-    "AF":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"AO":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"BD":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"BF":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"BI":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"BJ":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"BN":{"s":"EP","sp":"P. knowlesi","se":"Ganzjährig"},"BO":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"BR":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"BT":{"s":"EP","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"BW":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"BZ":{"s":"EP","sp":"","se":"Ganzjährig"},"CD":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"CF":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"CG":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"CI":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"CM":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"CO":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"CR":{"s":"NSB","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"DJ":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"DO":{"s":"NSB","sp":"P. falciparum","se":"Ganzjährig"},"EC":{"s":"NSB","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"EH":{"s":"EP","sp":"","se":"Ganzjährig"},"ER":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"ET":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"GA":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"GF":{"s":"NSB","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"GH":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"GM":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"GN":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"GQ":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"GT":{"s":"EP","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"GW":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"GY":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"HN":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"HT":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"ID":{"s":"P","sp":"P. falciparum, P. vivax, P. knowlesi","se":"Ganzjährig"},"IN":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"IQ":{"s":"EP","sp":"","se":"Mai–November"},"IR":{"s":"NSB","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"KE":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"KH":{"s":"NSB","sp":"P. falciparum, P. vivax, P. knowlesi","se":"Ganzjährig"},"KM":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"KP":{"s":"EP","sp":"P. vivax","se":"Malariasaison"},"KR":{"s":"EP","sp":"P. vivax","se":"Januar–Februar"},"LA":{"s":"NSB","sp":"P. vivax, P. falciparum, P. knowlesi","se":"Ganzjährig"},"LR":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"MG":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"ML":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"MM":{"s":"NSB","sp":"P. vivax, P. falciparum, P. knowlesi","se":"Ganzjährig"},"MR":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"MW":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"MX":{"s":"EP","sp":"P. vivax","se":"Ganzjährig"},"MY":{"s":"NSB","sp":"P. knowlesi","se":"Ganzjährig"},"MZ":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"NA":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"NE":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"NG":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"NI":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"NP":{"s":"EP","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"PA":{"s":"NSB","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"PE":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"PG":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"PH":{"s":"P","sp":"P. falciparum, P. vivax, P. knowlesi","se":"Ganzjährig"},"PK":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"RW":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"SB":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"SD":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"SL":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"SN":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"SO":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"SS":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"ST":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"SY":{"s":"EP","sp":"P. vivax","se":"Mai–Oktober"},"SZ":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"TD":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"TG":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"TH":{"s":"NSB","sp":"P. vivax, P. falciparum, P. knowlesi","se":"Ganzjährig"},"TZ":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"UG":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"VE":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},"VN":{"s":"EP","sp":"P. vivax, P. falciparum, P. knowlesi","se":"Ganzjährig"},"VU":{"s":"NSB","sp":"P. vivax","se":"Ganzjährig"},"YE":{"s":"P","sp":"P. falciparum, P. vivax","se":"Ganzjährig"},"YT":{"s":"EP","sp":"P. falciparum","se":"Ganzjährig"},"ZA":{"s":"NSB","sp":"P. falciparum","se":"Ganzjährig"},"ZM":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},"ZW":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"}
-  };
-  window.MAL_STRAT_RANK = { none:0, EP:1, NSB:2, P:3 };
-  window.malariaAssess = function(codes){ const list=[]; let best='none'; (codes||[]).forEach(function(c){ const d=(typeof MALARIA_DATA!=='undefined')?MALARIA_DATA[c]:null; if(d){ list.push({code:c,strategy:d.s,species:d.sp||'',season:d.se||''}); if(MAL_STRAT_RANK[d.s]>MAL_STRAT_RANK[best])best=d.s; } }); return {strategy:best,countries:list,any:list.length>0}; };
-  window.malaroneTabsPerDay = function(kg){ if(kg==null||isNaN(kg))return{tabs:1,ped:false,label:'1 Tbl. (250/100 mg)'}; if(kg<5)return{tabs:0,ped:true,label:'nicht zugelassen (< 5 kg)'}; if(kg<=8)return{tabs:0.5,ped:true,label:'½ Junior-Tbl.'}; if(kg<=10)return{tabs:0.75,ped:true,label:'¾ Junior-Tbl.'}; if(kg<=20)return{tabs:1,ped:true,label:'1 Junior-Tbl.'}; if(kg<=30)return{tabs:2,ped:true,label:'2 Junior-Tbl.'}; if(kg<=40)return{tabs:3,ped:true,label:'3 Junior-Tbl.'}; return{tabs:1,ped:false,label:'1 Tbl. (250/100 mg)'}; };
-  window.malaroneCalc = function(kg,daysInRisk){ const t=malaroneTabsPerDay(kg); const days=Math.max(0,Math.round(+daysInRisk||0))+8; const tablets=Math.ceil(t.tabs*days); const packs=Math.max(1,Math.ceil(tablets/12)); return {tabsPerDay:t.tabs,tabLabel:t.label,ped:t.ped,days:days,tablets:tablets,packs:packs}; };
-  window.MAL_DRUGS = {
-    malarone:{ name:'Atovaquon-Proguanil (Malarone)', tag:{de:'täglich · Standard',en:'daily · standard'}, dose:{de:'Erwachsene / ≥ 40 kg: 1 Tbl. (250/100 mg) täglich. Kinder gewichtsabhängig (Junior 62,5/25 mg).',en:'Adults / ≥ 40 kg: 1 tab (250/100 mg) daily. Children weight-based (Junior 62.5/25 mg).'}, schedule:{de:'1 Tag davor · täglich · 7 Tage danach',en:'1 day before · daily · 7 days after'}, intake:{de:'Zu einer Mahlzeit oder mit einem milchhaltigen Getränk einnehmen (bessere Aufnahme), täglich zur gleichen Zeit. Bei Erbrechen innerhalb 1 Stunde erneut einnehmen.',en:'Take with food or a milky drink (better absorption), same time each day. If vomiting within 1 h, repeat the dose.'}, cave:{de:'Nicht bei schwerer Niereninsuffizienz (GFR < 30 ml/min).',en:'Avoid in severe renal impairment (GFR < 30 ml/min).'}, pack:'12 Tbl.' },
-    mefloquin:{ name:'Mefloquin (Lariam)', tag:{de:'wöchentlich',en:'weekly'}, dose:{de:'Erwachsene: 1 Tbl. (250 mg) 1× wöchentlich.',en:'Adults: 1 tab (250 mg) once weekly.'}, schedule:{de:'2–3 Wochen vor Abreise beginnen · wöchentlich (gleicher Wochentag) · bis 4 Wochen danach.',en:'2–3 weeks before departure · weekly (same weekday) · until 4 weeks after.'}, intake:{de:'Wöchentlich zu oder nach einer Mahlzeit mit reichlich Flüssigkeit, immer am selben Wochentag.',en:'Weekly with or after a meal and plenty of fluid, always the same weekday.'}, cave:{de:'Nicht bei neuropsychiatrischer Vorgeschichte, Krampfleiden oder relevanten Herzrhythmusstörungen.',en:'Avoid with neuropsychiatric history, seizure disorder or relevant cardiac arrhythmia.'}, pack:'' },
-    doxycyclin:{ name:'Doxycyclin', tag:{de:'täglich',en:'daily'}, dose:{de:'Erwachsene: 1 Tbl. (100 mg) täglich.',en:'Adults: 1 tab (100 mg) daily.'}, schedule:{de:'1–2 Tage vor Einreise · täglich · bis 4 Wochen danach.',en:'1–2 days before entry · daily · until 4 weeks after.'}, intake:{de:'Mit reichlich Wasser im Sitzen oder Stehen einnehmen, nicht direkt vor dem Hinlegen (Speiseröhrenreizung), zu einer Mahlzeit.',en:'Take with plenty of water sitting or standing, not right before lying down (oesophageal irritation), with a meal.'}, cave:{de:'Photosensibilität (Sonnenschutz); nicht in Schwangerschaft/Stillzeit; nicht bei Kindern < 8 Jahre.',en:'Photosensitivity (sun protection); not in pregnancy/breastfeeding; not in children < 8 years.'}, pack:'' }
-  };
-  window.MAL_EXPO = { de:'Konsequenter Mückenschutz: Repellent mit DEET (30–50 %) oder Icaridin (20 %) auf unbedeckte Haut (Anopheles v. a. dämmerungs- und nachtaktiv), lange helle Kleidung, imprägniertes Moskitonetz, klimatisierte oder vergitterte Räume.', en:'Consistent bite protection: repellent with DEET (30–50 %) or Icaridin (20 %) on exposed skin (Anopheles bite mainly at dusk and night), long light-coloured clothing, an impregnated bed net, air-conditioned or screened rooms.' };
-  window.MAL_STANDBY = { de:'Notfallselbstbehandlung (Standby): keine Dauerprophylaxe – stattdessen Malarone als Notfallmedikament mitgeben. Bei Fieber (≥ 38,5 °C) und wenn nicht innerhalb von 24 h ärztliche Hilfe erreichbar ist, Malarone als <strong>Behandlung</strong> (nicht als Prophylaxe) einnehmen und danach umgehend ärztliche Abklärung suchen.', en:'Emergency standby treatment: no continuous prophylaxis – instead provide Malarone as a standby medication. If fever (≥ 38.5 °C) occurs and no medical help is reachable within 24 h, take Malarone as <strong>treatment</strong> (not prophylaxis) and seek medical care as soon as possible afterwards.' };
-  // Therapeutische (Notfall-)Dosis Atovaquon-Proguanil: 1× täglich über 3 Tage, gewichtsabhängig.
-  window.malaroneTreatTabs = function(kg){
-    if(kg==null||isNaN(kg)) return {tabs:4,label:'4 Tbl. (250/100 mg)',ped:false};
-    if(kg<5)  return {tabs:0,label:'nicht zugelassen (< 5 kg)',ped:true};
-    if(kg<=8) return {tabs:2,label:'2 Junior-Tbl. (62,5/25 mg)',ped:true};
-    if(kg<=10)return {tabs:3,label:'3 Junior-Tbl. (62,5/25 mg)',ped:true};
-    if(kg<=20)return {tabs:1,label:'1 Tbl. (250/100 mg)',ped:true};
-    if(kg<=30)return {tabs:2,label:'2 Tbl. (250/100 mg)',ped:true};
-    if(kg<=40)return {tabs:3,label:'3 Tbl. (250/100 mg)',ped:true};
-    return {tabs:4,label:'4 Tbl. (250/100 mg)',ped:false};
-  };
-  window.malaroneTreatCalc = function(kg){ const t=malaroneTreatTabs(kg); const tablets=Math.ceil(t.tabs*3); const packs=Math.max(1,Math.ceil(tablets/12)); return {tabsPerDay:t.tabs,tabLabel:t.label,ped:t.ped,days:3,tablets:tablets,packs:packs}; };
+  console.error('Malaria-Module (malaria_data.js/malaria_engine.js) nicht geladen – Malaria-Sektion deaktiviert.');
+  window.MALARIA_DATA = {}; window.MALARIA_STAND = ''; window.MAL_STRAT_RANK = { none:0, EP:1, NSB:2, P:3 };
+  window.malariaAssess = function(){ return { strategy:'none', countries:[], any:false }; };
+  window.MAL_DRUGS = {}; window.MAL_EXPO = { de:'', en:'' }; window.MAL_STANDBY = { de:'', en:'' };
+  window.malaroneTabsPerDay = window.malaroneTreatTabs = function(){ return { tabs:0, label:'', ped:false }; };
+  window.malaroneCalc = window.malaroneTreatCalc = function(){ return { tabsPerDay:0, tabLabel:'', ped:false, days:0, tablets:0, packs:0 }; };
 }
 /* ================= MALARIA-SEKTION (UI) ================= */
 let malariaState = { days:null, weight:null, drug:'malarone', mode:null };

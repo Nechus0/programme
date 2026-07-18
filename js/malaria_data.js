@@ -9,7 +9,7 @@ const MALARIA_DATA = {
   "BI":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},
   "BJ":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},
   "BN":{"s":"EP","sp":"P. knowlesi","se":"Ganzjährig"},
-  "BO":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjähig"},
+  "BO":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},
   "BR":{"s":"P","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},
   "BT":{"s":"EP","sp":"P. vivax, P. falciparum","se":"Ganzjährig"},
   "BW":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},
@@ -91,4 +91,7 @@ const MALARIA_DATA = {
   "ZM":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"},
   "ZW":{"s":"P","sp":"P. falciparum","se":"Ganzjährig"}
 };
+// Browser: als Globals bereitstellen (script.js liest MALARIA_DATA/MALARIA_STAND).
+if (typeof window !== "undefined") { window.MALARIA_DATA = MALARIA_DATA; window.MALARIA_STAND = MALARIA_STAND; }
+// Node (Tests): CommonJS-Export.
 if (typeof module !== "undefined" && module.exports) { module.exports = { MALARIA_DATA, MALARIA_STAND }; }

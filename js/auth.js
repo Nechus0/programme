@@ -13,7 +13,15 @@ let supabaseClient = null;
 // Auth aktivieren, wenn konfiguriert
 const AUTH_ENABLED = !!SUPABASE_URL && !SUPABASE_ANON_KEY.startsWith('DEIN_');
 if (AUTH_ENABLED && window.supabase && window.supabase.createClient) {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Sitzung explizit persistieren + Token automatisch erneuern, damit ein Seiten-Reload
+  // (oder ein länger geöffneter Tab) nicht zur ungewollten Abmeldung führt.
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
 }
 
 // --- Stammdaten für Auswahllisten --------------------------------

@@ -24,15 +24,16 @@ Statische Single-Page-Web-App (Vanilla HTML/CSS/JS, kein Build-Schritt) + **Supa
 │   ├── engine_rules.js aktive tabellengetriebene Impf-Engine (deriveCategory → Kategorie/Farbe)
 │   ├── engine.js       Kontext-Bridge (EngineCtx/buildCtx), getRisk, Hep-A/B- & Meningo-Assessor,
 │   │                   Terminplanung (buildOptimalSchedule); Fallback-Bewertung (baseLevel)
-│   ├── script.js       UI, Ambulanzliste, Formulare, Rendering, inline Malaria-Engine
-│   ├── malaria_data.js \_ Malaria-Länderdaten + Engine – NUR für tests/malaria.test.js;
-│   └── malaria_engine.js/  im App-Betrieb ist die Malaria-Engine in script.js eingebettet
+│   ├── script.js       UI, Ambulanzliste, Formulare, Rendering, Malaria-Sektion
+│   ├── malaria_data.js \_ Malaria-Länderdaten (DTG) + Engine – EINE gemeinsame Quelle für
+│   └── malaria_engine.js/  App (in index.html vor script.js geladen) UND tests/malaria.test.js
 ├── data/
 │   ├── engine_data.js  Länder×Krankheits-Matrix (window.ENGINE_DATA) – AUTORITATIVE Laufzeitquelle
 │   │                   der Empfehlungen (von engine.js UND engine_rules.js gelesen), handgepflegt
 │   ├── country_data.js window.ALL_COUNTRY_DATA – separate Länder-Notizen/Hinweise (Anzeige)
 │   └── drugs_db.js     Wirkstoff-/Immunsuppressiva-Datenbank
 ├── supabase_app_settings.sql  einmalige Migration: Tabelle app_settings (u. a. Tablet-Sperre)
+├── supabase_presence.sql      einmalige Migration: Tabelle presence („Im Dienst", 1 Zeile/Nutzer)
 ├── assets/
 │   └── karten/         Verbreitungskarten (PNG)
 └── tests/              Engine-Unit-Tests: node tests/engine.test.js & tests/malaria.test.js;
@@ -40,7 +41,7 @@ Statische Single-Page-Web-App (Vanilla HTML/CSS/JS, kein Build-Schritt) + **Supa
 ```
 
 Ladereihenfolge in `index.html`:
-`auth.js → country_data.js → drugs_db.js → engine_data.js → engine_rules.js → engine.js → script.js`.
+`auth.js → country_data.js → drugs_db.js → engine_data.js → engine_rules.js → engine.js → malaria_data.js → malaria_engine.js → script.js`.
 Die Skripte teilen sich den globalen Scope (klassische `<script>`-Tags, kein Modul-Bundler).
 
 > **Datenquelle:** `data/engine_data.js` ist die **handgepflegte, autoritative** Quelle der
@@ -64,9 +65,11 @@ python3 -m http.server 8000     # dann http://localhost:8000
   Automatische Abmeldung nach 1 h Inaktivität.
 - `supabase_app_settings.sql` einmalig ausführen (Tabelle `app_settings`, u. a. Sperre der
   Tablet-Selbstanmeldung).
-- **Präsenz „Im Dienst":** kein eigenes Schema – abgeleitet aus `audit_logs` (`shift_login` als
-  Heartbeat alle 60 s, `shift_logout` beim Abmelden). Im Dienst = letzter Heartbeat < 150 s.
-  Hinweis: erzeugt ~1 Zeile/Minute je eingeloggtem Nutzer; ggf. Retention/Cleanup einplanen.
+- `supabase_presence.sql` einmalig ausführen (Tabelle `presence`, siehe unten).
+- **Präsenz „Im Dienst":** Tabelle `presence` mit genau **einer Zeile je eingeloggtem Nutzer**
+  (Upsert-Heartbeat alle 60 s, `last_seen`; Löschen beim Logout) → beschränktes Wachstum.
+  Im Dienst = `last_seen` < 150 s. Fehlt die Tabelle, fällt die App automatisch auf das frühere
+  `audit_logs`-Heartbeat-Verfahren (`shift_login`/`shift_logout`) zurück.
 
 ## Deployment
 GitHub Pages served vom Branch `main` (Repo-Root). `index.html` muss im Root bleiben.
