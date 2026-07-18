@@ -2747,7 +2747,11 @@ document.addEventListener('dragend', () => {
   hideTpTooltip();
 });
 function pDragStart(e,id){hideTpTooltip();_dragPid=id;_dragGroup=null;document.body.classList.add('amb-dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){}}
-function gDragStart(e,g){ if(e.target.closest('.patient-item'))return; _dragGroup=g;_dragPid=null;document.body.classList.add('amb-dragging');try{e.dataTransfer.effectAllowed='move';}catch(_){}}
+function gDragStart(e,g){
+  // Klick/Ziehen auf die Aktions-Buttons (Gruppe auflösen, Behandler-Icon) NICHT als Drag werten,
+  // sonst schluckt der Drag-Start den ersten Klick (Auflösen ginge erst beim zweiten Klick).
+  if(e.target.closest('.patient-item')||e.target.closest('.amb-group-act')){ try{e.preventDefault();}catch(_){} return; }
+  _dragGroup=g;_dragPid=null;document.body.classList.add('amb-dragging');try{e.dataTransfer.effectAllowed='move';}catch(_){}}
 function pDragEnd(e){ document.body.classList.remove('amb-dragging'); const tz=el('amb-trash'); if(tz)tz.classList.remove('over'); }
 // Löschzone (untere Zeile): erscheint beim Ziehen; Ablegen löscht nach Rückfrage
 function trashOver(e){ e.preventDefault(); e.currentTarget.classList.add('over'); try{e.dataTransfer.dropEffect='move';}catch(_){} }
@@ -3144,7 +3148,7 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      const ungroupBtn=(st!=='done')?'<button class="amb-ungroup" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
+      const ungroupBtn=(st!=='done')?'<button class="amb-ungroup" draggable="false" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
       h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span class="amb-group-nm">'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+ungroupBtn+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
