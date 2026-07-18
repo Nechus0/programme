@@ -691,6 +691,9 @@ function enrichScheduleForDisplay(schedule) {
        b.minAllowedOffset = medicalRequiredOffset;
        b._isIndependent = (medicalRequiredOffset === 0);
        b.reason = reason;
+       // Folgeimpfung: vorberechneten Mindest-Offset/Grund übernehmen (die Vor-Dosis liegt außerhalb
+       // dieses Plans, daher kann er hier nicht neu berechnet werden).
+       if(b._folgeMinOffset!=null){ b.minAllowedOffset=b._folgeMinOffset; b._isIndependent=(b._folgeMinOffset===0); if(b._folgeReason) b.reason=b._folgeReason; }
        b.items.forEach(it => {
            if (it.live) lastLiveOffset = b.offset;
            if (!lastDoseOffset[it.k]) lastDoseOffset[it.k] = { count: 1, offset: b.offset };
@@ -772,6 +775,18 @@ function getPlanName(v, st) {
      } else if (v.k === 'influenza') { planName += ' (Efluelda / Influsplit)';
      }
     return planName;
+}
+
+// Dauer als Monate + Tage (keine Wochen). Monate = echte Kalendermonate (~30,44 Tage).
+function fmtDurationMD(days){
+  days=Math.round(days);
+  const de=(LANG==='de'), fr=(LANG==='fr');
+  if(days<=0) return de?'in Kürze':(fr?'bientôt':'soon');
+  const m=Math.floor(days/30.44), d=Math.round(days-m*30.44);
+  const moW=(n)=> de?(n===1?'Monat':'Monaten'):(fr?'mois':(n===1?'month':'months'));
+  const dyW=(n)=> de?(n===1?'Tag':'Tagen'):(fr?(n===1?'jour':'jours'):(n===1?'day':'days'));
+  const parts=[]; if(m>0)parts.push(m+' '+moW(m)); if(d>0)parts.push(d+' '+dyW(d));
+  return parts.length?parts.join(' '):(de?'in Kürze':(fr?'bientôt':'soon'));
 }
 
 function renderApptOverview() {
@@ -914,7 +929,7 @@ function renderApptOverview() {
           }
       }
       html += `<div style="padding:10px 14px; background:var(--grey-xl); border:1px solid var(--line); border-radius:6px; margin-bottom:16px; font-size:13px; color:var(--text);display:flex;align-items:center;justify-content:center;">
-        <strong>${LX('Benötigte Zeit vor Ort: ca.','Time needed on site: ~')} ${nearDays} ${LX('Tage','days')}</strong>${depAlert}
+        <strong>${LX('Benötigte Zeit: ca.','Time needed: ~')} ${fmtDurationMD(nearDays)}</strong>${depAlert}
       </div>`;
   }
   
@@ -939,23 +954,11 @@ function renderApptOverview() {
         subtitle = `<div>${minHtml}</div><div style="font-size:12px;color:var(--text);display:flex;align-items:center;">${LX('Abstand (Wochen):','Interval (weeks):')}${inputHtml} ${delBtn} ${doneBtn}</div>`;
     } else {
         if (offset === 0 && idx === 0) {
-            subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${LX('Heute (0 Wochen)','Today (0 weeks)')}</div>`;
+            subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${LX('Heute','Today')}</div>`;
         } else {
-            // Absolute Zeit ab heute – Monate als echte Kalendermonate (~30,44 Tage),
-            // damit z. B. 180 Tage = 6 Monate (nicht 6 Monate + 2 Wochen).
-            let absM = Math.floor(offset / 30.44);
-            let absRem = Math.round((offset - Math.round(absM * 30.44)) / 7);
-            if (absRem >= 4) { absM += 1; absRem -= 4; }   // fast voller Monat -> aufrunden
-            let absText = '';
-            if (offset === 0) absText = LX('Heute','Today');
-            else {
-                let amTxt = absM === 1 ? (LX('1 Monat','1 month')) : (absM > 1 ? (LANG==='de'?`${absM} Monaten`:(LANG==='fr'?`${absM} mois`:`${absM} months`)) : '');
-                let awTxt = absRem === 1 ? (LX('1 Woche','1 week')) : (absRem > 1 ? (LANG==='de'?`${absRem} Wochen`:(LANG==='fr'?`${absRem} semaines`:`${absRem} weeks`)) : '');
-                if (absM > 0 && absRem > 0) absText = `In ${amTxt} + ${awTxt}`;
-                else if (absM > 0) absText = `In ${amTxt}`;
-                else if (absRem > 0) absText = `In ${awTxt}`;
-                else absText = LX('In Kürze','Soon');
-            }
+            // Absolute Zeit ab heute – als Monate + Tage (keine Wochen).
+            const inWord = (LANG==='fr')?'Dans ':'In ';
+            const absText = (offset===0) ? LX('Heute','Today') : (inWord + fmtDurationMD(offset));
             // Bindende Ursache: Abstand zur vorherigen DOSIS derselben Impfung (nicht zum vorherigen Termin)
             let reasonHtml = '';
             if (b.reason) {
@@ -964,14 +967,16 @@ function renderApptOverview() {
                 } else {
                     let gt = gapText(b.reason.gap); gt = L2(gt);
                     let prevIdx = buckets.findIndex(bb => bb.offset === b.reason.prevOffset);
-                    let prevLbl = prevIdx >= 0 ? ((LX('Termin ','Appt '))+(prevIdx+1)) : '';
+                    let prevLbl = prevIdx >= 0 ? ((LX('Termin ','Appt '))+(prevIdx+1)) : (LX('letzte Gabe','last dose'));
                     reasonHtml = `${b.reason.name}: ${gt} ${LX('nach vorheriger Dosis','after previous dose')}${prevLbl?` (${prevLbl})`:''}`;
                 }
             }
             if (reasonHtml) {
                 subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${reasonHtml} <span style="color:var(--text);font-weight:bold;margin-left:8px">• ${absText}</span></div>`;
+            } else if (offset > 0) {
+                // Fester zukünftiger Termin ohne genannte Ursache (z. B. Folgedosis): konkretes „In X Monaten Y Tagen".
+                subtitle = `<div style="font-size:13px;color:var(--text);font-weight:600;">${absText}</div>`;
             } else {
-                // Flexibel = keine feste Zeitvorgabe → keine widersprüchliche "In X"-Angabe
                 subtitle = `<div style="font-size:13px;color:var(--grey);font-style:italic;">${LX('Flexibel terminierbar','Flexible')}</div>`;
             }
         }
@@ -2113,19 +2118,20 @@ function buildFolgeContext(){
     if(isGiven){
       _folgeApplyGiven(d.k, ((admin[d.k].date||'')+'').slice(0,4));
       offByDose[d.k+'|'+d.seq] = admin[d.k].date ? Math.round((new Date(admin[d.k].date)-today)/DAY) : Math.round((startD-today)/DAY);
-      if(d.seq===admin[d.k].count-1) given.push({name:admin[d.k].name||d.name, k:d.k});
+      if(d.seq===admin[d.k].count-1) given.push({name:admin[d.k].name||d.name, k:d.k, date:admin[d.k].date||''});
       return;
     }
-    let minOff=0;
-    if(d.seq>0){ const prev=offByDose[d.k+'|'+(d.seq-1)]; const base=(prev!==undefined)?prev:0; const gap=(typeof vGaps==='function'?(vGaps(d.k)[d.seq-1]||28):28); minOff=base+gap; }
+    let minOff=0, reasonGap=null;
+    if(d.seq>0){ const prev=offByDose[d.k+'|'+(d.seq-1)]; const base=(prev!==undefined)?prev:0; const gap=(typeof vGaps==='function'?(vGaps(d.k)[d.seq-1]||28):28); minOff=base+gap; reasonGap=gap; }
     if(minOff<0) minOff=0;
     offByDose[d.k+'|'+d.seq]=minOff;
-    remaining.push(Object.assign({},d,{minOff:minOff}));
+    remaining.push(Object.assign({},d,{minOff:minOff, reasonGap:reasonGap}));
   });
   // 5) Neuen Terminplan bauen: fällige Dosen (minOff≤0) → HEUTE; spätere nach Offset gruppiert.
+  //    Zukünftige Termine tragen ihren Mindest-Offset + ggf. Intervall-Grund (überlebt enrichScheduleForDisplay).
   const byOff={};
-  remaining.forEach(d=>{ const off=Math.max(0,Math.round(d.minOff)); (byOff[off]=byOff[off]||[]).push({id:d.k+'_r'+d.seq, name:d.name, k:d.k, stKey:d.stKey, live:d.live, isReacto:d.isReacto}); });
-  const newSched=Object.keys(byOff).map(o=>({offset:parseInt(o,10), items:byOff[o], live:byOff[o].some(x=>x.live), reactoCount:0})).sort((a,b)=>a.offset-b.offset);
+  remaining.forEach(d=>{ const off=Math.max(0,Math.round(d.minOff)); const bk=byOff[off]=byOff[off]||{items:[], reasonGap:null, reasonName:''}; bk.items.push({id:d.k+'_r'+d.seq, name:d.name, k:d.k, stKey:d.stKey, live:d.live, isReacto:d.isReacto}); if(d.reasonGap && !bk.reasonGap){ bk.reasonGap=d.reasonGap; bk.reasonName=(typeof cleanVaxName==='function'?cleanVaxName(d.name):d.name); } });
+  const newSched=Object.keys(byOff).map(o=>{ const off=parseInt(o,10); const bk=byOff[o]; const b={offset:off, items:bk.items, live:bk.items.some(x=>x.live), reactoCount:0, _folgeMinOffset:off}; if(off>0 && bk.reasonGap) b._folgeReason={type:'dose', name:bk.reasonName, gap:bk.reasonGap, prevOffset:-99999}; return b; }).sort((a,b)=>a.offset-b.offset);
   customSchedule = newSched.length?newSched:null;
   cur.customSchedule = customSchedule;
   // 6) Heute fällige Dosen als „geplant" markieren (für Abrechnung + Impfstatus).
@@ -2134,7 +2140,10 @@ function buildFolgeContext(){
   // 7) Banner-Kontext.
   const due=todayItems.map(it=>({name:it.name, k:it.k, intervalOK:true, earliest:null}));
   const nextInDays=(newSched[1]?newSched[1].offset:null);
-  FOLGE={ lastVisit:new Date(planRec.savedAt), due:due, nextInDays:nextInDays, prevGiven:given.map(g=>g.name), intervalIssue:false, lastP:prior[0], adminMap:admin };
+  // Datum des letzten Besuchs, an dem die gezeigten Impfungen gegeben wurden (jüngstes Gabedatum).
+  let prevGivenDate=''; given.forEach(g=>{ if(g.date && g.date>prevGivenDate) prevGivenDate=g.date; });
+  if(!prevGivenDate && prior[0]) prevGivenDate=(prior[0].savedAt||'').slice(0,10);
+  FOLGE={ lastVisit:new Date(planRec.savedAt), due:due, nextInDays:nextInDays, prevGiven:given.map(g=>g.name), prevGivenDate:prevGivenDate, intervalIssue:false, lastP:prior[0], adminMap:admin };
   renderFolgeBanner();
   // Abschnitt 5 wird anschließend von recompute()/renderApptOverview() aus dem neuen customSchedule gerendert.
 }
@@ -2145,9 +2154,10 @@ function renderFolgeBanner(){
   if(!editing || !FOLGE || !FOLGE.due || !FOLGE.due.length){ host.classList.remove('show'); host.innerHTML=''; return; }
   const de=(LANG==='de'), fr=(LANG==='fr');
   const tDue = de?'Fällig heute · Charité':(fr?'À faire aujourd’hui · Charité':'Due today · Charité');
-  const tPrev= de?'Beim letzten Besuch gegeben':(fr?'Administré à la dernière visite':'Given at last visit');
+  const pgDate = FOLGE.prevGivenDate ? _folgeFmtDate(FOLGE.prevGivenDate) : '';
+  const tPrev= (de?'Beim letzten Besuch gegeben':(fr?'Administré à la dernière visite':'Given at last visit'))+(pgDate?(' ('+pgDate+')'):'');
   const tNext= de?'Nächster Termin danach':(fr?'Prochain rendez-vous ensuite':'Next appointment after');
-  const tDays= de?('in '+FOLGE.nextInDays+' Tagen'):(fr?('dans '+FOLGE.nextInDays+' jours'):('in '+FOLGE.nextInDays+' days'));
+  const tDays= ((de?'in ':(fr?'dans ':'in '))+ (typeof fmtDurationMD==='function'?fmtDurationMD(FOLGE.nextInDays):(FOLGE.nextInDays+' d')));
   const tEarly=(d)=> de?('Mindestabstand noch nicht erreicht – frühestens ab '+d):(fr?('Intervalle minimal non atteint – au plus tôt le '+d):('Minimum interval not yet met – earliest from '+d));
   const tPrevBtn = de?'Letzte Konsultation ansehen':(fr?'Voir la dernière consultation':'View last consultation');
   const prevBtn = (FOLGE.lastP) ? '<button type="button" class="fb-prevbtn" onclick="folgeShowPrevious()">'+_esc(tPrevBtn)+'</button>' : '';
