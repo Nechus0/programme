@@ -249,7 +249,9 @@ body.clinic:not(.clinic-idle) #list-card{display:none !important;}
 /* Linkes Behandlungsfeld des Arztes (Patienten in Behandlung + Sektions-Navigation) */
 .treat-panel{position:sticky;top:80px;flex:0 0 208px;display:none;flex-direction:column;gap:6px;
   padding:14px;margin-top:24px;background:#fff;border:1px solid var(--line);border-radius:10px;
-  height:auto;overflow:hidden;}
+  /* Bei vielen Patienten/Abschnitten kann die Leiste höher als der Bildschirm werden. Als sticky-Element
+     wäre der untere Teil (z. B. Abschnitt 7) sonst NICHT erreichbar → intern scrollbar machen. */
+  max-height:calc(100vh - 96px);overflow-y:auto;overflow-x:hidden;}
 .treat-panel.show{display:flex;}
 body.clinic-idle .treat-panel { margin-bottom: 20px; }
 /* Ambulanzliste (list view only): dock the In-Behandlung/Behandelt panel flush onto the

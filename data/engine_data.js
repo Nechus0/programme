@@ -6336,8 +6336,8 @@ window.ENGINE_DATA = {
    "chikungunya": {
     "risk": "high",
     "endemic": true,
-    "outbreak": true,
-    "recommendation": "recommended",
+    "outbreak": false,
+    "recommendation": "consider",
     "tbe_subtype": "",
     "stay_days": null,
     "schedule_note": ""

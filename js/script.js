@@ -2050,6 +2050,11 @@ function fuzzyNameMatch(n1, f1, n2, f2) {
 let FOLGE = null;
 function folgeReset(){ FOLGE=null; if(typeof renderFolgeBanner==='function') renderFolgeBanner(); }
 function _folgeDateDE(d){ try{ return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear(); }catch(e){ return ''; } }
+// ISO-Datum (YYYY-MM-DD) sprachgerecht formatieren: DE = TT.MM.JJJJ, EN/FR = TT/MM/JJJJ.
+function _folgeFmtDate(s){ if(!s)return ''; const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(''+s); if(!m)return s; const sep=(LANG==='de')?'.':'/'; return m[3]+sep+m[2]+sep+m[1]; }
+// Schwangerschaft/Stillen sprachgerecht; leer wird als „nein" gewertet.
+const _FOLGE_PREG={ no:{de:'nein',en:'no',fr:'non'}, pregnant:{de:'schwanger',en:'pregnant',fr:'enceinte'}, breastfeeding:{de:'stillend',en:'breastfeeding',fr:'allaitement'}, planned:{de:'Schwangerschaft geplant',en:'pregnancy planned',fr:'grossesse planifiée'} };
+function _folgePreg(v){ const o=_FOLGE_PREG[v]||_FOLGE_PREG.no; return (LANG==='de')?o.de:((LANG==='fr')?o.fr:o.en); }
 // vaxState-Schlüssel zu einer Terminplan-Impfung (Hep/TdaP teilen sich einen Zustand).
 function _folgeStKey(k){ if(k==='hepA'||k==='hepB'||k==='hepAB')return 'hepatitis'; if(k==='tdap_combo'||k==='ipv_mono')return 'tdap_polio'; return k; }
 // Setzt das passende „geplant"-Flag für eine noch offene Impfung.
@@ -2133,9 +2138,11 @@ function _folgeVaxSummary(vax){
   (typeof VACCINES!=='undefined'?VACCINES:[]).forEach(v=>{
     const st=vax[v.k]; if(!st) return;
     if(v.hep){
-      if(st.aMono||st.aYear) out.push({name:'Hepatitis A', detail:(st.aYear?yr(st.aYear):(de?'erfasst':'recorded'))});
-      if(st.bMono||st.bYear) out.push({name:'Hepatitis B', detail:(st.bYear?yr(st.bYear):(de?'erfasst':'recorded'))});
-      if(st.twin||st.twYear) out.push({name:'Hepatitis A+B (Twinrix)', detail:(st.twYear?yr(st.twYear):(de?'erfasst':'recorded'))});
+      // aMono/bMono/twin enthalten die Anzahl der Vordosen ('1','2','3','>3'); dazu ggf. das Jahr.
+      const hepDetail=(dose,year)=>{ const d=[]; if(dose && typeof dose==='string' && /^(\d|>)/.test(dose)) d.push((de?'Dosen ':'doses ')+dose); if(year) d.push(yr(year)); return d.length?d.join(' · '):(de?'erfasst':'recorded'); };
+      if(st.aMono||st.aYear) out.push({name:'Hepatitis A', detail:hepDetail(st.aMono, st.aYear)});
+      if(st.bMono||st.bYear) out.push({name:'Hepatitis B', detail:hepDetail(st.bMono, st.bYear)});
+      if(st.twin||st.twYear) out.push({name:'Hepatitis A+B (Twinrix)', detail:hepDetail(st.twin, st.twYear)});
     } else if(v.tdap_polio){
       if(st.gi_tdap||st.y_td) out.push({name:'Tetanus/Diphtherie/Pertussis', detail:(st.y_td?yr(st.y_td):(de?'Grundimmunisierung':'primary series'))});
       if(st.gi_ipv||st.y_ipv) out.push({name:'Polio (IPV)', detail:(st.y_ipv?yr(st.y_ipv):(de?'Grundimmunisierung':'primary series'))});
@@ -2155,17 +2162,17 @@ function folgeShowPrevious(){
   const fullName = (lp.firstname?lp.firstname+' ':'')+(lp.name||'');
   // Abschnitt 1 – Stammdaten
   let s1 = row(L('Name','Name'), fullName)
-    + row(L('Geburtsdatum','Date of birth'), lp.dob||'')
+    + row(L('Geburtsdatum','Date of birth'), _folgeFmtDate(lp.dob))
     + row(L('Geschlecht','Sex'), (typeof genderLabel==='function'?genderLabel(lp.sex,de?'de':'en'):(lp.sex||'')))
     + row('E-Mail', lp.email||'') + row(L('Telefon','Phone'), lp.phone||'');
   // Abschnitt 2 – Reise
   const dests=(lp.destinations||[]).map(c=>CBY[c]?cName(CBY[c]):c).join(', ');
   let s2 = row(L('Reiseziele','Destinations'), dests)
-    + row(L('Abreise','Departure'), lp.departure||'')
+    + row(L('Abreise','Departure'), _folgeFmtDate(lp.departure))
     + row(L('Reisedauer','Duration'), lp.duration||'');
   // Abschnitt 3 – Immunstatus / Anamnese
   const condsTxt=(lp.conds||[]).join(', ');
-  let s3 = row(L('Schwangerschaft/Stillen','Pregnancy/breastfeeding'), lp.pregnant||'')
+  let s3 = row(L('Schwangerschaft/Stillen','Pregnancy/breastfeeding'), _folgePreg(lp.pregnant))
     + row(L('Chronische Erkrankungen','Chronic conditions'), lp.chronicText||condsTxt||'')
     + row(L('Allergien','Allergies'), lp.allergy||'')
     + row(L('Medikamente','Medication'), (lp.meds||[]).join(', '));
