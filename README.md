@@ -76,6 +76,8 @@ python3 -m http.server 8000     # dann http://localhost:8000
 - `supabase_app_settings.sql` einmalig ausführen (Tabelle `app_settings`, u. a. Sperre der
   Tablet-Selbstanmeldung).
 - `supabase_presence.sql` einmalig ausführen (Tabelle `presence`, siehe unten).
+- `supabase_profile_selfupdate.sql` einmalig ausführen: erlaubt „Mein Profil" (Self-Update von
+  `full_name`/`title`/`gender`) und schützt per Trigger die Rolle (nur Admin ändert Rollen).
 - **Präsenz „Im Dienst":** Tabelle `presence` mit genau **einer Zeile je eingeloggtem Nutzer**
   (Upsert-Heartbeat alle 60 s, `last_seen`; Löschen beim Logout) → beschränktes Wachstum.
   Im Dienst = `last_seen` < 150 s. Fehlt die Tabelle, fällt die App automatisch auf das frühere
