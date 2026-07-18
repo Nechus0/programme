@@ -1919,6 +1919,15 @@ async function savePatient(finish){
     // „Behandelt von" (Medizin-Personal, Übergabe an Kasse) und „Abgerechnet von" (Kasse/Vertretung, Zahlung)
     treatedBy: (finish && _clinic && !_atKasse) ? {name:((existing&&existing.claimedByName)||_me), role:((existing&&existing.claimedByRole)||_myRole), at:new Date().toISOString()} : ((existing&&existing.treatedBy)||undefined),
     billedBy: _finalizing ? {name:_me, role:_myRole, at:new Date().toISOString()} : ((existing&&existing.billedBy)||undefined),
+    // Verabreichte (abgerechnete) Impfungen dieses Besuchs – Quelle der Wahrheit für Folgeimpfungen.
+    // Wird beim Kassen-Abschluss aus den heute abgerechneten Impfleistungen befüllt (k → {date,name}).
+    administered: (function(){
+      const prev=(existing&&existing.administered)?JSON.parse(JSON.stringify(existing.administered)):{};
+      if(_finalizing){ try{ const iso=new Date().toISOString().slice(0,10);
+        (typeof getTodaysLeistungVax==='function'?getTodaysLeistungVax():[]).forEach(it=>{ prev[it.k]={date:iso, name:it.name}; });
+      }catch(e){} }
+      return Object.keys(prev).length?prev:undefined;
+    })(),
     // Malaria-Plan (eigene Engine) – nur speichern, wenn ein Reiseziel mit Risiko gewählt ist
     malaria: (typeof malariaRelevant==='function' && malariaRelevant()) ? {days:malariaState.days, weight:malariaState.weight, drug:malariaState.drug} : ((existing&&existing.malaria)||undefined),
     // Patient an der Kasse → Abschluss = 'done' (bezahlt); sonst Abschluss durch Personal → 'kasse'
@@ -2036,9 +2045,11 @@ function fuzzyNameMatch(n1, f1, n2, f2) {
 let FOLGE = null;
 function folgeReset(){ FOLGE=null; if(typeof renderFolgeBanner==='function') renderFolgeBanner(); }
 function _folgeDateDE(d){ try{ return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear(); }catch(e){ return ''; } }
-// Setzt das passende „geplant"-Flag für eine Dosis aus dem Terminplan.
+// vaxState-Schlüssel zu einer Terminplan-Impfung (Hep/TdaP teilen sich einen Zustand).
+function _folgeStKey(k){ if(k==='hepA'||k==='hepB'||k==='hepAB')return 'hepatitis'; if(k==='tdap_combo'||k==='ipv_mono')return 'tdap_polio'; return k; }
+// Setzt das passende „geplant"-Flag für eine noch offene Impfung.
 function _folgeSetPlanned(it){
-  const st = vaxState[it.stKey] || vaxState[it.k];
+  const st = vaxState[it.stKey||_folgeStKey(it.k)] || vaxState[it.k];
   if(!st) return;
   if(it.k==='hepA') st.plannedA=true;
   else if(it.k==='hepB') st.plannedB=true;
@@ -2046,37 +2057,50 @@ function _folgeSetPlanned(it){
   else if(it.k==='ipv_mono') st.planned_ipv=true;
   else st.planned=true;
 }
-function buildFolgeContext(lastP){
+// Markiert eine bereits VERABREICHTE Impfung im aktuellen Impfstatus als erledigt (Anzeige + Engine)
+// und entfernt das „geplant"-Flag, damit sie nicht erneut als „fällig heute" erscheint.
+function _folgeApplyGiven(k, year){
+  year=year||'';
+  if(k==='hepA'){ const s=vaxState.hepatitis; if(s){ s.aMono=true; if(year&&!s.aYear)s.aYear=year; s.plannedA=false; } }
+  else if(k==='hepB'){ const s=vaxState.hepatitis; if(s){ s.bMono=true; if(year&&!s.bYear)s.bYear=year; s.plannedB=false; } }
+  else if(k==='hepAB'){ const s=vaxState.hepatitis; if(s){ s.twin=true; if(year&&!s.twYear)s.twYear=year; s.plannedAB=false; } }
+  else if(k==='tdap_combo'){ const s=vaxState.tdap_polio; if(s){ s.gi_tdap=true; if(year){if(!s.y_td)s.y_td=year; if(!s.y_ap)s.y_ap=year;} s.planned=false; } }
+  else if(k==='ipv_mono'){ const s=vaxState.tdap_polio; if(s){ s.gi_ipv=true; if(year&&!s.y_ipv)s.y_ipv=year; s.planned_ipv=false; } }
+  else { const s=vaxState[k]; if(s){ if(!s.done)s.done='1'; if(year&&!s.year)s.year=year; s.planned=false; } }
+}
+// Folgeimpfung: aggregiert die Historie aller früheren Besuche eines Patienten.
+//  – Verabreichte (abgerechnete) Impfungen → im Impfstatus als erledigt übernehmen.
+//  – Fällig heute = geplante Impfungen, die noch NICHT verabreicht wurden.
+function buildFolgeContext(){
   FOLGE=null;
-  if(!lastP || !customSchedule || !lastP.savedAt){ renderFolgeBanner(); return; }
-  const today=new Date(); const startD=new Date(lastP.savedAt); const DAY=24*60*60*1000;
-  // Nicht-leere Termine mit Zieldatum (Offsets kodieren bereits die STIKO-Mindestabstände).
-  const appts=(customSchedule||[]).filter(b=>b.items&&b.items.length)
-     .map(b=>({offset:b.offset, items:b.items, targetD:new Date(startD.getTime()+b.offset*DAY)}))
-     .sort((a,b)=>a.offset-b.offset);
-  if(!appts.length){ renderFolgeBanner(); return; }
-  // Fokus = Folgetermin (offset>0), dessen Zieldatum heute am nächsten liegt.
-  const future=appts.filter(a=>a.offset>0);
-  const pool=future.length?future:appts;
-  let focus=pool[0], bestDiff=Math.abs(pool[0].targetD-today);
-  pool.forEach(a=>{ const d=Math.abs(a.targetD-today); if(d<bestDiff){bestDiff=d;focus=a;} });
-  // Beim letzten Besuch gegeben = der Tag-0-Termin (nur, wenn er nicht selbst der Fokus ist).
-  const prevGiven=(appts[0].offset<=0 && focus!==appts[0]) ? appts[0].items.map(it=>it.name) : [];
-  // Mindestabstand: erreicht, wenn heute ≥ Zieldatum des Fokus-Termins (1 Tag Toleranz).
-  const earliest=focus.targetD;
-  const intervalOK = today >= new Date(earliest.getTime()-DAY);
+  const cur = patients.find(p=>p.id===editingId);
+  if(!cur){ renderFolgeBanner(); return; }
+  // Alle abgeschlossenen früheren Besuche (Name + Geburtsdatum), jüngster zuerst.
+  const prior = patients.filter(x=>x.id!==cur.id && x.status==='done' && x.dob===cur.dob &&
+      fuzzyNameMatch(cur.name,cur.firstname,x.name,x.firstname))
+      .sort((a,b)=>(a.savedAt<b.savedAt)?1:-1);
+  if(!prior.length){ renderFolgeBanner(); return; }
+  // Verabreichte Impfungen über alle Besuche (k → {date,name}); jüngerer Besuch überschreibt.
+  const adminMap={};
+  prior.slice().reverse().forEach(rec=>{ const a=rec.administered||{}; Object.keys(a).forEach(k=>{ adminMap[k]=a[k]; }); });
+  // Geplante Impfungen aus allen Terminplänen (k → name), Reihenfolge nach erstem Auftreten.
+  const planMap={}, planOrder=[];
+  prior.forEach(rec=>{ (rec.customSchedule||[]).forEach(b=>{ (b.items||[]).forEach(it=>{ if(!planMap[it.k]){ planMap[it.k]={k:it.k,name:it.name}; planOrder.push(it.k); } }); }); });
+  // Verabreichte Impfungen in den aktuellen Impfstatus übernehmen (erledigt markieren).
+  Object.keys(adminMap).forEach(k=>{ _folgeApplyGiven(k, ((adminMap[k].date||'')+'').slice(0,4)); });
+  // Fällig heute = geplante, noch nicht verabreichte Charité-Impfungen.
   const due=[];
-  focus.items.forEach(it=>{ _folgeSetPlanned(it); due.push({name:it.name, k:it.k, intervalOK:intervalOK, earliest:earliest}); });
-  // Übernächster Termin nach dem Fokus.
-  let nextInDays=null;
-  const after=appts.filter(a=>a.offset>focus.offset);
-  if(after.length) nextInDays=Math.round((after[0].targetD-today)/DAY);
-  FOLGE={ lastVisit:startD, due:due, nextInDays:nextInDays, prevGiven:prevGiven, intervalIssue:!intervalOK, lastP:lastP };
+  planOrder.forEach(k=>{ if(adminMap[k]) return; const it=planMap[k]; _folgeSetPlanned({k:k, stKey:_folgeStKey(k)}); due.push({name:it.name, k:k, intervalOK:true, earliest:null}); });
+  const lastRec=prior[0];
+  const prevGiven=Object.keys(lastRec.administered||{}).map(k=>(lastRec.administered[k].name)||k);
+  FOLGE={ lastVisit:new Date(lastRec.savedAt), due:due, nextInDays:null, prevGiven:prevGiven, intervalIssue:false, lastP:lastRec, adminMap:adminMap };
   renderFolgeBanner();
 }
 function renderFolgeBanner(){
   const host=el('folge-banner'); if(!host) return;
-  if(!FOLGE || !FOLGE.due || !FOLGE.due.length){ host.classList.remove('show'); host.innerHTML=''; return; }
+  // Nur während der aktiven Behandlung eines Patienten – nie in der Ambulanzliste (idle).
+  const editing = !!editingId && document.body.classList.contains('clinic') && !document.body.classList.contains('clinic-idle');
+  if(!editing || !FOLGE || !FOLGE.due || !FOLGE.due.length){ host.classList.remove('show'); host.innerHTML=''; return; }
   const de=(LANG==='de'), fr=(LANG==='fr');
   const tDue = de?'Fällig heute · Charité':(fr?'À faire aujourd’hui · Charité':'Due today · Charité');
   const tPrev= de?'Beim letzten Besuch gegeben':(fr?'Administré à la dernière visite':'Given at last visit');
@@ -2095,8 +2119,28 @@ function renderFolgeBanner(){
   if(FOLGE.prevGiven && FOLGE.prevGiven.length){ h+='<div class="fb-prev"><span class="fb-prev-l">'+_esc(tPrev)+':</span> '+FOLGE.prevGiven.map(n=>'<span class="fb-chip">✓ '+_esc(n)+'</span>').join(' ')+'</div>'; }
   host.innerHTML=h; host.classList.add('show');
 }
-// Read-only-Ansicht der letzten Konsultation (Abschnitte 1–3 + verabreichte Impfungen).
+// Read-only-Ansicht der letzten Konsultation (Abschnitte 1–4 + verabreichte Impfungen).
 function folgeClosePrevious(){ const bg=el('folge-prev-bg'); if(bg) bg.remove(); }
+// Fasst den dokumentierten Impfstatus eines Besuchs lesbar zusammen (Vorimpfungen + erfasste Dosen).
+function _folgeVaxSummary(vax){
+  const out=[]; const de=(LANG==='de');
+  const yr=(y)=> de?('Jahr '+y):('year '+y);
+  (typeof VACCINES!=='undefined'?VACCINES:[]).forEach(v=>{
+    const st=vax[v.k]; if(!st) return;
+    if(v.hep){
+      if(st.aMono||st.aYear) out.push({name:'Hepatitis A', detail:(st.aYear?yr(st.aYear):(de?'erfasst':'recorded'))});
+      if(st.bMono||st.bYear) out.push({name:'Hepatitis B', detail:(st.bYear?yr(st.bYear):(de?'erfasst':'recorded'))});
+      if(st.twin||st.twYear) out.push({name:'Hepatitis A+B (Twinrix)', detail:(st.twYear?yr(st.twYear):(de?'erfasst':'recorded'))});
+    } else if(v.tdap_polio){
+      if(st.gi_tdap||st.y_td) out.push({name:'Tetanus/Diphtherie/Pertussis', detail:(st.y_td?yr(st.y_td):(de?'Grundimmunisierung':'primary series'))});
+      if(st.gi_ipv||st.y_ipv) out.push({name:'Polio (IPV)', detail:(st.y_ipv?yr(st.y_ipv):(de?'Grundimmunisierung':'primary series'))});
+    } else {
+      const y=st.year||'', dose=st.done||'';
+      if(dose||y){ const d=[]; if(dose) d.push((de?'Dosen ':'doses ')+dose); if(y) d.push(yr(y)); out.push({name:vName(v), detail:d.join(' · ')}); }
+    }
+  });
+  return out;
+}
 function folgeShowPrevious(){
   if(!FOLGE || !FOLGE.lastP) return;
   const lp=FOLGE.lastP; const de=(LANG==='de'), fr=(LANG==='fr');
@@ -2120,14 +2164,13 @@ function folgeShowPrevious(){
     + row(L('Chronische Erkrankungen','Chronic conditions'), lp.chronicText||condsTxt||'')
     + row(L('Allergien','Allergies'), lp.allergy||'')
     + row(L('Medikamente','Medication'), (lp.meds||[]).join(', '));
-  // Verabreichte Impfungen beim letzten Besuch (aus vax: Jahr gesetzt oder „heute"-Termin).
-  const given=[];
-  (typeof VACCINES!=='undefined'?VACCINES:[]).forEach(v=>{
-    const st=(lp.vax||{})[v.k]; if(!st) return;
-    const appts=[].concat(st.appts||[],st.apptsA||[],st.apptsB||[],st.apptsAB||[]);
-    const wasGiven = appts.includes('today') || (st.done && /^\d{4}$/.test(''+st.done));
-    if(wasGiven){ const yr=(st.done&&/^\d{4}$/.test(''+st.done))?(' ('+st.done+')'):''; given.push(vName(v)+yr); }
-  });
+  // Abschnitt 4 – dokumentierter Impfstatus des letzten Besuchs (Vorimpfungen + erfasste Dosen).
+  const status=_folgeVaxSummary(lp.vax||{});
+  const statusHtml = status.length ? status.map(s=>row(s.name, s.detail)).join('') : '<div class="fp-none">'+_esc(L('Keine Angaben','No entries'))+'</div>';
+  // Beim letzten Besuch verabreicht = abgerechnete Impfleistungen (zuverlässige Quelle).
+  let given=[];
+  if(lp.administered && Object.keys(lp.administered).length){ given=Object.keys(lp.administered).map(k=>lp.administered[k].name||k); }
+  else { (typeof VACCINES!=='undefined'?VACCINES:[]).forEach(v=>{ const st=(lp.vax||{})[v.k]; if(!st) return; const appts=[].concat(st.appts||[],st.apptsA||[],st.apptsB||[],st.apptsAB||[]); if(appts.includes('today')) given.push(vName(v)); }); }
   const givenHtml = given.length ? given.map(n=>'<span class="fp-chip">✓ '+_esc(n)+'</span>').join(' ') : '<span class="fp-none">'+_esc(L('Keine Angaben','No entries'))+'</span>';
   const title=L('Letzte Konsultation','Last consultation','Dernière consultation')+' · '+dateStr;
   const secT=(n,t)=>'<div class="fp-sec-h"><span class="fp-badge">'+n+'</span>'+_esc(t)+'</div>';
@@ -2138,6 +2181,7 @@ function folgeShowPrevious(){
     + secT('1',L('Stammdaten','Master data'))+s1
     + secT('2',L('Reise','Travel'))+s2
     + secT('3',L('Immunstatus / Anamnese','Immune status / history'))+s3
+    + secT('4',L('Impfstatus (letzter Besuch)','Vaccination status (last visit)'))+statusHtml
     + '<div class="fp-sec-h"><span class="fp-badge">✓</span>'+_esc(L('Beim letzten Besuch verabreicht','Given at the last visit'))+'</div><div class="fp-given">'+givenHtml+'</div>'
     + '</div></div>';
   folgeClosePrevious();
@@ -2216,34 +2260,26 @@ function loadPatient(id){
   renderChangeLogs(p);
   FOLGE=null;   // Folgeimpfung-Fokus zurücksetzen (wird unten ggf. neu aufgebaut)
 
-  // Bereits zusammengeführte Wiederkehrer: Fokus/Banner auch beim erneuten Öffnen aufbauen.
-  if (p.treatmentType === 'folgeimpfung' && p.vaxMerged) {
-     const prev = patients.filter(x => x.id !== p.id && x.status === 'done' && x.dob === p.dob &&
+  // Folgeimpfung: Historie des Patienten heranziehen (Wiederkehrer über Name + Geburtsdatum).
+  if (p.treatmentType === 'folgeimpfung') {
+     const past = patients.filter(x => x.id !== p.id && x.status === 'done' && x.dob === p.dob &&
         fuzzyNameMatch(p.name, p.firstname, x.name, x.firstname)).sort((a,b)=>(a.savedAt<b.savedAt)?1:-1);
-     if (prev.length) buildFolgeContext(prev[0]);
-  }
-
-  if (p.treatmentType === 'folgeimpfung' && !p.vaxMerged) {
-     const past = patients.filter(x => 
-       x.id !== p.id && 
-       x.status === 'done' && 
-       x.dob === p.dob &&
-       fuzzyNameMatch(p.name, p.firstname, x.name, x.firstname)
-     ).sort((a,b) => (a.savedAt < b.savedAt) ? 1 : -1);
-     
      if (past.length > 0) {
         const lastP = past[0];
-        p.vaxMerged = true;
-        Object.keys(lastP.vax || {}).forEach(k => {
-           if (vaxState[k]) {
-              vaxState[k] = Object.assign(vaxState[k], JSON.parse(JSON.stringify(lastP.vax[k])));
-              vaxState[k].planned = false; vaxState[k].planned_ipv = false;
-              vaxState[k].plannedA = false; vaxState[k].plannedB = false; vaxState[k].plannedAB = false;
-           }
-        });
-        if (lastP.customSchedule) customSchedule = JSON.parse(JSON.stringify(lastP.customSchedule));
-        p.customSchedule = customSchedule;
-        buildFolgeContext(lastP);   // Fokus auf den nächsten Termin + Mindestabstands-Prüfung
+        if (!p.vaxMerged) {
+           // Erstes Öffnen: Impfstatus des letzten Besuchs übernehmen (Historie), alte „geplant"-Flags leeren.
+           p.vaxMerged = true;
+           Object.keys(lastP.vax || {}).forEach(k => {
+              if (vaxState[k]) {
+                 vaxState[k] = Object.assign(vaxState[k], JSON.parse(JSON.stringify(lastP.vax[k])));
+                 vaxState[k].planned = false; vaxState[k].planned_ipv = false;
+                 vaxState[k].plannedA = false; vaxState[k].plannedB = false; vaxState[k].plannedAB = false;
+              }
+           });
+           if (lastP.customSchedule) customSchedule = JSON.parse(JSON.stringify(lastP.customSchedule));
+           p.customSchedule = customSchedule;
+        }
+        buildFolgeContext();   // verabreichte Impfungen als erledigt übernehmen + Fällig-heute bestimmen
      }
   }
 
@@ -3436,6 +3472,7 @@ function enterPatient(){
   document.body.classList.remove('clinic-idle');
   try{ el('step1').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
   renderTreatPanel();
+  if(typeof renderFolgeBanner==='function') renderFolgeBanner();
   // Malaria-Sektion ist an den Behandlungsmodus (nicht clinic-idle) gekoppelt und muss nach dem
   // Betreten des Patienten neu gerendert werden – sonst bleibt der Inhalt leer, obwohl Risiko besteht.
   if(typeof renderMalaria==='function') renderMalaria();
@@ -3445,12 +3482,14 @@ function exitToList(){
   document.body.classList.add('clinic-idle');
   try{ el('list-card').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
   renderTreatPanel();
+  if(typeof renderFolgeBanner==='function') renderFolgeBanner();   // Banner in der Ambulanzliste ausblenden
 }
 // Zur Ambulanzliste zurück, ohne die Behandlung zu beenden (Patient bleibt geladen/in Behandlung)
 function showList(){
   document.body.classList.add('clinic-idle');
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
   renderTreatPanel();
+  if(typeof renderFolgeBanner==='function') renderFolgeBanner();   // Banner in der Ambulanzliste ausblenden
 }
 
 /* ---------- Bearbeitungssperre + Änderungsprotokoll ---------- */
