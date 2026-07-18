@@ -2740,7 +2740,9 @@ function renderPatients(){
   const filtT=(tf==='all')?filt:filt.filter(p=>patientTreatType(p)===tf);
   let cols='';
   STAGES.forEach(s=>{
-    const inSec=filtT.filter(p=>!p.deleted && patientStatus(p)===s.status);
+    let inSec=filtT.filter(p=>!p.deleted && patientStatus(p)===s.status);
+    // Wartend nach Wartezeit sortieren: längste Wartezeit (ältestes savedAt) oben.
+    if(s.status==='waiting'){ inSec=inSec.slice().sort((a,b)=>{ const av=a.savedAt||'', bv=b.savedAt||''; return av<bv?-1:(av>bv?1:0); }); }
     const title=(LANG==='de'?s.de:(LANG==='fr'?s.fr:s.en));
     cols+='<div class="amb-col amb-col-'+s.status+'"><div class="amb-col-h"><span class="amb-col-title"><span class="amb-col-ic">'+(SI[s.status]||'')+'</span>'+title+'</span><span class="count-pill">'+inSec.length+'</span></div>';
     cols+='<div class="patient-list drop-zone" data-status="'+s.status+'" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\''+s.status+'\',null)">';
@@ -3969,7 +3971,7 @@ async function genTestPatients(){
 function renderDeletedPatients(){
   const box=el('deleted-body'); if(!box) return;
   const del=patients.filter(p=>p.deleted).sort((a,b)=>{ const ta=(a.deleted&&a.deleted.ts)||''; const tb=(b.deleted&&b.deleted.ts)||''; return tb<ta?-1:(tb>ta?1:0); });
-  let h='<div class="del-head"><h2>'+LX('Gelöschte Patienten','Deleted patients')+'</h2>'+(del.length?'<button class="btn-purge" onclick="purgeAllDeleted()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'+LX('Alle endgültig löschen','Delete all permanently')+'</button>':'')+'</div>';
+  let h='<div class="del-head"><h2>'+LX('Gelöschte Patienten','Deleted patients')+'</h2></div>';
   h+='<div class="card-desc">'+LX('Gelöschte Datensätze bleiben 30 Tage erhalten und können wiederhergestellt werden. „Endgültig löschen" entfernt sie sofort und unwiderruflich aus der Datenbank.','Deleted records are kept for 30 days and can be restored. "Delete permanently" removes them from the database immediately and irreversibly.')+'</div>';
   if(!del.length){ box.innerHTML=h+'<div class="del-empty">'+LX('Keine gelöschten Patienten.','No deleted patients.')+'</div>'; return; }
   h+='<div class="del-list">'+del.map(p=>{
@@ -3978,6 +3980,7 @@ function renderDeletedPatients(){
     const dest=(p.destinations&&p.destinations.length)?' · '+p.destinations.map(c=>CBY[c]?cName(CBY[c]):c).join(', '):'';
     return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+dest+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button></div>';
   }).join('')+'</div>';
+  h+='<div class="del-foot"><button class="btn-purge" onclick="purgeAllDeleted()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'+LX('Alle endgültig löschen','Delete all permanently')+'</button></div>';
   box.innerHTML=h;
 }
 // Endgültiges (unwiderrufliches) Löschen aus der Datenbank – nur Admin, mit Bestätigung.

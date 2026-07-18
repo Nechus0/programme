@@ -831,7 +831,7 @@ body.clinic-idle #list-card{ border-top-right-radius:8px; border-bottom-right-ra
 .amb-col{ display:flex; flex-direction:column; min-height:0; background:var(--grey-xl); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
 .amb-col-h{ display:flex; align-items:center; justify-content:space-between; padding:11px 13px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); background:#fff; border-bottom:1px solid var(--line); flex:0 0 auto; }
 .amb-col-title{ white-space:nowrap; }
-.amb-col .drop-zone{ flex:1 1 auto; min-height:60px; padding:8px; overflow-y:auto; background:transparent; }
+.amb-col .drop-zone{ flex:1 1 auto; min-height:60px; padding:8px 8px 22px; overflow-y:auto; background:transparent; }
 .amb-col .drop-zone.drag-over{ background:#e3f2fd; }
 .amb-col-waiting   .amb-col-h{ box-shadow:inset 0 3px 0 #c3c7cd; }
 .amb-col-treatment .amb-col-h{ box-shadow:inset 0 3px 0 var(--blue); }
@@ -898,7 +898,9 @@ body.clinic-idle .shell{ max-width:1280px; }
 
 /* Löschzone (untere Zeile) – nur beim Ziehen sichtbar; Patient/Gruppe hierher ziehen zum Löschen */
 .amb-trash-zone{ display:none; }
-body.amb-dragging .amb-trash-zone{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px; padding:15px; border:2px dashed var(--red); border-radius:10px; color:var(--red); font-size:13px; font-weight:600; background:rgba(220,38,38,.05); transition:background .12s, border-color .12s; }
+/* Als fixierte Leiste am unteren Rand einblenden – reflowt das Board beim Ziehen NICHT
+   (sonst verschiebt sich die unterste Karte und lässt sich nicht mehr greifen). */
+body.amb-dragging .amb-trash-zone{ display:flex; position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:200; align-items:center; justify-content:center; gap:10px; padding:12px 26px; border:2px dashed var(--red); border-radius:999px; color:var(--red); font-size:13px; font-weight:600; background:rgba(255,255,255,.97); box-shadow:0 6px 20px rgba(0,0,0,.14); transition:background .12s, border-color .12s; }
 .amb-trash-zone.over{ background:rgba(220,38,38,.16); border-color:#b91c1c; }
 .amb-trash-zone svg{ pointer-events:none; }
 .amb-trash-zone span{ pointer-events:none; }
@@ -1049,6 +1051,7 @@ body.clinic-idle #stepM{ display:none !important; }
 .btn-purge:hover{ background:var(--red); color:#fff; }
 .btn-purge svg{ flex:none; }
 .del-empty{ font-size:13px; color:var(--grey); padding:6px 0; }
+.del-foot{ display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
 .mal-standby{ display:flex; gap:10px; align-items:flex-start; background:var(--yellow-bg); border-radius:10px; padding:13px 15px; margin-bottom:14px; font-size:12.5px; line-height:1.55; color:#7a5600; }
 .mal-standby svg{ flex:none; margin-top:1px; color:var(--yellow); }
 .mal-drug-h{ font-size:12px; color:var(--grey); margin-bottom:8px; }
