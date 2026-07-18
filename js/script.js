@@ -4330,8 +4330,9 @@ function openAdminPanel(){
   // Standard-Funktion: nur der Arzt wählt frei zwischen Beratung/Folgeimpfung.
   // MFA ist im Dienst immer „Folgeimpfung" (Auswahl gesperrt); Kasse/Admin haben keine Wahl (Sektion aus).
   const mode=myTreatmentMode(); document.querySelectorAll('input[name=treatmode]').forEach(r=>{r.checked=(r.value===mode); r.disabled=(role!=='arzt');});
-  const tms=el('treatmode-sec'); if(tms) tms.style.display=(role==='arzt'||role==='mfa')?'':'none';
-  const tmHint=el('treatmode-hint'); if(tmHint) tmHint.style.display=(role==='mfa')?'':'none';
+  // Standard-Behandlungsart nur für den Arzt: MFAs dürfen rechtlich nicht beraten → Auswahl entfällt komplett.
+  const tms=el('treatmode-sec'); if(tms) tms.style.display=(role==='arzt')?'':'none';
+  const tmHint=el('treatmode-hint'); if(tmHint) tmHint.style.display='none';
   const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
   if(isAdmin){ renderAdminUsers(); renderDeletedPatients(); renderTabletLock(); }
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
