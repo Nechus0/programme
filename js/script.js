@@ -1929,7 +1929,7 @@ async function savePatient(finish){
     administered: (function(){
       const prev=(existing&&existing.administered)?JSON.parse(JSON.stringify(existing.administered)):{};
       if(_finalizing){ try{ const iso=new Date().toISOString().slice(0,10);
-        (typeof getTodaysLeistungVax==='function'?getTodaysLeistungVax():[]).forEach(it=>{ prev[it.k]={date:iso, name:it.name}; });
+        (typeof getTodaysLeistungVax==='function'?getTodaysLeistungVax():[]).forEach(it=>{ const c=(prev[it.k]&&prev[it.k].count)||0; prev[it.k]={count:c+1, date:iso, name:it.name}; });
       }catch(e){} }
       return Object.keys(prev).length?prev:undefined;
     })(),
@@ -2078,33 +2078,65 @@ function _folgeApplyGiven(k, year){
   else if(k==='ipv_mono'){ const s=vaxState.tdap_polio; if(s){ s.gi_ipv=true; if(year&&!s.y_ipv)s.y_ipv=year; s.planned_ipv=false; } }
   else { const s=vaxState[k]; if(s){ if(!s.done)s.done='1'; if(year&&!s.year)s.year=year; s.planned=false; } }
 }
-// Folgeimpfung: aggregiert die Historie aller früheren Besuche eines Patienten.
-//  – Verabreichte (abgerechnete) Impfungen → im Impfstatus als erledigt übernehmen.
-//  – Fällig heute = geplante Impfungen, die noch NICHT verabreicht wurden.
+// Verabreichte Impfung → Dosis-Schlüssel bestimmen (ältere Datensätze speicherten Hep unter 'hepatitis').
+function _folgeAdminDoseKey(rawKey, name){
+  if(rawKey==='hepatitis'){ const n=(name||'').toLowerCase(); if(/a\s*\+\s*b|twinrix/.test(n))return 'hepAB'; if(/hepatitis\s*b|hep\s*b/.test(n))return 'hepB'; return 'hepA'; }
+  return rawKey;
+}
+// Folgeimpfung: aus dem ursprünglichen Impfplan + der Verabreichungs-Historie den AKTUELLEN Besuch ableiten.
+//  – bereits verabreichte Dosen (abgerechnet oder extern) werden übersprungen und als erledigt markiert,
+//  – der nächste fällige Termin wird auf HEUTE gelegt (Mindestabstände werden respektiert),
+//  – weiter in der Zukunft liegende Dosen behalten ihren (Intervall-)Abstand.
 function buildFolgeContext(){
   FOLGE=null;
   const cur = patients.find(p=>p.id===editingId);
   if(!cur){ renderFolgeBanner(); return; }
-  // Alle abgeschlossenen früheren Besuche (Name + Geburtsdatum), jüngster zuerst.
   const prior = patients.filter(x=>x.id!==cur.id && x.status==='done' && x.dob===cur.dob &&
       fuzzyNameMatch(cur.name,cur.firstname,x.name,x.firstname))
       .sort((a,b)=>(a.savedAt<b.savedAt)?1:-1);
   if(!prior.length){ renderFolgeBanner(); return; }
-  // Verabreichte Impfungen über alle Besuche (k → {date,name}); jüngerer Besuch überschreibt.
-  const adminMap={};
-  prior.slice().reverse().forEach(rec=>{ const a=rec.administered||{}; Object.keys(a).forEach(k=>{ adminMap[k]=a[k]; }); });
-  // Geplante Impfungen aus allen Terminplänen (k → name), Reihenfolge nach erstem Auftreten.
-  const planMap={}, planOrder=[];
-  prior.forEach(rec=>{ (rec.customSchedule||[]).forEach(b=>{ (b.items||[]).forEach(it=>{ if(!planMap[it.k]){ planMap[it.k]={k:it.k,name:it.name}; planOrder.push(it.k); } }); }); });
-  // Verabreichte Impfungen in den aktuellen Impfstatus übernehmen (erledigt markieren).
-  Object.keys(adminMap).forEach(k=>{ _folgeApplyGiven(k, ((adminMap[k].date||'')+'').slice(0,4)); });
-  // Fällig heute = geplante, noch nicht verabreichte Charité-Impfungen.
-  const due=[];
-  planOrder.forEach(k=>{ if(adminMap[k]) return; const it=planMap[k]; _folgeSetPlanned({k:k, stKey:_folgeStKey(k)}); due.push({name:it.name, k:k, intervalOK:true, earliest:null}); });
-  const lastRec=prior[0];
-  const prevGiven=Object.keys(lastRec.administered||{}).map(k=>(lastRec.administered[k].name)||k);
-  FOLGE={ lastVisit:new Date(lastRec.savedAt), due:due, nextInDays:null, prevGiven:prevGiven, intervalIssue:false, lastP:lastRec, adminMap:adminMap };
+  const DAY=86400000, today=new Date();
+  // 1) Verabreichte Dosen je Impfung normalisieren: Anzahl + letztes Datum.
+  //    Berücksichtigt frühere Besuche UND extern (z. B. Hausarzt) erledigte Dosen des aktuellen Besuchs.
+  const admin={};   // doseKey → {count, date, name}
+  prior.slice().reverse().concat([cur]).forEach(rec=>{ const a=(rec&&rec.administered)||{}; Object.keys(a).forEach(rawK=>{ const e=a[rawK]||{}; const dk=_folgeAdminDoseKey(rawK,e.name); const add=e.count||1; const c0=admin[dk]||{count:0,date:'',name:e.name}; admin[dk]={count:c0.count+add, date:e.date||c0.date, name:e.name||c0.name}; }); });
+  // 2) Ursprünglicher Plan = frühester abgeschlossener Besuch mit Terminplan (globale Dosis-Reihenfolge).
+  const planRec = prior.filter(r=>r.customSchedule&&r.customSchedule.length).sort((a,b)=>(a.savedAt<b.savedAt)?-1:1)[0] || prior[0];
+  const startD = new Date(planRec.savedAt);
+  // 3) Plan in geordnete Dosen zerlegen (seq = wievielte Dosis dieser Impfung).
+  const doses=[]; const seqCount={};
+  (planRec.customSchedule||[]).slice().sort((a,b)=>a.offset-b.offset).forEach(b=>{ (b.items||[]).forEach(it=>{ const k=it.k; const seq=(seqCount[k]||0); seqCount[k]=seq+1; doses.push({k:k, name:it.name, stKey:it.stKey||_folgeStKey(k), live:!!it.live, isReacto:!!it.isReacto, seq:seq}); }); });
+  // 4) Für jede Dosis: gegeben? sonst frühester Offset ab heute (Intervall zur Vor-Dosis).
+  const given=[], remaining=[]; const offByDose={};   // k|seq → Offset ab heute
+  doses.forEach(d=>{
+    const isGiven = admin[d.k] && d.seq < admin[d.k].count;
+    if(isGiven){
+      _folgeApplyGiven(d.k, ((admin[d.k].date||'')+'').slice(0,4));
+      offByDose[d.k+'|'+d.seq] = admin[d.k].date ? Math.round((new Date(admin[d.k].date)-today)/DAY) : Math.round((startD-today)/DAY);
+      if(d.seq===admin[d.k].count-1) given.push({name:admin[d.k].name||d.name, k:d.k});
+      return;
+    }
+    let minOff=0;
+    if(d.seq>0){ const prev=offByDose[d.k+'|'+(d.seq-1)]; const base=(prev!==undefined)?prev:0; const gap=(typeof vGaps==='function'?(vGaps(d.k)[d.seq-1]||28):28); minOff=base+gap; }
+    if(minOff<0) minOff=0;
+    offByDose[d.k+'|'+d.seq]=minOff;
+    remaining.push(Object.assign({},d,{minOff:minOff}));
+  });
+  // 5) Neuen Terminplan bauen: fällige Dosen (minOff≤0) → HEUTE; spätere nach Offset gruppiert.
+  const byOff={};
+  remaining.forEach(d=>{ const off=Math.max(0,Math.round(d.minOff)); (byOff[off]=byOff[off]||[]).push({id:d.k+'_r'+d.seq, name:d.name, k:d.k, stKey:d.stKey, live:d.live, isReacto:d.isReacto}); });
+  const newSched=Object.keys(byOff).map(o=>({offset:parseInt(o,10), items:byOff[o], live:byOff[o].some(x=>x.live), reactoCount:0})).sort((a,b)=>a.offset-b.offset);
+  customSchedule = newSched.length?newSched:null;
+  cur.customSchedule = customSchedule;
+  // 6) Heute fällige Dosen als „geplant" markieren (für Abrechnung + Impfstatus).
+  const todayItems=(newSched[0]&&newSched[0].offset===0)?newSched[0].items:[];
+  todayItems.forEach(it=>_folgeSetPlanned({k:it.k, stKey:it.stKey}));
+  // 7) Banner-Kontext.
+  const due=todayItems.map(it=>({name:it.name, k:it.k, intervalOK:true, earliest:null}));
+  const nextInDays=(newSched[1]?newSched[1].offset:null);
+  FOLGE={ lastVisit:new Date(planRec.savedAt), due:due, nextInDays:nextInDays, prevGiven:given.map(g=>g.name), intervalIssue:false, lastP:prior[0], adminMap:admin };
   renderFolgeBanner();
+  // Abschnitt 5 wird anschließend von recompute()/renderApptOverview() aus dem neuen customSchedule gerendert.
 }
 function renderFolgeBanner(){
   const host=el('folge-banner'); if(!host) return;
@@ -2120,14 +2152,31 @@ function renderFolgeBanner(){
   const tPrevBtn = de?'Letzte Konsultation ansehen':(fr?'Voir la dernière consultation':'View last consultation');
   const prevBtn = (FOLGE.lastP) ? '<button type="button" class="fb-prevbtn" onclick="folgeShowPrevious()">'+_esc(tPrevBtn)+'</button>' : '';
   let h='<div class="fb-head"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>'+_esc(tDue)+'</span>'+prevBtn+'</div><ul class="fb-list">';
+  const tExt = de?'extern erledigt':(fr?'fait en externe':'done externally');
   FOLGE.due.forEach(d=>{
     const warn = !d.intervalOK ? '<span class="fb-warn">⚠ '+_esc(tEarly(_folgeDateDE(d.earliest)))+'</span>' : '';
-    h+='<li'+(!d.intervalOK?' class="fb-li-warn"':'')+'><span class="fb-dot"></span><span class="fb-nm">'+_esc(d.name)+'</span>'+warn+'</li>';
+    const extBtn = '<button type="button" class="fb-ext" title="'+_esc(de?'Wurde zwischenzeitlich extern (z. B. Hausarzt) geimpft':'Given externally in the meantime (e.g. GP)')+'" onclick="folgeMarkExternal(\''+d.k+'\',this)">'+_esc(tExt)+'</button>';
+    h+='<li'+(!d.intervalOK?' class="fb-li-warn"':'')+'><span class="fb-dot"></span><span class="fb-nm">'+_esc(d.name)+'</span>'+warn+extBtn+'</li>';
   });
   h+='</ul>';
   if(FOLGE.nextInDays!=null && FOLGE.nextInDays>0){ h+='<div class="fb-next">'+_esc(tNext)+': <strong>'+_esc(tDays)+'</strong></div>'; }
   if(FOLGE.prevGiven && FOLGE.prevGiven.length){ h+='<div class="fb-prev"><span class="fb-prev-l">'+_esc(tPrev)+':</span> '+FOLGE.prevGiven.map(n=>'<span class="fb-chip">✓ '+_esc(n)+'</span>').join(' ')+'</div>'; }
   host.innerHTML=h; host.classList.add('show');
+}
+// Eine heute fällige Dosis als „extern erledigt" markieren (z. B. beim Hausarzt zwischengeimpft):
+// wird als verabreicht vermerkt (nicht an der Charité abgerechnet) und fällt aus dem heutigen Plan.
+async function folgeMarkExternal(k, btn){
+  const cur=patients.find(p=>p.id===editingId); if(!cur) return;
+  const due=(FOLGE&&FOLGE.due||[]).find(d=>d.k===k); const nm=due?due.name:k;
+  if(typeof uiConfirm==='function'){
+    const ok=await uiConfirm(LX('„'+nm+'" wurde zwischenzeitlich extern (z. B. Hausarzt) geimpft und aus dem heutigen Plan entfernen?','Mark “'+nm+'” as given externally (e.g. GP) and remove it from today’s plan?'),{title:LX('Extern erledigt','Done externally'),ok:LX('Extern erledigt','Done externally')});
+    if(!ok) return;
+  }
+  cur.administered=cur.administered||{};
+  const c=(cur.administered[k]&&cur.administered[k].count)||0;
+  cur.administered[k]={count:c+1, date:new Date().toISOString().slice(0,10), name:nm, external:true};
+  buildFolgeContext();                 // Plan neu aufbauen – Dosis fällt weg, ggf. nächste rückt nach
+  if(typeof recompute==='function') recompute();
 }
 // Read-only-Ansicht der letzten Konsultation (Abschnitte 1–4 + verabreichte Impfungen).
 function folgeClosePrevious(){ const bg=el('folge-prev-bg'); if(bg) bg.remove(); }
