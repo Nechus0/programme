@@ -1,10 +1,22 @@
 :root{
   --black:#000; --grey:#6d6d6d; --grey-xl:#f4f4f4; --line:#dcdcdc; --text:#111;
   --red:#d32f2f; --red-bg:#fdecec; --yellow:#c98a00; --yellow-bg:#fff6e0;
+  /* Text-Varianten für Schrift auf hellen Tint-Flächen (WCAG-AA ≥4.5). Die
+     helleren --red/--yellow bleiben für Swatches, Rahmen und Icons erhalten. */
+  --red-text:#c62222; --yellow-text:#8a5d00;
   --green:#2e7d32; --green-bg:#e8f5e9; --blue:#1565c0; --blue-bg:#e7f0fb;
   --neutral:#9e9e9e; --neutral-bg:#f2f2f2; --violet:#6a1b9a; --violet-bg:#f2e9fb;
   --text-light:#6d6d6d; --grey-m:#ececec;
   --font:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  /* Vorgeschlagene 5-Stufen-Typoskala (Prototyp – noch nicht flächig verdrahtet).
+     Ziel: die ~10 Ad-hoc-Größen zwischen 8–14,5px auf feste Stufen abbilden. */
+  --fs-meta:11px;   /* Captions, Hinweise, Sub-Badges          */
+  --fs-sm:13px;     /* dichte Fließtexte, Tabellenzellen, Chips */
+  --fs-base:15px;   /* Standard-Fließtext                       */
+  --fs-h2:17px;     /* Abschnittsüberschriften                  */
+  --fs-title:22px;  /* Seiten-/Modal-Titel                      */
+  /* Radius-Token (Prototyp) */
+  --radius-sm:6px; --radius-md:8px; --radius-pill:999px;
 }
 *{box-sizing:border-box;}
 html{scrollbar-gutter:stable;}
@@ -92,7 +104,7 @@ table.vax input::placeholder{color:#cfcfcf;letter-spacing:.06em;}
 table.vax .age-box{max-width:none;}
 .combo-row{background:#fafafa;}
 .badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;}
-.badge.red{background:var(--red-bg);color:var(--red);} .badge.yellow{background:var(--yellow-bg);color:var(--yellow);} .badge.green{background:var(--green-bg);color:var(--green);} .badge.grey{background:var(--neutral-bg);color:#666;} .badge.blue{background:var(--blue-bg);color:var(--blue);} .badge.violet{background:var(--violet-bg);color:var(--violet);} .badge.red-strong{background:var(--red);color:#fff;}
+.badge.red{background:var(--red-bg);color:var(--red-text);} .badge.yellow{background:var(--yellow-bg);color:var(--yellow-text);} .badge.green{background:var(--green-bg);color:var(--green);} .badge.grey{background:var(--neutral-bg);color:#666;} .badge.blue{background:var(--blue-bg);color:var(--blue);} .badge.violet{background:var(--violet-bg);color:var(--violet);} .badge.red-strong{background:var(--red);color:#fff;}
 .badge.mand{background:var(--red);color:#fff;margin-left:5px;} .badge.live{background:#efe6fb;color:#5b2a9e;margin-left:5px;}
 .badge.plan{border:1px dashed var(--violet);color:var(--violet);background:#fff;margin-left:5px;}
 .badge.plan.today{border-color:var(--green);color:var(--green);}
@@ -100,11 +112,11 @@ table.vax .age-box{max-width:none;}
 .sub-badge b{min-width:42px;display:inline-block;}
 .comp-badges{display:flex;flex-wrap:wrap;gap:4px;}
 .comp{display:inline-flex;align-items:center;border-radius:6px;padding:3px 7px;font-size:10px;font-weight:700;min-width:32px;justify-content:center;}
-.comp.red{background:var(--red-bg);color:var(--red);} .comp.yellow{background:var(--yellow-bg);color:var(--yellow);} .comp.green{background:var(--green-bg);color:var(--green);} .comp.blue{background:var(--blue-bg);color:var(--blue);} .comp.grey{background:var(--neutral-bg);color:#666;}
+.comp.red{background:var(--red-bg);color:var(--red-text);} .comp.yellow{background:var(--yellow-bg);color:var(--yellow-text);} .comp.green{background:var(--green-bg);color:var(--green);} .comp.blue{background:var(--blue-bg);color:var(--blue);} .comp.grey{background:var(--neutral-bg);color:#666;}
 .vax .vname{font-weight:600;font-size:13px;} .vax .vsub{font-size:11px;color:var(--grey);}
 .vax .reason{font-size:11px;color:var(--grey);margin-top:3px;} .vax .status .reason{max-width:230px;}
 .dose-chips{display:flex;flex-wrap:wrap;gap:4px;max-width:180px;}
-.dose-chip{border:1px solid var(--line);border-radius:6px;padding:5px 9px;font-size:12px;cursor:pointer;color:#555;user-select:none;min-width:30px;text-align:center;}
+.dose-chip{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:6px;padding:8px 11px;font-size:12px;cursor:pointer;color:#555;user-select:none;min-width:38px;min-height:38px;text-align:center;}
 .dose-chip:hover{border-color:var(--black);} .dose-chip.selected{background:var(--black);color:#fff;border-color:var(--black);font-weight:700;}
 .year-in{width:150px;max-width:100%;padding:6px 8px;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;}
 .year-in:focus{outline:none;border-color:var(--black);}
@@ -112,7 +124,8 @@ table.vax .age-box{max-width:none;}
 .yr-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .yr-row span{color:var(--grey);}
 /* Einheitliche Aktions-Icons (Stift/X) für Impfstatus-Terminplan + Patientenliste */
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--grey);opacity:.55;padding:4px;background:none;border:none;font-size:15px;line-height:1;transition:opacity .15s,color .15s;}
+/* Klickfläche mind. ~38px (Tablet-tauglich, WCAG-2.2 Zielgröße) – Glyph bleibt 15px. */
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--grey);opacity:.55;padding:4px;min-width:38px;min-height:38px;background:none;border:none;font-size:15px;line-height:1;transition:opacity .15s,color .15s;}
 .icon-btn:hover{opacity:1;}
 .icon-btn.del:hover{color:var(--red);}
 .icon-btn.invite:hover{color:var(--blue);}
@@ -188,8 +201,8 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .folge-prev-modal .fp-given-tag{font-size:11px;font-weight:700;color:var(--green);white-space:nowrap;}
 .folge-prev-modal .fp-prot{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap;}
 .folge-prev-modal .fp-prot-green{background:var(--green-bg);color:var(--green);border:1px solid #bfe0c2;}
-.folge-prev-modal .fp-prot-yellow{background:var(--yellow-bg);color:var(--yellow);border:1px solid #f0d98a;}
-.folge-prev-modal .fp-prot-red{background:var(--red-bg);color:var(--red);border:1px solid #f5c2c2;}
+.folge-prev-modal .fp-prot-yellow{background:var(--yellow-bg);color:var(--yellow-text);border:1px solid #f0d98a;}
+.folge-prev-modal .fp-prot-red{background:var(--red-bg);color:var(--red-text);border:1px solid #f5c2c2;}
 .folge-prev-modal .fp-hint{font-size:11.5px;color:var(--grey);font-style:italic;margin-top:6px;}
 
 /* Neuer Patient: Grund-des-Besuchs-Auswahl (Beratung / Folgeimpfung) */
@@ -941,7 +954,7 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-col-title{ display:inline-flex; align-items:center; gap:7px; }
 .amb-col-ic{ display:inline-flex; color:var(--grey); }
 .amb-col-treatment .amb-col-ic{ color:var(--blue); }
-.amb-col-kasse .amb-col-ic{ color:var(--yellow); }
+.amb-col-kasse .amb-col-ic{ color:var(--yellow-text); }
 .amb-col-done .amb-col-ic{ color:var(--green); }
 .amb-shift-row{ display:flex; align-items:center; flex-wrap:wrap; gap:10px 12px; margin-top:18px; padding:12px 16px; border:1px solid var(--line); border-radius:12px; background:#fafbfc; flex:0 0 auto; }
 .shift-row-title{ font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--text); margin-right:2px; }
@@ -1076,7 +1089,7 @@ body.amb-dragging .amb-trash-zone{ display:flex; position:fixed; left:50%; trans
 .mal-rec.low{ background:var(--grey-xl); }
 .mal-rec-ic{ flex:none; margin-top:1px; }
 .mal-rec.high .mal-rec-ic,.mal-rec.high .mal-rec-t{ color:var(--blue); }
-.mal-rec.mid .mal-rec-ic,.mal-rec.mid .mal-rec-t{ color:var(--yellow); }
+.mal-rec.mid .mal-rec-ic,.mal-rec.mid .mal-rec-t{ color:var(--yellow-text); }
 .mal-rec.low .mal-rec-ic{ color:var(--grey); }
 .mal-rec-t{ font-size:14.5px; font-weight:700; }
 .mal-rec-s{ font-size:12.5px; color:var(--text); margin-top:2px; }
