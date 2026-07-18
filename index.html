@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=83">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=83">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=83">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=83">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=84">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=84">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=84">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=84">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=83">
+<link rel="stylesheet" href="css/style.css?v=84">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -23,14 +23,19 @@
     <div><div class="app-title" data-i18n="appTitle">Reisemedizinische Ambulanz</div><div class="app-sub" data-i18n="appSub">Institut für Internationale Gesundheit · Reiseimpf-Assistent</div></div>
   </div>
   <div class="header-right">
-    <div class="user-box" id="user-box" style="display:none">
-      <button type="button" class="user-avatar-btn" id="user-avatar-btn" onclick="openAdminPanel()" title="Mein Profil" aria-label="Mein Profil"></button>
-      <div class="user-meta"><span id="user-name"></span><span id="user-role" class="user-role"></span></div>
-      <button class="btn sec sm" id="logout-btn" onclick="signOut()">Logout</button>
-    </div>
     <input type="hidden" id="p-physician">
     <div class="lang-toggle" role="group" aria-label="Sprache / Language"><svg class="lang-globe" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg><button id="lang-de" class="active" onclick="setLang('de')">DE</button><button id="lang-en" onclick="setLang('en')">EN</button><button id="lang-fr" onclick="setLang('fr')">FR</button></div>
-    <button class="hamburger" id="admin-menu-btn" onclick="openAdminPanel()" style="display:none" title="Verwaltung" aria-label="Menü"><span></span><span></span><span></span></button>
+    <div class="user-menu" id="user-box" style="display:none">
+      <button type="button" class="user-menu-btn" id="user-menu-btn" onclick="toggleUserMenu(event)" aria-haspopup="true" aria-expanded="false" title="Profil & Menü">
+        <span class="user-avatar-btn" id="user-avatar-btn"></span>
+        <span class="user-meta"><span id="user-name"></span><span id="user-role" class="user-role"></span></span>
+        <svg class="um-caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="user-menu-drop" id="user-menu-drop">
+        <button type="button" class="um-item" onclick="closeUserMenu();openAdminPanel();"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-i18n="menuSettings">Einstellungen</span></button>
+        <button type="button" class="um-item um-logout" onclick="closeUserMenu();signOut();"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span data-i18n="menuLogout">Logout</span></button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -47,7 +52,7 @@
       <button data-atab="testing" onclick="adminTab('testing')">Testing</button>
       <button data-atab="sources" onclick="adminTab('sources')">Quellen</button>
     </div>
-    <section class="card" id="treatmode-sec">
+    <section class="card" id="treatmode-sec" data-atab="profile">
       <h2 data-i18n="setGeneral">Allgemein</h2>
       <div class="card-desc" data-i18n="setTreatModeDesc">Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.</div>
       <div class="chk-grid">
@@ -56,7 +61,7 @@
       </div>
       <div class="card-desc" id="treatmode-hint" style="display:none" data-i18n="setTreatModeMfa">Als MFA bist du im Dienst immer für Folgeimpfungen eingeteilt.</div>
     </section>
-    <section class="card" id="profile-sec" style="display:none">
+    <section class="card" id="profile-sec" data-atab="profile" style="display:none">
       <h2 data-i18n="profileTitle">Mein Profil</h2>
       <div class="card-desc" data-i18n="profileDesc">Eigene Angaben ändern. Die Rolle kann nur ein Admin ändern.</div>
       <div id="profile-msg"></div>
@@ -345,16 +350,16 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=83"></script>
-<script src="data/country_data.js?v=83"></script>
-<script src="data/drugs_db.js?v=83"></script>
-<script src="data/engine_data.js?v=83"></script>
-<script src="js/engine_rules.js?v=83"></script>
-<script src="js/engine.js?v=83"></script>
+<script src="js/auth.js?v=84"></script>
+<script src="data/country_data.js?v=84"></script>
+<script src="data/drugs_db.js?v=84"></script>
+<script src="data/engine_data.js?v=84"></script>
+<script src="js/engine_rules.js?v=84"></script>
+<script src="js/engine.js?v=84"></script>
 <!-- Malaria-Daten + Engine: EINE gemeinsame Quelle für App und Tests -->
-<script src="js/malaria_data.js?v=83"></script>
-<script src="js/malaria_engine.js?v=83"></script>
-<script src="js/script.js?v=83"></script>
+<script src="js/malaria_data.js?v=84"></script>
+<script src="js/malaria_engine.js?v=84"></script>
+<script src="js/script.js?v=84"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){

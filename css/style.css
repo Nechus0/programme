@@ -51,8 +51,8 @@ label.fld{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:#
 .chk-chip{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13px;background:#fff;transition:border-color .12s,background .12s;user-select:none;}
 .chk-chip:hover{border-color:#aaa;}
 .chk-chip:has(input:checked){border-color:var(--black);background:var(--grey-xl);font-weight:600;}
-input[type=text],input[type=date],input[type=number],input[type=email],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:var(--font);font-size:16px;background:#fff;}
-input[type=text],input[type=date],input[type=number],input[type=email],select{height:44px;}
+input[type=text],input[type=date],input[type=number],input[type=email],input[type=password],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:var(--font);font-size:16px;background:#fff;}
+input[type=text],input[type=date],input[type=number],input[type=email],input[type=password],select{height:44px;}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--black);}
 input[type=checkbox]{width:19px;height:19px;cursor:pointer;accent-color:#000;vertical-align:middle;}
 .hint{font-size:11px;color:var(--grey);margin-top:3px;}
@@ -435,16 +435,25 @@ table.vax td.status{position:relative;padding-right:46px;}
 .map-close:hover { background:rgba(255,255,255,.28); }
 
 /* ===== Auth / Rollen / Admin ===== */
-.user-box{display:flex;align-items:center;gap:14px;padding-right:18px;border-right:1px solid var(--line);}
-.user-box .user-meta{display:flex;flex-direction:column;line-height:1.25;text-align:right;}
-.user-box #user-name{font-size:13px;font-weight:700;}
-.user-box .user-role{font-size:11px;color:var(--grey);text-transform:capitalize;}
-.user-avatar-btn{background:none;border:none;padding:0;cursor:pointer;display:inline-flex;order:-1;}
+/* Kompaktes Nutzer-Menü oben rechts: Avatar + Name/Rolle als ein Chip, öffnet ein Dropdown. */
+.user-menu{position:relative;}
+.user-menu-btn{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:5px 10px 5px 6px;cursor:pointer;font-family:var(--font);transition:border-color .12s,background .12s;}
+.user-menu-btn:hover{border-color:var(--black);background:var(--grey-xl);}
+.user-menu-btn .user-meta{display:flex;flex-direction:column;line-height:1.2;text-align:left;}
+.user-menu-btn #user-name{font-size:13px;font-weight:700;color:var(--text);}
+.user-menu-btn .user-role{font-size:11px;color:var(--grey);text-transform:capitalize;}
+.user-menu-btn .um-caret{color:var(--grey);flex:0 0 auto;transition:transform .15s;}
+.user-menu.open .user-menu-btn .um-caret{transform:rotate(180deg);}
+.user-avatar-btn{display:inline-flex;}
 .user-avatar-btn .ini-circle{width:30px;height:30px;font-size:12px;border-radius:9px;}
-.user-avatar-btn:hover .ini-circle{box-shadow:0 0 0 2px var(--line);}
-.hamburger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:38px;height:34px;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:0 9px;}
-.hamburger span{display:block;height:2px;background:var(--black);border-radius:2px;}
-.hamburger:hover{border-color:var(--black);}
+.user-menu-drop{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:190px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);padding:6px;z-index:70;}
+.user-menu.open .user-menu-drop{display:block;}
+.user-menu-drop .um-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;border-radius:8px;padding:9px 11px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;font-family:var(--font);text-align:left;}
+.user-menu-drop .um-item svg{color:var(--grey);flex:0 0 auto;}
+.user-menu-drop .um-item:hover{background:var(--grey-xl);}
+.user-menu-drop .um-logout{color:var(--red);}
+.user-menu-drop .um-logout svg{color:var(--red);}
+.user-menu-drop .um-logout:hover{background:var(--red-bg);}
 /* Admin-Panel (Vollbild) */
 .admin-panel{display:none;position:fixed;inset:0;background:var(--grey-xl);z-index:120;overflow-y:auto;}
 .admin-panel.show{display:block;}

@@ -12,7 +12,7 @@ const I18N={
  fFirstname:{de:'Vorname',en:'First name'},fPhone:{de:'Telefon',en:'Phone'},fInsurance:{de:'Krankenkasse',en:'Health insurance'},fProfession:{de:'Beruf (freiwillig)',en:'Profession (optional)'},fAddress:{de:'Anschrift',en:'Address'},fZip:{de:'PLZ',en:'Postal code'},fCity:{de:'Wohnort',en:'City'},
  fMeds:{de:'Aktuelle Medikamente (welche?)',en:'Current medication (which?)'},fRecentVax:{de:'Impfung/Injektion in den letzten 4 Wochen (welche, wann?)',en:'Vaccination/injection in the last 4 weeks (which, when?)'},fAcute:{de:'Akute Erkrankung (z. B. fieberhafter Infekt)',en:'Acute illness (e.g. febrile infection)'},fThrombosis:{de:'Thrombose in der Vorgeschichte',en:'History of thrombosis'},fFaint:{de:'Ohnmacht bei Impfung/Blutabnahme',en:'Weakness/fainting during vaccination/blood draw'},
  adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},settingsTitle:{de:'Einstellungen',en:'Settings'},setGeneral:{de:'Allgemein',en:'General'},setTreatModeDesc:{de:'Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.',en:'Default treatment type when you take a patient into treatment.'},setTreatModeMfa:{de:'Als MFA bist du im Dienst immer für Folgeimpfungen eingeteilt.',en:'As an MFA you are always assigned to follow-up vaccinations during your shift.'},
-profileTitle:{de:'Mein Profil',en:'My profile'},profileDesc:{de:'Eigene Angaben ändern. Die Rolle kann nur ein Admin ändern.',en:'Edit your own details. Only an admin can change your role.'},profileTitleFld:{de:'Titel',en:'Title'},profileTitlePh:{de:'z. B. Dr.',en:'e.g. Dr.'},profileName:{de:'Name',en:'Name'},profileGender:{de:'Geschlecht',en:'Gender'},profileRole:{de:'Rolle (nur Admin änderbar)',en:'Role (admin only)'},profilePwHead:{de:'Passwort ändern (optional)',en:'Change password (optional)'},profilePw1:{de:'Neues Passwort',en:'New password'},profilePw2:{de:'Passwort bestätigen',en:'Confirm password'},profileSave:{de:'Profil speichern',en:'Save profile'},genW:{de:'weiblich',en:'female'},genM:{de:'männlich',en:'male'},genD:{de:'divers',en:'diverse'},treatBeratung:{de:'Beratung',en:'Consultation'},treatFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
+profileTitle:{de:'Mein Profil',en:'My profile'},profileDesc:{de:'Eigene Angaben ändern. Die Rolle kann nur ein Admin ändern.',en:'Edit your own details. Only an admin can change your role.'},profileTitleFld:{de:'Titel',en:'Title'},profileTitlePh:{de:'z. B. Dr.',en:'e.g. Dr.'},profileName:{de:'Name',en:'Name'},profileGender:{de:'Geschlecht',en:'Gender'},profileRole:{de:'Rolle (nur Admin änderbar)',en:'Role (admin only)'},profilePwHead:{de:'Passwort ändern (optional)',en:'Change password (optional)'},profilePw1:{de:'Neues Passwort',en:'New password'},profilePw2:{de:'Passwort bestätigen',en:'Confirm password'},profileSave:{de:'Profil speichern',en:'Save profile'},genW:{de:'weiblich',en:'female'},genM:{de:'männlich',en:'male'},genD:{de:'divers',en:'diverse'},menuSettings:{de:'Einstellungen',en:'Settings'},menuLogout:{de:'Logout',en:'Logout'},treatBeratung:{de:'Beratung',en:'Consultation'},treatFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
  fEmail:{de:'E-Mail',en:'Email'},fTitle:{de:'Titel',en:'Title'},fRole:{de:'Funktion',en:'Role'},fFullname:{de:'Name (Vor- und Nachname)',en:'Name (first and last)'},fGender:{de:'Geschlecht',en:'Gender'},btnCreateUser:{de:'Nutzer anlegen',en:'Create user'},
  thName:{de:'Name',en:'Name'},thTitle:{de:'Titel',en:'Title'},thGender:{de:'Geschlecht',en:'Gender'},thRole:{de:'Funktion',en:'Role'},thStatusReg:{de:'Status',en:'Status'},
  kasseTitle:{de:'Kasse',en:'Reception / Billing'},kasseDesc:{de:'Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.',en:'No function is assigned to the "Reception/Billing" role yet.'},
@@ -3569,7 +3569,7 @@ function applyRole(profile){
   // Eigenes Icon oben rechts, damit man sich selbst sieht (Klick öffnet das eigene Profil).
   const av=el('user-avatar-btn'); if(av){ av.innerHTML = initialsCircle(CURRENT_PROFILE.full_name||CURRENT_PROFILE.email||'', role, CURRENT_PROFILE.gender||''); av.style.display = (role==='patient')?'none':''; }
   const ph=el('p-physician'); if(ph) ph.value = nameFull;
-  const hb=el('admin-menu-btn'); if(hb) hb.style.display = roleSeesClinic(role)?'inline-flex':'none';
+  // (Zahnrad/Einstellungen jetzt im Nutzer-Menü oben rechts – kein separater Hamburger mehr.)
 
   USE_DB = (typeof AUTH_ENABLED!=='undefined') && AUTH_ENABLED && !!supabaseClient && (roleSeesClinic(role) || role==='patient');
   const show=(id,on)=>{const e=el(id); if(e) e.style.display = on?'':'none';};
@@ -4366,6 +4366,10 @@ async function purgeAllDeleted(){
   const ids=new Set(del.map(p=>p.id)); patients=patients.filter(x=>!ids.has(x.id));
   renderDeletedPatients(); if(typeof renderPatients==='function') renderPatients();
 }
+// Nutzer-Menü oben rechts (Profil/Einstellungen + Logout) auf-/zuklappen.
+function toggleUserMenu(e){ if(e&&e.stopPropagation)e.stopPropagation(); const m=el('user-box'); if(!m)return; const open=m.classList.toggle('open'); const b=el('user-menu-btn'); if(b) b.setAttribute('aria-expanded', open?'true':'false'); }
+function closeUserMenu(){ const m=el('user-box'); if(m) m.classList.remove('open'); const b=el('user-menu-btn'); if(b) b.setAttribute('aria-expanded','false'); }
+document.addEventListener('click', function(e){ const m=el('user-box'); if(m && m.classList.contains('open') && !e.target.closest('#user-box')) closeUserMenu(); });
 function openAdminPanel(){
   const p=el('admin-panel'); if(!p) return;
   const role=(CURRENT_PROFILE||{}).role;
@@ -4384,11 +4388,30 @@ function openAdminPanel(){
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
   if(ss){ ss.style.display=showStats?'':'none'; if(showStats) renderStats(); }
   renderSources();
-  // Einstellungs-Reiter nur für Admin (Nutzerverwaltung / Statistik / Testing / Quellen)
-  const tabs=el('admin-tabs'); if(tabs) tabs.style.display=isAdmin?'':'none';
-  if(isAdmin) adminTab('users');
+  // Reiter je nach Rolle aufbauen (jeder außer reine Patienten sieht mind. „Mein Profil" + „Quellen").
+  const tabs=buildSettingsTabs();
+  adminTab(tabs.length?tabs[0][0]:'profile');
   p.classList.add('show');
   p.scrollTop=0;   // immer oben öffnen, damit die Reiter-Leiste nicht hinter der Kopfzeile liegt
+}
+// Reiter der Einstellungen rollenabhängig aufbauen. Alle angemeldeten Nutzer (außer Patient)
+// erhalten mindestens „Mein Profil" und „Quellen"; Admin zusätzlich Nutzerverwaltung/Testing,
+// Admin & Kasse zusätzlich Statistik – als eine kohärente Reiter-Leiste wie bisher beim Admin.
+function buildSettingsTabs(){
+  const role=(CURRENT_PROFILE||{}).role;
+  const isAdmin=role==='admin';
+  const tabs=[];
+  if(role && role!=='patient') tabs.push(['profile', LX('Mein Profil','My profile')]);
+  if(isAdmin) tabs.push(['users', LX('Nutzerverwaltung','Users')]);
+  if(isAdmin||role==='kasse') tabs.push(['stats', LX('Statistik','Statistics')]);
+  if(isAdmin) tabs.push(['testing', LX('Testing','Testing')]);
+  tabs.push(['sources', LX('Quellen','Sources')]);
+  const bar=el('admin-tabs');
+  if(bar){
+    bar.innerHTML=tabs.map(t=>'<button data-atab="'+t[0]+'" onclick="adminTab(\''+t[0]+'\')">'+_esc(t[1])+'</button>').join('');
+    bar.style.display=(tabs.length>1)?'':'none';
+  }
+  return tabs;
 }
 // Eigenes Profil in das Formular laden.
 function renderProfileForm(){
@@ -4446,6 +4469,10 @@ function adminTab(name){
   const bar=el('admin-tabs'); if(bar) bar.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.atab===name));
   // nur die Sektions-Karten umschalten – nicht die Reiter-Buttons (die tragen ebenfalls data-atab)
   document.querySelectorAll('#admin-panel section[data-atab]').forEach(sec=>{ sec.style.display=(sec.dataset.atab===name)?'':'none'; });
+  // „Standard-Behandlungsart" nur für den Arzt – MFA/Kasse dürfen rechtlich nicht beraten.
+  const tms=el('treatmode-sec'); if(tms && (CURRENT_PROFILE||{}).role!=='arzt') tms.style.display='none';
+  // Statistik nur für Admin/Kasse rendern, wenn sichtbar geschaltet.
+  const ss=el('stats-sec'); if(ss && name==='stats' && typeof renderStats==='function') renderStats();
 }
 function openSettings(){ openAdminPanel(); }
 // Patienteneingabe am Tablet sperren/entsperren (nur Admin)
