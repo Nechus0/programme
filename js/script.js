@@ -3816,8 +3816,8 @@ const MAL_REGION = {
   SN:'westafrika', GM:'westafrika', GW:'westafrika', GN:'westafrika', SL:'westafrika', LR:'westafrika', CI:'westafrika', ML:'westafrika', BF:'westafrika', GH:'westafrika', TG:'westafrika', BJ:'westafrika', NE:'westafrika', NG:'westafrika', TD:'westafrika', MR:'westafrika', CM:'westafrika',
   ET:'ostafrika', ER:'ostafrika', DJ:'ostafrika', SO:'ostafrika', SS:'ostafrika', SD:'ostafrika', KE:'ostafrika', UG:'ostafrika', RW:'ostafrika', BI:'ostafrika',
   TZ:'tansania_madagaskar', MG:'tansania_madagaskar', KM:'tansania_madagaskar', YT:'tansania_madagaskar',
-  ZA:'suedafrika', NA:'suedafrika', BW:'suedafrika', ZW:'suedafrika', ZM:'suedafrika', MW:'suedafrika', MZ:'suedafrika', SZ:'suedafrika', AO:'suedafrika',
-  CD:'afrika', CG:'afrika', CF:'afrika', GA:'afrika', GQ:'afrika', ST:'afrika', YE:'afrika', EH:'afrika'
+  ZA:'suedafrika', NA:'suedafrika', BW:'suedafrika', ZW:'suedafrika', ZM:'suedafrika', MW:'suedafrika', MZ:'suedafrika', SZ:'suedafrika',
+  AO:'afrika', CD:'afrika', CG:'afrika', CF:'afrika', GA:'afrika', GQ:'afrika', ST:'afrika', YE:'afrika', EH:'afrika'   // Angola: Süd-Afrika-Karte deckt AO nicht ab → Afrika-Übersicht
 };
 const MAL_MAP_SRC = {de:'Quelle: DTG/EKRM, „Malaria 2025" (Thieme, Flug u. Reisemed. 2025). Zur klinischen Verwendung in der Charité-Ambulanz.',
   en:'Source: DTG/EKRM, "Malaria 2025" (Thieme, Flug u. Reisemed. 2025). For clinical use in the Charité clinic.'};
