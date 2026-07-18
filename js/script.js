@@ -2870,25 +2870,57 @@ function renderTreatPanel(){
 // „Im Dienst": wer ist heute da (aus Behandlern/Abrechnungen des Tages + aktueller Nutzer), Admin ausgenommen.
 // Wird unten in die linke Spalte eingehängt (kein rechtes Panel mehr).
 let SHIFT_TODAY={};   // wer war heute eingeloggt (aus audit_logs 'shift_login')
+const SHIFT_ONLINE_MS=150000;   // „Im Dienst" nur, wenn letzter Heartbeat < 150 s alt (2 verpasste Beats)
 async function loadShiftToday(){
   if(typeof dbListAuditToday!=='function') return;
   try{
     const { data, error } = await dbListAuditToday();
     if(error || !data) return;
+    // Präsenz statt „irgendwann heute eingeloggt": shift_login dient als Heartbeat (alle 60 s),
+    // shift_logout beendet die Präsenz. Im Dienst = letzter Heartbeat frisch UND kein späteres Logout.
+    const now=Date.now(); const byUser={};
+    data.forEach(r=>{
+      if(r.action!=='shift_login' && r.action!=='shift_logout') return;
+      const role=r.user_role; if(!role||role==='admin') return;
+      const d=r.details||{}; const key=(r.user_id||d.name||'').toLowerCase(); if(!key) return;
+      const ts=new Date(r.created_at).getTime();
+      const rec=byUser[key]||(byUser[key]={name:d.name||'',role:role,gender:d.gender||'',login:0,logout:0});
+      if(d.name) rec.name=d.name; rec.role=role; if(d.gender) rec.gender=d.gender;
+      if(r.action==='shift_login'){ if(ts>rec.login) rec.login=ts; } else { if(ts>rec.logout) rec.logout=ts; }
+    });
     const m={};
-    data.forEach(r=>{ if(r.action!=='shift_login') return; const role=r.user_role; if(!role||role==='admin') return; const d=r.details||{}; const name=d.name||''; if(!name) return; m[(role+'|'+name).toLowerCase()]={name:name,role:role,gender:d.gender||''}; });
+    Object.values(byUser).forEach(rec=>{ if(rec.name && rec.login>rec.logout && (now-rec.login)<SHIFT_ONLINE_MS){ m[(rec.role+'|'+rec.name).toLowerCase()]={name:rec.name,role:rec.role,gender:rec.gender}; } });
     SHIFT_TODAY=m;
     if(typeof renderTreatPanel==='function') renderTreatPanel();
   }catch(_){}
 }
+// Heartbeat: hält die eigene Präsenz „Im Dienst" frisch (alle 60 s ein shift_login).
+let SHIFT_HB_TIMER=null;
+function startShiftHeartbeat(){
+  if(SHIFT_HB_TIMER) return;
+  SHIFT_HB_TIMER=setInterval(()=>{
+    if(USE_DB && CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin' && typeof dbAuditLog==='function'){
+      try{ dbAuditLog('shift_login',{name:CURRENT_PROFILE.full_name, gender:CURRENT_PROFILE.gender||'', role:CURRENT_PROFILE.role}); }catch(_){}
+    }
+  }, 60000);
+}
+// Automatische Abmeldung nach 1 h ohne Eingabe (nur Personal).
+let IDLE_TIMER=null;
+function resetIdleLogout(){
+  if(IDLE_TIMER) clearTimeout(IDLE_TIMER);
+  if(!(CURRENT_PROFILE && typeof roleSeesClinic==='function' && roleSeesClinic(CURRENT_PROFILE.role))) return;
+  IDLE_TIMER=setTimeout(()=>{ if(typeof signOut==='function') signOut(); else window.location.href='login.html'; }, 3600000);
+}
+let IDLE_WIRED=false;
+function startIdleLogout(){
+  if(!IDLE_WIRED){ ['mousedown','keydown','touchstart','wheel','scroll'].forEach(ev=>document.addEventListener(ev, resetIdleLogout, {passive:true})); IDLE_WIRED=true; }
+  resetIdleLogout();
+}
 function gatherShiftPeople(){
   const people={};
   const add=(name,role,gender)=>{ if(!name||!role||role==='admin') return; const k=(role+'|'+name).toLowerCase(); if(!people[k]) people[k]={name:name,role:role,gender:gender||''}; };
-  Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender));           // heute eingeloggte Profile
-  patients.filter(p=>patientDay(p)===listDay && !p.deleted).forEach(p=>{         // + aus heutigen Behandlungen/Abrechnungen
-    (p.handlers||[]).forEach(h=>add(h.name,h.role,h.gender));
-    if(p.billedBy && p.billedBy.name) add(p.billedBy.name, p.billedBy.role||'kasse', '');   // wer abgerechnet hat (mit tatsächlicher Rolle; Admin wird in add() ausgeschlossen)
-  });
+  // Nur AKTUELL eingeloggte Personen (Präsenz aus SHIFT_TODAY) – nicht mehr „irgendwann heute behandelt/abgerechnet".
+  Object.values(SHIFT_TODAY).forEach(p=>add(p.name,p.role,p.gender));
   if(CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin') add(CURRENT_PROFILE.full_name,CURRENT_PROFILE.role,CURRENT_PROFILE.gender);
   return people;
 }
@@ -3246,7 +3278,8 @@ function applyRole(profile){
   renderTreatPanel();
   // „Im Dienst": eigenen Login des Tages festhalten (außer Admin – unsichtbar) und die Tagesliste laden
   if(USE_DB && role!=='admin' && typeof dbAuditLog==='function'){ try{ dbAuditLog('shift_login', {name:CURRENT_PROFILE.full_name, gender:CURRENT_PROFILE.gender||'', role:role}); }catch(_){} }
-  if(USE_DB) loadShiftToday();
+  if(USE_DB){ loadShiftToday(); startShiftHeartbeat(); }
+  startIdleLogout();   // Auto-Logout nach 1 h Inaktivität (nur Personal)
 }
 function moveListToTop(){
   const main=document.querySelector('main'); const lc=el('list-card'), s1=el('step1'), eb=el('editing-banner');

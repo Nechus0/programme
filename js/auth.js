@@ -69,6 +69,8 @@ async function sendPasswordReset(email) {
   return await supabaseClient.auth.resetPasswordForEmail(email.trim(), { redirectTo });
 }
 async function signOut() {
+  // Präsenz sofort beenden, damit die Person umgehend aus „Im Dienst" verschwindet.
+  try{ if(typeof CURRENT_PROFILE!=='undefined' && CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin' && typeof dbAuditLog==='function'){ await dbAuditLog('shift_logout', {name:CURRENT_PROFILE.full_name||'', role:CURRENT_PROFILE.role}); } }catch(e){}
   try{ localStorage.removeItem('charite_seccollapse'); }catch(e){}   // Sektionszustand auf Standard zurücksetzen
   if (supabaseClient) { await supabaseClient.auth.signOut(); }
   window.location.href = 'login.html';
