@@ -3326,18 +3326,20 @@ let FOLD_LISTENERS=false;
 function toggleFold(id){ const s=el(id); if(s && s.classList.contains('foldable')) s.classList.toggle('folded'); }
 function wireFoldHeaders(){
   if(FOLD_LISTENERS) return;
-  ['step1','step2','step3','step4','step5','step6'].forEach(id=>{
+  ['step1','step2','step3','step4','step5'].forEach(id=>{   // step6 (Leistungen) bewusst NICHT – nie einklappbar
     const s=el(id); if(!s) return; const h=s.querySelector('h2'); if(!h) return;
     h.addEventListener('click',(e)=>{ if(e.target.closest('.lock-btn')) return; toggleFold(id); });
   });
   FOLD_LISTENERS=true;
 }
-// Kasse-Ansicht: Abschnitte faltbar machen, 2–5 einklappen, 1 & 6 offen
+// Kasse-Ansicht: Abschnitte faltbar machen, 2–5 einklappen, 1 offen.
+// Leistungen (step6) wird NIE eingeklappt/faltbar – der Abrechnungsblock bleibt immer offen.
 function setupKasseFolds(){
   wireFoldHeaders();
-  ['step1','step2','step3','step4','step5','step6'].forEach(id=>{ const s=el(id); if(s) s.classList.add('foldable'); });
+  ['step1','step2','step3','step4','step5'].forEach(id=>{ const s=el(id); if(s) s.classList.add('foldable'); });
   ['step2','step3','step4','step5'].forEach(id=>{ const s=el(id); if(s) s.classList.add('folded'); });
-  ['step1','step6'].forEach(id=>{ const s=el(id); if(s) s.classList.remove('folded'); });
+  ['step1'].forEach(id=>{ const s=el(id); if(s) s.classList.remove('folded'); });
+  const l=el('step6'); if(l) l.classList.remove('foldable','folded');   // Leistungen immer offen
 }
 function clearFolds(){ ['step1','step2','step3','step4','step5','step6'].forEach(id=>{ const s=el(id); if(s) s.classList.remove('foldable','folded'); }); }
 function editLogHtml(p){
@@ -3596,7 +3598,7 @@ if (typeof MALARIA_DATA === 'undefined') {
     mefloquin:{ name:'Mefloquin (Lariam)', tag:{de:'wöchentlich',en:'weekly'}, dose:{de:'Erwachsene: 1 Tbl. (250 mg) 1× wöchentlich.',en:'Adults: 1 tab (250 mg) once weekly.'}, schedule:{de:'2–3 Wochen vor Abreise beginnen · wöchentlich (gleicher Wochentag) · bis 4 Wochen danach.',en:'2–3 weeks before departure · weekly (same weekday) · until 4 weeks after.'}, intake:{de:'Wöchentlich zu oder nach einer Mahlzeit mit reichlich Flüssigkeit, immer am selben Wochentag.',en:'Weekly with or after a meal and plenty of fluid, always the same weekday.'}, cave:{de:'Nicht bei neuropsychiatrischer Vorgeschichte, Krampfleiden oder relevanten Herzrhythmusstörungen.',en:'Avoid with neuropsychiatric history, seizure disorder or relevant cardiac arrhythmia.'}, pack:'' },
     doxycyclin:{ name:'Doxycyclin', tag:{de:'täglich',en:'daily'}, dose:{de:'Erwachsene: 1 Tbl. (100 mg) täglich.',en:'Adults: 1 tab (100 mg) daily.'}, schedule:{de:'1–2 Tage vor Einreise · täglich · bis 4 Wochen danach.',en:'1–2 days before entry · daily · until 4 weeks after.'}, intake:{de:'Mit reichlich Wasser im Sitzen oder Stehen einnehmen, nicht direkt vor dem Hinlegen (Speiseröhrenreizung), zu einer Mahlzeit.',en:'Take with plenty of water sitting or standing, not right before lying down (oesophageal irritation), with a meal.'}, cave:{de:'Photosensibilität (Sonnenschutz); nicht in Schwangerschaft/Stillzeit; nicht bei Kindern < 8 Jahre.',en:'Photosensitivity (sun protection); not in pregnancy/breastfeeding; not in children < 8 years.'}, pack:'' }
   };
-  window.MAL_EXPO = { de:'Konsequenter Mückenschutz: Repellent mit DEET (20–30 %) oder Icaridin auf unbedeckte Haut (Anopheles v. a. dämmerungs- und nachtaktiv), lange helle Kleidung, imprägniertes Moskitonetz, klimatisierte oder vergitterte Räume.', en:'Consistent bite protection: repellent with DEET (20–30 %) or Icaridin on exposed skin (Anopheles bite mainly at dusk and night), long light-coloured clothing, an impregnated bed net, air-conditioned or screened rooms.' };
+  window.MAL_EXPO = { de:'Konsequenter Mückenschutz: Repellent mit DEET (30–50 %) oder Icaridin (20 %) auf unbedeckte Haut (Anopheles v. a. dämmerungs- und nachtaktiv), lange helle Kleidung, imprägniertes Moskitonetz, klimatisierte oder vergitterte Räume.', en:'Consistent bite protection: repellent with DEET (30–50 %) or Icaridin (20 %) on exposed skin (Anopheles bite mainly at dusk and night), long light-coloured clothing, an impregnated bed net, air-conditioned or screened rooms.' };
   window.MAL_STANDBY = { de:'Notfallselbstbehandlung (Standby): keine Dauerprophylaxe – stattdessen Malarone als Notfallmedikament mitgeben. Bei Fieber (≥ 38,5 °C) und wenn nicht innerhalb von 24 h ärztliche Hilfe erreichbar ist, Malarone als <strong>Behandlung</strong> (nicht als Prophylaxe) einnehmen und danach umgehend ärztliche Abklärung suchen.', en:'Emergency standby treatment: no continuous prophylaxis – instead provide Malarone as a standby medication. If fever (≥ 38.5 °C) occurs and no medical help is reachable within 24 h, take Malarone as <strong>treatment</strong> (not prophylaxis) and seek medical care as soon as possible afterwards.' };
   // Therapeutische (Notfall-)Dosis Atovaquon-Proguanil: 1× täglich über 3 Tage, gewichtsabhängig.
   window.malaroneTreatTabs = function(kg){
