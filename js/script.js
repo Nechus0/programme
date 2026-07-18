@@ -725,13 +725,12 @@ function autoTdapProduct(st, a) {
     let needsAP = (a.aP === 'red' || a.aP === 'yellow');
     let needsIPV = (a.IPV === 'red' || a.IPV === 'yellow');
 
-    if (needsT && needsD && needsAP && needsIPV) return 'tdap_ipv';
-    if (needsT && needsD && !needsAP && needsIPV) return 'tdap_ipv'; // Ambulanz führt kein Revaxis → Repevax (Tdap-IPV)
-    if (needsT && needsD && needsAP && !needsIPV) return 'tdap';
-    if (needsT && needsD && !needsAP && !needsIPV) return 'tdap';    // kein Td-Einzelprodukt → Boostrix (Tdap)
-    if (!needsT && !needsD && !needsAP && needsIPV) return 'ipv';
-    if (!needsT && !needsD && needsAP && !needsIPV) return 'tdap';
-    
+    // Die Ambulanz führt KEIN Boostrix/Revaxis. Das einzige Tdap-haltige Produkt ist Repevax (Tdap-IPV).
+    // Daher: sobald Tetanus/Diphtherie/Pertussis fällig sind → Repevax (auch wenn Polio noch reicht).
+    // Nur wenn ausschließlich Polio nötig ist → IPV-Einzelimpfstoff.
+    if (needsT || needsD || needsAP) return 'tdap_ipv';
+    if (needsIPV) return 'ipv';
+
     return 'tdap_ipv';
 }
 
@@ -979,7 +978,11 @@ function renderApptOverview() {
     }
     
     let editIcon = !isEdit ? `<span class="icon-btn" onclick="window.toggleBucketEdit(${idx})" title="${LX('Bearbeiten','Edit')}">${PENCIL_SVG}</span>` : '';
-    let dateAlert = (daysDep !== null && offset > daysDep) ? '<span style="color:var(--red);font-weight:bold;font-size:12px;margin-left:8px">Nach Abreise</span>' : '';
+    // „Nach Abreise" nur, wenn der Termin medizinisch NICHT vor die Abreise verlegt werden kann
+    // (Mindestabstand erzwingt ein Datum nach der Abreise). Rein flexibel platzierte Termine bekommen
+    // keinen Hinweis, auch wenn sie aktuell später liegen.
+    const _reqOffset = (b.minAllowedOffset !== undefined) ? b.minAllowedOffset : offset;
+    let dateAlert = (daysDep !== null && _reqOffset > daysDep) ? '<span style="color:var(--red);font-weight:bold;font-size:12px;margin-left:8px">'+LX('Nach Abreise','After departure')+'</span>' : '';
 
     let itemsHtml = b.items.map(it => {
        // COVID-19 wird an der Charité nicht verimpft → fest extern, nicht verschiebbar (kein Drag&Drop).

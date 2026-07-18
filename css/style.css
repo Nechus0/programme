@@ -39,6 +39,10 @@ main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90p
 .step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--black);color:#fff;border-radius:50%;font-size:12px;font-weight:700;margin-right:10px;}
 .grid{display:grid;gap:16px;} .g4{grid-template-columns:repeat(4,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);}
 label.fld{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:#333;}
+/* Mehrspaltige Formularraster: Eingabefelder sauber ausrichten, auch wenn Labels ein-/zweizeilig sind.
+   Jede Zelle ist eine Flex-Spalte; das Label wächst, sodass die Eingabefelder auf gleicher Höhe stehen. */
+.grid > div{display:flex;flex-direction:column;}
+.grid > div > label.fld{flex:1 1 auto;line-height:1.25;}
 .card-sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);padding-bottom:6px;margin-bottom:14px;border-bottom:1px solid var(--line);}
 .chk-grid{display:flex;flex-wrap:wrap;gap:8px;}
 .chk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}

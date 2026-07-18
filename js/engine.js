@@ -59,6 +59,10 @@ function buildOptimalSchedule(planned, departureStr) {
 
   if (!allDoses.length) return [];
 
+  // Tage bis zur Abreise (für die Termin-Verteilung): flexible Impfungen sollen möglichst VOR der
+  // Abreise erfolgen – auch wenn dadurch mehr als 3 Impfungen auf einen Tag fallen.
+  const daysDep = departureStr ? Math.round((new Date(departureStr) - new Date()) / 86400000) : null;
+
   let bucketDays = new Set([0]);
   allDoses.forEach(d => bucketDays.add(d.minOffset));
   bucketDays = Array.from(bucketDays).sort((a,b)=>a-b);
@@ -84,6 +88,19 @@ function buildOptimalSchedule(planned, departureStr) {
           }
           return i;
        }
+    }
+    // Flexible, nicht-Lebendimpfung, die noch VOR der Abreise möglich wäre: lieber einen (auch vollen)
+    // Vor-Abreise-Termin nehmen, als einen Termin NACH der Abreise anzulegen. >3 an einem Tag sind dann ok.
+    if (daysDep != null && !dose.live && dose.minOffset <= daysDep) {
+       let best = -1, bestCount = Infinity;
+       for (let i = 0; i < buckets.length; i++) {
+          let b = buckets[i];
+          if (b.offset < minOffset || b.offset < dose.minOffset || b.offset > daysDep) continue;
+          if (b.items.some(it => it.k === dose.k)) continue;
+          if (dose.isReacto && b.reactoCount >= 2) continue;
+          if (b.items.length < bestCount) { bestCount = b.items.length; best = i; }
+       }
+       if (best >= 0) return best;
     }
     let lastBucket = buckets.length > 0 ? buckets[buckets.length - 1] : null;
     let newDay = (lastBucket ? lastBucket.offset : 0) + (dose.live ? 28 : 7);
@@ -138,7 +155,9 @@ function buildOptimalSchedule(planned, departureStr) {
   }
 
   for(let i=0; i<buckets.length-1; i++) {
-     if(buckets[i].items.length === 4 && buckets[i+1].items.length === 1) {
+     // Nicht entzerren, wenn der Zieltermin NACH der Abreise läge – dann lieber 4 an einem Tag vor Abreise.
+     const nextAfterDep = (daysDep != null && buckets[i+1].offset > daysDep);
+     if(!nextAfterDep && buckets[i].items.length === 4 && buckets[i+1].items.length === 1) {
         // Niemals eine Impfung in einen Termin verschieben, der dieselbe Impfung (k) schon enthält
         const notDup = it => !buckets[i+1].items.some(x => x.k === it.k);
         let movable = buckets[i].items.filter(it => it.k !== 'yellowfever' && !it.live && notDup(it));
