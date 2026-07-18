@@ -2190,24 +2190,48 @@ async function folgeMarkExternal(k, btn){
 }
 // Read-only-Ansicht der letzten Konsultation (Abschnitte 1–4 + verabreichte Impfungen).
 function folgeClosePrevious(){ const bg=el('folge-prev-bg'); if(bg) bg.remove(); }
-// Fasst den dokumentierten Impfstatus eines Besuchs lesbar zusammen (Vorimpfungen + erfasste Dosen).
-function _folgeVaxSummary(vax){
-  const out=[]; const de=(LANG==='de');
-  const yr=(y)=> de?('Jahr '+y):('year '+y);
+// Schutzstatus-Heuristik: für die volle Grundimmunisierung nötige Dosen + Gültigkeitsdauer (Jahre).
+const _PROT_FULL={ hepA:2, hepB:3, hepAB:3, mmr:2, varicella:2, rabies:3, tbe:3, menb:2, mpox:2, zoster:2, dengue:2, jev:2, hpv:3, cholera:2, tdap:3, polio:3, menacwy:1, yellowfever:1, typhoid:1, chikungunya:2, pneumo:1 };
+const _PROT_VALID_Y={ tdap:10, polio:10, typhoid:3, tbe:5, menacwy:5, cholera:2 };
+function _protRowKey(k){ if(k==='tdap_combo')return 'tdap'; if(k==='ipv_mono')return 'polio'; return k; }
+// green = Geschützt, yellow = Unvollständig (Serie läuft), red = Ungeschützt (abgelaufen/nicht mehr aktuell).
+function _folgeProtLevel(rowKey, doses, lastYear, hasBasic){
+  const full=_PROT_FULL[rowKey]||1;
+  const n=(/^>/.test(''+doses))?9:(parseInt(doses,10)||0);
+  const yValid=_PROT_VALID_Y[rowKey];
+  const yr=(/^\d{4}$/.test(''+lastYear))?parseInt(lastYear,10):null;
+  const complete = hasBasic || (n>=full);
+  if(complete){ if(yValid && yr && (new Date().getFullYear()-yr)>yValid) return 'red'; return 'green'; }
+  // Nicht komplett: bei Impfungen mit fester Gültigkeit gilt ein Jahr innerhalb der Frist als geschützt.
+  if(yValid && yr) return ((new Date().getFullYear()-yr)<=yValid)?'green':'red';
+  return 'yellow';
+}
+function _folgeProtBadge(level){
+  if(!level) return '';
+  const de=(LANG==='de'), fr=(LANG==='fr');
+  const lbl = level==='green'?(de?'Geschützt':(fr?'Protégé':'Protected')):(level==='yellow'?(de?'Unvollständig':(fr?'Incomplet':'Incomplete')):(de?'Ungeschützt':(fr?'Non protégé':'Unprotected')));
+  return '<span class="fp-prot fp-prot-'+level+'">'+_esc(lbl)+'</span>';
+}
+// Fasst den dokumentierten Impfstatus lesbar zusammen: Dosen, JAHR DER LETZTEN GABE, Grundimmunisierung,
+// Schutzstatus. givenKeys markiert die beim letzten Besuch verabreichten Impfungen.
+function _folgeVaxSummary(vax, givenKeys){
+  givenKeys=givenKeys||{};
+  const out=[]; const de=(LANG==='de'), fr=(LANG==='fr');
+  const yrTxt=(y)=> de?('zuletzt '+y):(fr?('dernier '+y):('last '+y));
+  const detailOf=(dose,year,basic)=>{ const d=[]; if(basic) d.push(de?'Grundimmunisierung':(fr?'primo-vaccination':'primary series')); else if(dose && /^(\d|>)/.test(''+dose)) d.push((de?'Dosen ':'doses ')+dose); if(year && /^\d{4}$/.test(''+year)) d.push(yrTxt(year)); return d.join(' · ')||(de?'erfasst':'recorded'); };
+  const push=(name, rowKey, giveKey, dose, year, basic)=>{ out.push({ name:name, key:giveKey, detail:detailOf(dose,year,basic), level:_folgeProtLevel(rowKey, dose, year, basic), given: !!givenKeys[giveKey] }); };
   (typeof VACCINES!=='undefined'?VACCINES:[]).forEach(v=>{
     const st=vax[v.k]; if(!st) return;
     if(v.hep){
-      // aMono/bMono/twin enthalten die Anzahl der Vordosen ('1','2','3','>3'); dazu ggf. das Jahr.
-      const hepDetail=(dose,year)=>{ const d=[]; if(dose && typeof dose==='string' && /^(\d|>)/.test(dose)) d.push((de?'Dosen ':'doses ')+dose); if(year) d.push(yr(year)); return d.length?d.join(' · '):(de?'erfasst':'recorded'); };
-      if(st.aMono||st.aYear) out.push({name:'Hepatitis A', detail:hepDetail(st.aMono, st.aYear)});
-      if(st.bMono||st.bYear) out.push({name:'Hepatitis B', detail:hepDetail(st.bMono, st.bYear)});
-      if(st.twin||st.twYear) out.push({name:'Hepatitis A+B (Twinrix)', detail:hepDetail(st.twin, st.twYear)});
+      if(st.aMono||st.aYear) push('Hepatitis A','hepA','hepA', st.aMono, st.aYear, false);
+      if(st.bMono||st.bYear) push('Hepatitis B','hepB','hepB', st.bMono, st.bYear, false);
+      if(st.twin||st.twYear) push('Hepatitis A+B (Twinrix)','hepAB','hepAB', st.twin, st.twYear, false);
     } else if(v.tdap_polio){
-      if(st.gi_tdap||st.y_td) out.push({name:'Tetanus/Diphtherie/Pertussis', detail:(st.y_td?yr(st.y_td):(de?'Grundimmunisierung':'primary series'))});
-      if(st.gi_ipv||st.y_ipv) out.push({name:'Polio (IPV)', detail:(st.y_ipv?yr(st.y_ipv):(de?'Grundimmunisierung':'primary series'))});
+      if(st.gi_tdap||st.y_td) push('Tetanus, Diphtherie, Pertussis','tdap','tdap_combo', null, st.y_td, !!st.gi_tdap);
+      if(st.gi_ipv||st.y_ipv) push('Polio (IPV)','polio','ipv_mono', null, st.y_ipv, !!st.gi_ipv);
     } else {
       const y=st.year||'', dose=st.done||'';
-      if(dose||y){ const d=[]; if(dose) d.push((de?'Dosen ':'doses ')+dose); if(y) d.push(yr(y)); out.push({name:vName(v), detail:d.join(' · ')}); }
+      if(dose||y) push(vName(v), v.k, v.k, dose, y, false);
     }
   });
   return out;
@@ -2235,14 +2259,21 @@ function folgeShowPrevious(){
     + row(L('Chronische Erkrankungen','Chronic conditions'), lp.chronicText||condsTxt||'')
     + row(L('Allergien','Allergies'), lp.allergy||'')
     + row(L('Medikamente','Medication'), (lp.meds||[]).join(', '));
-  // Abschnitt 4 – dokumentierter Impfstatus des letzten Besuchs (Vorimpfungen + erfasste Dosen).
-  const status=_folgeVaxSummary(lp.vax||{});
-  const statusHtml = status.length ? status.map(s=>row(s.name, s.detail)).join('') : '<div class="fp-none">'+_esc(L('Keine Angaben','No entries'))+'</div>';
-  // Beim letzten Besuch verabreicht = abgerechnete Impfleistungen (zuverlässige Quelle).
-  let given=[];
-  if(lp.administered && Object.keys(lp.administered).length){ given=Object.keys(lp.administered).map(k=>lp.administered[k].name||k); }
-  else { (typeof VACCINES!=='undefined'?VACCINES:[]).forEach(v=>{ const st=(lp.vax||{})[v.k]; if(!st) return; const appts=[].concat(st.appts||[],st.apptsA||[],st.apptsB||[],st.apptsAB||[]); if(appts.includes('today')) given.push(vName(v)); }); }
-  const givenHtml = given.length ? given.map(n=>'<span class="fp-chip">✓ '+_esc(n)+'</span>').join(' ') : '<span class="fp-none">'+_esc(L('Keine Angaben','No entries'))+'</span>';
+  // Abschnitt 4 – Impfstatus NACH dem letzten Besuch: dokumentierte Vorimpfungen + beim letzten Besuch
+  // verabreichte Dosen (hervorgehoben), je mit Schutzstatus.
+  const adm={};
+  Object.keys(lp.administered||{}).forEach(rawK=>{ const e=lp.administered[rawK]||{}; const dk=_folgeAdminDoseKey(rawK,e.name); const c0=adm[dk]||{count:0,date:'',name:e.name}; adm[dk]={count:(c0.count||0)+(e.count||1), date:e.date||c0.date, name:e.name||c0.name}; });
+  const givenKeys={}; Object.keys(adm).forEach(k=>givenKeys[k]=true);
+  let rows=_folgeVaxSummary(lp.vax||{}, givenKeys);
+  const present={}; rows.forEach(r=>{ if(r.key) present[r.key]=true; });
+  Object.keys(adm).forEach(dk=>{ if(present[dk]) return; const e=adm[dk]; const yr=((e.date||'')+'').slice(0,4);
+    const dd=[]; if(e.count) dd.push((de?'Dosen ':'doses ')+e.count); if(/^\d{4}$/.test(yr)) dd.push(de?('zuletzt '+yr):(fr?('dernier '+yr):('last '+yr)));
+    rows.push({ name:e.name||dk, key:dk, detail:(dd.join(' · ')||(de?'gegeben':'given')), level:_folgeProtLevel(_protRowKey(dk), String(e.count||1), yr, false), given:true });
+  });
+  const tGiven=L('zuletzt gegeben','given this visit');
+  const protRow=(r)=>{ const badge=_folgeProtBadge(r.level); const gt=r.given?('<span class="fp-given-tag">✓ '+_esc(tGiven)+'</span>'):''; return '<div class="fp-row fp-statrow'+(r.given?' fp-statrow-given':'')+'"><span class="fp-k">'+_esc(r.name)+'</span><span class="fp-v"><span class="fp-v-detail">'+_esc(r.detail)+'</span>'+gt+badge+'</span></div>'; };
+  const statusHtml = (rows.length ? rows.map(protRow).join('') : '<div class="fp-none">'+_esc(L('Keine Angaben','No entries'))+'</div>')
+    + '<div class="fp-hint">'+_esc(L('Jahresangabe = Jahr der letzten Gabe (nicht alle Dosen am selben Datum).','Year shown = year of the last dose (not all doses on that date).'))+'</div>';
   const title=L('Letzte Konsultation','Last consultation','Dernière consultation')+' · '+dateStr;
   const secT=(n,t)=>'<div class="fp-sec-h"><span class="fp-badge">'+n+'</span>'+_esc(t)+'</div>';
   const html='<div class="folge-prev-modal" onclick="event.stopPropagation()">'
@@ -2252,8 +2283,7 @@ function folgeShowPrevious(){
     + secT('1',L('Stammdaten','Master data'))+s1
     + secT('2',L('Reise','Travel'))+s2
     + secT('3',L('Immunstatus / Anamnese','Immune status / history'))+s3
-    + secT('4',L('Impfstatus (letzter Besuch)','Vaccination status (last visit)'))+statusHtml
-    + '<div class="fp-sec-h"><span class="fp-badge">✓</span>'+_esc(L('Beim letzten Besuch verabreicht','Given at the last visit'))+'</div><div class="fp-given">'+givenHtml+'</div>'
+    + secT('4',L('Impfstatus (nach letztem Besuch)','Vaccination status (after last visit)'))+statusHtml
     + '</div></div>';
   folgeClosePrevious();
   const bg=document.createElement('div'); bg.id='folge-prev-bg'; bg.className='folge-prev-bg'; bg.innerHTML=html;
