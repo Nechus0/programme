@@ -11,7 +11,8 @@ const I18N={
  appTitle:{de:'Reisemedizinische Ambulanz',en:'Travel Medicine Clinic'},appSub:{de:'Institut für Internationale Gesundheit · Reiseimpf-Assistent',en:'Institute of International Health · Travel Vaccination Assistant'},
  fFirstname:{de:'Vorname',en:'First name'},fPhone:{de:'Telefon',en:'Phone'},fInsurance:{de:'Krankenkasse',en:'Health insurance'},fProfession:{de:'Beruf (freiwillig)',en:'Profession (optional)'},fAddress:{de:'Anschrift',en:'Address'},fZip:{de:'PLZ',en:'Postal code'},fCity:{de:'Wohnort',en:'City'},
  fMeds:{de:'Aktuelle Medikamente (welche?)',en:'Current medication (which?)'},fRecentVax:{de:'Impfung/Injektion in den letzten 4 Wochen (welche, wann?)',en:'Vaccination/injection in the last 4 weeks (which, when?)'},fAcute:{de:'Akute Erkrankung (z. B. fieberhafter Infekt)',en:'Acute illness (e.g. febrile infection)'},fThrombosis:{de:'Thrombose in der Vorgeschichte',en:'History of thrombosis'},fFaint:{de:'Ohnmacht bei Impfung/Blutabnahme',en:'Weakness/fainting during vaccination/blood draw'},
- adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},settingsTitle:{de:'Einstellungen',en:'Settings'},setGeneral:{de:'Allgemein',en:'General'},setTreatModeDesc:{de:'Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.',en:'Default treatment type when you take a patient into treatment.'},setTreatModeMfa:{de:'Als MFA bist du im Dienst immer für Folgeimpfungen eingeteilt.',en:'As an MFA you are always assigned to follow-up vaccinations during your shift.'},treatBeratung:{de:'Beratung',en:'Consultation'},treatFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
+ adminBack:{de:'Zurück',en:'Back'},adminTitle:{de:'Nutzerverwaltung',en:'User management'},settingsTitle:{de:'Einstellungen',en:'Settings'},setGeneral:{de:'Allgemein',en:'General'},setTreatModeDesc:{de:'Standard-Behandlungsart, wenn du einen Patienten in Behandlung nimmst.',en:'Default treatment type when you take a patient into treatment.'},setTreatModeMfa:{de:'Als MFA bist du im Dienst immer für Folgeimpfungen eingeteilt.',en:'As an MFA you are always assigned to follow-up vaccinations during your shift.'},
+profileTitle:{de:'Mein Profil',en:'My profile'},profileDesc:{de:'Eigene Angaben ändern. Die Rolle kann nur ein Admin ändern.',en:'Edit your own details. Only an admin can change your role.'},profileTitleFld:{de:'Titel',en:'Title'},profileTitlePh:{de:'z. B. Dr.',en:'e.g. Dr.'},profileName:{de:'Name',en:'Name'},profileGender:{de:'Geschlecht',en:'Gender'},profileRole:{de:'Rolle (nur Admin änderbar)',en:'Role (admin only)'},profilePwHead:{de:'Passwort ändern (optional)',en:'Change password (optional)'},profilePw1:{de:'Neues Passwort',en:'New password'},profilePw2:{de:'Passwort bestätigen',en:'Confirm password'},profileSave:{de:'Profil speichern',en:'Save profile'},genW:{de:'weiblich',en:'female'},genM:{de:'männlich',en:'male'},genD:{de:'divers',en:'diverse'},treatBeratung:{de:'Beratung',en:'Consultation'},treatFolge:{de:'Folgeimpfung',en:'Follow-up vaccination'},adminNewUser:{de:'Neuen Nutzer anlegen',en:'Create new user'},adminNewDesc:{de:'Der Nutzer erhält Zugriff, sobald er sich mit dieser E-Mail über die Registrierungsseite ein Passwort vergibt.',en:'The user gains access once they set a password with this email via the registration page.'},adminUserList:{de:'Angelegte Nutzer',en:'Created users'},
  fEmail:{de:'E-Mail',en:'Email'},fTitle:{de:'Titel',en:'Title'},fRole:{de:'Funktion',en:'Role'},fFullname:{de:'Name (Vor- und Nachname)',en:'Name (first and last)'},fGender:{de:'Geschlecht',en:'Gender'},btnCreateUser:{de:'Nutzer anlegen',en:'Create user'},
  thName:{de:'Name',en:'Name'},thTitle:{de:'Titel',en:'Title'},thGender:{de:'Geschlecht',en:'Gender'},thRole:{de:'Funktion',en:'Role'},thStatusReg:{de:'Status',en:'Status'},
  kasseTitle:{de:'Kasse',en:'Reception / Billing'},kasseDesc:{de:'Für die Rolle „Kasse" ist derzeit keine Funktion hinterlegt.',en:'No function is assigned to the "Reception/Billing" role yet.'},
@@ -3565,6 +3566,8 @@ function applyRole(profile){
   const ub=el('user-box'); if(ub) ub.style.display='flex';
   const un=el('user-name'); if(un) un.textContent = nameFull || (CURRENT_PROFILE.email||'');
   const ur=el('user-role'); if(ur) ur.textContent = roleLabel(role,'de');
+  // Eigenes Icon oben rechts, damit man sich selbst sieht (Klick öffnet das eigene Profil).
+  const av=el('user-avatar-btn'); if(av){ av.innerHTML = initialsCircle(CURRENT_PROFILE.full_name||CURRENT_PROFILE.email||'', role, CURRENT_PROFILE.gender||''); av.style.display = (role==='patient')?'none':''; }
   const ph=el('p-physician'); if(ph) ph.value = nameFull;
   const hb=el('admin-menu-btn'); if(hb) hb.style.display = roleSeesClinic(role)?'inline-flex':'none';
 
@@ -4373,6 +4376,9 @@ function openAdminPanel(){
   // Standard-Behandlungsart nur für den Arzt: MFAs dürfen rechtlich nicht beraten → Auswahl entfällt komplett.
   const tms=el('treatmode-sec'); if(tms) tms.style.display=(role==='arzt')?'':'none';
   const tmHint=el('treatmode-hint'); if(tmHint) tmHint.style.display='none';
+  // Eigenes Profil – für alle angemeldeten Nutzer außer reine Patienten-Accounts.
+  const pfs=el('profile-sec'); const showProfile=(role && role!=='patient');
+  if(pfs){ pfs.style.display=showProfile?'':'none'; if(showProfile) renderProfileForm(); }
   const ao=el('admin-only'); if(ao) ao.style.display=isAdmin?'':'none';
   if(isAdmin){ renderAdminUsers(); renderDeletedPatients(); renderTabletLock(); }
   const ss=el('stats-sec'); const showStats=(role==='admin'||role==='kasse');
@@ -4383,6 +4389,57 @@ function openAdminPanel(){
   if(isAdmin) adminTab('users');
   p.classList.add('show');
   p.scrollTop=0;   // immer oben öffnen, damit die Reiter-Leiste nicht hinter der Kopfzeile liegt
+}
+// Eigenes Profil in das Formular laden.
+function renderProfileForm(){
+  const cp=CURRENT_PROFILE||{};
+  const set=(id,v)=>{ const e=el(id); if(e) e.value=v||''; };
+  set('pf-title', cp.title); set('pf-name', cp.full_name); set('pf-email', cp.email);
+  const g=el('pf-gender'); if(g) g.value=cp.gender||'w';
+  const r=el('pf-role'); if(r) r.value=(typeof roleLabel==='function'?roleLabel(cp.role,LANG==='de'?'de':'en'):(cp.role||''));
+  set('pf-pw1',''); set('pf-pw2','');
+  const m=el('profile-msg'); if(m) m.innerHTML='';
+}
+function _pfMsg(text, kind){ const m=el('profile-msg'); if(m) m.innerHTML=text?('<div class="msg '+(kind||'')+'" style="margin:10px 0;">'+_esc(text)+'</div>'):''; }
+// Eigenes Profil speichern: Name/Titel/Geschlecht in profiles; E-Mail/Passwort über Supabase-Auth.
+// Die Rolle wird bewusst NICHT verändert (nur Admin).
+async function saveOwnProfile(){
+  const btn=el('pf-save-btn'); if(btn) btn.disabled=true;
+  const g=id=>{const e=el(id);return e?(''+e.value).trim():'';};
+  const full_name=g('pf-name'), title=g('pf-title'), gender=(el('pf-gender')||{}).value||'', email=g('pf-email').toLowerCase();
+  const pw1=(el('pf-pw1')||{}).value||'', pw2=(el('pf-pw2')||{}).value||'';
+  if(!full_name){ _pfMsg(LX('Bitte einen Namen angeben.','Please enter a name.'),'err'); if(btn)btn.disabled=false; return; }
+  if(pw1 || pw2){
+    if(pw1.length<8){ _pfMsg(LX('Das neue Passwort muss mindestens 8 Zeichen haben.','New password must be at least 8 characters.'),'err'); if(btn)btn.disabled=false; return; }
+    if(pw1!==pw2){ _pfMsg(LX('Die Passwörter stimmen nicht überein.','Passwords do not match.'),'err'); if(btn)btn.disabled=false; return; }
+  }
+  const notes=[];
+  try{
+    // 1) Profil-Stammdaten
+    if(typeof dbUpdateOwnProfile==='function'){
+      const res=await dbUpdateOwnProfile({full_name, title, gender});
+      if(res && res.error) notes.push(LX('Profil konnte nicht gespeichert werden: ','Profile could not be saved: ')+(res.error.message||res.error));
+    }
+    // 2) E-Mail-Änderung (Supabase verschickt eine Bestätigungs-Mail)
+    const oldEmail=(CURRENT_PROFILE&&CURRENT_PROFILE.email||'').toLowerCase();
+    if(email && email!==oldEmail && typeof authUpdateEmail==='function'){
+      const res=await authUpdateEmail(email);
+      if(res && res.error) notes.push(LX('E-Mail: ','Email: ')+(res.error.message||res.error));
+      else notes.push(LX('Bestätigungslink zur E-Mail-Änderung wurde versendet.','A confirmation link for the email change has been sent.'));
+    }
+    // 3) Passwort-Änderung
+    if(pw1 && typeof authUpdatePassword==='function'){
+      const res=await authUpdatePassword(pw1);
+      if(res && res.error) notes.push(LX('Passwort: ','Password: ')+(res.error.message||res.error));
+      else notes.push(LX('Passwort geändert.','Password changed.'));
+    }
+  }catch(e){ notes.push(String(e&&e.message||e)); }
+  // Kopfzeile (Name/Icon) aktualisieren
+  if(typeof applyRole==='function') applyRole(CURRENT_PROFILE);
+  const hadError=notes.some(n=>/nicht|error|failed|:/.test(n)&&!/versendet|geändert|sent|changed/.test(n));
+  _pfMsg(notes.length?notes.join(' '):LX('Profil gespeichert.','Profile saved.'), hadError?'err':'ok');
+  const b2=el('pf-save-btn'); if(b2) b2.disabled=false;
+  const p1=el('pf-pw1'), p2=el('pf-pw2'); if(p1)p1.value=''; if(p2)p2.value='';
 }
 // Reiter-Umschaltung im Admin-Einstellungsmenü
 function adminTab(name){

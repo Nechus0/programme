@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=82">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=82">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=82">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=82">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=83">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=83">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=83">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=83">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=82">
+<link rel="stylesheet" href="css/style.css?v=83">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -24,6 +24,7 @@
   </div>
   <div class="header-right">
     <div class="user-box" id="user-box" style="display:none">
+      <button type="button" class="user-avatar-btn" id="user-avatar-btn" onclick="openAdminPanel()" title="Mein Profil" aria-label="Mein Profil"></button>
       <div class="user-meta"><span id="user-name"></span><span id="user-role" class="user-role"></span></div>
       <button class="btn sec sm" id="logout-btn" onclick="signOut()">Logout</button>
     </div>
@@ -54,6 +55,30 @@
         <label class="chk-chip"><input type="radio" name="treatmode" value="folgeimpfung" onchange="setMyTreatmentMode('folgeimpfung')"> <span data-i18n="treatFolge">Folgeimpfung</span></label>
       </div>
       <div class="card-desc" id="treatmode-hint" style="display:none" data-i18n="setTreatModeMfa">Als MFA bist du im Dienst immer für Folgeimpfungen eingeteilt.</div>
+    </section>
+    <section class="card" id="profile-sec" style="display:none">
+      <h2 data-i18n="profileTitle">Mein Profil</h2>
+      <div class="card-desc" data-i18n="profileDesc">Eigene Angaben ändern. Die Rolle kann nur ein Admin ändern.</div>
+      <div id="profile-msg"></div>
+      <div class="grid g3">
+        <div><label class="fld" data-i18n="profileTitleFld">Titel</label><input type="text" id="pf-title" placeholder="z. B. Dr." data-i18n-ph="profileTitlePh"></div>
+        <div><label class="fld" data-i18n="profileName">Name</label><input type="text" id="pf-name" autocomplete="name"></div>
+        <div><label class="fld" data-i18n="profileGender">Geschlecht</label><select id="pf-gender">
+          <option value="w" data-i18n="genW">weiblich</option>
+          <option value="m" data-i18n="genM">männlich</option>
+          <option value="d" data-i18n="genD">divers</option>
+        </select></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px;">
+        <div><label class="fld">E-Mail</label><input type="email" id="pf-email" autocomplete="email"></div>
+        <div><label class="fld" data-i18n="profileRole">Rolle (nur Admin änderbar)</label><input type="text" id="pf-role" disabled></div>
+      </div>
+      <div class="card-desc" style="margin-top:18px;font-weight:700;color:var(--text);" data-i18n="profilePwHead">Passwort ändern (optional)</div>
+      <div class="grid g2" style="margin-top:6px;">
+        <div><label class="fld" data-i18n="profilePw1">Neues Passwort</label><input type="password" id="pf-pw1" autocomplete="new-password" placeholder="••••••••"></div>
+        <div><label class="fld" data-i18n="profilePw2">Passwort bestätigen</label><input type="password" id="pf-pw2" autocomplete="new-password" placeholder="••••••••"></div>
+      </div>
+      <div style="margin-top:18px;"><button class="btn" id="pf-save-btn" onclick="saveOwnProfile()" data-i18n="profileSave">Profil speichern</button></div>
     </section>
     <div id="admin-only">
     <section class="card" data-atab="users">
@@ -320,16 +345,16 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=82"></script>
-<script src="data/country_data.js?v=82"></script>
-<script src="data/drugs_db.js?v=82"></script>
-<script src="data/engine_data.js?v=82"></script>
-<script src="js/engine_rules.js?v=82"></script>
-<script src="js/engine.js?v=82"></script>
+<script src="js/auth.js?v=83"></script>
+<script src="data/country_data.js?v=83"></script>
+<script src="data/drugs_db.js?v=83"></script>
+<script src="data/engine_data.js?v=83"></script>
+<script src="js/engine_rules.js?v=83"></script>
+<script src="js/engine.js?v=83"></script>
 <!-- Malaria-Daten + Engine: EINE gemeinsame Quelle für App und Tests -->
-<script src="js/malaria_data.js?v=82"></script>
-<script src="js/malaria_engine.js?v=82"></script>
-<script src="js/script.js?v=82"></script>
+<script src="js/malaria_data.js?v=83"></script>
+<script src="js/malaria_engine.js?v=83"></script>
+<script src="js/script.js?v=83"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){

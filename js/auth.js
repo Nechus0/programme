@@ -237,6 +237,26 @@ async function dbPresenceList(withinMs) {
   return await supabaseClient.from('presence').select('user_id,name,role,gender,shift_func,last_seen').gte('last_seen', since);
 }
 
+// --- Eigenes Profil bearbeiten (Rolle NICHT – die kann nur der Admin ändern) ---------------
+async function dbUpdateOwnProfile(fields) {
+  if (!supabaseClient || !CURRENT_PROFILE || !CURRENT_PROFILE.id) return { error: { message: 'no-user' } };
+  // Bewusst NUR unkritische Felder – niemals role. RLS sollte Self-Update auf die eigene Zeile beschränken.
+  const patch = {};
+  ['full_name', 'title', 'gender'].forEach(k => { if (fields && typeof fields[k] !== 'undefined') patch[k] = fields[k]; });
+  if (!Object.keys(patch).length) return { data: null, error: null };
+  const res = await supabaseClient.from('profiles').update(patch).eq('id', CURRENT_PROFILE.id).select('id,email,full_name,title,gender,role').single();
+  if (res && res.data) { CURRENT_PROFILE = Object.assign({}, CURRENT_PROFILE, res.data); }
+  return res;
+}
+async function authUpdateEmail(email) {
+  if (!supabaseClient) return { error: { message: 'offline' } };
+  return await supabaseClient.auth.updateUser({ email: (email || '').trim().toLowerCase() });
+}
+async function authUpdatePassword(password) {
+  if (!supabaseClient) return { error: { message: 'offline' } };
+  return await supabaseClient.auth.updateUser({ password: password });
+}
+
 // --- Audit Log ----------------------------------
 // Alle Login-/Aktivitäts-Einträge von HEUTE lesen (für „Im Dienst"). Fällt bei fehlender Leseberechtigung leise aus.
 async function dbListAuditToday() {
