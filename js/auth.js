@@ -70,6 +70,7 @@ async function sendPasswordReset(email) {
 }
 async function signOut() {
   // Präsenz sofort beenden, damit die Person umgehend aus „Im Dienst" verschwindet.
+  try{ await dbPresenceClear(); }catch(e){}   // Präsenztabelle (falls vorhanden)
   try{ if(typeof CURRENT_PROFILE!=='undefined' && CURRENT_PROFILE && CURRENT_PROFILE.role && CURRENT_PROFILE.role!=='admin' && typeof dbAuditLog==='function'){ await dbAuditLog('shift_logout', {name:CURRENT_PROFILE.full_name||'', role:CURRENT_PROFILE.role}); } }catch(e){}
   try{ localStorage.removeItem('charite_seccollapse'); }catch(e){}   // Sektionszustand auf Standard zurücksetzen
   if (supabaseClient) { await supabaseClient.auth.signOut(); }
@@ -200,6 +201,29 @@ async function isPatientInputLocked() {
 }
 async function setPatientInputLocked(locked) {
   return await dbSetSetting('patient_input_locked', !!locked);
+}
+
+// --- Präsenz „Im Dienst" (Tabelle presence, siehe supabase_presence.sql) ----------
+// Eine Zeile je Nutzer (Upsert-Heartbeat). Fehlt die Tabelle, geben die Aufrufe einen Fehler
+// zurück und script.js fällt auf das audit_logs-Verfahren zurück.
+async function dbPresenceUpsert() {
+  if (!supabaseClient || !CURRENT_PROFILE || !CURRENT_PROFILE.id) return { error: { message: 'no-user' } };
+  return await supabaseClient.from('presence').upsert({
+    user_id: CURRENT_PROFILE.id,
+    name: CURRENT_PROFILE.full_name || '',
+    role: CURRENT_PROFILE.role || '',
+    gender: CURRENT_PROFILE.gender || '',
+    last_seen: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+}
+async function dbPresenceClear() {
+  if (!supabaseClient || !CURRENT_PROFILE || !CURRENT_PROFILE.id) return;
+  try { return await supabaseClient.from('presence').delete().eq('user_id', CURRENT_PROFILE.id); } catch (e) {}
+}
+async function dbPresenceList(withinMs) {
+  if (!supabaseClient) return { data: null, error: { message: 'offline' } };
+  const since = new Date(Date.now() - (withinMs || 150000)).toISOString();
+  return await supabaseClient.from('presence').select('user_id,name,role,gender,last_seen').gte('last_seen', since);
 }
 
 // --- Audit Log ----------------------------------
