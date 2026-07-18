@@ -28,12 +28,10 @@ Statische Single-Page-Web-App (Vanilla HTML/CSS/JS, kein Build-Schritt) + **Supa
 │   ├── malaria_data.js \_ Malaria-Länderdaten + Engine – NUR für tests/malaria.test.js;
 │   └── malaria_engine.js/  im App-Betrieb ist die Malaria-Engine in script.js eingebettet
 ├── data/
-│   ├── engine_data.js  generierte Länder×Krankheits-Matrix (window.ENGINE_DATA) – Laufzeitquelle
-│   │                   der Empfehlungen (von engine.js UND engine_rules.js gelesen)
+│   ├── engine_data.js  Länder×Krankheits-Matrix (window.ENGINE_DATA) – AUTORITATIVE Laufzeitquelle
+│   │                   der Empfehlungen (von engine.js UND engine_rules.js gelesen), handgepflegt
 │   ├── country_data.js window.ALL_COUNTRY_DATA – separate Länder-Notizen/Hinweise (Anzeige)
-│   ├── drugs_db.js     Wirkstoff-/Immunsuppressiva-Datenbank
-│   └── countries/      186 Einzel-Länder-JSONs = Quellmaterial für den Generator (NICHT zur Laufzeit
-│                       geladen; siehe Hinweis unten)
+│   └── drugs_db.js     Wirkstoff-/Immunsuppressiva-Datenbank
 ├── supabase_app_settings.sql  einmalige Migration: Tabelle app_settings (u. a. Tablet-Sperre)
 ├── assets/
 │   └── karten/         Verbreitungskarten (PNG)
@@ -45,11 +43,11 @@ Ladereihenfolge in `index.html`:
 `auth.js → country_data.js → drugs_db.js → engine_data.js → engine_rules.js → engine.js → script.js`.
 Die Skripte teilen sich den globalen Scope (klassische `<script>`-Tags, kein Modul-Bundler).
 
-> **Datenquelle:** `data/engine_data.js` ist auto-generiert (Header nennt `tools/build/build_engine_data.py`
-> aus `tools/master_data/*.csv`; diese liegen außerhalb des Deploy-Repos). Direkte Änderungen an
-> `engine_data.js` überschreibt ein erneuter Generatorlauf. Die 186 JSONs unter `data/countries/`
-> sind Quellmaterial und werden zur Laufzeit **nicht** geladen – sie können vom generierten Stand
-> abweichen. Für dauerhafte Datenänderungen die Generator-Quelle pflegen und neu bauen.
+> **Datenquelle:** `data/engine_data.js` ist die **handgepflegte, autoritative** Quelle der
+> Länder×Krankheits-Empfehlungen (der ursprüngliche Generator liegt nicht im Repo). Änderungen
+> direkt dort vornehmen und anschließend `node tests/engine.test.js` laufen lassen. (Die früheren
+> `data/countries/*.json`-Quelldateien wurden entfernt, weil sie nicht geladen wurden und vom
+> Stand abwichen.)
 
 ## Lokale Entwicklung
 Kein Build nötig. Wegen relativer Pfade und Supabase-Auth über einen lokalen Server öffnen:
