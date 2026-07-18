@@ -3510,6 +3510,10 @@ function wireFoldHeaders(){
     const s=el(id); if(!s) return; const h=s.querySelector('h2'); if(!h) return;
     h.addEventListener('click',(e)=>{ if(e.target.closest('.lock-btn')) return; toggleFold(id); });
   });
+  // Malaria (stepM): Kopfzeile ein-/ausklappbar (nur wenn faltbar, z. B. Folgeimpfung). Klick auf „K"
+  // (Karten) oder den Stift nicht als Fold-Toggle werten.
+  const mSec=el('stepM'); const mH=mSec&&mSec.querySelector('h2');
+  if(mH){ mH.addEventListener('click',(e)=>{ if(e.target.closest('.map-btn')||e.target.closest('.lock-btn')) return; toggleFold('stepM'); }); }
   FOLD_LISTENERS=true;
 }
 // Kasse-Ansicht: Abschnitte faltbar machen, 2–5 einklappen, 1 offen.
