@@ -1405,7 +1405,7 @@ function renderVaxTable(){
     else if(av.flag==='caution')availBadge='<span class="badge yellow">'+(LANG==='de'?av.badgeDe:(LANG==='fr'?(av.badgeFr||av.badgeEn):av.badgeEn))+'</span>';
     const availNote=(av.flag==='na'||av.flag==='age')?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:(LANG==='fr'?(av.noteFr||av.noteEn):av.noteEn))+'</div>':(av.flag==='caution'?'<div class="reason" style="margin-top:4px;">'+(LANG==='de'?av.noteDe:(LANG==='fr'?(av.noteFr||av.noteEn):av.noteEn))+'</div>':'');
     const liveNote=la?'<div class="reason" style="color:'+(la.level==='block'?'var(--red)':'var(--yellow)')+';font-weight:600">'+L2(la)+'</div>':'';
-    const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info">i</button>';
+    const infoBtn=(DISEASE_MAPS[v.k]?'<button class="map-btn" onclick="showMap(\''+v.k+'\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\''+v.k+'\')" title="Info"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></button>';
 
     if(v.tdap_polio){
       const a = tdapPolioAssess();
@@ -1477,8 +1477,8 @@ function renderVaxTable(){
         '<div class="reason">'+frNote(ha.bNote.de,ha.bNote.en)+'</div>';
       const hbsChk='<div class="ctrl-box"><label style="display:flex; align-items:flex-start; cursor:pointer"><input type="checkbox" style="margin-top:2px; margin-right:6px" '+(serologyState.hbs?'checked':'')+' onchange="toggleSerology(\'hbs\', this.checked)"> <span style="flex:1; line-height:1.3">Anti-HBs ≥ 100 IU/l</span></label></div>';
       
-      const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info">i</button>';
-      const infoBtnB=(DISEASE_MAPS['hepatitis_b']?'<button class="map-btn" onclick="showMap(\'hepatitis_b\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepB\')" title="Info">i</button>';
+      const infoBtnA=(DISEASE_MAPS['hepatitis']?'<button class="map-btn" onclick="showMap(\'hepatitis\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepA\')" title="Info"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></button>';
+      const infoBtnB=(DISEASE_MAPS['hepatitis_b']?'<button class="map-btn" onclick="showMap(\'hepatitis_b\')" title="'+(LX('Verbreitungskarte','Distribution map'))+'">'+(LX('K','M'))+'</button>':'')+'<button class="info-btn" onclick="showInfo(\'hepB\')" title="Info"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></button>';
       
       function yrSel(f){return yearInput('hepatitis',f);}
       
@@ -1720,7 +1720,7 @@ function showInfo(k){
   const mapBtn='';  // Verbreitungskarte separat über den K/M-Button in der Impfstatus-Zeile
   // Gelbfieber: Aufklärungsbogen (DTG) zum Drucken
   const doc=DISEASE_DOCS[k];
-  const printSvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
+  const printSvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
   const docBtn=doc?('<div class="m-doc"><button class="btn sec sm" onclick="printDoc(\''+doc+'\')">'+printSvg+(LX('Aufklärungsbogen drucken','Print consent form'))+'</button></div>'):'';
   // Masern (MMR): ärztliche Masernschutz-Bescheinigung (§20 Abs. 9 IfSG) generieren
   const certBtn=(k==='mmr')?('<div class="m-doc"><button class="btn sec sm" onclick="openMeaslesCert()">'+printSvg+(LX('Impfbescheinigung drucken','Print immunity certificate'))+'</button></div>'):'';
@@ -1753,7 +1753,7 @@ const MEASLES_CERT_OPTS=[
 function openMeaslesCert(){
   const box=el('modal-content'); if(!box) return;
   box.classList.remove('pi-modal');
-  const psvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
+  const psvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
   let opts='';
   MEASLES_CERT_OPTS.forEach((o,i)=>{
     opts+='<label class="mc-opt"><input type="radio" name="measles_cert" value="'+o.v+'"'+(i===0?' checked':'')+'>'+
@@ -2172,10 +2172,10 @@ function renderFolgeBanner(){
   const tEarly=(d)=> de?('Mindestabstand noch nicht erreicht – frühestens ab '+d):(fr?('Intervalle minimal non atteint – au plus tôt le '+d):('Minimum interval not yet met – earliest from '+d));
   const tPrevBtn = de?'Letzte Konsultation ansehen':(fr?'Voir la dernière consultation':'View last consultation');
   const prevBtn = (FOLGE.lastP) ? '<button type="button" class="fb-prevbtn" onclick="folgeShowPrevious()">'+_esc(tPrevBtn)+'</button>' : '';
-  let h='<div class="fb-head"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>'+_esc(tDue)+'</span>'+prevBtn+'</div><ul class="fb-list">';
+  let h='<div class="fb-head"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>'+_esc(tDue)+'</span>'+prevBtn+'</div><ul class="fb-list">';
   const tExt = de?'extern erledigt':(fr?'fait en externe':'done externally');
   FOLGE.due.forEach(d=>{
-    const warn = !d.intervalOK ? '<span class="fb-warn">⚠ '+_esc(tEarly(_folgeDateDE(d.earliest)))+'</span>' : '';
+    const warn = !d.intervalOK ? '<span class="fb-warn"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 3l9 16H3z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg> '+_esc(tEarly(_folgeDateDE(d.earliest)))+'</span>' : '';
     const extBtn = '<button type="button" class="fb-ext" title="'+_esc(de?'Wurde zwischenzeitlich extern (z. B. Hausarzt) geimpft':'Given externally in the meantime (e.g. GP)')+'" onclick="folgeMarkExternal(\''+d.k+'\',this)">'+_esc(tExt)+'</button>';
     h+='<li'+(!d.intervalOK?' class="fb-li-warn"':'')+'><span class="fb-dot"></span><span class="fb-nm">'+_esc(d.name)+'</span>'+warn+extBtn+'</li>';
   });
@@ -3025,9 +3025,9 @@ function renderPatients(){
   };
   // Fluss-Board: eine durchgehende Reihe entlang des Patientenwegs (mit Stufen-Icons)
   const SI={
-    waiting:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
-    treatment:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M10 17v2a3 3 0 0 0 6 0v-3"/><circle cx="18" cy="13" r="2.2"/></svg>',
-    kasse:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9v6M18 9v6"/></svg>',
+    waiting:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    treatment:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M10 17v2a3 3 0 0 0 6 0v-3"/><circle cx="18" cy="13" r="2.2"/></svg>',
+    kasse:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M2.5 10h19"/></svg>',
     done:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>'
   };
   const STAGES=[
@@ -3054,7 +3054,7 @@ function renderPatients(){
   let html='<div class="amb-flow">'+cols+'</div>';
   html+='<div class="amb-shift-row">'+shiftRowHtml()+'</div>';   // „Im Dienst" als Zeile unter dem Board
   // Löschzone – nur beim Ziehen sichtbar (untere Zeile)
-  html+='<div class="amb-trash-zone" id="amb-trash" ondragover="trashOver(event)" ondragleave="trashLeave(event)" ondrop="trashDrop(event)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>'+(LX('Zum Löschen hierher ziehen','Drag here to delete'))+'</span></div>';
+  html+='<div class="amb-trash-zone" id="amb-trash" ondragover="trashOver(event)" ondragleave="trashLeave(event)" ondrop="trashDrop(event)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>'+(LX('Zum Löschen hierher ziehen','Drag here to delete'))+'</span></div>';
   // Gelöschte Patienten – nur für Admin sichtbar, klar als gelöscht markiert
   // Gelöschte Patienten erscheinen NICHT mehr im Board – siehe Einstellungen (Gelöschte Patienten).
   const scrollTops = {};
@@ -3337,7 +3337,7 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      const ungroupBtn=(st!=='done')?'<button class="amb-ungroup" draggable="false" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
+      const ungroupBtn=(st!=='done')?'<button class="amb-ungroup" draggable="false" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
       h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span class="amb-group-nm">'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+ungroupBtn+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
@@ -3461,8 +3461,8 @@ function renderPatientCard(p,inGroup){
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
       +'</div>';
     const ageTxt = (ageParen||'').replace(/[()]/g,'').trim();   // nur Alter, kein volles Geburtsdatum
-    const clockSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>';
-    const pinSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+    const clockSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>';
+    const pinSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
     const checkSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
     // Wartezeit-Eskalation: neutral < 20 min < amber < 40 min < rot
     const waitMin = (s==='waiting') ? Math.max(0,Math.round((Date.now()-new Date(p.savedAt||Date.now()).getTime())/60000)) : 0;
@@ -3474,7 +3474,7 @@ function renderPatientCard(p,inGroup){
     else if(s==='done'){ const paid=p.payment&&p.payment.paid; rightMeta='<span class="ph-time '+(paid?'paid':'wait-amber')+'">'+(paid?checkSvg:'')+'<span>'+(paid?LX('bezahlt','paid'):LX('offen','open'))+'</span></span>'; }
     const rightIcons = (((s==='treatment'||s==='kasse'||s==='done')&&ini)?ini:'');
     // Kasse: „Zahlung offen"-Leiste unter Zeile 2 (bis an der Kasse bezahlt wird)
-    const alertSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>';
+    const alertSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>';
     const payRow=(s==='kasse')?('<div class="ph-payrow">'+alertSvg+(LX('Zahlung offen','Payment due'))+'</div>'):'';
     return '<div class="patient-item pi-'+tt+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragend="pDragEnd(event)" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
       +'<div class="patient-head" onclick="openPatientCard(\''+p.id+'\')">'
@@ -4107,8 +4107,8 @@ function renderMalaria(){
   }
   const a=malariaAssess(destinations||[]);
   if(!a.any){
-    box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>'
-      + '<div class="mal-expo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>'+L2(MAL_EXPO)+'</span></div>';
+    box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>'
+      + '<div class="mal-expo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>'+L2(MAL_EXPO)+'</span></div>';
     if(typeof updateSecNav==='function') updateSecNav();
     return;
   }
@@ -4136,7 +4136,7 @@ function renderMalaria(){
       +'<button type="button" class="mal-mode'+(mode==='standby'?' active':'')+'" onclick="malSetMode(\'standby\')">'+LX('Notfallselbstbehandlung','Standby treatment')+'</button>'
       +'</div>';
     if(mode==='standby'){
-      h+='<div class="mal-standby"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3"/></svg><span>'+L2(MAL_STANDBY)+'</span></div>';
+      h+='<div class="mal-standby"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3"/></svg><span>'+L2(MAL_STANDBY)+'</span></div>';
       h+='<div class="mal-drug-h">'+LX('Notfallmedikament','Standby medication')+'</div><div class="mal-drugs">'+malSbetCard()+'</div>';
     } else {
       h+='<div class="mal-drug-h">'+LX('Medikament','Medication')+'</div><div class="mal-drugs">';
@@ -4144,7 +4144,7 @@ function renderMalaria(){
       h+='</div>';
     }
   }
-  h+='<div class="mal-expo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>'+L2(MAL_EXPO)+'</span></div>';
+  h+='<div class="mal-expo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>'+L2(MAL_EXPO)+'</span></div>';
   box.innerHTML=h;
   malRecUpdate();
   if(typeof updateSecNav==='function') updateSecNav();
@@ -4199,7 +4199,7 @@ function malRecUpdate(){
       : strat==='NSB' ? '<path d="M3 7h18v13H3z"/><path d="M8 7V4h8v3"/>'
       : '<path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/>';
     rec.className='mal-rec '+cls;
-    rec.innerHTML='<svg class="mal-rec-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ic+'</svg><div class="mal-rec-txt"><div class="mal-rec-t">'+title+'</div><div class="mal-rec-s">'+sub+'</div></div>';
+    rec.innerHTML='<svg class="mal-rec-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ic+'</svg><div class="mal-rec-txt"><div class="mal-rec-t">'+title+'</div><div class="mal-rec-s">'+sub+'</div></div>';
   }
   if(el('mal-dose')){
     const sbet = (malariaState.mode==='standby');
@@ -4317,7 +4317,7 @@ const USED_SOURCES=[
 ];
 function renderSources(){
   const box=el('sources-body'); if(!box) return;
-  const extSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-left:3px"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>';
+  const extSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-left:3px"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>';
   const badge=(st)=> st==='planned'
     ? '<span class="src-badge planned">'+LX('In Vorbereitung','In preparation')+'</span>'
     : '<span class="src-badge active">'+LX('Aktiv','Active')+'</span>';
@@ -4443,7 +4443,7 @@ function renderDeletedPatients(){
     const dest=(p.destinations&&p.destinations.length)?' · '+p.destinations.map(c=>CBY[c]?cName(CBY[c]):c).join(', '):'';
     return '<div class="del-row"><div class="del-main"><div class="del-name">'+_esc(nm)+'</div><div class="del-sub">'+(LX('gelöscht von ','deleted by '))+_esc(d.who||'—')+' · '+fmtDateTime(d.ts)+dest+'</div></div><button class="btn sec sm" onclick="restorePatient(\''+p.id+'\')">'+(LX('Wiederherstellen','Restore'))+'</button></div>';
   }).join('')+'</div>';
-  h+='<div class="del-foot"><button class="btn-purge" onclick="purgeAllDeleted()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'+LX('Alle endgültig löschen','Delete all permanently')+'</button></div>';
+  h+='<div class="del-foot"><button class="btn-purge" onclick="purgeAllDeleted()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'+LX('Alle endgültig löschen','Delete all permanently')+'</button></div>';
   box.innerHTML=h;
 }
 // Endgültiges (unwiderrufliches) Löschen aus der Datenbank – nur Admin, mit Bestätigung.
