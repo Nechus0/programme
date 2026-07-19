@@ -3125,6 +3125,8 @@ function renderTreatPanel(){
   const kassePats=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='kasse' && !p.deleted);
   const donePats=patients.filter(p=>patientDay(p)===listDay && patientStatus(p)==='done' && !p.deleted);
   let h='';
+  // „Zurück zur Ambulanzliste" oben links im Menü (nicht mehr im Kopf-Banner).
+  if(editing) h+='<button class="tp-back" onclick="showList()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'+LX('Ambulanzliste','Clinic list')+'</button>';
 
   if(kasse){
     // Rolle Kasse: oben die Warteschlange „Kasse" (klickbar), unten „Behandelt"
@@ -3189,9 +3191,8 @@ function renderPatientBanner(){
   const avColor=p.claimedByRole?roleColor(p.claimedByRole):(typeof roleColor==='function'?roleColor(tt==='folgeimpfung'?'mfa':'arzt'):'#2563eb');
   const av='<span class="pbn-av" style="background:'+avColor+'">'+initials(p.firstname?p.firstname+' '+p.name:p.name)+'</span>';
   const typePill='<span class="pbn-type '+tt+'">'+typeLbl+'</span>';
-  // Nur eine klare Aktion: zurück zur Ambulanzliste. Das Abschließen erfolgt über den
-  // grünen Haken unten rechts (kein doppelter „Behandlung abschließen"-Button mehr).
-  const backBtn='<button class="pbn-btn ghost" onclick="showList()">'+LX('Zurück zur Ambulanzliste','Back to clinic list')+'</button>';
+  // „Zurück zur Ambulanzliste" liegt oben links im Menü (linke Leiste), nicht im Banner.
+  // Das Abschließen erfolgt über den grünen Haken unten rechts.
   // Nützlicher Kontext während der Behandlung: Reiseziele, Countdown bis Abreise, Risiko-Flags.
   const dests=(p.destinations||[]).map(c=>(typeof CBY!=='undefined'&&CBY[c])?cName(CBY[c]):c).filter(Boolean);
   const destTxt=dests.length?('📍 '+dests.join(', ')):'';

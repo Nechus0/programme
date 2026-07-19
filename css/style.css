@@ -314,6 +314,10 @@ body.clinic-idle .treat-panel {
   border-top-right-radius: 0; border-bottom-right-radius: 0;
 }
 body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-top: 0; }
+/* „Zurück zur Ambulanzliste" oben links im Behandlungs-Menü */
+.tp-back{display:inline-flex;align-items:center;gap:7px;width:100%;justify-content:flex-start;background:var(--black);color:#fff;border:none;border-radius:var(--radius-md);padding:9px 12px;font-family:var(--font);font-size:var(--fs-sm);font-weight:600;cursor:pointer;margin-bottom:12px;transition:background .12s;}
+.tp-back:hover{background:#333;}
+.tp-back svg{flex:none;}
 .tp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
 .tp-title{font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);}
 .tp-list{display:flex;flex-direction:column;gap:4px;}
