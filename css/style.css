@@ -534,25 +534,31 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 .clinic-back:hover{background:var(--grey-xl);}
 /* Admin-Nutzerliste (gruppiert) */
 /* Nutzer-Board (Freischaltung per Drag&Drop) – vertikale Rollen-Abschnitte */
-.admin-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;align-items:start;}
+.admin-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px;align-items:start;}
+/* Ruhigere Zähler im Board: outline statt schwarzer Punkt */
+.admin-board .count-pill{background:none;color:var(--neutral);border:1px solid var(--line);border-radius:var(--radius-pill);padding:0 8px;min-width:22px;text-align:center;font-weight:600;line-height:18px;}
 .ab-sec{border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:#fff;display:flex;flex-direction:column;}
-.ab-sec.ab-pending{grid-column:1/-1;border-color:#e6d089;background:#fffdf5;}
+.ab-sec:not(.ab-pending):not(.ab-deleted){min-height:112px;}
+.ab-sec.ab-pending{grid-column:1/-1;border-color:#ecdca0;background:#fffdf6;}
+.ab-sec.ab-pending .count-pill{border-color:#e6d089;color:#8a6d3b;}
 .ab-sec.ab-deleted{grid-column:1/-1;}
 .ab-sec.drag-over{outline:2px dashed var(--blue);outline-offset:-3px;border-color:var(--blue);}
-.ab-sec-h{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);border-bottom:1px solid var(--line);}
+.ab-sec-h{display:flex;align-items:center;gap:8px;padding:12px 16px;font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--neutral);border-bottom:1px solid var(--line);}
 .ab-sec.ab-pending .ab-sec-h{color:#8a6d3b;border-bottom-color:#efe3bd;}
-.ab-rows{display:flex;flex-direction:column;padding:8px;gap:6px;min-height:0;}
-.ab-empty{font-size:var(--fs-sm);color:var(--neutral);padding:14px 8px;text-align:center;border:1px dashed var(--line);border-radius:var(--radius-md);}
-.ab-sec.ab-pending .ab-empty{border:none;padding:8px;}
-.ab-row{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:8px 12px;cursor:grab;transition:border-color .12s,box-shadow .12s;}
+.ab-rows{display:flex;flex-direction:column;padding:12px;gap:8px;min-height:0;}
+.ab-empty{font-size:var(--fs-sm);color:var(--neutral);padding:18px 8px;text-align:center;border:1px dashed var(--line);border-radius:var(--radius-md);}
+.ab-sec.ab-pending .ab-empty{border:none;padding:6px 8px;}
+.ab-row{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:11px 14px;cursor:grab;transition:border-color .12s,box-shadow .12s;}
+.ab-row .ini-circle{width:30px;height:30px;font-size:11px;border-radius:var(--radius-md);}
 .card{background:#fff;border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);position:relative;}
 .ab-row:hover{border-color:#c4c4c4;box-shadow:0 2px 7px rgba(0,0,0,.05);}
 .ab-row:active{cursor:grabbing;}
 .ab-row .ab-main{flex:1;min-width:0;}
 .ab-row .ab-name{font-size:var(--fs-sm);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ab-row .ab-sub{font-size:var(--fs-meta);color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ab-row .icon-btn{flex-shrink:0;opacity:.35;transition:opacity .12s;}
-.ab-row:hover .icon-btn{opacity:1;}
+.ab-row .ab-sub{font-size:var(--fs-meta);color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.ab-row .icon-btn{flex-shrink:0;opacity:.28;min-width:30px;min-height:30px;border-radius:50%;transition:opacity .12s,background .12s;}
+.ab-row:hover .icon-btn{opacity:.55;}
+.ab-row .icon-btn.del:hover{opacity:1;background:#fdecec;}
 @media(max-width:720px){.admin-board{grid-template-columns:1fr;}}
 /* Admin-Einstellungen: Reiter (Nutzerverwaltung / Statistik / Testing / Quellen) */
 .admin-tabs{ display:flex; gap:2px; border-bottom:1px solid var(--line); margin:0 0 20px; flex-wrap:wrap; }
