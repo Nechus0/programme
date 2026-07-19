@@ -3170,7 +3170,7 @@ function renderTreatPanel(){
   if(_others.length>=1){
     h+='<div class="tp-switch">'+_others.map(tpMiniBadge).join('')+'</div>';
   }
-  h+='<div class="tp-head"><span class="tp-title">'+LX('Abschnitte','Sections')+'</span>'+_headAvatar+'</div>';
+  h+='<div class="tp-head"><span class="tp-title">'+LX('Abschnitte','Sections')+'</span></div>';
 
   // Kasse & Behandelt stehen jetzt im zentralen Fluss-Board – die linke Spalte zeigt nur
   // die eigenen laufenden Behandlungen und „Im Dienst".
