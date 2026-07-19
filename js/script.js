@@ -1429,11 +1429,8 @@ function renderVaxTable(){
                  '<div class="seg-group">'+giChip('standard',(LX('Standard','Standard')))+giChip('hexa','Hexavalent')+'</div>'+
                  '<div class="tdap-hint" style="margin-top:6px;">'+(LX('Nichts wählen = keine Grundimmunisierung','None = no primary series'))+'</div>';
 
-      // Row 2 – Letzte Auffrischung: Produkt-Schnellwahl füllt Jahre; Komponenten einzeln überschreibbar
-      const prodChip=(type,lbl)=>'<button type="button" class="seg-chip'+(st.quick_type===type?' on':'')+'" onclick="setQuickTdapType(\''+type+'\')">'+lbl+'</button>';
-      let col3 = '<div class="tdap-lbl">'+(LX('Letzte Auffrischung','Last booster'))+'</div>'+
-                 '<div class="seg-group" style="margin-bottom:7px;">'+prodChip('tdap_ipv','Tdap-IPV')+prodChip('tdap','Tdap')+prodChip('td','Td')+prodChip('ipv','IPV')+'</div>'+
-                 '<div style="display:flex;align-items:center;gap:6px;margin-bottom:9px;"><span class="tdap-hint">'+(LX('Jahr für Auswahl','Year for selection'))+'</span><input type="text" inputmode="numeric" maxlength="4" class="year-in" style="width:88px" placeholder="'+yrPh()+'" onchange="quickFillTdap(this.value)"></div>'+
+      // Row 2 – Letzte Auffrischung: nur die Jahre der letzten Td / aP / IPV (einzeln erfassbar)
+      let col3 = '<div class="tdap-lbl">'+(LX('Letzte Auffrischung (Jahr)','Last booster (year)'))+'</div>'+
                  '<div class="tdap-yrs">'+
                    '<div class="yr-row"><span>Td</span>'+yrIn('y_td')+'</div>'+
                    '<div class="yr-row"><span>aP</span>'+yrIn('y_ap')+'</div>'+
