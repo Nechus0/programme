@@ -3211,7 +3211,7 @@ function renderPatientBanner(){
   const ctxTxt=[destTxt,depTxt].filter(Boolean).join('  ·  ');
   const flagPills=flags.map(f=>'<span class="pbn-flag">'+_esc(f)+'</span>').join('');
   const ctxLine=(ctxTxt||flagPills)?('<div class="pbn-ctx">'+(ctxTxt?'<span class="pbn-ctxtxt">'+_esc(ctxTxt)+'</span>':'')+flagPills+'</div>'):'';
-  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div>'+ctxLine+'</div>'+typePill+backBtn;
+  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div>'+ctxLine+'</div>'+typePill;
   if(!bn){ bn=document.createElement('div'); bn.id='patient-banner'; bn.className='patient-banner-ctx'; }
   bn.innerHTML=inner;
   const anchor=el('editing-banner')||el('folge-banner')||el('step1');
