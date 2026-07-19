@@ -16,7 +16,7 @@
   --fs-h2:17px;     /* Abschnittsüberschriften                  */
   --fs-title:22px;  /* Seiten-/Modal-Titel                      */
   /* Radius-Token: 4-Stufen-Skala + Pille (Kreise bleiben 50%). */
-  --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-pill:999px;
+  --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-card:14px; --radius-pill:999px;
 }
 *{box-sizing:border-box;}
 html{scrollbar-gutter:stable;}
@@ -43,12 +43,12 @@ body.clinic-idle main { display: flex; flex-direction: column; overflow: hidden;
 body.clinic-idle #list-card { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 0; }
 body.clinic-idle #patient-list { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 main{flex:1 1 auto;min-width:0;max-width:1080px;margin:0 auto;padding:24px 0 90px;}
-.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:22px 24px;margin-bottom:22px;scroll-margin-top:78px;}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-card);padding:22px 24px;margin-bottom:22px;scroll-margin-top:78px;}
 .card h2{margin:0 0 4px;font-size:var(--fs-h2);font-weight:700;}
 .card h2.sec-h{display:flex;align-items:center;}
 .card h2.sec-h .price-info-btn{margin-left:auto;}
 .card .card-desc{color:var(--grey);font-size:var(--fs-sm);margin-bottom:18px;}
-.step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--black);color:#fff;border-radius:50%;font-size:var(--fs-sm);font-weight:700;margin-right:10px;}
+.step-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:var(--black);color:#fff;border-radius:var(--radius-md);font-size:var(--fs-sm);font-weight:700;margin-right:10px;}
 .grid{display:grid;gap:16px;} .g4{grid-template-columns:repeat(4,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);}
 label.fld{display:block;font-size:var(--fs-sm);font-weight:600;margin-bottom:5px;color:#333;}
 /* Mehrspaltige Formularraster: Eingabefelder sauber ausrichten, auch wenn Labels ein-/zweizeilig sind.
@@ -106,6 +106,11 @@ table.vax .age-box{max-width:none;}
 .badge{display:inline-block;padding:3px 9px;border-radius:var(--radius-lg);font-size:var(--fs-meta);font-weight:700;white-space:nowrap;}
 .badge.red{background:var(--red-bg);color:var(--red-text);} .badge.yellow{background:var(--yellow-bg);color:var(--yellow-text);} .badge.green{background:var(--green-bg);color:var(--green);} .badge.grey{background:var(--neutral-bg);color:#666;} .badge.blue{background:var(--blue-bg);color:var(--blue);} .badge.violet{background:var(--violet-bg);color:var(--violet);} .badge.red-strong{background:var(--red);color:#fff;}
 .badge.mand{background:var(--red);color:#fff;margin-left:5px;} .badge.live{background:#efe6fb;color:#5b2a9e;margin-left:5px;}
+/* Empfehlungs-Skala im Impfstatus: farbiger Punkt vor dem Label (Pflicht = solide, ohne Punkt) */
+table.vax .status .badge{display:inline-flex;align-items:center;gap:6px;}
+table.vax .status .badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;}
+table.vax .status .badge.red-strong::before,table.vax .status .badge.grey::before{opacity:.55;}
+table.vax .status .badge.mand::before,table.vax .status .badge.plan::before,table.vax .status .badge.live::before{display:none;}
 .badge.plan{border:1px dashed var(--violet);color:var(--violet);background:#fff;margin-left:5px;}
 .badge.plan.today{border-color:var(--green);color:var(--green);}
 .sub-badge{display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:var(--fs-meta);}
@@ -157,6 +162,20 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .today-warn.yellow{background:var(--yellow-bg);color:var(--yellow);border-left:4px solid var(--yellow);}
 .today-warn.red{background:var(--red-bg);color:var(--red);border-left:4px solid var(--red);}
 .editing-banner{display:none !important;}
+/* Schwarzes Patienten-Kontextbanner am Kopf des Behandlungsfensters */
+.patient-banner-ctx{display:flex;align-items:center;gap:14px;background:var(--black);color:#fff;border-radius:var(--radius-lg);padding:13px 18px;margin:0 0 16px;scroll-margin-top:78px;}
+.patient-banner-ctx .pbn-av{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:#fff;font-size:13px;font-weight:700;}
+.patient-banner-ctx .pbn-main{flex:1 1 auto;min-width:0;}
+.patient-banner-ctx .pbn-nm-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+.patient-banner-ctx .pbn-nm{font-size:var(--fs-h2);font-weight:700;letter-spacing:-.01em;}
+.patient-banner-ctx .pbn-sub{font-size:var(--fs-sm);color:#b9b9b9;}
+.patient-banner-ctx .pbn-status{font-size:var(--fs-sm);color:#b9b9b9;margin-top:2px;}
+.patient-banner-ctx .pbn-type{flex:none;font-size:var(--fs-meta);font-weight:700;border-radius:var(--radius-sm);padding:4px 10px;background:var(--blue);color:#fff;}
+.patient-banner-ctx .pbn-type.folgeimpfung{background:#0e9e8e;}
+.patient-banner-ctx .pbn-btn{flex:none;background:#fff;color:var(--black);border:none;border-radius:var(--radius-sm);padding:9px 16px;font-size:var(--fs-sm);font-weight:600;cursor:pointer;font-family:var(--font);}
+.patient-banner-ctx .pbn-btn:hover{background:var(--grey-xl);}
+.patient-banner-ctx .pbn-btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);}
+.patient-banner-ctx .pbn-btn.ghost:hover{background:rgba(255,255,255,.12);}
 
 /* Folgeimpfung: „Fällig heute"-Fokusbanner für erkannte Wiederkehrer */
 .folge-banner{display:none;}
@@ -948,7 +967,7 @@ body.kiosk .kiosk-bar .kiosk-hint{ font-size:var(--fs-base); }
 body.kiosk .med-ac{ font-size:16px; }
 
 /* ===== Fluss-Board v2: volle Breite (kein linkes Panel in der Liste), Im-Dienst-Zeile, Icons ===== */
-body.clinic-idle #list-card{ border-radius:var(--radius-md); }
+body.clinic-idle #list-card{ border-radius:var(--radius-card); }
 body.clinic-idle .shell{ max-width:1280px; }
 .patient-item .patient-head{ cursor:pointer; }
 .amb-col-title{ display:inline-flex; align-items:center; gap:7px; }
@@ -976,11 +995,18 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-head .ph-row1 .ini-circle,.amb-flow .patient-head .ph-row1 .pay-badge{ align-self:center; }
 /* Zeile 2: B/F-Badge ganz links, Ziel, dann Uhrzeit/Preis rechts – immer gleiche Position */
 .amb-flow .patient-head .ph-row2{ display:flex; align-items:center; gap:7px; font-size:var(--fs-meta); color:var(--grey); line-height:1.35; }
-.amb-flow .type-badge{ flex:none; width:20px; height:20px; border-radius:var(--radius-sm); font-size:var(--fs-meta); }
-.amb-flow .patient-head .ph-meta{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.amb-flow .patient-head .ph-spacer{ flex:1 1 auto; }
-.amb-flow .patient-head .ph-time{ flex:none; display:inline-flex; align-items:center; gap:3px; color:var(--grey); }
-.amb-flow .patient-head .ph-time svg{ opacity:.8; }
+.amb-flow .type-badge{ flex:none; width:auto; height:auto; padding:2px 8px; border-radius:var(--radius-sm); font-size:var(--fs-meta); font-weight:700; }
+.amb-flow .patient-head .ph-meta{ display:inline-flex; align-items:center; gap:4px; flex:1 1 auto; min-width:0; color:var(--grey); }
+.amb-flow .patient-head .ph-meta > span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.amb-flow .patient-head .ph-meta svg{ flex:none; opacity:.65; }
+.amb-flow .patient-head .ph-spacer{ flex:0 0 0; }
+.amb-flow .patient-head .ph-time{ flex:none; display:inline-flex; align-items:center; gap:4px; color:var(--grey); }
+.amb-flow .patient-head .ph-time svg{ opacity:.85; }
+.amb-flow .patient-head .ph-time.wait-neutral{ padding:2px 7px; border-radius:var(--radius-sm); background:var(--neutral-bg); color:#6d6d6d; font-weight:700; }
+.amb-flow .patient-head .ph-time.wait-amber{ padding:2px 7px; border-radius:var(--radius-sm); background:var(--yellow-bg); color:var(--yellow-text); font-weight:700; }
+.amb-flow .patient-head .ph-time.wait-red{ padding:2px 7px; border-radius:var(--radius-sm); background:var(--red-bg); color:var(--red-text); font-weight:700; }
+.amb-flow .patient-head .ph-time.treat{ color:var(--blue); font-weight:600; }
+.amb-flow .patient-head .ph-time.paid{ color:var(--green); font-weight:700; }
 .amb-flow .patient-head .ph-price{ flex:none; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
 .amb-flow .patient-head .ini-circle{ flex:none; }
 

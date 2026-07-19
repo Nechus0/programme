@@ -3152,6 +3152,34 @@ function renderTreatPanel(){
   if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
   box.innerHTML=h; box.classList.add('show');
   updateSecNav();
+  if(typeof renderPatientBanner==='function') renderPatientBanner();
+}
+// Schwarzes Kontext-Banner am Kopf des Behandlungsfensters: wer wird gerade behandelt.
+// Wird dynamisch erzeugt/entfernt (die App-Shell hat dafür kein festes Element).
+function renderPatientBanner(){
+  const main=document.querySelector('main'); if(!main) return;
+  let bn=el('patient-banner');
+  const editing=!!editingId && document.body.classList.contains('clinic') && !document.body.classList.contains('clinic-idle');
+  const p=editing?patients.find(x=>x.id===editingId):null;
+  if(!editing || !p){ if(bn) bn.remove(); return; }
+  const s=patientStatus(p), tt=patientTreatType(p);
+  const nm=_esc(p.firstname?p.name+', '+p.firstname:p.name);
+  const gender=p.gender==='m'?LX('männlich','male'):(p.gender==='w'||p.gender==='f'?LX('weiblich','female'):(p.gender==='d'?LX('divers','diverse'):''));
+  const ageTxt=(p.age!==null&&p.age!==undefined)?p.age+' '+LX('J.','yrs'):'';
+  const sub=[ageTxt,gender].filter(Boolean).join(' · ');
+  const statusLbl=s==='kasse'?LX('Kasse','Billing'):(s==='waiting'?LX('Wartend','Waiting'):(s==='done'?LX('Behandelt','Treated'):LX('In Behandlung','In treatment')));
+  const typeLbl=tt==='folgeimpfung'?LX('Folgeimpfung','Follow-up'):LX('Beratung','Consultation');
+  const since=(s==='treatment'&&p.treatmentAt)?' · '+LX('seit ','since ')+elapsedStr(p.treatmentAt):(s==='waiting'?' · '+LX('wartet ','waiting ')+elapsedStr(p.savedAt):'');
+  const avColor=p.claimedByRole?roleColor(p.claimedByRole):(typeof roleColor==='function'?roleColor(tt==='folgeimpfung'?'mfa':'arzt'):'#2563eb');
+  const av='<span class="pbn-av" style="background:'+avColor+'">'+initials(p.firstname?p.firstname+' '+p.name:p.name)+'</span>';
+  const typePill='<span class="pbn-type '+tt+'">'+typeLbl+'</span>';
+  const finishBtn=(s==='treatment'||s==='kasse')?'<button class="pbn-btn" onclick="var b=document.getElementById(\'save-btn\');if(b)b.click();">'+t('btnFinish')+'</button>':'<button class="pbn-btn ghost" onclick="showList()">'+LX('Zur Liste','To list')+'</button>';
+  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div></div>'+typePill+finishBtn;
+  if(!bn){ bn=document.createElement('div'); bn.id='patient-banner'; bn.className='patient-banner-ctx'; }
+  bn.innerHTML=inner;
+  const anchor=el('editing-banner')||el('folge-banner')||el('step1');
+  if(anchor && anchor.parentNode===main){ if(bn.nextSibling!==anchor) main.insertBefore(bn,anchor); }
+  else if(bn.parentNode!==main){ main.insertBefore(bn, main.firstChild); }
 }
 // „Im Dienst": wer ist heute da (aus Behandlern/Abrechnungen des Tages + aktueller Nutzer), Admin ausgenommen.
 // Wird unten in die linke Spalte eingehängt (kein rechtes Panel mehr).
@@ -3385,7 +3413,7 @@ function renderPatientCard(p,inGroup){
     // „Behandeln"-Button bei wartenden Einzelpatienten → in eigene Behandlung übernehmen
     const behandeln=(!inGroup&&s==='waiting'&&canTreatType(patientTreatType(p)))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LX('Behandeln','Treat'))+'</button>':'';
     const tt=patientTreatType(p);
-    const typeBadge='<span class="type-badge '+tt+'" title="'+(tt==='folgeimpfung'?'Folgeimpfung':'Beratung')+'">'+(tt==='folgeimpfung'?'F':'B')+'</span>';
+    const typeBadge='<span class="type-badge '+tt+'" title="'+(tt==='folgeimpfung'?'Folgeimpfung':'Beratung')+'">'+(tt==='folgeimpfung'?LX('Folge','Follow-up'):LX('Beratung','Consult'))+'</span>';
     const actionsBtns=(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LX('Entgruppieren','Ungroup'))+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LX('Löschen','Delete'))+'</button>';
     const fld=(lbl,val)=>'<div class="pb-field"><span class="pb-lbl">'+lbl+'</span><span class="pb-val">'+val+'</span></div>';
     const body='<div class="patient-body">'
@@ -3399,15 +3427,23 @@ function renderPatientCard(p,inGroup){
       +'</div>'
       +'<div class="pb-footer"><div class="pb-stamp">'+stampTxt+'</div><div class="pb-actions">'+actionsBtns+'</div></div>'
       +'</div>';
-    const timeTxt = timeMeta ? timeMeta.replace(/^\s*·\s*/,'') : '';
     const ageTxt = (ageParen||'').replace(/[()]/g,'').trim();   // nur Alter, kein volles Geburtsdatum
     const clockSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>';
-    const priceTxt = (p.billing && typeof p.billing.total==='number' && (s==='kasse'||s==='done')) ? (eur(p.billing.total)+(p.billing.hasUnpriced?' +':'')) : '';
-    const rightIcons = (s==='done'?payBadge(p):'') + (((s==='treatment'||s==='kasse'||s==='done')&&ini)?ini:'');
+    const pinSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+    const checkSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+    // Wartezeit-Eskalation: neutral < 20 min < amber < 40 min < rot
+    const waitMin = (s==='waiting') ? Math.max(0,Math.round((Date.now()-new Date(p.savedAt||Date.now()).getTime())/60000)) : 0;
+    const waitTier = waitMin>=40?'wait-red':(waitMin>=20?'wait-amber':'wait-neutral');
+    let rightMeta='';
+    if(s==='waiting'){ rightMeta='<span class="ph-time '+waitTier+'">'+clockSvg+'<span>'+elapsedStr(p.savedAt)+'</span></span>'; }
+    else if(s==='treatment'){ const seit=p.treatmentAt?elapsedStr(p.treatmentAt):''; if(seit) rightMeta='<span class="ph-time treat">'+(LX('seit ','since '))+seit+'</span>'; }
+    else if(s==='kasse'){ const priceTxt=(p.billing&&typeof p.billing.total==='number')?(eur(p.billing.total)+(p.billing.hasUnpriced?' +':'')):''; rightMeta=priceTxt?'<span class="ph-price">'+priceTxt+'</span>':''; }
+    else if(s==='done'){ const paid=p.payment&&p.payment.paid; rightMeta='<span class="ph-time '+(paid?'paid':'wait-amber')+'">'+(paid?checkSvg:'')+'<span>'+(paid?LX('bezahlt','paid'):LX('offen','open'))+'</span></span>'; }
+    const rightIcons = (((s==='treatment'||s==='kasse'||s==='done')&&ini)?ini:'');
     return '<div class="patient-item pi-'+tt+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragend="pDragEnd(event)" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
       +'<div class="patient-head" onclick="openPatientCard(\''+p.id+'\')">'
         +'<div class="ph-row1"><span class="pl-name">'+dispName+grpBadge+'</span>'+(ageTxt?'<span class="pl-age">'+ageTxt+'</span>':'')+'<span class="pl-spacer"></span>'+rightIcons+'</div>'
-        +'<div class="ph-row2">'+typeBadge+'<span class="ph-meta">'+dest+'</span><span class="ph-spacer"></span>'+(timeTxt?'<span class="ph-time">'+clockSvg+'<span>'+timeTxt+'</span></span>':'')+(priceTxt?'<span class="ph-price">'+priceTxt+'</span>':'')+'</div>'
+        +'<div class="ph-row2">'+typeBadge+'<span class="ph-meta">'+pinSvg+'<span>'+dest+'</span></span><span class="ph-spacer"></span>'+rightMeta+'</div>'
       +'</div></div>';
 }
 // Klick auf eine Karte im Fluss-Board öffnet den Patienten passend zur Stufe/Rolle
