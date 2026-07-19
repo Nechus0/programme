@@ -934,16 +934,15 @@ body.clinic-idle #list-card{ border-top-right-radius:8px; border-bottom-right-ra
 .amb-filter{ font-size:var(--fs-sm); padding:5px 13px; border:0.5px solid var(--line); border-radius:var(--radius-md); background:#fff; cursor:pointer; color:var(--grey); font-family:var(--font); }
 .amb-filter:hover{ border-color:#aaa; color:var(--text); }
 .amb-filter.active{ background:var(--black); color:#fff; border-color:var(--black); font-weight:600; }
-.amb-flow{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; flex:1 1 auto; min-height:0; }
-.amb-col{ display:flex; flex-direction:column; min-height:0; background:var(--grey-xl); border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; }
-.amb-col-h{ display:flex; align-items:center; justify-content:space-between; padding:11px 13px; font-size:var(--fs-sm); font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--grey); background:#fff; border-bottom:1px solid var(--line); flex:0 0 auto; }
-.amb-col-title{ white-space:nowrap; }
-.amb-col .drop-zone{ flex:1 1 auto; min-height:60px; padding:8px 8px 22px; overflow-y:auto; background:transparent; }
-.amb-col .drop-zone.drag-over{ background:#e3f2fd; }
-.amb-col-waiting   .amb-col-h{ box-shadow:inset 0 3px 0 #c3c7cd; }
-.amb-col-treatment .amb-col-h{ box-shadow:inset 0 3px 0 var(--blue); }
-.amb-col-kasse     .amb-col-h{ box-shadow:inset 0 3px 0 var(--yellow); }
-.amb-col-done      .amb-col-h{ box-shadow:inset 0 3px 0 var(--green); }
+.amb-flow{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; flex:1 1 auto; min-height:0; }
+/* Offene Spalten (kein Kasten): getönte Icon-Quadrate, umrandete Zähl-Pillen, farbige Oberkante der Kartenzone. */
+.amb-col{ display:flex; flex-direction:column; min-height:0; background:transparent; border:none; border-radius:0; overflow:visible; }
+.amb-col-h{ display:flex; align-items:center; gap:9px; padding:2px 4px 12px; background:transparent; border:none; flex:0 0 auto; }
+.amb-col .drop-zone{ flex:1 1 auto; min-height:300px; border-top:2px solid #cdd3da; padding:10px 2px 24px; overflow-y:auto; background:transparent; }
+.amb-col-treatment .drop-zone{ border-top-color:#1565c0; }
+.amb-col-kasse     .drop-zone{ border-top-color:#d59a3a; }
+.amb-col-done      .drop-zone{ border-top-color:#4c9e50; }
+.amb-col .drop-zone.drag-over{ background:#f0f6ff; border-radius:0 0 10px 10px; }
 
 /* ===== iPad-/Tablet-Kiosk: große, klare Touch-Ziele für die Patienten-Selbstanmeldung ===== */
 body.kiosk main{ max-width:840px; margin:0 auto; padding:24px 20px 130px; }
@@ -970,27 +969,33 @@ body.kiosk .med-ac{ font-size:16px; }
 body.clinic-idle #list-card{ border-radius:var(--radius-card); }
 body.clinic-idle .shell{ max-width:1280px; }
 .patient-item .patient-head{ cursor:pointer; }
-.amb-col-title{ display:inline-flex; align-items:center; gap:7px; }
-.amb-col-ic{ display:inline-flex; color:var(--grey); }
-.amb-col-treatment .amb-col-ic{ color:var(--blue); }
-.amb-col-kasse .amb-col-ic{ color:var(--yellow-text); }
-.amb-col-done .amb-col-ic{ color:var(--green); }
-.amb-shift-row{ display:flex; align-items:center; flex-wrap:wrap; gap:10px 12px; margin-top:18px; padding:12px 16px; border:1px solid var(--line); border-radius:var(--radius-lg); background:#fafbfc; flex:0 0 auto; }
-.shift-row-title{ font-size:var(--fs-meta); font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--text); margin-right:2px; }
-.shift-row-group{ display:inline-flex; align-items:center; flex-wrap:wrap; gap:6px 9px; padding:5px 12px; background:#fff; border:1px solid var(--line); border-radius:var(--radius-lg); max-width:100%; }
-.shift-row-role{ font-size:var(--fs-meta); font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--grey); }
-.shift-row-person{ display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-sm); font-weight:500; }
+.amb-col-title{ display:inline-flex; align-items:center; gap:9px; white-space:nowrap; font-size:var(--fs-meta); font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#111; }
+.amb-col-ic{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:var(--radius-md); background:#eef0f3; color:#5b6572; flex:none; }
+.amb-col-treatment .amb-col-ic{ background:#e8f0fb; color:#1565c0; }
+.amb-col-kasse     .amb-col-ic{ background:#faf1e0; color:#b45309; }
+.amb-col-done      .amb-col-ic{ background:#e8f3e9; color:#2e7d32; }
+/* Zähl-Pille im Spaltenkopf: umrandet, statusfarbig (überschreibt die globale schwarze Pille) */
+.amb-col-h .count-pill{ margin-left:auto; background:transparent; color:#5b6572; border:1px solid #d5d9df; border-radius:20px; padding:1px 9px; font-size:var(--fs-meta); font-weight:700; }
+.amb-col-treatment .amb-col-h .count-pill{ color:#1565c0; border-color:#b9d3ef; }
+.amb-col-kasse     .amb-col-h .count-pill{ color:#b45309; border-color:#eccfa1; }
+.amb-col-done      .amb-col-h .count-pill{ color:#2e7d32; border-color:#bfe0c2; }
+/* „Im Dienst" – schlichte Fußzeile unten links, nach Funktion gruppiert (kein Kasten) */
+.amb-shift-row{ display:flex; align-items:flex-start; flex-wrap:wrap; gap:8px 26px; margin-top:20px; padding-top:14px; border-top:1px solid #eee; flex:0 0 auto; }
+.shift-row-title{ font-size:var(--fs-meta); font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#9a9a9a; line-height:26px; }
+.shift-row-group{ display:inline-flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.shift-row-role{ font-size:var(--fs-meta); font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#c9ccd1; line-height:26px; }
+.shift-row-person{ display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-sm); color:#333; }
 .shift-row-nm{ white-space:nowrap; }
 .shift-row-empty{ font-size:var(--fs-sm); color:#bcbcbc; }
 
 /* ===== Standardisierte 2-Zeilen-Karten im Fluss-Board ===== */
-.amb-flow .patient-item{ position:relative; background:#fff; border:0.5px solid var(--line); border-left:3px solid var(--line); border-radius:0 10px 10px 0; margin-bottom:8px; }
-.amb-flow .patient-item.pi-beratung{ border-left-color:#2563eb; }      /* B = blau */
-.amb-flow .patient-item.pi-folgeimpfung{ border-left-color:#0e9e8e; }  /* F = teal/grün */
-.amb-flow .patient-head{ display:flex; flex-direction:column; align-items:stretch; gap:3px; padding:9px 12px; cursor:pointer; }
+.amb-flow .patient-item{ position:relative; background:#fff; border:1px solid #e7e7e7; border-radius:10px; box-shadow:0 1px 2px rgba(0,0,0,.04); margin-bottom:9px; transition:box-shadow .12s; }
+.amb-flow .patient-item:hover{ box-shadow:0 4px 14px rgba(0,0,0,.10); }
+.amb-col-done .patient-item{ opacity:.94; }
+.amb-flow .patient-head{ display:flex; flex-direction:column; align-items:stretch; gap:9px; padding:12px 13px; cursor:pointer; }
 .amb-flow .patient-head .ph-row1{ display:flex; align-items:center; gap:6px; min-height:20px; }
-.amb-flow .patient-head .pl-name{ font-weight:600; font-size:var(--fs-sm); line-height:1.2; white-space:normal; }
-.amb-flow .patient-head .pl-age{ font-weight:400; font-size:var(--fs-meta); color:var(--grey); white-space:nowrap; }
+.amb-flow .patient-head .pl-name{ font-weight:700; font-size:var(--fs-base); letter-spacing:-.01em; line-height:1.2; white-space:normal; }
+.amb-flow .patient-head .pl-age{ font-weight:400; font-size:var(--fs-sm); color:#8a8a8a; white-space:nowrap; }
 .amb-flow .patient-head .pl-spacer{ flex:1 1 auto; }
 .amb-flow .patient-head .ph-row1 .ini-circle,.amb-flow .patient-head .ph-row1 .pay-badge{ align-self:center; }
 /* Zeile 2: B/F-Badge ganz links, Ziel, dann Uhrzeit/Preis rechts – immer gleiche Position */
@@ -1007,8 +1012,10 @@ body.clinic-idle .shell{ max-width:1280px; }
 .amb-flow .patient-head .ph-time.wait-red{ padding:2px 7px; border-radius:var(--radius-sm); background:var(--red-bg); color:var(--red-text); font-weight:700; }
 .amb-flow .patient-head .ph-time.treat{ color:var(--blue); font-weight:600; }
 .amb-flow .patient-head .ph-time.paid{ color:var(--green); font-weight:700; }
-.amb-flow .patient-head .ph-price{ flex:none; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
-.amb-flow .patient-head .ini-circle{ flex:none; }
+.amb-flow .patient-head .ph-price{ flex:none; font-size:var(--fs-base); font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
+.amb-flow .patient-head .ini-circle{ flex:none; width:24px; height:24px; border-radius:7px; font-size:10px; }
+/* Kasse: „Zahlung offen"-Leiste unter Zeile 2 */
+.amb-flow .patient-head .ph-payrow{ display:flex; align-items:center; gap:6px; font-size:var(--fs-meta); font-weight:700; color:#b45309; background:#faf1e0; border-radius:var(--radius-sm); padding:5px 8px; }
 
 /* Löschzone (untere Zeile) – nur beim Ziehen sichtbar; Patient/Gruppe hierher ziehen zum Löschen */
 .amb-trash-zone{ display:none; }

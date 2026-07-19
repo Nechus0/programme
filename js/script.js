@@ -3440,10 +3440,14 @@ function renderPatientCard(p,inGroup){
     else if(s==='kasse'){ const priceTxt=(p.billing&&typeof p.billing.total==='number')?(eur(p.billing.total)+(p.billing.hasUnpriced?' +':'')):''; rightMeta=priceTxt?'<span class="ph-price">'+priceTxt+'</span>':''; }
     else if(s==='done'){ const paid=p.payment&&p.payment.paid; rightMeta='<span class="ph-time '+(paid?'paid':'wait-amber')+'">'+(paid?checkSvg:'')+'<span>'+(paid?LX('bezahlt','paid'):LX('offen','open'))+'</span></span>'; }
     const rightIcons = (((s==='treatment'||s==='kasse'||s==='done')&&ini)?ini:'');
+    // Kasse: „Zahlung offen"-Leiste unter Zeile 2 (bis an der Kasse bezahlt wird)
+    const alertSvg='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>';
+    const payRow=(s==='kasse')?('<div class="ph-payrow">'+alertSvg+(LX('Zahlung offen','Payment due'))+'</div>'):'';
     return '<div class="patient-item pi-'+tt+(mine&&s==='treatment'?' mine':'')+'" id="pi-'+p.id+'" data-pid="'+p.id+'" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" ondragend="pDragEnd(event)" ondragover="pCardOver(event)" ondragleave="pCardLeave(event)" ondrop="pCardDrop(event)">'
       +'<div class="patient-head" onclick="openPatientCard(\''+p.id+'\')">'
         +'<div class="ph-row1"><span class="pl-name">'+dispName+grpBadge+'</span>'+(ageTxt?'<span class="pl-age">'+ageTxt+'</span>':'')+'<span class="pl-spacer"></span>'+rightIcons+'</div>'
         +'<div class="ph-row2">'+typeBadge+'<span class="ph-meta">'+pinSvg+'<span>'+dest+'</span></span><span class="ph-spacer"></span>'+rightMeta+'</div>'
+        +payRow
       +'</div></div>';
 }
 // Klick auf eine Karte im Fluss-Board öffnet den Patienten passend zur Stufe/Rolle
