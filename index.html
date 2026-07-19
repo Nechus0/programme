@@ -3,16 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Sentry (Fehler-Monitoring). Konservativ: nur Fehler/Stacktraces, KEINE Session-Replays.
-     PHI-nahe Breadcrumbs (Konsole, Klick-/Eingabetexte) und Request-Bodies werden verworfen,
-     damit keine Patientendaten übertragen werden. -->
+<!-- Sentry (Fehler-Monitoring) – OPT-IN / Staging. Lädt & sendet NICHTS auf dem produktiven
+     Klinik-Host, solange keine AVV/DSB-Freigabe vorliegt. Aktivierung: ?diag=1 in der URL,
+     localStorage 'impf_diag'='1', oder lokaler Host. Konservativ: nur Fehler/Stacktraces,
+     keine Session-Replays, PHI-nahe Breadcrumbs (Konsole/Klick/Eingabe) + Request-Bodies verworfen. -->
 <script>
+(function(){
+  var _local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || location.protocol === 'file:';
+  var enable = _local
+            || /[?&]diag=1/.test(location.search)
+            || (function(){ try { return localStorage.getItem('impf_diag') === '1'; } catch(e){ return false; } })();
+  if(!enable) return;
   window.sentryOnLoad = function () {
     try {
       var _v = (document.querySelector('link[rel=stylesheet]') || {}).href || '';
       var _rel = (_v.match(/v=(\d+)/) || [])[1];
       Sentry.init({
-        environment: (location.hostname.indexOf('github.io') > -1 ? 'production' : 'dev'),
+        environment: _local ? 'dev' : 'staging',
         release: 'impf-app@' + (_rel ? 'v' + _rel : 'dev'),
         sendDefaultPii: false,
         tracesSampleRate: 0,
@@ -28,8 +35,12 @@
       });
     } catch (e) {}
   };
+  var s = document.createElement('script');
+  s.src = 'https://js-de.sentry-cdn.com/d406548d75fd151d9cb646c89cb0fd0c.min.js';
+  s.crossOrigin = 'anonymous'; s.setAttribute('data-lazy','no');
+  document.head.appendChild(s);
+})();
 </script>
-<script src="https://js-de.sentry-cdn.com/d406548d75fd151d9cb646c89cb0fd0c.min.js" crossorigin="anonymous" data-lazy="no"></script>
 <link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=105">
 <link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=105">
 <link rel="shortcut icon" href="app_icons/app_icon.ico?v=105">
