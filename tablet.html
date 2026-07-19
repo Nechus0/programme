@@ -3,6 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Sentry (Fehler-Monitoring). Konservativ: nur Fehler/Stacktraces, KEINE Session-Replays.
+     PHI-nahe Breadcrumbs (Konsole, Klick-/Eingabetexte) und Request-Bodies werden verworfen,
+     damit keine Patientendaten übertragen werden. -->
+<script>
+  window.sentryOnLoad = function () {
+    try {
+      var _v = (document.querySelector('link[rel=stylesheet]') || {}).href || '';
+      var _rel = (_v.match(/v=(\d+)/) || [])[1];
+      Sentry.init({
+        environment: (location.hostname.indexOf('github.io') > -1 ? 'production' : 'dev'),
+        release: 'impf-app@' + (_rel ? 'v' + _rel : 'dev'),
+        sendDefaultPii: false,
+        tracesSampleRate: 0,
+        beforeBreadcrumb: function (b) {
+          if (!b) return b;
+          if (b.category === 'console' || b.category === 'ui.click' || b.category === 'ui.input') return null;
+          return b;
+        },
+        beforeSend: function (event) {
+          if (event && event.request) { delete event.request.data; delete event.request.cookies; }
+          return event;
+        }
+      });
+    } catch (e) {}
+  };
+</script>
+<script src="https://js-de.sentry-cdn.com/d406548d75fd151d9cb646c89cb0fd0c.min.js" crossorigin="anonymous" data-lazy="no"></script>
 <link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=105">
 <link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=105">
 <link rel="shortcut icon" href="app_icons/app_icon.ico?v=105">
