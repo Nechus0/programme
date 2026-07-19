@@ -3337,7 +3337,7 @@ function renderSectionCards(list){
         if(grp.items[0].handlers && grp.items[0].handlers.length > 0) gIcon='<div class="handlers-circles" style="margin-left:8px;">'+grp.items[0].handlers.map(h=>initialsCircle(h.name,h.role,h.gender)).join('')+'</div>';
         else if(claimed) gIcon=initialsCircle(claimed.claimedByName,claimed.claimedByRole,claimed.claimedByGender);
       }
-      const ungroupBtn=(st!=='done')?'<button class="amb-ungroup" draggable="false" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
+      const ungroupBtn=(st!=='done')?'<button class="amb-ungroup" draggable="false" title="'+LX('Gruppe auflösen','Dissolve group')+'" aria-label="'+LX('Gruppe auflösen','Dissolve group')+'" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();dissolveGroup(\''+gesc+'\')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 4 7.9M8 12h4M3 3l18 18"/></svg></button>':'';
       h+='<div class="amb-group" draggable="true" ondragstart="gDragStart(event,\''+gesc+'\')"><div class="amb-group-h"><span class="amb-group-nm">'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</span><span class="amb-group-act">'+ungroupBtn+gIcon+'</span></div>'+grp.items.map(p=>renderPatientCard(p,true)).join('')+'</div>';
     }
     else h+=grp.items.map(p=>renderPatientCard(p,false)).join('');
@@ -3447,7 +3447,7 @@ function renderPatientCard(p,inGroup){
     const behandeln=(!inGroup&&s==='waiting'&&canTreatType(patientTreatType(p)))?'<button class="btn sm amb-behandeln" onclick="event.stopPropagation();takeIntoTreatment(\''+p.id+'\')">'+(LX('Behandeln','Treat'))+'</button>':'';
     const tt=patientTreatType(p);
     const typeBadge='<span class="type-badge '+tt+'" title="'+(tt==='folgeimpfung'?'Folgeimpfung':'Beratung')+'">'+(tt==='folgeimpfung'?LX('Folge','Follow-up'):LX('Beratung','Consult'))+'</span>';
-    const actionsBtns=(p.group?'<button class="btn sec sm" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LX('Entgruppieren','Ungroup'))+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LX('Löschen','Delete'))+'</button>';
+    const actionsBtns=(p.group?'<button class="btn sec sm" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();ungroup(\''+p.id+'\')">'+(LX('Entgruppieren','Ungroup'))+'</button>':'')+'<button class="btn danger sm" onclick="event.stopPropagation();deletePatient(\''+p.id+'\')">'+(LX('Löschen','Delete'))+'</button>';
     const fld=(lbl,val)=>'<div class="pb-field"><span class="pb-lbl">'+lbl+'</span><span class="pb-val">'+val+'</span></div>';
     const body='<div class="patient-body">'
       +'<div class="pb-grid">'
@@ -3760,10 +3760,8 @@ function wireFoldHeaders(){
     const s=el(id); if(!s) return; const h=s.querySelector('h2'); if(!h) return;
     h.addEventListener('click',(e)=>{ if(e.target.closest('.lock-btn')) return; toggleFold(id); });
   });
-  // Malaria (stepM): Kopfzeile ein-/ausklappbar (nur wenn faltbar, z. B. Folgeimpfung). Klick auf „K"
-  // (Karten) oder den Stift nicht als Fold-Toggle werten.
-  const mSec=el('stepM'); const mH=mSec&&mSec.querySelector('h2');
-  if(mH){ mH.addEventListener('click',(e)=>{ if(e.target.closest('.map-btn')||e.target.closest('.lock-btn')) return; toggleFold('stepM'); }); }
+  // Malaria (stepM) wird direkt in renderMalaria verdrahtet (idempotent) – so funktioniert der
+  // Klapp-Toggle unabhängig davon, ob/wann eine Setup-Funktion lief, und ohne Doppel-Handler.
   FOLD_LISTENERS=true;
 }
 // Kasse-Ansicht: Abschnitte faltbar machen, 2–5 einklappen, 1 offen.
@@ -4105,6 +4103,9 @@ function renderMalaria(){
     sec.classList.add('foldable');
     if(malFoldPatient!==editingId){ sec.classList.add('folded'); malFoldPatient=editingId; }
   }
+  // Kopfzeile genau einmal als Klapp-Toggle verdrahten (Klick auf „K"/Karten nicht werten).
+  const _mh=sec.querySelector('h2');
+  if(_mh && !_mh._foldWired){ _mh._foldWired=true; _mh.addEventListener('click',function(e){ if(e.target&&e.target.closest&&e.target.closest('.map-btn')) return; if(sec.classList.contains('foldable')) sec.classList.toggle('folded'); }); }
   const a=malariaAssess(destinations||[]);
   if(!a.any){
     box.innerHTML='<div class="mal-none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>'+LX('Kein Malariarisiko im ausgewählten Reiseziel.','No malaria risk for the selected destination.')+'</div>'
