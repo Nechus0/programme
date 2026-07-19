@@ -335,12 +335,12 @@ body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radi
 .tp-back:hover{background:#333;}
 .tp-back svg{flex:none;}
 /* Patienten-Badge in der linken Leiste (ersetzt das schwarze Kopf-Banner) */
-.tp-badge{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:11px 12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
-.tp-badge .tpb-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
-.tp-badge .tpb-av{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-md);color:#fff;font-size:12px;font-weight:700;flex:none;}
+.tp-badge{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:9px 11px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+.tp-badge .tpb-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.tp-badge .tpb-av{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:var(--radius-sm);color:#fff;font-size:11px;font-weight:700;flex:none;}
 .tp-badge .tpb-type{font-size:10px;font-weight:700;letter-spacing:.02em;border-radius:var(--radius-sm);padding:3px 8px;background:var(--blue);color:#fff;white-space:nowrap;}
 .tp-badge .tpb-type.folgeimpfung{background:#0e9e8e;}
-.tp-badge .tpb-nm{font-size:var(--fs-base);font-weight:700;letter-spacing:-.01em;line-height:1.25;}
+.tp-badge .tpb-nm{font-size:var(--fs-sm);font-weight:700;letter-spacing:-.01em;line-height:1.25;}
 .tp-badge .tpb-age{font-size:var(--fs-sm);font-weight:500;color:var(--grey);}
 .tp-badge .tpb-meta{font-size:var(--fs-meta);color:var(--grey);margin-top:2px;}
 .tp-badge .tpb-ctx{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
@@ -349,6 +349,18 @@ body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radi
 .tp-badge .tpb-dep{color:var(--grey);padding-left:17px;}
 .tp-badge .tpb-flags{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;}
 .tp-badge .tpb-flag{font-size:10px;font-weight:700;background:#fff4e0;color:#9a6a00;border-radius:var(--radius-sm);padding:2px 7px;}
+/* Kompakte Umschalt-Badges für weitere gleichzeitig behandelte Patienten (Familie, bis ~5) */
+.tp-switch{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+.tp-switch-h{display:flex;align-items:center;gap:6px;font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--neutral);margin-bottom:1px;}
+.tp-switch-h .count-pill{background:none;color:var(--neutral);border:1px solid var(--line);border-radius:var(--radius-pill);padding:0 7px;min-width:20px;text-align:center;line-height:16px;margin-left:0;}
+.tp-mini{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid var(--line);border-radius:var(--radius-md);background:#fff;cursor:pointer;transition:border-color .12s,background .12s;}
+.tp-mini:hover{background:var(--grey-xl);}
+.tp-mini.active{border-color:var(--blue);background:#eef4ff;}
+.tp-mini .tpm-av{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:var(--radius-sm);color:#fff;font-size:10px;font-weight:700;flex:none;}
+.tp-mini .tpm-nm{font-size:var(--fs-sm);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.tp-mini .tpm-age{font-size:var(--fs-meta);color:var(--grey);flex:none;}
+.tp-mini .tpm-dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--blue);}
+.tp-mini .tpm-dot.folgeimpfung{background:#0e9e8e;}
 .tp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
 .tp-title{font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);}
 .tp-list{display:flex;flex-direction:column;gap:4px;}

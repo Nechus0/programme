@@ -3116,6 +3116,15 @@ function tpItemDone(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); c
 // Patient im Behandlungsfeld wechseln – aktuelle Eingaben vorher zwischenspeichern (ohne Abschluss)
 async function tpSwitch(id){ if(id===editingId){ if(document.body.classList.contains('clinic-idle')) enterPatient(); return; } if(editingId){ try{ await savePatient(false); }catch(_){} } loadPatient(id); }
 function tpItemStatic(p){ const nm=(p.firstname?p.name+', '+p.firstname:p.name); return '<div class="tp-item tp-static" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()"><span class="tp-nm">'+_esc(nm)+'</span></div>'; }
+// Kompakte Umschalt-Badge für weitere gleichzeitig behandelte Patienten (z. B. Familie).
+function tpMiniBadge(p){
+  const nm=(p.firstname?p.name+', '+p.firstname:p.name);
+  const tt=patientTreatType(p);
+  const act=(p.id===editingId)?' active':'';
+  const col=p.claimedByRole?roleColor(p.claimedByRole):(typeof roleColor==='function'?roleColor(tt==='folgeimpfung'?'mfa':'arzt'):'#2563eb');
+  const age=(p.age!==null&&p.age!==undefined)?'<span class="tpm-age">'+p.age+' '+LX('J.','y')+'</span>':'';
+  return '<div class="tp-mini'+act+'" tabindex="0" onmouseenter="showTpTooltip(event,\''+p.id+'\')" onmouseleave="hideTpTooltip()" draggable="true" ondragstart="pDragStart(event,\''+p.id+'\')" onclick="tpSwitch(\''+p.id+'\')"><span class="tpm-av" style="background:'+col+'">'+initials(p.firstname?p.firstname+' '+p.name:p.name)+'</span><span class="tpm-nm">'+_esc(nm)+'</span>'+age+'<span class="tpm-dot '+tt+'"></span></div>';
+}
 function renderTreatPanel(){
   const box=el('treat-panel'); if(!box) return;
   const clinic=document.body.classList.contains('clinic');
@@ -3155,19 +3164,15 @@ function renderTreatPanel(){
   // Name + „Zurück"-Button stehen bereits im Kopf-Banner → hier nicht doppeln.
   // Die Umschaltliste erscheint nur, wenn MEHRERE eigene Patienten gleichzeitig in Behandlung
   // sind (echter Mehrwert). Bei genau einem Patienten zeigt das Panel nur die Abschnitte.
-  const _multi = mine.length>=2;
-  const _navTitle = _multi ? _headTitle : LX('Abschnitte','Sections');
-  h+='<div class="tp-head"><span class="tp-title">'+_navTitle+'</span>'+_headAvatar+'</div>';
-  if(_multi){
-    const groups={},order=[];
-    mine.forEach(p=>{const g=(p.group||'').trim();const k=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[k]){groups[k]={g:g,items:[]};order.push(k);}groups[k].items.push(p);});
-    h+='<div class="tp-list">';
-    order.forEach(k=>{const grp=groups[k];
-      if(grp.g&&grp.items.length>1) h+='<div class="tp-group"><div class="tp-gname">'+(LX('Gruppe: ','Group: '))+_esc(grp.g)+'</div>'+grp.items.map(tpItem).join('')+'</div>';
-      else h+=grp.items.map(tpItem).join('');
-    });
+  // Der aktive Patient steht bereits als Badge oben (keine Dopplung). Weitere gleichzeitig
+  // behandelte Patienten (z. B. Familie, bis ~5) erscheinen als kompakte Umschalt-Badges.
+  const _others = mine.filter(p=>p.id!==editingId);
+  if(_others.length>=1){
+    h+='<div class="tp-switch"><div class="tp-switch-h">'+LX('Weitere in Behandlung','Also in treatment')+' <span class="count-pill">'+_others.length+'</span></div>';
+    h+=_others.map(tpMiniBadge).join('');
     h+='</div>';
   }
+  h+='<div class="tp-head"><span class="tp-title">'+LX('Abschnitte','Sections')+'</span>'+_headAvatar+'</div>';
 
   // Kasse & Behandelt stehen jetzt im zentralen Fluss-Board – die linke Spalte zeigt nur
   // die eigenen laufenden Behandlungen und „Im Dienst".
