@@ -3131,6 +3131,8 @@ function renderTreatPanel(){
   let h='';
   // „Zurück zur Ambulanzliste" oben links im Menü (nicht mehr im Kopf-Banner).
   if(editing) h+='<button class="tp-back" onclick="showList()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'+LX('Ambulanzliste','Clinic list')+'</button>';
+  // Patienten-Badge (ersetzt das schwarze Kopf-Banner) direkt unter „Ambulanzliste".
+  if(editing){ const _curBadge=patients.find(x=>x.id===editingId); if(_curBadge && typeof patientBadgeHtml==='function') h+=patientBadgeHtml(_curBadge); }
 
   if(kasse){
     // Rolle Kasse: oben die Warteschlange „Kasse" (klickbar), unten „Behandelt"
@@ -3178,28 +3180,19 @@ function renderTreatPanel(){
 }
 // Schwarzes Kontext-Banner am Kopf des Behandlungsfensters: wer wird gerade behandelt.
 // Wird dynamisch erzeugt/entfernt (die App-Shell hat dafür kein festes Element).
-function renderPatientBanner(){
-  const main=document.querySelector('main'); if(!main) return;
-  let bn=el('patient-banner');
-  const editing=!!editingId && document.body.classList.contains('clinic') && !document.body.classList.contains('clinic-idle');
-  const p=editing?patients.find(x=>x.id===editingId):null;
-  if(!editing || !p){ if(bn) bn.remove(); return; }
+// Kompakte Patienten-Badge für die linke Leiste (ersetzt das schwarze Kopf-Banner).
+// Zeigt dieselbe Info wie die Ambulanzlisten-Karte: Name, Alter, Status, Typ, Ziel, Countdown, Flags.
+function patientBadgeHtml(p){
+  if(!p) return '';
   const s=patientStatus(p), tt=patientTreatType(p);
   const nm=_esc(p.firstname?p.name+', '+p.firstname:p.name);
-  const gender=p.gender==='m'?LX('männlich','male'):(p.gender==='w'||p.gender==='f'?LX('weiblich','female'):(p.gender==='d'?LX('divers','diverse'):''));
   const ageTxt=(p.age!==null&&p.age!==undefined)?p.age+' '+LX('J.','yrs'):'';
-  const sub=[ageTxt,gender].filter(Boolean).join(' · ');
-  const statusLbl=s==='kasse'?LX('Kasse','Billing'):(s==='waiting'?LX('Wartend','Waiting'):(s==='done'?LX('Behandelt','Treated'):LX('In Behandlung','In treatment')));
   const typeLbl=tt==='folgeimpfung'?LX('Folgeimpfung','Follow-up'):LX('Beratung','Consultation');
-  const since=(s==='treatment'&&p.treatmentAt)?' · '+LX('seit ','since ')+elapsedStr(p.treatmentAt):(s==='waiting'?' · '+LX('wartet ','waiting ')+elapsedStr(p.savedAt):'');
+  const statusLbl=s==='kasse'?LX('Kasse','Billing'):(s==='waiting'?LX('Wartend','Waiting'):(s==='done'?LX('Behandelt','Treated'):LX('In Behandlung','In treatment')));
+  const since=(s==='treatment'&&p.treatmentAt)?LX('seit ','since ')+elapsedStr(p.treatmentAt):(s==='waiting'&&p.savedAt?LX('wartet ','waiting ')+elapsedStr(p.savedAt):'');
   const avColor=p.claimedByRole?roleColor(p.claimedByRole):(typeof roleColor==='function'?roleColor(tt==='folgeimpfung'?'mfa':'arzt'):'#2563eb');
-  const av='<span class="pbn-av" style="background:'+avColor+'">'+initials(p.firstname?p.firstname+' '+p.name:p.name)+'</span>';
-  const typePill='<span class="pbn-type '+tt+'">'+typeLbl+'</span>';
-  // „Zurück zur Ambulanzliste" liegt oben links im Menü (linke Leiste), nicht im Banner.
-  // Das Abschließen erfolgt über den grünen Haken unten rechts.
-  // Nützlicher Kontext während der Behandlung: Reiseziele, Countdown bis Abreise, Risiko-Flags.
   const dests=(p.destinations||[]).map(c=>(typeof CBY!=='undefined'&&CBY[c])?cName(CBY[c]):c).filter(Boolean);
-  const destTxt=dests.length?('📍 '+dests.join(', ')):'';
+  const destTxt=dests.join(', ');
   let depTxt='';
   if(p.departure){ const dd=Math.round((new Date(p.departure).getTime()-Date.now())/86400000);
     if(!isNaN(dd)) depTxt=(dd>=0)?(LX('Abreise in ','Departure in ')+dd+' '+LX('Tagen','days')):LX('bereits abgereist','already departed'); }
@@ -3208,16 +3201,19 @@ function renderPatientBanner(){
   else if(p.pregnant==='breastfeeding') flags.push(LX('Stillend','Breastfeeding'));
   if(p.immunodef) flags.push(LX('Immundefizienz','Immunodeficiency'));
   if(p.allergy) flags.push(LX('Allergie','Allergy'));
-  const ctxTxt=[destTxt,depTxt].filter(Boolean).join('  ·  ');
-  const flagPills=flags.map(f=>'<span class="pbn-flag">'+_esc(f)+'</span>').join('');
-  const ctxLine=(ctxTxt||flagPills)?('<div class="pbn-ctx">'+(ctxTxt?'<span class="pbn-ctxtxt">'+_esc(ctxTxt)+'</span>':'')+flagPills+'</div>'):'';
-  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div>'+ctxLine+'</div>'+typePill;
-  if(!bn){ bn=document.createElement('div'); bn.id='patient-banner'; bn.className='patient-banner-ctx'; }
-  bn.innerHTML=inner;
-  const anchor=el('editing-banner')||el('folge-banner')||el('step1');
-  if(anchor && anchor.parentNode===main){ if(bn.nextSibling!==anchor) main.insertBefore(bn,anchor); }
-  else if(bn.parentNode!==main){ main.insertBefore(bn, main.firstChild); }
+  const pin='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  let h='<div class="tp-badge tpb-'+tt+'">';
+  h+='<div class="tpb-hd"><span class="tpb-av" style="background:'+avColor+'">'+initials(p.firstname?p.firstname+' '+p.name:p.name)+'</span><span class="tpb-type '+tt+'">'+typeLbl+'</span></div>';
+  h+='<div class="tpb-nm">'+nm+(ageTxt?' <span class="tpb-age">'+ageTxt+'</span>':'')+'</div>';
+  if(statusLbl||since) h+='<div class="tpb-meta">'+statusLbl+(since?' · '+since:'')+'</div>';
+  if(destTxt||depTxt){ h+='<div class="tpb-ctx">'; if(destTxt) h+='<div class="tpb-line">'+pin+'<span>'+_esc(destTxt)+'</span></div>'; if(depTxt) h+='<div class="tpb-line tpb-dep">'+_esc(depTxt)+'</div>'; h+='</div>'; }
+  if(flags.length) h+='<div class="tpb-flags">'+flags.map(f=>'<span class="tpb-flag">'+_esc(f)+'</span>').join('')+'</div>';
+  h+='</div>';
+  return h;
 }
+// Alt-Kopf-Banner entfernt: Identität steht jetzt als Badge in der linken Leiste. Diese Funktion
+// räumt nur noch ein evtl. vorhandenes Alt-Element weg (verhindert das Hineinragen in die Liste).
+function renderPatientBanner(){ const bn=el('patient-banner'); if(bn) bn.remove(); }
 // „Im Dienst": wer ist heute da (aus Behandlern/Abrechnungen des Tages + aktueller Nutzer), Admin ausgenommen.
 // Wird unten in die linke Spalte eingehängt (kein rechtes Panel mehr).
 let SHIFT_TODAY={};   // wer war heute eingeloggt (aus audit_logs 'shift_login')
