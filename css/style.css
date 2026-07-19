@@ -349,6 +349,8 @@ body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radi
 .tp-badge .tpb-dep{color:var(--grey);padding-left:17px;}
 .tp-badge .tpb-flags{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;}
 .tp-badge .tpb-flag{font-size:10px;font-weight:700;background:#fff4e0;color:#9a6a00;border-radius:var(--radius-sm);padding:2px 7px;}
+/* Menü-Titel oben in der linken Leiste (zeigt, in welchem Menü man ist) */
+.tp-menu-h{font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--neutral);margin:2px 0 8px;}
 /* Kompakte Umschalt-Badges für weitere gleichzeitig behandelte Patienten (Familie, bis ~5) */
 .tp-switch{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
 .tp-switch-h{display:flex;align-items:center;gap:6px;font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--neutral);margin-bottom:1px;}

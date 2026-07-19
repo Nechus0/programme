@@ -3141,7 +3141,15 @@ function renderTreatPanel(){
   // „Zurück zur Ambulanzliste" oben links im Menü (nicht mehr im Kopf-Banner).
   if(editing) h+='<button class="tp-back" onclick="showList()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'+LX('Ambulanzliste','Clinic list')+'</button>';
   // Patienten-Badge (ersetzt das schwarze Kopf-Banner) direkt unter „Ambulanzliste".
-  if(editing){ const _curBadge=patients.find(x=>x.id===editingId); if(_curBadge && typeof patientBadgeHtml==='function') h+=patientBadgeHtml(_curBadge); }
+  if(editing){
+    const _curBadge=patients.find(x=>x.id===editingId);
+    if(_curBadge){
+      const _st=patientStatus(_curBadge);
+      const _mlbl=_st==='kasse'?LX('Kasse','Billing'):(_st==='waiting'?LX('Patient','Patient'):LX('In Behandlung','In treatment'));
+      h+='<div class="tp-menu-h">'+_mlbl+'</div>';
+      if(typeof patientBadgeHtml==='function') h+=patientBadgeHtml(_curBadge);
+    }
+  }
 
   if(kasse){
     // Rolle Kasse: oben die Warteschlange „Kasse" (klickbar), unten „Behandelt"
