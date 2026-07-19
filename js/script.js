@@ -3173,8 +3173,10 @@ function renderPatientBanner(){
   const avColor=p.claimedByRole?roleColor(p.claimedByRole):(typeof roleColor==='function'?roleColor(tt==='folgeimpfung'?'mfa':'arzt'):'#2563eb');
   const av='<span class="pbn-av" style="background:'+avColor+'">'+initials(p.firstname?p.firstname+' '+p.name:p.name)+'</span>';
   const typePill='<span class="pbn-type '+tt+'">'+typeLbl+'</span>';
-  const finishBtn=(s==='treatment'||s==='kasse')?'<button class="pbn-btn" onclick="var b=document.getElementById(\'save-btn\');if(b)b.click();">'+t('btnFinish')+'</button>':'<button class="pbn-btn ghost" onclick="showList()">'+LX('Zur Liste','To list')+'</button>';
-  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div></div>'+typePill+finishBtn;
+  // Nur eine klare Aktion: zurück zur Ambulanzliste. Das Abschließen erfolgt über den
+  // grünen Haken unten rechts (kein doppelter „Behandlung abschließen"-Button mehr).
+  const backBtn='<button class="pbn-btn ghost" onclick="showList()">'+LX('Zurück zur Ambulanzliste','Back to clinic list')+'</button>';
+  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div></div>'+typePill+backBtn;
   if(!bn){ bn=document.createElement('div'); bn.id='patient-banner'; bn.className='patient-banner-ctx'; }
   bn.innerHTML=inner;
   const anchor=el('editing-banner')||el('folge-banner')||el('step1');

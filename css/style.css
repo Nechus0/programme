@@ -87,10 +87,11 @@ h2 .age-box.empty{font-size:var(--fs-meta);font-weight:500;}
 .legend .lg{display:flex;align-items:center;gap:6px;}
 .dot{width:13px;height:13px;border-radius:var(--radius-xs);border:1px solid rgba(0,0,0,.15);}
 .dot.red{background:var(--red);} .dot.yellow{background:var(--yellow);} .dot.green{background:var(--green);} .dot.grey{background:var(--neutral);} .dot.blue{background:var(--blue);} .dot.violet{background:var(--violet);}
-table.vax{width:100%;border-collapse:collapse;font-size:var(--fs-sm);table-layout:fixed;}
-table.vax th,table.vax td{border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;vertical-align:top;}
-table.vax thead th{font-size:var(--fs-meta);text-transform:uppercase;letter-spacing:.03em;color:#fff;font-weight:600;background:var(--black);vertical-align:middle;}
-table.vax thead th:first-child{border-top-left-radius:6px;} table.vax thead th:last-child{border-top-right-radius:6px;}
+/* Impfstatus-Tabelle im hellen Karten-Stil (kohärent mit dem übrigen UI): heller Kopf statt schwarzer Balken, gerundeter Rahmen. */
+table.vax{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--fs-sm);table-layout:fixed;border:1px solid #e6e6e6;border-radius:var(--radius-lg);overflow:hidden;background:#fff;}
+table.vax th,table.vax td{border-bottom:1px solid #f2f2f2;padding:12px 14px;text-align:left;vertical-align:top;}
+table.vax thead th{font-size:var(--fs-meta);text-transform:uppercase;letter-spacing:.05em;color:#9a9a9a;font-weight:700;background:#fafafa;border-bottom:1px solid #eee;vertical-align:middle;}
+table.vax tbody tr:last-child td{border-bottom:none;}
 table.vax th:nth-child(1), table.vax td:nth-child(1) { width: 25%; }
 table.vax th:nth-child(2), table.vax td:nth-child(2) { width: 31%; }
 table.vax th:nth-child(3), table.vax td:nth-child(3) { width: 17%; }
@@ -905,7 +906,12 @@ body.clinic-idle .shift-panel.show{ margin:24px 0 20px 0; border-left:none; bord
 .pi-sub{ font-size:var(--fs-sm); }
 /* Sektion 4: Altersfeld in eigener Zeile unter der Überschrift (kein Kollidieren mit Stift/Caret) */
 .s4-agebar{ display:flex; justify-content:flex-end; margin:0 0 18px; }
-.s4-agebar .age-box{ margin-top:0; }
+/* Altersanzeige als dezenter Chip statt schwarzem Kasten (kohärent); Kinder weiterhin farblich hervorgehoben. */
+.s4-agebar .age-box{ margin-top:0; background:var(--grey-xl); color:var(--text); border:1px solid var(--line); font-weight:700; }
+.s4-agebar .age-box .yob{ color:var(--grey); opacity:1; }
+.s4-agebar .age-box.child{ background:#e7f0fb; color:#1565c0; border-color:#b9d3ef; }
+.s4-agebar .age-box.child .yob{ color:#1565c0; opacity:.8; }
+.s4-agebar .age-box.empty{ background:var(--grey-xl); color:var(--grey); border-color:var(--line); font-weight:500; }
 /* Etwas mehr Luft zwischen Überschrift+Nummer und Inhalt in allen Abschnitten */
 .card h2{ margin-bottom:12px; }
 
