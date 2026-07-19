@@ -3174,8 +3174,11 @@ function renderTreatPanel(){
   // sind (echter Mehrwert). Bei genau einem Patienten zeigt das Panel nur die Abschnitte.
   // Der aktive Patient steht bereits als Badge oben (keine Dopplung). Weitere gleichzeitig
   // behandelte Patienten (z. B. Familie, bis ~5) erscheinen als kompakte Umschalt-Badges.
+  // Umschalt-Badges nur in der echten Behandlungsansicht zeigen – nicht in der Patienten-
+  // (Wartend-), Kasse- oder Behandelt-Ansicht.
   const _others = mine.filter(p=>p.id!==editingId);
-  if(_others.length>=1){
+  const _curInTreat = _curEdit && patientStatus(_curEdit)==='treatment';
+  if(_curInTreat && _others.length>=1){
     h+='<div class="tp-switch">'+_others.map(tpMiniBadge).join('')+'</div>';
   }
   h+='<div class="tp-head"><span class="tp-title">'+LX('Abschnitte','Sections')+'</span></div>';
