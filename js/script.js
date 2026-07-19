@@ -1944,7 +1944,17 @@ async function savePatient(finish){
     // Neuer Patient (Registrierung) → immer „Wartend". Sonst: an der Kasse → 'done', durch Personal → 'kasse'.
     status: _isNewReg ? 'waiting' : ((finish && _clinic) ? (_atKasse ? 'done' : 'kasse') : _prevStatus),
     group:(existing&&existing.group)||'',
-    treatmentType:(existing&&existing.treatmentType)||INTAKE_TYPE||undefined,
+    // Behandlungsart: Wird bei der Übergabe Behandlung→Kasse OHNE erbrachte Beratung
+    // automatisch auf „Folgeimpfung" korrigiert (dann war es faktisch nur eine Impfung).
+    treatmentType:(function(){
+      const base=(existing&&existing.treatmentType)||INTAKE_TYPE||undefined;
+      const movingToKasse = finish && _clinic && !_atKasse;
+      if(movingToKasse && base==='beratung'){
+        const L = _clinic ? readLeistungen() : (existing&&existing.leistungen);
+        if(!L || !L.beratung || L.beratung==='none') return 'folgeimpfung';
+      }
+      return base;
+    })(),
     claimedBy:(existing&&existing.claimedBy)||(document.body.classList.contains('clinic')?myUserKey():null),
     claimedByName:(existing&&existing.claimedByName)||((CURRENT_PROFILE&&CURRENT_PROFILE.full_name)||''),
     claimedByRole:(existing&&existing.claimedByRole)||(document.body.classList.contains('clinic')?((CURRENT_PROFILE&&CURRENT_PROFILE.role)||''):''),
@@ -2832,7 +2842,11 @@ async function finishTreatment(){
     } else {
       // Behandlung → Kasse: ganze Gruppe zusammen weiterreichen.
       const mates=patients.filter(p=>patientDay(p)===listDay && (p.group||'').trim().toLowerCase()===grp && p.status!==target);
-      for(const m of mates){ m.status=target; await persistPatient(m); }
+      for(const m of mates){
+        // Ohne erbrachte Beratung gilt der Besuch als Folgeimpfung (wie beim Einzelpatienten).
+        if(m.treatmentType==='beratung'){ const L=m.leistungen||{}; if(!L.beratung||L.beratung==='none') m.treatmentType='folgeimpfung'; }
+        m.status=target; await persistPatient(m);
+      }
       renderPatients();
     }
   }
@@ -3874,14 +3888,27 @@ function statDonePatients(){ return patients.filter(p=>!p.deleted && patientStat
 function statVaxList(p){ const out=[]; const vax=p.vax||{}; VACCINES.forEach(sv=>{ const st=vax[sv.k]; if(!st)return; if(sv.hep){ if(st.plannedA)out.push('Hepatitis A'); if(st.plannedB)out.push('Hepatitis B'); if(st.plannedAB)out.push('Twinrix'); } else if(sv.tdap_polio){ if(st.planned)out.push(vName(sv)); if(st.planned_ipv)out.push('Polio (IPV)'); } else if(st.planned){ out.push(vName(sv)); } }); return out; }
 function statLeistList(p){ const L=p.leistungen||{}; const out=[]; if(L.beratung && L.beratung!=='none' && BERAT_LABEL[L.beratung]) out.push(L2(BERAT_LABEL[L.beratung])); if(L.folge) out.push(L2(I18N.leistFolge)); if(L.bescheinigung) out.push(L2(I18N.leistBescheinigung)); if(statVaxList(p).length) out.push(L2(I18N.leistImpf)); return out; }
 function statAdd(acc,arr){ arr.forEach(x=>{ acc[x]=(acc[x]||0)+1; }); }
+// Heute tatsächlich verabreichte Impfungen: aus der administered-Map (Datum = heute) – also was
+// WIRKLICH gegeben wurde, nicht die reine Planung. Fallback auf die geplante Liste, falls (noch)
+// keine administered-Daten vorliegen.
+function statVaxTodayList(p){
+  const today=ymd(new Date()); const adm=p.administered||{}; const out=[];
+  Object.keys(adm).forEach(k=>{ const a=adm[k]; if(a && a.date===today){ out.push(a.name||k); } });
+  return out.length?out:statVaxList(p);
+}
 function computeStats(){
   const today=ymd(new Date());
   const done=statDonePatients();
   const doneToday=done.filter(p=>statDayOf(p)===today);
   const revToday=doneToday.reduce((s,p)=>s+((p.billing&&+p.billing.total)||0),0);
-  const vaxCounts={}, leistCounts={};
-  doneToday.forEach(p=>{ statAdd(vaxCounts,statVaxList(p)); statAdd(leistCounts,statLeistList(p)); });
-  return {today, done, doneToday, revToday, vaxCounts, leistCounts};
+  const vaxCounts={}, leistCounts={}, vaxByType={beratung:{}, folgeimpfung:{}}, leistByType={beratung:{}, folgeimpfung:{}};
+  doneToday.forEach(p=>{
+    const vl=statVaxTodayList(p), ll=statLeistList(p), tt=patientTreatType(p);
+    statAdd(vaxCounts,vl); statAdd(leistCounts,ll);
+    statAdd(vaxByType[tt]||vaxByType.beratung, vl);
+    statAdd(leistByType[tt]||leistByType.beratung, ll);
+  });
+  return {today, done, doneToday, revToday, vaxCounts, leistCounts, vaxByType, leistByType};
 }
 function stKpi(label,val){ return '<div class="st-kpi"><div class="st-kpi-v">'+val+'</div><div class="st-kpi-l">'+label+'</div></div>'; }
 function stCountBox(title,counts){ const ents=Object.entries(counts).sort((a,b)=>b[1]-a[1]); let h='<div class="st-box"><div class="st-box-h">'+title+'</div>'; h+= ents.length ? ('<div class="st-rows">'+ents.map(e=>'<div class="st-row"><span>'+_esc(e[0])+'</span><span class="st-num">'+e[1]+'</span></div>').join('')+'</div>') : '<div class="st-empty">—</div>'; return h+'</div>'; }
@@ -3974,8 +4001,13 @@ function stHbars(title, entries){
   return '<div class="st-box"><div class="st-box-h">'+title+'</div>'+rows+'</div>';
 }
 function stTreatmentSplit(done){
-  let b=0,f=0; done.forEach(p=>{ if(p.treatmentType==='folgeimpfung') f++; else b++; });
+  let b=0,f=0; done.forEach(p=>{ if(patientTreatType(p)==='folgeimpfung') f++; else b++; });
   return stHbars(LX('Behandlungsart (gesamt)','Treatment type (total)'),[[LX('Beratung','Consultation'),b],[LX('Folgeimpfung','Follow-up'),f]]);
+}
+// Heute nach Behandlungsart: wie viele Patienten heute als Beratung bzw. Folgeimpfung abgeschlossen wurden.
+function stTreatmentSplitToday(doneToday){
+  let b=0,f=0; doneToday.forEach(p=>{ if(patientTreatType(p)==='folgeimpfung') f++; else b++; });
+  return stHbars(LX('Heute nach Behandlungsart','Today by type'),[[LX('Beratung','Consultation'),b],[LX('Folgeimpfung','Follow-up'),f]]);
 }
 function stTopVaccines(done){
   const c={}; done.forEach(p=>statVaxList(p).forEach(v=>{ c[v]=(c[v]||0)+1; }));
@@ -3992,6 +4024,10 @@ function renderStats(){
   h+='<div class="st-section-lbl">'+LX('Heute','Today')+'</div>';
   h+='<div class="st-kpis">'+stKpi(LX('Patienten heute','Patients today'),s.doneToday.length)+stKpi(LX('Umsatz heute','Revenue today'),eur(s.revToday))+stKpi(LX('Impfungen heute','Vaccinations today'),totalVaxToday)+'</div>';
   h+='<div class="st-grid">'+stCountBox(LX('Impfungen heute','Vaccinations today'),s.vaxCounts)+stCountBox(LX('Leistungen heute','Services today'),s.leistCounts)+'</div>';
+  // Heute aufgeschlüsselt nach tatsächlicher Behandlungsart (Beratung vs. Folgeimpfung)
+  h+='<div class="st-grid">'+stTreatmentSplitToday(s.doneToday)
+    +stCountBox(LX('Impfungen heute · Beratung','Vaccinations today · Consultation'),s.vaxByType.beratung)
+    +stCountBox(LX('Impfungen heute · Folgeimpfung','Vaccinations today · Follow-up'),s.vaxByType.folgeimpfung)+'</div>';
   // Block 2: LANGFRISTIG / GESAMT
   h+='<div class="st-section-lbl st-sep">'+LX('Gesamt & Langfristig','Overall & long-term')+'</div>';
   h+='<div class="st-kpis">'+stLongKpis(s.done)+'</div>';
