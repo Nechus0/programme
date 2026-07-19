@@ -3589,7 +3589,7 @@ function resetForm(){
   chronicList=[]; renderChronicList();
   serologyState = { measles: false, vzv: false, hbs: false };
   document.querySelectorAll('.cond').forEach(c=>c.checked=false);
-  destinations=[];freshVaxState();editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');
+  destinations=[];vaxState=freshVaxState();customSchedule=null;editingId=null;el('editing-banner').classList.remove('show');el('save-btn').textContent=t('btnFinish');
   resetMalariaState(); if(typeof renderMalaria==='function') renderMalaria();
   if(typeof kioskUpdateView === 'function'){ kioskStep=1; kioskUpdateView(); }
   // Leistungen zurücksetzen; MFA startet mit „Keine Beratung"
