@@ -3168,9 +3168,7 @@ function renderTreatPanel(){
   // behandelte Patienten (z. B. Familie, bis ~5) erscheinen als kompakte Umschalt-Badges.
   const _others = mine.filter(p=>p.id!==editingId);
   if(_others.length>=1){
-    h+='<div class="tp-switch"><div class="tp-switch-h">'+LX('Weitere in Behandlung','Also in treatment')+' <span class="count-pill">'+_others.length+'</span></div>';
-    h+=_others.map(tpMiniBadge).join('');
-    h+='</div>';
+    h+='<div class="tp-switch">'+_others.map(tpMiniBadge).join('')+'</div>';
   }
   h+='<div class="tp-head"><span class="tp-title">'+LX('Abschnitte','Sections')+'</span>'+_headAvatar+'</div>';
 
