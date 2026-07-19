@@ -1422,26 +1422,22 @@ function renderVaxTable(){
 
       function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="'+yrPh()+'" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)">';}
 
-      let col2 = '<div class="ctrl-box" style="margin-bottom:6px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_tdap?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_tdap\',this.checked)"> '+(LX('GI TDaP komplett','Primary TDaP complete'))+'</label></div>'+
-                 '<div class="ctrl-box" style="margin-bottom:10px;"><label class="chk-line" style="margin-top:0; font-size:11px; color:var(--grey); cursor:pointer"><input type="checkbox" '+(st.gi_ipv?'checked':'')+' onchange="setField(\'tdap_polio\',\'gi_ipv\',this.checked)"> '+(LX('GI IPV komplett','Primary IPV complete'))+'</label></div>'+
-                 '<div style="margin-bottom:4px;font-size:11px;color:var(--grey)">'+(LX('Hexavalent-Dosen (Kindheit):','Hexavalent doses (childhood):'))+'</div>'+
-                 '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
-                   '<select class="hexa-sel" onchange="setField(\'tdap_polio\',\'doses_hexa\',this.value)"><option value="">—</option>'+dSel+'</select>'+
-                   '<span style="font-size:11px;color:var(--grey)">'+(LX('Jahr','Year'))+'</span>'+yrIn('y_hexa')+
-                 '</div>';
+      // Row 1 – Grundimmunisierung (Kindheit): keine / Standard / Hexavalent (aus Engine-Feldern abgeleitet)
+      const giVal = (st.doses_hexa && st.doses_hexa!=='0' && st.doses_hexa!=='') ? 'hexa' : ((st.gi_tdap && st.gi_ipv) ? 'standard' : '');
+      const giChip=(val,lbl)=>'<button type="button" class="seg-chip'+(giVal===val?' on':'')+'" onclick="setTdapGI(\''+val+'\')">'+lbl+'</button>';
+      let col2 = '<div class="tdap-lbl">'+(LX('Grundimmunisierung (Kindheit)','Primary series (childhood)'))+'</div>'+
+                 '<div class="seg-group">'+giChip('standard',(LX('Standard','Standard')))+giChip('hexa','Hexavalent')+'</div>'+
+                 '<div class="tdap-hint" style="margin-top:6px;">'+(LX('Nichts wählen = keine Grundimmunisierung','None = no primary series'))+'</div>';
 
-      let col3 = '<div style="display:flex; flex-direction:column; gap:6px; font-size:11px;">'+
-                   '<div style="display:flex; flex-direction:column; margin-bottom:6px; padding-bottom:8px; border-bottom:1px dashed var(--line);">'+
-                     '<div style="font-size:10px; color:var(--grey); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.05em;">'+(LX('Kombi-Schnelleingabe','Quick-Fill Combo'))+'</div>'+
-                     '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">'+
-                       '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="'+yrPh()+'" id="quick_tdap_yr" onchange="quickFillTdap(this.value)">'+
-                       '<button class="ext-btn'+(st.quick_type==='tdap_ipv'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap_ipv\')">Tdap-IPV</button>'+
-                       '<button class="ext-btn'+(st.quick_type==='tdap'?' on':'')+'" style="margin-top:0;padding:4px 6px;font-size:10px;" onclick="setQuickTdapType(\'tdap\')">Tdap</button>'+
-                     '</div>'+
-                   '</div>'+
-                   '<div class="yr-row"><span>'+(LX('Letzte Td','Last Td'))+'</span>'+yrIn('y_td')+'</div>'+
-                   '<div class="yr-row"><span>'+(LX('Letzte aP','Last aP'))+'</span>'+yrIn('y_ap')+'</div>'+
-                   '<div class="yr-row"><span>'+(LX('Letzte IPV','Last IPV'))+'</span>'+yrIn('y_ipv')+'</div>'+
+      // Row 2 – Letzte Auffrischung: Produkt-Schnellwahl füllt Jahre; Komponenten einzeln überschreibbar
+      const prodChip=(type,lbl)=>'<button type="button" class="seg-chip'+(st.quick_type===type?' on':'')+'" onclick="setQuickTdapType(\''+type+'\')">'+lbl+'</button>';
+      let col3 = '<div class="tdap-lbl">'+(LX('Letzte Auffrischung','Last booster'))+'</div>'+
+                 '<div class="seg-group" style="margin-bottom:7px;">'+prodChip('tdap_ipv','Tdap-IPV')+prodChip('tdap','Tdap')+prodChip('td','Td')+prodChip('ipv','IPV')+'</div>'+
+                 '<div style="display:flex;align-items:center;gap:6px;margin-bottom:9px;"><span class="tdap-hint">'+(LX('Jahr für Auswahl','Year for selection'))+'</span><input type="text" inputmode="numeric" maxlength="4" class="year-in" style="width:88px" placeholder="'+yrPh()+'" onchange="quickFillTdap(this.value)"></div>'+
+                 '<div class="tdap-yrs">'+
+                   '<div class="yr-row"><span>Td</span>'+yrIn('y_td')+'</div>'+
+                   '<div class="yr-row"><span>aP</span>'+yrIn('y_ap')+'</div>'+
+                   '<div class="yr-row"><span>IPV</span>'+yrIn('y_ipv')+'</div>'+
                  '</div>';
 
       html+='<tr class="combo-row"><td data-label="'+t('thVax')+'"><div class="vname" style="display:flex;align-items:center;">'+(vName(v))+availBadge+'</div><div class="vsub">'+(LX('Basis-Impfschutz','Core vaccines'))+'</div></td>'+
@@ -1571,22 +1567,33 @@ window.setQuickTdapType = function(type) {
 window.quickFillTdap = function(raw) {
     const type = vaxState.tdap_polio.quick_type;
     if(!type) return;
-    raw = raw.replace(/\D/g,'');
+    raw = (raw||'').replace(/\D/g,'');
     if(!raw) return;
     const cur = new Date().getFullYear();
     let full = '';
     if(raw.length === 2) full = (parseInt(raw,10) <= cur%100 ? 2000+parseInt(raw,10) : 1900+parseInt(raw,10));
     else if(raw.length === 4) full = parseInt(raw,10);
-    
     if(full && full >= 1900 && full <= cur) {
-        vaxState.tdap_polio.y_td = String(full);
-        vaxState.tdap_polio.y_ap = String(full);
-        // Ein dokumentierter Booster setzt eine abgeschlossene Grundimmunisierung voraus (überschreibbar via Checkbox)
-        vaxState.tdap_polio.gi_tdap = true;
-        if (type === 'tdap_ipv') { vaxState.tdap_polio.y_ipv = String(full); vaxState.tdap_polio.gi_ipv = true; }
+        const s=vaxState.tdap_polio, y=String(full);
+        // Ein dokumentierter Booster setzt eine abgeschlossene Grundimmunisierung voraus.
+        if(type==='tdap_ipv'){ s.y_td=y; s.y_ap=y; s.y_ipv=y; s.gi_tdap=true; s.gi_ipv=true; }
+        else if(type==='tdap'){ s.y_td=y; s.y_ap=y; s.gi_tdap=true; }
+        else if(type==='td'){ s.y_td=y; s.gi_tdap=true; }
+        else if(type==='ipv'){ s.y_ipv=y; s.gi_ipv=true; }
         renderVaxTable();
     }
 };
+// Grundimmunisierung (Kindheit) setzen: leitet die Engine-Felder (gi_tdap/gi_ipv, Hexa-Marker) ab.
+window.setTdapGI = function(val){
+    const s=vaxState.tdap_polio; if(!s) return;
+    s.gi = (giValFromState(s)===val) ? '' : val;
+    if(s.gi==='standard'){ s.gi_tdap=true; s.gi_ipv=true; s.doses_hexa=''; }
+    else if(s.gi==='hexa'){ s.gi_tdap=true; s.gi_ipv=true; s.doses_hexa='3'; }
+    else { s.gi_tdap=false; s.gi_ipv=false; s.doses_hexa=''; }
+    renderVaxTable();
+};
+function giValFromState(s){ return (s.doses_hexa && s.doses_hexa!=='0' && s.doses_hexa!=='') ? 'hexa' : ((s.gi_tdap && s.gi_ipv) ? 'standard' : ''); }
+
 const HEP_DOSE=[['1','1'],['2','2'],['3','3'],['4','>3']];
 function renderDoseChips2(k,field){const cur=vaxState[k][field]||'';return buildDoseChips(HEP_DOSE,cur,(val)=>'onclick="setSub(\''+k+'\',\''+field+'\',\''+val+'\')"');}
 function setSub(k,field,val){vaxState[k][field]=(vaxState[k][field]===val)?'':val;renderVaxTable();}

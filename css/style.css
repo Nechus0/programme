@@ -129,6 +129,16 @@ table.vax .status .badge.mand::before,table.vax .status .badge.plan::before,tabl
 .hexa-sel{width:56px;padding:6px 6px;font-size:var(--fs-base);border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;}
 .yr-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .yr-row span{color:var(--grey);}
+/* Tdap-IPV/Polio-Eingabe: Grundimmunisierung + letzte Auffrischung als Chips (kohärent mit dem UI) */
+.tdap-lbl{font-size:var(--fs-meta);font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
+.tdap-hint{font-size:var(--fs-meta);color:var(--grey);}
+.seg-group{display:inline-flex;flex-wrap:wrap;gap:6px;}
+.seg-chip{border:1px solid var(--line);background:#fff;color:var(--grey);border-radius:var(--radius-sm);padding:5px 11px;font-size:var(--fs-meta);font-weight:600;cursor:pointer;font-family:var(--font);transition:border-color .12s,background .12s,color .12s;}
+.seg-chip:hover{border-color:#aaa;color:var(--text);}
+.seg-chip.on{background:var(--black);color:#fff;border-color:var(--black);}
+.tdap-yrs{display:flex;flex-direction:column;gap:6px;margin-top:2px;}
+.tdap-yrs .yr-row span{min-width:32px;font-size:var(--fs-meta);font-weight:600;color:var(--grey);}
+.tdap-yrs .year-in{width:100%;max-width:120px;}
 /* Einheitliche Aktions-Icons (Stift/X) für Impfstatus-Terminplan + Patientenliste */
 /* Klickfläche mind. ~38px (Tablet-tauglich, WCAG-2.2 Zielgröße) – Glyph bleibt 15px. */
 .icon-btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--grey);opacity:.55;padding:4px;min-width:38px;min-height:38px;background:none;border:none;font-size:var(--fs-base);line-height:1;transition:opacity .15s,color .15s;}
