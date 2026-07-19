@@ -324,15 +324,19 @@ body.clinic-idle #list-card { border-top-left-radius: 0; border-bottom-left-radi
 .tp-group .tp-gname{font-size:var(--fs-meta);font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.03em;padding:2px 4px;}
 .tp-sep{height:1px;background:var(--line);margin:8px 0 4px;}
 .tp-sections{display:flex;flex-direction:column;gap:3px;}
+/* Abschnitts-Navigator: gleiche Formsprache wie die Step-Badges (gerundetes Quadrat),
+   aktive Sektion als klare „Du bist hier"-Pille. */
 .tp-sections button{display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;
-  padding:5px 6px;border-radius:var(--radius-sm);font-family:var(--font);color:var(--grey);text-align:left;
-  transition:background .12s,color .12s;width:100%;}
+  padding:6px 8px;border-radius:var(--radius-md);font-family:var(--font);color:var(--grey);text-align:left;
+  transition:background .12s,color .12s;width:100%;position:relative;}
 .tp-sections button:hover{background:var(--grey-xl);color:var(--text);}
-.tp-sections .sn-dot{flex:0 0 22px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;font-size:var(--fs-meta);font-weight:700;background:#fff;
+.tp-sections button:hover .sn-dot{border-color:#aaa;color:var(--text);}
+.tp-sections .sn-dot{flex:0 0 22px;width:22px;height:22px;border-radius:var(--radius-sm);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:var(--fs-meta);font-weight:700;background:#fff;color:var(--grey);
   transition:background .12s,color .12s,border-color .12s;}
 .tp-sections .sn-lbl{font-size:var(--fs-sm);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tp-sections button.active{color:var(--text);}
+.tp-sections button.active{color:var(--text);background:var(--grey-xl);}
+.tp-sections button.active::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:var(--black);}
 .tp-sections button.active .sn-dot{background:var(--black);color:#fff;border-color:var(--black);}
 .tp-sections button.active .sn-lbl{font-weight:700;}
 @media(max-width:1200px){.treat-panel{display:none !important;}}
