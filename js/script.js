@@ -3129,7 +3129,7 @@ function renderTreatPanel(){
   if(kasse){
     // Rolle Kasse: oben die Warteschlange „Kasse" (klickbar), unten „Behandelt"
     h+='<div class="tp-head"><span class="tp-title">'+L2(I18N.kasseSection)+' <span class="count-pill">'+kassePats.length+'</span></span>'+(docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'')+'</div>';
-    if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top:8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
+    // „Zurück" steht im Kopf-Banner (keine Dopplung).
     h+='<div class="tp-list drop-zone tp-kasse-list" data-status="kasse" ondragover="pDragOver(event)" ondragleave="pDragLeave(event)" ondrop="pDrop(event,\'kasse\',null)">'+(kassePats.length?kassePats.map(tpItem).join(''):'<div class="tp-empty">'+L2(I18N.kasseNoItems)+'</div>')+'</div>';
     if(!editing) h+='<div class="tp-shift-zone" style="margin-top:auto;">'+shiftPanelHtml()+'</div>';
     if(editing) h+='<div class="tp-sep"></div><div class="tp-sections">'+secNavHtml()+'</div>';
@@ -3144,9 +3144,13 @@ function renderTreatPanel(){
   const _kasseStage=editing && _curEdit && patientStatus(_curEdit)==='kasse';
   const _headTitle=_waitingView ? LX('Patient','Patient') : (_kasseStage ? LX('Kasse','Billing') : LX('In Behandlung','In treatment'));
   const _headAvatar=_waitingView ? '' : (docName?initialsCircle(docName,docRole,CURRENT_PROFILE?CURRENT_PROFILE.gender:''):'');
-  h+='<div class="tp-head"><span class="tp-title">'+_headTitle+'</span>'+_headAvatar+'</div>';
-  if(editing) h+='<button class="tp-home" onclick="showList()" style="margin-top: 8px;">&larr; '+(LX('Ambulanzliste','Clinic list'))+'</button>';
-  if(mine.length){
+  // Name + „Zurück"-Button stehen bereits im Kopf-Banner → hier nicht doppeln.
+  // Die Umschaltliste erscheint nur, wenn MEHRERE eigene Patienten gleichzeitig in Behandlung
+  // sind (echter Mehrwert). Bei genau einem Patienten zeigt das Panel nur die Abschnitte.
+  const _multi = mine.length>=2;
+  const _navTitle = _multi ? _headTitle : LX('Abschnitte','Sections');
+  h+='<div class="tp-head"><span class="tp-title">'+_navTitle+'</span>'+_headAvatar+'</div>';
+  if(_multi){
     const groups={},order=[];
     mine.forEach(p=>{const g=(p.group||'').trim();const k=g?('g:'+g.toLowerCase()):('p:'+p.id);if(!groups[k]){groups[k]={g:g,items:[]};order.push(k);}groups[k].items.push(p);});
     h+='<div class="tp-list">';
@@ -3155,8 +3159,6 @@ function renderTreatPanel(){
       else h+=grp.items.map(tpItem).join('');
     });
     h+='</div>';
-  } else {
-    h+='<div class="tp-empty">'+(LX('Kein Patient in Behandlung.','No patient in treatment.'))+'</div>';
   }
 
   // Kasse & Behandelt stehen jetzt im zentralen Fluss-Board – die linke Spalte zeigt nur
@@ -3190,7 +3192,21 @@ function renderPatientBanner(){
   // Nur eine klare Aktion: zurück zur Ambulanzliste. Das Abschließen erfolgt über den
   // grünen Haken unten rechts (kein doppelter „Behandlung abschließen"-Button mehr).
   const backBtn='<button class="pbn-btn ghost" onclick="showList()">'+LX('Zurück zur Ambulanzliste','Back to clinic list')+'</button>';
-  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div></div>'+typePill+backBtn;
+  // Nützlicher Kontext während der Behandlung: Reiseziele, Countdown bis Abreise, Risiko-Flags.
+  const dests=(p.destinations||[]).map(c=>(typeof CBY!=='undefined'&&CBY[c])?cName(CBY[c]):c).filter(Boolean);
+  const destTxt=dests.length?('📍 '+dests.join(', ')):'';
+  let depTxt='';
+  if(p.departure){ const dd=Math.round((new Date(p.departure).getTime()-Date.now())/86400000);
+    if(!isNaN(dd)) depTxt=(dd>=0)?(LX('Abreise in ','Departure in ')+dd+' '+LX('Tagen','days')):LX('bereits abgereist','already departed'); }
+  const flags=[];
+  if(p.pregnant==='pregnant') flags.push(LX('Schwangerschaft','Pregnancy'));
+  else if(p.pregnant==='breastfeeding') flags.push(LX('Stillend','Breastfeeding'));
+  if(p.immunodef) flags.push(LX('Immundefizienz','Immunodeficiency'));
+  if(p.allergy) flags.push(LX('Allergie','Allergy'));
+  const ctxTxt=[destTxt,depTxt].filter(Boolean).join('  ·  ');
+  const flagPills=flags.map(f=>'<span class="pbn-flag">'+_esc(f)+'</span>').join('');
+  const ctxLine=(ctxTxt||flagPills)?('<div class="pbn-ctx">'+(ctxTxt?'<span class="pbn-ctxtxt">'+_esc(ctxTxt)+'</span>':'')+flagPills+'</div>'):'';
+  const inner=av+'<div class="pbn-main"><div class="pbn-nm-row"><span class="pbn-nm">'+nm+'</span>'+(sub?'<span class="pbn-sub">'+sub+'</span>':'')+'</div><div class="pbn-status">'+statusLbl+' · '+typeLbl+since+'</div>'+ctxLine+'</div>'+typePill+backBtn;
   if(!bn){ bn=document.createElement('div'); bn.id='patient-banner'; bn.className='patient-banner-ctx'; }
   bn.innerHTML=inner;
   const anchor=el('editing-banner')||el('folge-banner')||el('step1');

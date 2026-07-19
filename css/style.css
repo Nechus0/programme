@@ -171,6 +171,9 @@ select.year{width:100px;} select.prod,select.mini{width:100%;max-width:240px;mar
 .patient-banner-ctx .pbn-nm{font-size:var(--fs-h2);font-weight:700;letter-spacing:-.01em;}
 .patient-banner-ctx .pbn-sub{font-size:var(--fs-sm);color:#b9b9b9;}
 .patient-banner-ctx .pbn-status{font-size:var(--fs-sm);color:#b9b9b9;margin-top:2px;}
+.patient-banner-ctx .pbn-ctx{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.patient-banner-ctx .pbn-ctxtxt{font-size:var(--fs-meta);color:#cfcfcf;}
+.patient-banner-ctx .pbn-flag{font-size:var(--fs-meta);font-weight:700;background:rgba(255,183,77,.18);color:#ffcf87;border-radius:var(--radius-sm);padding:2px 8px;}
 .patient-banner-ctx .pbn-type{flex:none;font-size:var(--fs-meta);font-weight:700;border-radius:var(--radius-sm);padding:4px 10px;background:var(--blue);color:#fff;}
 .patient-banner-ctx .pbn-type.folgeimpfung{background:#0e9e8e;}
 .patient-banner-ctx .pbn-btn{flex:none;background:#fff;color:var(--black);border:none;border-radius:var(--radius-sm);padding:9px 16px;font-size:var(--fs-sm);font-weight:600;cursor:pointer;font-family:var(--font);}
