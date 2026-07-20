@@ -553,10 +553,17 @@ window.hRemoveItem = function(id) {
                });
            });
        }
-       if (!stillExists && vaxState[stKey] && typeof vaxState[stKey][planField] !== 'undefined') {
-           vaxState[stKey][planField] = false;
-           renderApptOverview();
-           renderVaxTable();
+       if (!stillExists && vaxState[stKey]) {
+           // planField ggf. aus k ableiten (Fallback, falls data-planfield fehlt/"undefined").
+           let pf = planField;
+           if (typeof vaxState[stKey][pf] === 'undefined') {
+               pf = ({hepA:'plannedA',hepB:'plannedB',hepAB:'plannedAB',tdap_combo:'planned',ipv_mono:'planned_ipv'})[k] || 'planned';
+           }
+           if (typeof vaxState[stKey][pf] !== 'undefined') {
+               vaxState[stKey][pf] = false;
+               renderApptOverview();
+               renderVaxTable();
+           }
        }
    }
 };
@@ -612,7 +619,7 @@ window.saveCustomSchedule = function() {
      let items = [];
      b.querySelectorAll('.sched-item').forEach(it => {
          let baseName = it.dataset.name.replace(/\s*-?\s*Dosis\s*\d+/g, '').replace(/\s*-?\s*\(Dosis\s*\d+\)/g, '');
-         items.push({ id: it.id, name: baseName, k: it.dataset.k, stKey: it.dataset.stkey, live: it.dataset.live==='true', isReacto: it.dataset.reacto==='true' });
+         items.push({ id: it.id, name: baseName, k: it.dataset.k, stKey: it.dataset.stkey, planField: it.dataset.planfield, live: it.dataset.live==='true', isReacto: it.dataset.reacto==='true' });
      });
      if(items.length > 0 || isExternal) newCustom.push({ origOffset: offset, offset, items, isExternal });
   });
