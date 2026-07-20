@@ -783,9 +783,14 @@ function fmtDurationMD(days){
   days=Math.round(days);
   const de=(LANG==='de'), fr=(LANG==='fr');
   if(days<=0) return de?'in Kürze':(fr?'bientôt':'soon');
-  const m=Math.floor(days/30.44), d=Math.round(days-m*30.44);
+  const MO=30.44;
   const moW=(n)=> de?(n===1?'Monat':'Monaten'):(fr?'mois':(n===1?'month':'months'));
   const dyW=(n)=> de?(n===1?'Tag':'Tagen'):(fr?(n===1?'jour':'jours'):(n===1?'day':'days'));
+  // Liegt die Dauer nahe an vollen Monaten (±5 Tage), auf ganze Monate runden,
+  // z. B. 180 Tage → „6 Monate" statt „5 Monate 28 Tage".
+  const mr=Math.round(days/MO);
+  if(mr>=1 && Math.abs(days-mr*MO)<=5) return mr+' '+moW(mr);
+  const m=Math.floor(days/MO), d=Math.round(days-m*MO);
   const parts=[]; if(m>0)parts.push(m+' '+moW(m)); if(d>0)parts.push(d+' '+dyW(d));
   return parts.length?parts.join(' '):(de?'in Kürze':(fr?'bientôt':'soon'));
 }
