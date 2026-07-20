@@ -790,16 +790,19 @@ function fmtDurationMD(days){
   days=Math.round(days);
   const de=(LANG==='de'), fr=(LANG==='fr');
   if(days<=0) return de?'in Kürze':(fr?'bientôt':'soon');
-  const MO=30.44;
+  const MO=30.44, WK=7;
   const moW=(n)=> de?(n===1?'Monat':'Monaten'):(fr?'mois':(n===1?'month':'months'));
+  const wkW=(n)=> de?(n===1?'Woche':'Wochen'):(fr?(n===1?'semaine':'semaines'):(n===1?'week':'weeks'));
   const dyW=(n)=> de?(n===1?'Tag':'Tagen'):(fr?(n===1?'jour':'jours'):(n===1?'day':'days'));
-  // Liegt die Dauer nahe an vollen Monaten (±5 Tage), auf ganze Monate runden,
-  // z. B. 180 Tage → „6 Monate" statt „5 Monate 28 Tage".
-  const mr=Math.round(days/MO);
-  if(mr>=1 && Math.abs(days-mr*MO)<=5) return mr+' '+moW(mr);
-  const m=Math.floor(days/MO), d=Math.round(days-m*MO);
-  const parts=[]; if(m>0)parts.push(m+' '+moW(m)); if(d>0)parts.push(d+' '+dyW(d));
-  return parts.length?parts.join(' '):(de?'in Kürze':(fr?'bientôt':'soon'));
+  // Ab ~1 Monat: Monate + Wochen (KEINE Tage). ~4 Wochen Rest werden zu einem weiteren
+  // Monat (z. B. 28 Tage → „1 Monat", 180 Tage → „6 Monate", 35 Tage → „1 Monat 1 Woche").
+  let m=Math.floor(days/MO);
+  let w=Math.round((days-m*MO)/WK);
+  if(w>=Math.round(MO/WK)){ m+=1; w=0; }   // Math.round(30,44/7)=4
+  if(m>=1) return w>0 ? (m+' '+moW(m)+' '+w+' '+wkW(w)) : (m+' '+moW(m));
+  // Unter ~1 Monat: ab 1 Woche in Wochen, darunter in Tagen.
+  if(days>=WK){ const ww=Math.round(days/WK); return ww+' '+wkW(ww); }
+  return days+' '+dyW(days);
 }
 
 function renderApptOverview() {
