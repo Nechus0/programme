@@ -958,13 +958,13 @@ function renderApptOverview() {
     let diffW = Math.round((offset - prevOffset)/7);
     
     if (isEdit) {
-        let inputHtml = ` <input type="number" value="${diffW}" min="0" max="150" style="width:45px;height:20px;font-size:11px;text-align:center;border:1px solid var(--line);border-radius:3px;margin:0 4px;" title="${LX('Wochen','Weeks')}" onchange="window.hUpdateBucketOffset(this, ${idx}, ${prevOffset})"> <span style="font-weight:normal">${LX('Wochen','weeks')}</span>`;
+        let inputHtml = ` <input type="number" value="${diffW}" min="0" max="150" style="width:68px;height:30px;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin:0 8px;box-sizing:border-box;" title="${LX('Wochen','Weeks')}" onchange="window.hUpdateBucketOffset(this, ${idx}, ${prevOffset})"> <span style="font-weight:normal">${LX('Wochen','weeks')}</span>`;
         let delBtn = `<span style="cursor:pointer;color:var(--red);margin-left:16px;font-weight:600;" onclick="window.hRemoveBucket(${idx})">✕ ${LX('Termin löschen','Delete Appt')}</span>`;
         let doneBtn = `<span style="cursor:pointer;color:var(--primary);margin-left:16px;font-weight:600;text-decoration:underline" onclick="window.toggleBucketEdit(${idx})">${LX('Fertig','Done')}</span>`;
         let minW = b.minAllowedOffset !== undefined ? Math.round(b.minAllowedOffset/7) : 0;
         let minText = minW > 0 ? (LANG==='de'?`${minW} Wochen ab heute`:(LANG==='fr'?`${minW} semaines à partir d'aujourd'hui`:`${minW} weeks from today`)) : (LX('Unabhängig','Independent'));
         let minHtml = `<div style="font-size:11px;color:var(--grey);margin-bottom:4px;display:inline-block;margin-right:12px">${LX('Mindestabstand:','Minimum interval:')} <span style="font-weight:600">${minText}</span></div>`;
-        subtitle = `<div>${minHtml}</div><div style="font-size:12px;color:var(--text);display:flex;align-items:center;">${LX('Abstand (Wochen):','Interval (weeks):')}${inputHtml} ${delBtn} ${doneBtn}</div>`;
+        subtitle = `<div>${minHtml}</div><div style="font-size:12px;color:var(--text);display:flex;align-items:center;flex-wrap:wrap;gap:6px 4px;">${LX('Abstand (Wochen):','Interval (weeks):')}${inputHtml} ${delBtn} ${doneBtn}</div>`;
     } else {
         if (offset === 0 && idx === 0) {
             subtitle = `<div style="font-size:13px;color:var(--grey);font-weight:500;">${LX('Heute','Today')}</div>`;
