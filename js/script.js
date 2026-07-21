@@ -506,6 +506,23 @@ function gapText(d){
 }
 let _planDob=null;
 function ctxDob(){return _planDob!==null?_planDob:el('p-dob').value;}
+
+// Geburtsdatum: sichtbares TT.MM.JJJJ-Feld (p-dob-txt) + verstecktes ISO-Feld (p-dob, Quelle der Wahrheit).
+function isoToDe(iso){ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); return m?(m[3]+'.'+m[2]+'.'+m[1]):''; }
+function deToIso(de){ const s=(de||'').replace(/[^\d]/g,''); if(s.length!==8) return '';
+  const d=s.slice(0,2), mo=s.slice(2,4), y=s.slice(4,8); const dd=+d, mm=+mo, yy=+y;
+  if(mm<1||mm>12||dd<1||dd>31||yy<1900||yy>2100) return '';
+  const iso=y+'-'+mo+'-'+d; const dt=new Date(iso);
+  if(isNaN(dt.getTime())||dt.getFullYear()!==yy||(dt.getMonth()+1)!==mm||dt.getDate()!==dd) return ''; return iso; }
+function syncDobText(){ const t=el('p-dob-txt'), h=el('p-dob'); if(t&&h) t.value=isoToDe(h.value); }
+function onDobText(inp){
+  let s=inp.value.replace(/[^\d]/g,'').slice(0,8);
+  let f=s; if(s.length>4) f=s.slice(0,2)+'.'+s.slice(2,4)+'.'+s.slice(4); else if(s.length>2) f=s.slice(0,2)+'.'+s.slice(2);
+  inp.value=f;
+  const h=el('p-dob'); if(h) h.value=deToIso(f);
+  if(typeof recompute==='function') recompute();
+  if(typeof kioskUpdateView==='function') kioskUpdateView();
+}
 function togglePillPlan(k, field) {
   field = field || 'planned';
   vaxState[k][field] = !vaxState[k][field];
@@ -1860,6 +1877,78 @@ function printMeaslesCertificate(){
   // Druck wird ausschließlich über das eingebettete window.onload im neuen Fenster ausgelöst (kein Doppeldruck)
   closeModal();
 }
+
+/* ---- Rechnung / Leistungsnachweis (Charité-Header wie Masern-Bescheinigung) ---- */
+function printInvoice(){
+  const gv=id=>{const e=el(id);return e?(''+e.value).trim():'';};
+  const p=patients.find(x=>x.id===editingId)||{};
+  const nm=gv('p-name')||p.name||''; const fn=gv('p-firstname')||p.firstname||'';
+  const fullName=(nm?(nm+(fn?', '+fn:'')):'')||'—';
+  const dobRaw=gv('p-dob')||p.dob||''; const dob=dobRaw?fmtDate(new Date(dobRaw)):'—';
+  const street=gv('p-address')||p.address||'';
+  const cityline=((gv('p-zip')||p.zip||'')+' '+(gv('p-city')||p.city||'')).trim();
+  const addr=[street,cityline].filter(Boolean).join(', ')||'—';
+  const b=(typeof computeBilling==='function')?computeBilling():{rows:[],total:0,hasUnpriced:false};
+  const dateRaw=(p.billing&&p.billing.at)||(p.billedBy&&p.billedBy.at)||new Date().toISOString();
+  const invDate=fmtDate(new Date(dateRaw));
+  const tb=p.treatedBy||{};
+  const tbName=(tb.name||p.claimedByName||p.physician||'').trim();
+  const tbRole=(typeof formatRoleTitle==='function')?formatRoleTitle(tb.role||p.claimedByRole||'', p.claimedByGender||''):'';
+  const treatedFull=(tbName+((tbName&&tbRole)?', '+tbRole:''))||'—';
+  const payM=(p.payment&&p.payment.method)||_loadedPayment||'';
+  const payLabel=payM?payMethodLabel(payM):'—';
+  const paid=!!(p.payment&&p.payment.paid);
+  const itemRows=(b.rows||[]).map(r=>'<tr><td>'+_esc(r.label)+(r.code?' <span style="color:#888;font-size:10px">('+_esc(r.code)+')</span>':'')+'</td><td class="amt">'+(r.unpriced?'—':eur(r.price))+'</td></tr>').join('');
+  const totalRow='<tr class="tot"><td>'+L2(I18N.kasseTotal)+' / Total</td><td class="amt">'+eur(b.total||0)+(b.hasUnpriced?' +':'')+'</td></tr>';
+  const payStatus = paid
+    ? '<span class="paid">'+(LX('Bezahlt am ','Paid on '))+_esc(invDate)+'</span>'
+    : (LX('Zahlung offen','Payment open'));
+  const css='@page{size:A4;margin:0;}*{box-sizing:border-box;}body{font-family:Helvetica,Arial,sans-serif;color:#111;font-size:12px;line-height:1.5;margin:0;padding:20mm 18mm;}'+
+    '.lh{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px;}'+
+    '.lh-logo svg{height:30px;width:auto;display:block;}'+
+    '.lh-addr{font-size:9.5px;color:#333;text-align:right;line-height:1.5;}'+
+    'h1{font-size:19px;margin:0 0 2px;}h1 .en{display:block;font-size:13px;font-weight:400;color:#333;}'+
+    '.sub{font-size:11px;color:#333;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;}'+
+    '.pat{width:100%;border-collapse:collapse;margin-bottom:14px;}'+
+    '.pat td{border:1px solid #999;padding:7px 10px;vertical-align:top;}'+
+    '.pat .lbl{font-size:9.5px;color:#333;text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:2px;font-weight:600;}'+
+    '.pat .lbl .en{color:#555;font-weight:400;}'+
+    '.meta{width:100%;border-collapse:collapse;margin-bottom:16px;}'+
+    '.meta td{padding:3px 0;font-size:11px;vertical-align:top;}'+
+    '.meta .k{color:#333;font-weight:600;width:52%;}'+
+    '.items{width:100%;border-collapse:collapse;margin:6px 0 4px;}'+
+    '.items th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.03em;color:#333;border-bottom:1.5px solid #111;padding:6px 8px;}'+
+    '.items td{padding:7px 8px;border-bottom:1px solid #ddd;}'+
+    '.items td.amt,.items th.amt{text-align:right;white-space:nowrap;}'+
+    '.items tr.tot td{border-top:2px solid #111;border-bottom:none;font-weight:700;font-size:13px;padding-top:9px;}'+
+    '.pay{margin-top:14px;font-size:12px;}.pay .paid{color:#2e7d32;font-weight:700;}'+
+    '.foot{margin-top:40px;font-size:9.5px;color:#666;}';
+  const html='<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>'+(LX('Rechnung','Invoice'))+'</title><style>'+css+'</style></head><body>'+
+    '<div class="lh"><div class="lh-logo">'+CHARITE_LOGO_SVG+'</div>'+
+      '<div class="lh-addr">Charité – Universitätsmedizin Berlin · Institut für Internationale Gesundheit<br>Campus Virchow-Klinikum<br>Augustenburger Platz 1, 13353 Berlin<br>Geländeadresse: Südring 2–3, Erdgeschoss</div></div>'+
+    '<h1>Rechnung / Leistungsnachweis<span class="en">Invoice / Statement of services</span></h1>'+
+    '<div class="sub">Reisemedizinische Ambulanz · Institut für Internationale Gesundheit</div>'+
+    '<table class="pat"><tr>'+
+      '<td style="width:60%"><span class="lbl">Name, Vorname <span class="en">/ Surname, first name</span></span>'+_esc(fullName)+'</td>'+
+      '<td><span class="lbl">Geburtsdatum <span class="en">/ Date of birth</span></span>'+_esc(dob)+'</td>'+
+    '</tr><tr>'+
+      '<td colspan="2"><span class="lbl">Adresse <span class="en">/ Address</span></span>'+_esc(addr)+'</td>'+
+    '</tr></table>'+
+    '<table class="meta">'+
+      '<tr><td class="k">Rechnungsdatum <span class="en">/ Invoice date</span></td><td>'+_esc(invDate)+'</td></tr>'+
+      '<tr><td class="k">Behandelnder Arzt <span class="en">/ Treating physician</span></td><td>'+_esc(treatedFull)+'</td></tr>'+
+    '</table>'+
+    '<table class="items"><thead><tr><th>'+(LX('Leistung','Service'))+'</th><th class="amt">'+(LX('Betrag','Amount'))+'</th></tr></thead><tbody>'+
+      itemRows+totalRow+
+    '</tbody></table>'+
+    '<div class="pay"><strong>'+L2(I18N.kassePayTitle)+' / Payment method:</strong> '+_esc(payLabel)+' · '+payStatus+'</div>'+
+    '<div class="foot">Charité · Reisemedizinische Ambulanz · Institut für Internationale Gesundheit</div>'+
+    '<script>window.onload=function(){setTimeout(function(){try{window.focus();window.print();}catch(e){}},150);};<\/script>'+
+    '</body></html>';
+  const w=window.open('','_blank');
+  if(!w){ uiAlert(LX('Bitte Pop-ups für diese Seite erlauben, um die Rechnung zu drucken.','Please allow pop-ups for this page to print the invoice.')); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
 function closeModal(){el('modal-bg').classList.remove('show');const mc=el('modal-content');if(mc)mc.classList.remove('pi-modal');}
 function showMap(k){
   const f=DISEASE_MAPS[k];if(!f)return;
@@ -2016,8 +2105,15 @@ async function savePatient(finish){
            if(vChanged) changed.push('Impfungen/Impfplan');
         }
         if(id==='step6') {
-           // Nur inhaltliche Leistungsänderungen protokollieren – NICHT die Zahlungsart/-status (Kasse-Routine)
-           if(JSON.stringify(oldSnap.leistungen) !== JSON.stringify(snap.leistungen)) changed.push('Leistungen');
+           // Nur RÜCKWIRKENDE Änderungen protokollieren. Reguläres Eintragen der Leistungen und die
+           // erstmalige Zahlungsart-Wahl an der Kasse sind der vorgesehene Ablauf → KEIN Log; erst
+           // Änderungen NACH dem Abkassieren (bezahlt) werden protokolliert.
+           const _wasFinal = !!(oldSnap && oldSnap.payment && oldSnap.payment.paid);
+           if(_wasFinal){
+              if(JSON.stringify(oldSnap.leistungen) !== JSON.stringify(snap.leistungen)) changed.push('Leistungen');
+              const _oldM=(oldSnap.payment&&oldSnap.payment.method)||''; const _newM=(snap.payment&&snap.payment.method)||'';
+              if(_oldM!==_newM) changed.push('Zahlungsart');
+           }
         }
         if(changed.length) snap.editLog.push({ts,who,role:roleRaw,section:id,fields:changed});
       });
@@ -2356,7 +2452,7 @@ function loadPatient(id){
     return;
   }
   window._patientSnapshot = JSON.stringify(p);
-  el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
+  el('p-name').value=p.name||'';el('p-dob').value=p.dob||'';syncDobText();el('p-sex').value=p.sex||'f';el('p-duration').value=p.duration||'<1w';el('p-departure').value=p.departure||'';el('p-pregnant').value=p.pregnant||'no';el('p-allergy').value=p.allergy||'';el('p-immuno').value=p.immuno||'';el('p-comment').value=p.comment||'';
   _sv('p-firstname',p.firstname||'');_sv('p-phone',p.phone||'');_sv('p-insurance',p.insurance||'');_sv('p-profession',p.profession||'');_sv('p-address',p.address||'');_sv('p-zip',p.zip||'');_sv('p-city',p.city||'');
   recentVaxList = p.recentVax ? String(p.recentVax).split(/,\s*/).filter(Boolean) : [];
   _sv('p-recentvax-input',''); _sv('p-recentvax', recentVaxList.join(', ')); renderRecentVaxList();
@@ -2481,7 +2577,8 @@ function clearChangeLogs(){ ['step1','step2','step3','step4','step5','step6'].fo
 // Neuer Patient (Registrierung durch Personal): nur Abschnitte 1–3, Auswahl Beratung/Folgeimpfung oben.
 function applyNewPatientView(){
   const on = !!NEW_PATIENT_MODE;
-  ['step4','step5','stepM','step6'].forEach(id=>{ const s=el(id); if(s) s.style.display = on ? 'none' : ''; });
+  const _kiosk = document.body.classList.contains('kiosk');
+  ['step4','step5','stepM','step6'].forEach(id=>{ const s=el(id); if(s) s.style.display = (on||_kiosk) ? 'none' : ''; });
   const bar=el('new-intake-bar');
   if(bar){
     const showBar = on && (typeof isStaff==='function' ? isStaff() : true);
@@ -2553,9 +2650,9 @@ function vaxUnitPrice(priceKey){
 function computeBilling(){
   const rows=[]; let total=0; let hasUnpriced=false;
   const berat = (document.querySelector('input[name="leistung_beratung"]:checked')||{}).value || 'none';
-  if(berat && berat!=='none'){ const p=PRICE_BERATUNG[berat]||0; rows.push({label:L2(BERAT_LABEL[berat]), price:p}); total+=p; }
-  if(el('leistung_folge') && el('leistung_folge').checked){ rows.push({label:L2(I18N.leistFolge), price:PRICE_FOLGE}); total+=PRICE_FOLGE; }
-  if(el('leistung_bescheinigung') && el('leistung_bescheinigung').checked){ rows.push({label:L2(I18N.leistBescheinigung), price:PRICE_BESCHEINIGUNG}); total+=PRICE_BESCHEINIGUNG; }
+  if(berat && berat!=='none'){ const p=PRICE_BERATUNG[berat]||0; rows.push({label:L2(BERAT_LABEL[berat]), code:({'1':'A76','3':'3','A34':'A34'})[berat]||'', price:p}); total+=p; }
+  if(el('leistung_folge') && el('leistung_folge').checked){ rows.push({label:L2(I18N.leistFolge), code:'2', price:PRICE_FOLGE}); total+=PRICE_FOLGE; }
+  if(el('leistung_bescheinigung') && el('leistung_bescheinigung').checked){ rows.push({label:L2(I18N.leistBescheinigung), code:'70', price:PRICE_BESCHEINIGUNG}); total+=PRICE_BESCHEINIGUNG; }
   const vax = getTodaysLeistungVax();
   vax.forEach(it=>{
     const unit = vaxUnitPrice(it.priceKey);
@@ -2563,14 +2660,14 @@ function computeBilling(){
     else { rows.push({label:it.name, price:null, vax:true, unpriced:true}); hasUnpriced=true; }
   });
   // Impfleistung (GOÄ 375) – einmal pro Besuch (nicht je Injektion)
-  if(vax.length){ rows.push({label:L2(I18N.leistImpf), price:PRICE_IMPFLEISTUNG}); total+=PRICE_IMPFLEISTUNG; }
+  if(vax.length){ rows.push({label:L2(I18N.leistImpf), code:'375', price:PRICE_IMPFLEISTUNG}); total+=PRICE_IMPFLEISTUNG; }
   return { rows, total, hasUnpriced, count:rows.length };
 }
 // Beratungs-Labels für die Abrechnung (Kurzform)
 const BERAT_LABEL = {
-  '1':{de:'Beratung mit Impfplan (A76)',en:'Consultation with vaccination plan (A76)',fr:'Consultation avec plan vaccinal (A76)'},
+  '1':{de:'Beratung mit Impfplan',en:'Consultation with vaccination plan',fr:'Consultation avec plan vaccinal'},
   '3':{de:'Beratung, ggf. mit Rezept',en:'Consultation, possibly with prescription',fr:'Consultation, évent. avec ordonnance'},
-  'A34':{de:'Ausführliche Beratung (A34)',en:'Detailed consultation (A34)',fr:'Consultation détaillée (A34)'}
+  'A34':{de:'Ausführliche Beratung',en:'Detailed consultation',fr:'Consultation détaillée'}
 };
 const PAY_METHODS = [
   {v:'rechnung', de:'Auf Rechnung', en:'Invoice', fr:'Sur facture'},
@@ -2661,24 +2758,34 @@ async function kasseSwitchMember(id){
   try{ await savePatient(false); }catch(_){}
   openPatientCard(id);
 }
+function kassePaidBlock(){
+  const psvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
+  return '<div class="kb-paid-field">'+L2(I18N.kassePaid)+'</div>'+
+    '<div class="kb-print" style="margin-top:12px"><button class="btn sec sm" onclick="printInvoice()">'+psvg+(LX('Rechnung drucken','Print invoice'))+'</button></div>';
+}
 function renderKasseBilling(){
   const box=el('kasse-billing'); if(!box) return;
-  // Grünes „Bezahlt"-Feld, sobald der Patient finalisiert wurde – in jeder Rolle sichtbar
-  const paidField = (_loadedPaid==='paid') ? '<div class="kb-paid-field">'+L2(I18N.kassePaid)+'</div>' : '';
-  if(!canBill()){ box.innerHTML = paidField; return; }   // Abrechnungsblock nur wenn Patient an der Kasse (Kasse ODER vertretendes Personal)
+  const isPaid=(_loadedPaid==='paid');
+  const editable=canBill();
+  if(!editable && !isPaid){ box.innerHTML=''; return; }
   const b=computeBilling();
-  let h=kasseGroupBar()+'<div class="kb-title">'+L2(I18N.kasseBillTitle)+'</div>';
-  if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'+paidField; return; }
+  let h=(editable?kasseGroupBar():'')+'<div class="kb-title">'+L2(I18N.kasseBillTitle)+'</div>';
+  if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'+(isPaid?kassePaidBlock():''); return; }
   h+='<div class="kb-rows">';
-  b.rows.forEach(r=>{ h+='<div class="kb-row'+(r.vax?' kb-vax':'')+'"><span class="kb-l">'+_esc(r.label)+'</span><span class="kb-p">'+(r.unpriced?('<span class="kb-manual">'+L2(I18N.kassePriceManual)+'</span>'):eur(r.price))+'</span></div>'; });
+  b.rows.forEach(r=>{ h+='<div class="kb-row'+(r.vax?' kb-vax':'')+'"><span class="kb-l">'+_esc(r.label)+(r.code?' <span class="kb-code">'+_esc(r.code)+'</span>':'')+'</span><span class="kb-p">'+(r.unpriced?('<span class="kb-manual">'+L2(I18N.kassePriceManual)+'</span>'):eur(r.price))+'</span></div>'; });
   h+='</div>';
   h+='<div class="kb-total"><span>'+L2(I18N.kasseTotal)+'</span><span class="kb-total-val">'+eur(b.total)+(b.hasUnpriced?' +':'')+'</span></div>';
   if(b.hasUnpriced) h+='<div class="kb-note">'+L2(I18N.kasseUnpricedNote)+'</div>';
-  const cur=paymentMethod()||_loadedPayment;
-  h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
-  PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
-  h+='</div>';
-  h+=paidField;
+  if(editable){
+    const cur=paymentMethod()||_loadedPayment;
+    h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
+    PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
+    h+='</div>';
+  } else if(isPaid){
+    const m=(_loadedPayment||'');
+    if(m) h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay-ro" style="font-size:13px;margin-top:2px">'+_esc(payMethodLabel(m))+'</div>';
+  }
+  if(isPaid) h+=kassePaidBlock();
   box.innerHTML=h;
 }
 // Heute zu verabreichende Impfungen (Bucket offset 0) als [{k:stKey, sub:planField, name, priceKey}]
@@ -3605,7 +3712,7 @@ function printSchedule() {
 function _sv(id,v){const e=el(id);if(e)e.value=v;}
 function _sc(id,v){const e=el(id);if(e)e.checked=v;}
 function resetForm(){
-  el('p-name').value='';el('p-dob').value='';el('p-sex').value='f';el('p-duration').value='<1w';el('p-departure').value='';el('p-pregnant').value='no';el('p-allergy').value='';el('p-immuno').value='';el('p-comment').value='';
+  el('p-name').value='';el('p-dob').value='';syncDobText();el('p-sex').value='f';el('p-duration').value='<1w';el('p-departure').value='';el('p-pregnant').value='no';el('p-allergy').value='';el('p-immuno').value='';el('p-comment').value='';
   ['p-firstname','p-email','p-phone','p-insurance','p-profession','p-address','p-zip','p-city','p-chronic-text','p-chronic-input','p-med-input','p-recentvax','p-recentvax-input'].forEach(id=>_sv(id,''));
   ['p-acute','p-thrombosis','p-faint'].forEach(id=>_sc(id,false));
   medsList=[]; renderMedPills(); renderMedVacCheck();
@@ -3681,7 +3788,7 @@ function applyRole(profile){
     kioskStep = 1;
     if(!window._kioskValBound){
       window._kioskValBound = true;
-      ['p-firstname','p-name','p-dob'].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener('input', function(){ e.classList.remove('field-missing'); kioskUpdateView(); }); });
+      ['p-firstname','p-name','p-dob-txt'].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener('input', function(){ e.classList.remove('field-missing'); kioskUpdateView(); }); });
     }
     kioskUpdateView();
     show('notes-block',false);   // Länder-/Gesundheitshinweise nur für Personal, nicht auf dem Patienten-Tablet
@@ -3926,7 +4033,7 @@ function kioskUpdateView(){
 }
 function kioskNext(){
   if(kioskStep === 1 && !kioskStep1Valid()){
-    ['p-firstname','p-name','p-dob'].forEach(id=>{ const e=document.getElementById(id); if(e && !(e.value && e.value.trim())) e.classList.add('field-missing'); });
+    [['p-firstname','p-firstname'],['p-name','p-name'],['p-dob','p-dob-txt']].forEach(pr=>{ const chk=document.getElementById(pr[0]); const mk=document.getElementById(pr[1]); if(mk && chk && !(chk.value && chk.value.trim())) mk.classList.add('field-missing'); });
     kioskUpdateView();
     return;
   }
@@ -4262,7 +4369,7 @@ function malRecUpdate(){
     if(c){
       el('mal-dose').textContent=c.tabLabel;
       el('mal-daysv').textContent = sbet ? LX('3 Tage (Behandlung)','3 days (treatment)') : (c.days+' '+LX('Tage','days'));
-      el('mal-packs').textContent=c.packs;
+      el('mal-packs').textContent=c.packs+' · '+(c.packs*12)+' '+LX('Tbl.','tabs');
       el('mal-tot').textContent=LX('Gesamt ','Total ')+c.tablets+' '+LX('Tabletten','tablets')+' · '+LX('1 Packung = 12 Tbl.','1 pack = 12 tabs')+(c.ped?' · '+LX('Kinderdosis','paediatric dose'):'');
     }
   }

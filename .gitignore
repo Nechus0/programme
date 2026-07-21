@@ -24,3 +24,7 @@ venv/
 # Node dev artefacts (Test-Tools wie jsdom; nie deployen)
 node_modules/
 package-lock.json
+
+# FUSE mount artefacts / bridge locks (never deploy)
+.fuse_hidden*
+_git_locks_to_delete/

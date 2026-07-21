@@ -959,6 +959,7 @@ body.clinic-idle .shift-panel.show{ display:flex;flex-direction:column;flex:0 0 
 .pay-badge{ width:20px; height:20px; font-size:var(--fs-meta); }
 .pay-badge b{ font-size:var(--fs-sm); }
 /* Grünes „Bezahlt"-Feld unten rechts in Sektion 6 */
+.kb-code{font-size:11px;color:var(--grey);font-weight:600;margin-left:6px;white-space:nowrap;}
 .kb-paid-field{ display:block; width:fit-content; margin:16px 0 0 auto; background:var(--green); color:#fff; border-radius:var(--radius-md); padding:9px 20px; font-weight:700; font-size:var(--fs-base); letter-spacing:.02em; }
 /* Rechte Spalte „Im Dienst" an die Ambulanzliste andocken (nicht mehr freistehend) */
 body.clinic-idle #list-card{ border-top-right-radius:0; border-bottom-right-radius:0; }

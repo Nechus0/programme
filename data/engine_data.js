@@ -9076,7 +9076,7 @@ window.ENGINE_DATA = {
    "chikungunya": {
     "risk": "low",
     "endemic": true,
-    "outbreak": false,
+    "outbreak": true,
     "recommendation": "unknown",
     "tbe_subtype": "",
     "stay_days": null,
@@ -9350,7 +9350,7 @@ window.ENGINE_DATA = {
    "chikungunya": {
     "risk": "high",
     "endemic": true,
-    "outbreak": true,
+    "outbreak": false,
     "recommendation": "recommended",
     "tbe_subtype": "",
     "stay_days": null,
@@ -12501,7 +12501,7 @@ window.ENGINE_DATA = {
    "chikungunya": {
     "risk": "high",
     "endemic": true,
-    "outbreak": false,
+    "outbreak": true,
     "recommendation": "consider",
     "tbe_subtype": "",
     "stay_days": null,
@@ -19625,7 +19625,7 @@ window.ENGINE_DATA = {
    "chikungunya": {
     "risk": "high",
     "endemic": true,
-    "outbreak": true,
+    "outbreak": false,
     "recommendation": "recommended",
     "tbe_subtype": "",
     "stay_days": null,
@@ -26886,7 +26886,7 @@ window.ENGINE_DATA = {
    "chikungunya": {
     "risk": "high",
     "endemic": true,
-    "outbreak": true,
+    "outbreak": false,
     "recommendation": "recommended",
     "tbe_subtype": "",
     "stay_days": null,
