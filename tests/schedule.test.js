@@ -156,5 +156,24 @@ let m9 = consolidateManualSchedule([
 ]);
 ok('gleicher Tag: Hep A + FSME/TdaP/MMR(live) -> 1 Termin mit 4', m9.length === 1 && m9[0].items.length === 4);
 
+// --- Szenario 7: Entfernen einer Impfung erhoeht NIE die Dosen anderer (reconcileRemovedVaccines, Fix 4) ---
+// "Beim Loeschen werden es wieder mehr": frueher setzte das Entfernen der letzten Dosis einer Impfung
+// customSchedule auf null -> buildOptimalSchedule regenerierte die vollen Dosen-Serien aller uebrigen.
+console.log('Szenario 7: Entfernen erhoeht keine Dosen (Fix 4)');
+function countK(cs, k){ let n=0; (cs||[]).forEach(b=>b.items.forEach(it=>{ if(it.k===k) n++; })); return n; }
+// Plan mit teilweise manuell reduzierten Dosen: FSME nur noch 2 (statt 3), TdaP 1, dazu Typhus (1).
+let planBefore = [
+  { offset:0,  items:[{k:'tbe',doseIdx:0},{k:'tdap_combo',doseIdx:0},{k:'typhoid',doseIdx:0}] },
+  { offset:30, items:[{k:'tbe',doseIdx:1}] },
+];
+let tbeBefore = countK(planBefore,'tbe'), tdapBefore = countK(planBefore,'tdap_combo');
+// Typhus entfernen -> verbleibende Schluessel {tbe, tdap_combo}
+let after = reconcileRemovedVaccines(planBefore, new Set(['tbe','tdap_combo']));
+ok('Typhus ist entfernt', countK(after,'typhoid') === 0);
+ok('FSME-Dosen bleiben gleich (nicht regeneriert)', countK(after,'tbe') === tbeBefore);
+ok('TdaP-Dosen bleiben gleich (nicht regeneriert)', countK(after,'tdap_combo') === tdapBefore);
+let totalBefore = tbeBefore + tdapBefore, totalAfter = countK(after,'tbe') + countK(after,'tdap_combo');
+ok('Gesamtzahl der verbleibenden Dosen nimmt NICHT zu', totalAfter <= totalBefore);
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

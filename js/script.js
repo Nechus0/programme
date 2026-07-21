@@ -882,7 +882,19 @@ function renderApptOverview() {
 
   const plannedKeys = planned.map(p=>p.k).sort().join('|');
   if (scheduleLastPlannedKeys !== plannedKeys) {
-     customSchedule = null;
+     const prevKeys = scheduleLastPlannedKeys ? scheduleLastPlannedKeys.split('|') : [];
+     const nowKeySet = new Set(planned.map(p=>p.k));
+     const somethingAdded = [...nowKeySet].some(k => prevKeys.indexOf(k) === -1);
+     if (customSchedule && !somethingAdded) {
+        // NUR Impfungen entfernt (nichts hinzugefügt): die Dosen der entfernten Impfung aus dem
+        // bestehenden Plan herausfiltern und den Rest behalten. NICHT neu aufbauen – sonst würde
+        // buildOptimalSchedule die vollen Dosen-Serien regenerieren und zuvor gelöschte Dosen kämen
+        // zurück ("beim Löschen werden es wieder mehr").
+        customSchedule = reconcileRemovedVaccines(customSchedule, nowKeySet);
+     } else {
+        // Impfung hinzugefügt (oder noch kein Plan vorhanden) → frisch aufbauen.
+        customSchedule = null;
+     }
      scheduleLastPlannedKeys = plannedKeys;
   }
 

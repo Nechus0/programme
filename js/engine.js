@@ -402,6 +402,21 @@ function consolidateManualSchedule(buckets){
   return bs;
 }
 
+// Entfernt die Dosen abgewählter Impfungen aus einem bestehenden (manuell bearbeiteten) Plan, OHNE
+// neu aufzubauen. Wichtig gegen den "beim Löschen werden es wieder mehr"-Bug: würde man stattdessen
+// buildOptimalSchedule neu laufen lassen, kämen zuvor einzeln gelöschte Dosen als volle Serie zurück.
+// keepKeys = verbleibende geplante Impf-Schlüssel (Array oder Set). Gibt den bereinigten, gebündelten
+// Plan zurück (oder null, wenn nichts mehr übrig ist).
+function reconcileRemovedVaccines(customSchedule, keepKeys){
+  if (!customSchedule) return null;
+  const keep = (keepKeys instanceof Set) ? keepKeys : new Set(keepKeys);
+  let cs = customSchedule.map(b => Object.assign({}, b, { items: (b.items || []).filter(it => keep.has(it.k)) }));
+  cs = cs.filter(b => (b.items && b.items.length) || b.isExternal);
+  cs = consolidateManualSchedule(computeManualOffsets(cs));
+  cs = computeManualOffsets(cs);
+  return cs.length ? cs : null;
+}
+
 function ageExact(dob){
   if(!dob)return null;
   const a = (new Date()-new Date(dob))/(1000*60*60*24*365.25);
