@@ -639,12 +639,6 @@ body.clinic-idle #step1, body.clinic-idle #step2, body.clinic-idle #step3, body.
 .vc-card.amber{border-left-color:#e08600;background:#fff8ef;}
 .vc-badge.amber{background:#fdecd0;color:#9a5b00;}
 .vc-cat{color:var(--grey);font-size:var(--fs-meta);margin-top:3px;}
-.src-link{font-size:var(--fs-meta);color:var(--blue);cursor:pointer;margin-left:8px;font-weight:600;white-space:nowrap;}
-.src-link:hover{text-decoration:underline;}
-.src-list{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
-.src-item{border-left:3px solid var(--line);padding:2px 0 2px 12px;}
-.src-t{font-weight:700;font-size:var(--fs-sm);margin-bottom:2px;}
-.src-c{font-size:var(--fs-meta);color:#555;line-height:1.5;}
 .vc-note{color:var(--grey);font-size:var(--fs-sm);margin-top:4px;}
 .vc-row{margin-top:6px;}
 .vc-abstract{font-size:var(--fs-sm);font-style:italic;color:#555;margin-top:3px;line-height:1.5;}

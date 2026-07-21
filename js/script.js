@@ -2752,21 +2752,6 @@ const PRICE_VAX_LIST=[
   ['Td-IPV',27.06],['Tdap-IPV',44.82],['Tdap',42.78],
   ['Tollwut (Rabipur)',86.54],['Tollwut (Verorab)',80.02],['Typhus',37.98],['Windpocken',96.19]
 ];
-function showMedSources(){
-  const box=el('modal-content'); if(!box) return;
-  const refs=[
-    ['WHO Model List of Essential Medicines','World Health Organization. (2023). World Health Organization model list of essential medicines: 23rd list (2023). World Health Organization.'],
-    ['ATC/DDD-Klassifikation','WHO Collaborating Centre for Drug Statistics Methodology. (2024). Guidelines for ATC classification and DDD assignment. Oslo: WHO Collaborating Centre for Drug Statistics Methodology.'],
-    ['Arzneiverordnungs-Report','Ludwig, W.-D., Muhlack, E., & Mühlbauer, B. (Hrsg.). (2023). Arzneiverordnungs-Report 2023. Springer Berlin Heidelberg.'],
-    ['Rote Liste / Gelbe Liste','Rote Liste Service GmbH (Hrsg.). (2024). Rote Liste 2024: Arzneimittelverzeichnis für Deutschland. Frankfurt am Main: Rote Liste Service GmbH. Medizinische Medien Informations GmbH (MMI). (2024). Gelbe Liste Pharmindex. Frankfurt am Main.'],
-    ['BfArM / EMA','Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM). (2024). Arzneimittel-Informationssystem. Bonn. European Medicines Agency (EMA). (2024). Medicines. Amsterdam.']
-  ];
-  box.classList.add('pi-modal');
-  box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
-    '<h3 class="pi-h">'+(LX('Datenquellen – Medikamentendatenbank','Data sources – medication database'))+'</h3>'+
-    '<div class="src-list">'+refs.map(r=>'<div class="src-item"><div class="src-t">'+_esc(r[0])+'</div><div class="src-c">'+_esc(r[1])+'</div></div>').join('')+'</div>';
-  const bg=el('modal-bg'); if(bg) bg.classList.add('show');
-}
 function showPriceInfo(){
   const box=el('modal-content'); if(!box) return;
   const leist=[
@@ -4527,6 +4512,14 @@ const USED_SOURCES=[
     {name:'Verfügbare Impfstoffe 2025', use:{de:'Vor Ort vorrätige Impfstoffe',en:'Vaccines stocked on site'}, url:'https://reisemedizin.charite.de/', stand:'2025'},
     {name:'Preisliste', use:{de:'Preise der Impfungen und Leistungen',en:'Prices of vaccinations and services'}, url:'https://reisemedizin.charite.de/', stand:'22.05.2026'},
     {name:'Anmeldebogen & Impfplan', use:{de:'Formulargrundlage für Stammdaten und Impfplan',en:'Form basis for master data and vaccination plan'}, url:'https://reisemedizin.charite.de/', stand:'2025'}
+  ]},
+  { aspect:{de:'Medikamentendatenbank (Immunsuppression & Impffähigkeit)',en:'Medication database (immunosuppression & vaccination)'}, status:'active', items:[
+    {name:'DTG-StAR – Reiseimpfempfehlungen 2026 · Rothe C et al., Flug u Reisemed 2026; 33:52–81', use:{de:'Bewertung immunsuppressiver Medikation und Lebendimpf-Fähigkeit',en:'Assessment of immunosuppressive medication and live-vaccine eligibility'}, url:'https://www.dtg.org/images/Reiseimpfungen/Reiseimpfempfehlungen%20DTG-StAR%202026.pdf', stand:'2026'},
+    {name:'WHO Model List of Essential Medicines (23rd list, 2023)', use:{de:'Referenz für die Wirkstoffauswahl',en:'Reference for substance selection'}, url:'https://www.who.int/publications/i/item/WHO-MHP-HPS-EML-2023.02', stand:'2023'},
+    {name:'WHO CC – ATC/DDD-Klassifikation (Guidelines 2024)', use:{de:'Wirkstoff-/Klassenzuordnung (ATC)',en:'Substance/class assignment (ATC)'}, url:'https://www.whocc.no/atc_ddd_index/', stand:'2024'},
+    {name:'Arzneiverordnungs-Report 2023 (Ludwig, Muhlack, Mühlbauer, Hrsg.)', use:{de:'Verordnungsdaten und Wirkstoffe',en:'Prescription data and substances'}, url:'https://link.springer.com/book/10.1007/978-3-662-68371-2', stand:'2023'},
+    {name:'Rote Liste 2024 · Gelbe Liste Pharmindex (MMI 2024)', use:{de:'Handelsnamen und Präparate',en:'Brand names and products'}, url:'https://www.rote-liste.de/', stand:'2024'},
+    {name:'BfArM – Arzneimittel-Informationssystem · EMA – Medicines (2024)', use:{de:'Zulassungs- und Produktinformationen',en:'Authorisation and product information'}, url:'https://www.bfarm.de/DE/Arzneimittel/Arzneimittelinformationen/_node.html', stand:'2024'}
   ]}
 ];
 function renderSources(){
