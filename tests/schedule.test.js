@@ -137,12 +137,24 @@ let m6 = consolidateManualSchedule([
   { offset:0, items:[{k:'rabies'}] },
 ]);
 ok('zwei Tollwut-Dosen werden NICHT auf einen Tag gelegt', m6.length === 2);
-// (g) max. 3 pro Tag
+// (g) GLEICHER Tag: 3+1 wird trotzdem zusammengelegt (ist ohnehin derselbe Besuch – Video Frame 5)
 let m7 = consolidateManualSchedule([
   { offset:0, items:[{k:'a'},{k:'b'},{k:'c'}] },
   { offset:0, items:[{k:'d'}] },
 ]);
-ok('kein 4. Impfstoff automatisch auf einen vollen Tag', m7.length === 2);
+ok('gleicher Tag: 3+1 -> 1 Termin (kein 3/Tag-Limit am selben Tag)', m7.length === 1 && m7[0].items.length === 4);
+// (h) NAHER Tag: 2+2 wird NICHT zusammengelegt (dabei wuerde eine Dosis auf einen anderen, dann vollen Tag wandern)
+let m8 = consolidateManualSchedule([
+  { offset:28, items:[{k:'a'},{k:'b'}] },
+  { offset:30, items:[{k:'c'},{k:'d'}] },
+]);
+ok('nahe Tage: 2+2 bleiben getrennt (3/Tag-Limit gilt beim Verschieben)', m8.length === 2);
+// (i) GLEICHER Tag mit Lebendimpfstoff: 1 + 3 (inkl. MMR live) -> 1 Termin (Video Frame 5)
+let m9 = consolidateManualSchedule([
+  { offset:0, items:[{k:'hepA'}] },
+  { offset:0, items:[{k:'tbe'},{k:'tdap_combo'},{k:'mmr',live:true}] },
+]);
+ok('gleicher Tag: Hep A + FSME/TdaP/MMR(live) -> 1 Termin mit 4', m9.length === 1 && m9[0].items.length === 4);
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

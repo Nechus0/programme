@@ -368,20 +368,27 @@ function consolidateManualSchedule(buckets){
           if (tol <= 0) continue;
           if (B.offset - A.offset > tol) break;   // sortiert → kein näherer Kandidat mehr
         }
-        if (A.items.length + B.items.length > MAX_PER_DAY) continue;
+        // Keine zwei Dosen derselben Impfung an einem Tag (gilt immer).
         if (A.items.some(it => B.items.some(x => x.k === it.k))) continue;
-        const reacto = A.items.filter(it => it.isReacto).length + B.items.filter(it => it.isReacto).length;
-        if (reacto > 2) continue;
-        if (A.items.some(it => it.live) || B.items.some(it => it.live)) {
-          let ok = true;
-          for (let m = 0; m < bs.length; m++) {
-            if (m === i || m === j) continue;
-            if (bs[m].items.some(x => x.live)) {
-              const d = Math.abs(bs[m].offset - B.offset);
-              if (d > 0 && d < 28) { ok = false; break; }
+        // Kapazitäts-/Sicherheitsgrenzen gelten NUR fürs Zusammenlegen NAHER Termine (dabei wird eine
+        // Dosis auf einen ANDEREN Tag verschoben). Zwei Karten am GLEICHEN Tag sind bereits derselbe
+        // Besuch – sie werden immer zu einer Karte vereint, unabhängig von 3/Tag, Reakto oder Lebend-
+        // Abstand (an der tatsächlichen Tagesbelegung ändert das nichts, nur an der Darstellung).
+        if (!sameDay) {
+          if (A.items.length + B.items.length > MAX_PER_DAY) continue;
+          const reacto = A.items.filter(it => it.isReacto).length + B.items.filter(it => it.isReacto).length;
+          if (reacto > 2) continue;
+          if (A.items.some(it => it.live) || B.items.some(it => it.live)) {
+            let ok = true;
+            for (let m = 0; m < bs.length; m++) {
+              if (m === i || m === j) continue;
+              if (bs[m].items.some(x => x.live)) {
+                const d = Math.abs(bs[m].offset - B.offset);
+                if (d > 0 && d < 28) { ok = false; break; }
+              }
             }
+            if (!ok) continue;
           }
-          if (!ok) continue;
         }
         // A in B zusammenlegen (B liegt am selben oder späteren Tag → nur vorwärts).
         B.items = B.items.concat(A.items);
