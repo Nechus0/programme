@@ -340,6 +340,61 @@ function computeManualOffsets(newCustom){
   return newCustom;
 }
 
+// Bündelt redundante Termin-Karten im MANUELL bearbeiteten Plan (nach Entfernen von Dosen bleiben
+// sonst getrennte Karten am selben oder an nahen Tagen stehen – z. B. zwei „In 1 Monat"-Termine oder
+// „Heute" + „Flexibel" an Tag 0). Gleiche Prinzipien wie die Auto-Bündelung:
+//  - gleicher Tag → immer zusammenlegen (ist derselbe Besuch);
+//  - naher Tag → nur VORWÄRTS und nur außerhalb der ersten 3 Wochen (schützt Tollwut-Abstände 0/7/21);
+//  - nie zwei Dosen derselben Impfung an einem Tag, max. 3/Tag, Lebendimpf-Abstand gewahrt;
+//  - externe und manuell (Wochen-Feld) gesetzte Termine bleiben unangetastet.
+// Danach in saveCustomSchedule computeManualOffsets erneut aufrufen, um die Offsets zu normalisieren.
+function consolidateManualSchedule(buckets){
+  const MAX_PER_DAY = 3;
+  const mergeTol = (off) => off < 21 ? 0 : (off < 42 ? 3 : (off < 120 ? 10 : 21));
+  let bs = buckets.slice();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    bs.sort((a, b) => (a.offset || 0) - (b.offset || 0));
+    for (let i = 0; i < bs.length; i++) {
+      const A = bs[i];
+      if (A.isExternal || A.userSet || !A.items.length) continue;
+      for (let j = i + 1; j < bs.length; j++) {
+        const B = bs[j];
+        if (B.isExternal || B.userSet || !B.items.length) continue;
+        const sameDay = (B.offset === A.offset);
+        if (!sameDay) {
+          const tol = mergeTol(A.offset);
+          if (tol <= 0) continue;
+          if (B.offset - A.offset > tol) break;   // sortiert → kein näherer Kandidat mehr
+        }
+        if (A.items.length + B.items.length > MAX_PER_DAY) continue;
+        if (A.items.some(it => B.items.some(x => x.k === it.k))) continue;
+        const reacto = A.items.filter(it => it.isReacto).length + B.items.filter(it => it.isReacto).length;
+        if (reacto > 2) continue;
+        if (A.items.some(it => it.live) || B.items.some(it => it.live)) {
+          let ok = true;
+          for (let m = 0; m < bs.length; m++) {
+            if (m === i || m === j) continue;
+            if (bs[m].items.some(x => x.live)) {
+              const d = Math.abs(bs[m].offset - B.offset);
+              if (d > 0 && d < 28) { ok = false; break; }
+            }
+          }
+          if (!ok) continue;
+        }
+        // A in B zusammenlegen (B liegt am selben oder späteren Tag → nur vorwärts).
+        B.items = B.items.concat(A.items);
+        A.items = [];
+        changed = true;
+        break;
+      }
+    }
+    bs = bs.filter(b => (b.items && b.items.length) || b.isExternal);
+  }
+  return bs;
+}
+
 function ageExact(dob){
   if(!dob)return null;
   const a = (new Date()-new Date(dob))/(1000*60*60*24*365.25);

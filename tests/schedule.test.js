@@ -97,5 +97,52 @@ let ext = computeManualOffsets([
 ]);
 ok('externer Termin behaelt Position (Tag 90)', ext[1].offset === 90);
 
+// --- Szenario 6: Bündelung im MANUELL bearbeiteten Plan (consolidateManualSchedule) ---
+// Nach dem Entfernen von Dosen bleiben getrennte Karten am selben/nahen Tag stehen; die muessen
+// zusammengelegt werden (Video: zwei "In 1 Monat"-Termine bzw. "Heute"+"Flexibel" an Tag 0).
+console.log('Szenario 6: Buendelung im manuellen Plan (Fix 3)');
+// (a) gleicher Tag -> ein Termin
+let m1 = consolidateManualSchedule([
+  { offset:0, items:[{k:'tdap_combo'}] },
+  { offset:0, items:[{k:'tbe'}] },
+]);
+ok('gleicher Tag: 2 Karten -> 1 Termin', m1.length === 1 && m1[0].items.length === 2);
+// (b) nahe Tage (28 & 30) -> ein Termin am spaeteren Tag
+let m2 = consolidateManualSchedule([
+  { offset:28, items:[{k:'hepA'},{k:'tdap_combo'}] },
+  { offset:30, items:[{k:'tbe'}] },
+]);
+ok('nahe Tage 28/30 -> 1 Termin an Tag 30', m2.length === 1 && m2[0].offset === 30 && m2[0].items.length === 3);
+// (c) externer Termin wird NICHT zusammengelegt
+let m3 = consolidateManualSchedule([
+  { offset:0, items:[{k:'tbe'}] },
+  { offset:0, isExternal:true, items:[{k:'covid'}] },
+]);
+ok('externer Termin bleibt getrennt', m3.length === 2);
+// (d) manuell gesetzter Termin wird NICHT zusammengelegt
+let m4 = consolidateManualSchedule([
+  { offset:0, items:[{k:'tbe'}] },
+  { offset:0, userSet:true, items:[{k:'tdap_combo'}] },
+]);
+ok('manuell gesetzter Termin bleibt getrennt', m4.length === 2);
+// (e) enge Tollwut-Fenster: nahe Tage in den ersten 3 Wochen werden NICHT zusammengelegt
+let m5 = consolidateManualSchedule([
+  { offset:7, items:[{k:'rabies'}] },
+  { offset:9, items:[{k:'tbe'}] },
+]);
+ok('nahe Tage <21 (Tollwut-Fenster) bleiben getrennt', m5.length === 2);
+// (f) keine zwei Dosen derselben Impfung an einem Tag
+let m6 = consolidateManualSchedule([
+  { offset:0, items:[{k:'rabies'}] },
+  { offset:0, items:[{k:'rabies'}] },
+]);
+ok('zwei Tollwut-Dosen werden NICHT auf einen Tag gelegt', m6.length === 2);
+// (g) max. 3 pro Tag
+let m7 = consolidateManualSchedule([
+  { offset:0, items:[{k:'a'},{k:'b'},{k:'c'}] },
+  { offset:0, items:[{k:'d'}] },
+]);
+ok('kein 4. Impfstoff automatisch auf einen vollen Tag', m7.length === 2);
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

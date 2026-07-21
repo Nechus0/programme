@@ -628,7 +628,10 @@ window.saveCustomSchedule = function() {
 
   // Offsets zentral neu berechnen: Auto-Termine fallen auf ihr medizinisches Minimum zurück (kein
   // Ratchet mehr), manuell gesetzte und externe Termine behalten ihre Position. Siehe engine.js.
-  customSchedule = computeManualOffsets(newCustom);
+  let normalized = computeManualOffsets(newCustom);
+  // Redundante Termin-Karten zusammenlegen (gleicher/naher Tag) und Offsets erneut normalisieren.
+  normalized = consolidateManualSchedule(normalized);
+  customSchedule = computeManualOffsets(normalized);
   renderApptOverview();
 };
 
