@@ -1897,12 +1897,28 @@ function printInvoice(){
   const treatedFull=(tbName+((tbName&&tbRole)?', '+tbRole:''))||'—';
   const payM=(p.payment&&p.payment.method)||_loadedPayment||'';
   const payLabel=payM?payMethodLabel(payM):'—';
-  const paid=!!(p.payment&&p.payment.paid);
-  const itemRows=(b.rows||[]).map(r=>'<tr><td>'+_esc(r.label)+(r.code?' <span style="color:#888;font-size:10px">('+_esc(r.code)+')</span>':'')+'</td><td class="amt">'+(r.unpriced?'—':eur(r.price))+'</td></tr>').join('');
+  const isDirect=(payM==='sofort'); const isInvoice=(payM==='rechnung');
+  const invNo=invoiceNumber(p,dateRaw);
+  const svcDateRaw=(p.treatedBy&&p.treatedBy.at)||(p.billing&&p.billing.at)||dateRaw;
+  const svcDate=fmtDate(new Date(svcDateRaw));
+  const rowHtml=r=>'<tr><td>'+_esc(r.label)+(r.code?' <span class="code">('+_esc(r.code)+')</span>':'')+'</td><td class="amt">'+(r.unpriced?'—':eur(r.price))+'</td></tr>';
+  const svcRows=(b.rows||[]).filter(r=>!r.vax);
+  const vaxRows=(b.rows||[]).filter(r=>r.vax);
+  let itemRows='';
+  if(svcRows.length){ itemRows+='<tr class="grp"><td colspan="2">'+(LX('Leistungen','Services'))+'</td></tr>'+svcRows.map(rowHtml).join(''); }
+  if(vaxRows.length){ itemRows+='<tr class="grp"><td colspan="2">'+(LX('Impfstoffe','Vaccines'))+'</td></tr>'+vaxRows.map(rowHtml).join(''); }
+  if(!itemRows){ itemRows='<tr><td colspan="2" style="color:#888">'+(LX('Keine abrechenbaren Leistungen.','No billable services.'))+'</td></tr>'; }
   const totalRow='<tr class="tot"><td>'+L2(I18N.kasseTotal)+' / Total</td><td class="amt">'+eur(b.total||0)+(b.hasUnpriced?' +':'')+'</td></tr>';
-  const payStatus = paid
-    ? '<span class="paid">'+(LX('Bezahlt am ','Paid on '))+_esc(invDate)+'</span>'
-    : (LX('Zahlung offen','Payment open'));
+  let payBlockHtml='';
+  if(isDirect){
+    payBlockHtml='<div class="pay"><div class="pay-row"><strong>'+L2(I18N.kassePayTitle)+' / Payment:</strong> '+_esc(payLabel)+'</div><div class="pay-status ok">'+(LX('Betrag dankend erhalten am ','Amount received on '))+_esc(invDate)+' · '+(LX('Direktzahlung','Direct payment'))+'</div></div>';
+  } else if(isInvoice){
+    const _term=INVOICE_CONFIG.paymentTermDays||14;
+    payBlockHtml='<div class="pay"><div class="pay-row"><strong>'+L2(I18N.kassePayTitle)+' / Payment:</strong> '+_esc(payLabel)+'</div><div class="pay-status due">'+(LX('Offener Rechnungsbetrag – bitte begleichen Sie den Betrag innerhalb von '+_term+' Tagen nach Rechnungsdatum unter Angabe der Rechnungsnummer.','Outstanding amount – please settle within '+_term+' days of the invoice date, quoting the invoice number.'))+'</div>'+bankBlock()+'</div>';
+  } else {
+    payBlockHtml='<div class="pay"><div class="pay-row"><strong>'+L2(I18N.kassePayTitle)+' / Payment:</strong> '+_esc(payLabel)+' · '+(LX('Zahlung offen','Payment open'))+'</div></div>';
+  }
+  const vatNoteHtml=INVOICE_CONFIG.vatNote?('<div class="vat">'+_esc(INVOICE_CONFIG.vatNote)+'</div>'):('<div class="vat todo">'+(LX('Umsatzsteuer-Hinweis bitte hinterlegen (§ 14 UStG).','VAT note to be configured (§ 14 UStG).'))+'</div>');
   const css='@page{size:A4;margin:0;}*{box-sizing:border-box;}body{font-family:Helvetica,Arial,sans-serif;color:#111;font-size:12px;line-height:1.5;margin:0;padding:20mm 18mm;}'+
     '.lh{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px;}'+
     '.lh-logo svg{height:30px;width:auto;display:block;}'+
@@ -1921,7 +1937,10 @@ function printInvoice(){
     '.items td{padding:7px 8px;border-bottom:1px solid #ddd;}'+
     '.items td.amt,.items th.amt{text-align:right;white-space:nowrap;}'+
     '.items tr.tot td{border-top:2px solid #111;border-bottom:none;font-weight:700;font-size:13px;padding-top:9px;}'+
-    '.pay{margin-top:14px;font-size:12px;}.pay .paid{color:#2e7d32;font-weight:700;}'+
+    '.items tr.grp td{background:#f3f4f6;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#333;font-weight:700;padding:6px 8px;border-bottom:1px solid #ccc;}'+
+    '.items .code{color:#888;font-size:10px;}'+
+    '.pay{margin-top:16px;font-size:11.5px;line-height:1.5;}.pay .pay-row{font-size:12px;margin-bottom:3px;}.pay .pay-status{font-weight:700;}.pay .pay-status.ok{color:#2e7d32;}.pay .pay-status.due{color:#111;}'+
+    '.bank{margin-top:6px;font-size:10.5px;color:#333;}.vat{margin-top:10px;font-size:9.5px;color:#555;line-height:1.5;}.todo{color:#b00;font-style:italic;}'+
     '.foot{margin-top:40px;font-size:9.5px;color:#666;}';
   const html='<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>'+(LX('Rechnung','Invoice'))+'</title><style>'+css+'</style></head><body>'+
     '<div class="lh"><div class="lh-logo">'+CHARITE_LOGO_SVG+'</div>'+
@@ -1935,13 +1954,17 @@ function printInvoice(){
       '<td colspan="2"><span class="lbl">Adresse <span class="en">/ Address</span></span>'+_esc(addr)+'</td>'+
     '</tr></table>'+
     '<table class="meta">'+
+      '<tr><td class="k">Rechnungsnummer <span class="en">/ Invoice no.</span></td><td>'+_esc(invNo)+'</td></tr>'+
       '<tr><td class="k">Rechnungsdatum <span class="en">/ Invoice date</span></td><td>'+_esc(invDate)+'</td></tr>'+
+      '<tr><td class="k">Leistungsdatum <span class="en">/ Date of service</span></td><td>'+_esc(svcDate)+'</td></tr>'+
       '<tr><td class="k">Behandelnder Arzt <span class="en">/ Treating physician</span></td><td>'+_esc(treatedFull)+'</td></tr>'+
+      '<tr><td class="k">Steuernummer <span class="en">/ Tax no.</span></td><td>'+cfgOrPlaceholder(INVOICE_CONFIG.taxId)+'</td></tr>'+
+      '<tr><td class="k">USt-IdNr. <span class="en">/ VAT ID</span></td><td>'+cfgOrPlaceholder(INVOICE_CONFIG.vatId)+'</td></tr>'+
     '</table>'+
     '<table class="items"><thead><tr><th>'+(LX('Leistung','Service'))+'</th><th class="amt">'+(LX('Betrag','Amount'))+'</th></tr></thead><tbody>'+
       itemRows+totalRow+
     '</tbody></table>'+
-    '<div class="pay"><strong>'+L2(I18N.kassePayTitle)+' / Payment method:</strong> '+_esc(payLabel)+' · '+payStatus+'</div>'+
+    payBlockHtml+vatNoteHtml+
     '<div class="foot">Charité · Reisemedizinische Ambulanz · Institut für Internationale Gesundheit</div>'+
     '<script>window.onload=function(){setTimeout(function(){try{window.focus();window.print();}catch(e){}},150);};<\/script>'+
     '</body></html>';
@@ -2645,6 +2668,20 @@ function vaxUnitPrice(priceKey){
   if(priceKey==='tbe'       && a!==null && a<12) return VAX_PRICE.tbe_child;
   if(priceKey==='influenza' && a!==null && a>=60) return VAX_PRICE.influenza_hd;
   return VAX_PRICE[priceKey];
+}
+// Konfigurierbare Rechnungs-Stammdaten – bitte durch die Ambulanz-/Finanzverwaltung befüllen (leer = Platzhalter auf der Rechnung)
+const INVOICE_CONFIG = { taxId:'', vatId:'', vatNote:'', bank:{holder:'',iban:'',bic:'',name:''}, paymentTermDays:14 };
+function cfgOrPlaceholder(v){ return v ? _esc(v) : '<span class="todo">'+(LX('[bitte hinterlegen]','[to be configured]'))+'</span>'; }
+function invoiceNumber(p,dateRaw){
+  const d=new Date(dateRaw); const y=d.getFullYear(); const mo=('0'+(d.getMonth()+1)).slice(-2); const da=('0'+d.getDate()).slice(-2);
+  let base=(''+((p&&(p.id||p.patientId||p.uid))||'')).replace(/[^a-zA-Z0-9]/g,'');
+  if(!base){ let h=0; const str=((p&&p.name)||'')+((p&&p.dob)||''); for(let i=0;i<str.length;i++){ h=(h*31+str.charCodeAt(i))>>>0; } base=h.toString(36); }
+  return 'RE-'+y+mo+da+'-'+(base.slice(-6).toUpperCase()||'000000');
+}
+function bankBlock(){
+  const b=INVOICE_CONFIG.bank||{};
+  if(b.iban){ return '<div class="bank">'+(LX('Bankverbindung','Bank details'))+': '+_esc(b.holder||'')+(b.holder?' · ':'')+'IBAN '+_esc(b.iban)+(b.bic?' · BIC '+_esc(b.bic):'')+(b.name?' · '+_esc(b.name):'')+'</div>'; }
+  return '<div class="bank todo">'+(LX('Bankverbindung bitte hinterlegen (für Zahlung auf Rechnung erforderlich).','Bank details to be configured (required for invoice payment).'))+'</div>';
 }
 // Vollständige Abrechnung des aktuellen Formulars berechnen
 function computeBilling(){

@@ -26,6 +26,10 @@
   .auth-links{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:12.5px;}
   .auth-links a{color:var(--blue);text-decoration:none;cursor:pointer;} .auth-links a:hover{text-decoration:underline;}
   .auth-note{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--grey);line-height:1.55;}
+  .kiosk-launch{margin-top:20px;text-align:center;}
+  .kiosk-launch .hint-label{display:block;font-size:12px;color:var(--grey);line-height:1.5;margin-bottom:7px;}
+  .kiosk-launch .hint-link{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--blue);text-decoration:none;white-space:nowrap;}
+  .kiosk-launch .hint-link:hover{text-decoration:underline;}
   .msg{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:18px;}
   .msg.err{background:var(--red-bg);color:var(--red);border:1px solid #f5c2c2;}
   .msg.ok{background:var(--green-bg);color:var(--green);border:1px solid #bfe0c2;}
@@ -68,8 +72,9 @@
       <a href="register.html">Neu registrieren</a>
     </div>
     <div class="auth-note">Der Zugang ist ausschließlich für Nutzer möglich, die von einem Administrator freigeschaltet wurden. Bei Fragen wenden Sie sich an die Ambulanzleitung.</div>
-    <div class="kiosk-launch" style="margin-top:16px;text-align:center;">
-      <div class="hint">Patienten-Tablet (iPad in der Ambulanz)? <a href="tablet.html" style="color:var(--blue)">Zur Selbstanmeldung &rarr;</a></div>
+    <div class="kiosk-launch">
+      <span class="hint-label">Patienten-Tablet (iPad in der Ambulanz)?</span>
+      <a href="tablet.html" class="hint-link">Zur Selbstanmeldung <span aria-hidden="true">&rarr;</span></a>
     </div>
   </div>
 </div>
