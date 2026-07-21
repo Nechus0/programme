@@ -1135,8 +1135,9 @@ function renderMedList(){
     const d=lookupDrug(m);
     const rm='<button class="vc-rm" onclick="removeMed('+i+')" title="'+(LX('Entfernen','Remove'))+'">✕</button>';
     if(!d) return '<div class="vc-card grey"><div class="vc-h"><span class="vc-name">'+_esc(m)+'</span><span class="vc-hr"><span class="vc-badge grey">'+(LX('nicht in DB','not in DB'))+'</span>'+rm+'</span></div><div class="vc-note">'+(LX('Immunsuppressive Wirkung manuell prüfen.','Check immunosuppressive effect manually.'))+'</div></div>';
-    if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LX('unkritisch','no concern'))+'</span>'+rm+'</span></div></div>';
-    return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LX('Immunsuppressivum','Immunosuppressant'))+'</span>'+rm+'</span></div>'+
+    if(d.assessed===false) return '<div class="vc-card amber"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge amber">'+(LX('nicht bewertet','not assessed'))+'</span>'+rm+'</span></div>'+(d.category?'<div class="vc-row"><b>'+(LX('Kategorie','Category'))+':</b> '+_esc(d.category)+'</div>':'')+'<div class="vc-note">'+(LX('Immunsuppressive Wirkung nicht hinterlegt – bitte klinisch beurteilen.','Immunosuppressive effect not on file — please assess clinically.'))+'</div></div>';
+    if(!d.is_immunosuppressant) return '<div class="vc-card green"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge green">'+(LX('unkritisch','no concern'))+'</span>'+rm+'</span></div>'+(d.category?'<div class="vc-cat">'+_esc(d.category)+'</div>':'')+'</div>';
+    return '<div class="vc-card red"><div class="vc-h"><span class="vc-name">'+_esc(d.substance)+brands(d)+'</span><span class="vc-hr"><span class="vc-badge red">'+(LX('Immunsuppressivum','Immunosuppressant'))+'</span>'+rm+'</span></div>'+(d.category?'<div class="vc-cat">'+_esc(d.category)+'</div>':'')+
       (d.drug_class?'<div class="vc-row"><b>'+(LX('Substanzklasse','Class'))+':</b> '+_esc(d.drug_class)+'</div>':'')+
       (d.class_abstract?'<div class="vc-abstract">'+_esc(d.class_abstract)+'</div>':'')+
       '<div class="vc-grid"><div><b>'+(LX('Lebendimpfung','Live vaccine'))+':</b> '+_esc(d.live_vaccine_allowed||'—')+'</div><div><b>'+(LX('Therapiepause','Therapy pause'))+':</b> '+_esc(d.therapy_pause_needed||'—')+'</div><div><b>'+(LX('Totimpfstoff-Antwort','Inactivated response'))+':</b> '+_esc(d.immune_response_dead_vaccine||'—')+'</div></div></div>';
@@ -2751,6 +2752,21 @@ const PRICE_VAX_LIST=[
   ['Td-IPV',27.06],['Tdap-IPV',44.82],['Tdap',42.78],
   ['Tollwut (Rabipur)',86.54],['Tollwut (Verorab)',80.02],['Typhus',37.98],['Windpocken',96.19]
 ];
+function showMedSources(){
+  const box=el('modal-content'); if(!box) return;
+  const refs=[
+    ['WHO Model List of Essential Medicines','World Health Organization. (2023). World Health Organization model list of essential medicines: 23rd list (2023). World Health Organization.'],
+    ['ATC/DDD-Klassifikation','WHO Collaborating Centre for Drug Statistics Methodology. (2024). Guidelines for ATC classification and DDD assignment. Oslo: WHO Collaborating Centre for Drug Statistics Methodology.'],
+    ['Arzneiverordnungs-Report','Ludwig, W.-D., Muhlack, E., & Mühlbauer, B. (Hrsg.). (2023). Arzneiverordnungs-Report 2023. Springer Berlin Heidelberg.'],
+    ['Rote Liste / Gelbe Liste','Rote Liste Service GmbH (Hrsg.). (2024). Rote Liste 2024: Arzneimittelverzeichnis für Deutschland. Frankfurt am Main: Rote Liste Service GmbH. Medizinische Medien Informations GmbH (MMI). (2024). Gelbe Liste Pharmindex. Frankfurt am Main.'],
+    ['BfArM / EMA','Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM). (2024). Arzneimittel-Informationssystem. Bonn. European Medicines Agency (EMA). (2024). Medicines. Amsterdam.']
+  ];
+  box.classList.add('pi-modal');
+  box.innerHTML='<button class="modal-close" onclick="closeModal()">×</button>'+
+    '<h3 class="pi-h">'+(LX('Datenquellen – Medikamentendatenbank','Data sources – medication database'))+'</h3>'+
+    '<div class="src-list">'+refs.map(r=>'<div class="src-item"><div class="src-t">'+_esc(r[0])+'</div><div class="src-c">'+_esc(r[1])+'</div></div>').join('')+'</div>';
+  const bg=el('modal-bg'); if(bg) bg.classList.add('show');
+}
 function showPriceInfo(){
   const box=el('modal-content'); if(!box) return;
   const leist=[

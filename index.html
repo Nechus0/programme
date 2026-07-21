@@ -41,12 +41,12 @@
   document.head.appendChild(s);
 })();
 </script>
-<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=122">
-<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=122">
-<link rel="shortcut icon" href="app_icons/app_icon.ico?v=122">
-<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=122">
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=123">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=123">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=123">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=123">
 <title>Charité · Reiseimpf-Assistent</title>
-<link rel="stylesheet" href="css/style.css?v=122">
+<link rel="stylesheet" href="css/style.css?v=123">
 </head>
 <body style="visibility:hidden">
 <header>
@@ -260,7 +260,7 @@
     <div class="grid g3">
       <div id="preg-field"><label class="fld" data-i18n="fPregnant">Schwangerschaft / Stillzeit</label><select id="p-pregnant" onchange="recompute()"><option value="no" data-i18n="optNo">nein</option><option value="pregnant" data-i18n="optPregnant">schwanger</option><option value="breastfeeding" data-i18n="optBreastfeeding">stillend</option><option value="planned" data-i18n="optPlanned">Schwangerschaft geplant</option></select></div>
       <div><label class="fld" data-i18n="fAllergy">Allergien (z. B. Hühnereiweiß)</label><input type="text" id="p-allergy" placeholder="z. B. Hühnereiweiß" data-i18n-ph="phAllergy" oninput="recompute()"></div>
-      <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><div class="med-inp-wrap"><input type="text" id="p-med-input" autocomplete="off" placeholder="Medikament eingeben…" data-i18n-ph="phMed" oninput="medAutocomplete()" onkeydown="medKey(event)" onblur="medAcHide()"><div class="med-ac" id="med-ac"></div></div><input type="hidden" id="p-immuno"></div>
+      <div><label class="fld" data-i18n="fMedication">Aktuelle Medikamente</label><span class="src-link" onclick="showMedSources()" title="Datenquellen der Medikamentendatenbank">ⓘ Quellen</span><div class="med-inp-wrap"><input type="text" id="p-med-input" autocomplete="off" placeholder="Medikament eingeben…" data-i18n-ph="phMed" oninput="medAutocomplete()" onkeydown="medKey(event)" onblur="medAcHide()"><div class="med-ac" id="med-ac"></div></div><input type="hidden" id="p-immuno"></div>
     </div>
     <div class="grid g2" style="margin-top:14px;">
       <div><label class="fld" data-i18n="fRecentVax">Impfung/Injektion in den letzten 4 Wochen (welche, wann?)</label><div class="med-inp-wrap"><input type="text" id="p-recentvax-input" autocomplete="off" placeholder="Impfung eingeben…" data-i18n-ph="phRecentVax" oninput="recentVaxAutocomplete()" onkeydown="recentVaxKey(event)" onblur="recentVaxAcHide()"><div class="med-ac" id="recentvax-ac"></div></div><input type="hidden" id="p-recentvax"><div id="recentvax-vaccheck" class="med-vaccheck"></div></div>
@@ -388,16 +388,16 @@
 <div class="map-bg" id="map-bg" onclick="if(event.target===this)closeMap()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js?v=122"></script>
-<script src="data/country_data.js?v=122"></script>
-<script src="data/drugs_db.js?v=122"></script>
-<script src="data/engine_data.js?v=122"></script>
-<script src="js/engine_rules.js?v=122"></script>
-<script src="js/engine.js?v=122"></script>
+<script src="js/auth.js?v=123"></script>
+<script src="data/country_data.js?v=123"></script>
+<script src="data/drugs_db.js?v=123"></script>
+<script src="data/engine_data.js?v=123"></script>
+<script src="js/engine_rules.js?v=123"></script>
+<script src="js/engine.js?v=123"></script>
 <!-- Malaria-Daten + Engine: EINE gemeinsame Quelle für App und Tests -->
-<script src="js/malaria_data.js?v=122"></script>
-<script src="js/malaria_engine.js?v=122"></script>
-<script src="js/script.js?v=122"></script>
+<script src="js/malaria_data.js?v=123"></script>
+<script src="js/malaria_engine.js?v=123"></script>
+<script src="js/script.js?v=123"></script>
 <script>
   // Auth-Guard + Rollen: blendet die App erst nach erfolgreicher Prüfung ein.
   guardApp(function(user, profile){
