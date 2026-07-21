@@ -60,6 +60,13 @@ label.fld{display:block;font-size:var(--fs-sm);font-weight:600;margin-bottom:5px
    sobald rechts (z. B. bei Auswahl einer chronischen Erkrankung) eine Box eingeblendet wird. */
 #step3 .grid{align-items:start;}
 #step3 .grid > div > label.fld{flex:0 0 auto;min-height:2.5em;}
+/* Reise: gleiche Ausrichtung wie Immunstatus – sonst schieben unterschiedlich hohe Zellen
+   (Hint-Zeilen unter Datum/Reiseziel) die Eingabefelder vertikal auseinander. */
+#step2 .grid{align-items:start;}
+#step2 .grid > div > label.fld{flex:0 0 auto;min-height:2.5em;}
+/* Kiosk: Pflichtfeld-Markierung + deaktivierter Weiter-Button. */
+.kiosk-bar .btn:disabled{opacity:.4;cursor:not-allowed;}
+.field-missing{border-color:var(--red)!important;box-shadow:0 0 0 2px rgba(211,47,47,.15);}
 .card-sub{font-size:var(--fs-meta);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);padding-bottom:6px;margin-bottom:14px;border-bottom:1px solid var(--line);}
 .chk-grid{display:flex;flex-wrap:wrap;gap:8px;}
 .chk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}

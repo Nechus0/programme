@@ -906,7 +906,7 @@ function hepAssess(){
   else {
     const hepaR = getRisk('hepatitis_a');
     const destEndemic = hepaR ? (hepaR.level === 'recommended' || hepaR.level === 'risk_based' || hepaR.level === 'mandatory_all') : false;
-    A=destEndemic?'red':'grey';aNote={de:destEndemic?'Für die meisten Reiseziele empfohlen':'',en:destEndemic?'Recommended for most destinations':''};
+    A=destEndemic?'red':'grey';aNote={de:destEndemic?'Erhöhtes Hepatitis-A-Risiko am Reiseziel (Übertragung über Wasser/Nahrung)':'',en:destEndemic?'Elevated hepatitis A risk at destination (via water/food)':''};
   }
   const bDoses=b+tw+hexaB;let B,bNote,bTier='';
   if(serHBs()){B='green';bTier='immune';bNote={de:'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig',en:'Immune — anti-HBs sufficient, no further vaccination needed'};}

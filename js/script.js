@@ -246,7 +246,7 @@ const MENHEP_FR={
  '2. Dosis überfällig (Erstschutz ~1 Jahr)':'2ᵉ dose en retard (protection initiale ~1 an)',
  '1 Dosis: ~1 Jahr Schutz; 2. Dosis für Langzeitschutz':'1 dose : ~1 an de protection ; 2ᵉ dose pour une protection durable',
  '1× Twinrix reicht für Hep A NICHT (halbe Antigenmenge) – Serie vervollständigen':"1× Twinrix ne suffit PAS pour l'hép A (moitié de l'antigène) – compléter la série",
- 'Für die meisten Reiseziele empfohlen':'Recommandé pour la plupart des destinations',
+ 'Erhöhtes Hepatitis-A-Risiko am Reiseziel (Übertragung über Wasser/Nahrung)':'Risque élevé d\'hépatite A à destination (transmission par eau/aliments)',
  'Immun – Anti-HBs ausreichend, keine weitere Impfung nötig':'Immun – anti-HBs suffisants, aucune vaccination supplémentaire nécessaire',
  'Langzeit/Exposition':'Long séjour/exposition'
 };
@@ -1380,6 +1380,17 @@ function setYear(k,field,raw){const s=(raw||'').replace(/\D/g,'');const cur=new 
   else full=parseInt(s.slice(-4),10);
   if(full&&(full<1900||full>cur))full='';
   vaxState[k][field]=full?String(full):'';renderVaxTable();}
+// Tab (und Shift+Tab) zwischen den Jahres-Feldern Td -> aP -> IPV. Da setYear die Tabelle neu
+// rendert (und dabei den nativen Tab-Fokus verlieren wuerde), uebernehmen wir den Sprung selbst.
+function tdapYearKey(e,f){
+  if(e.key!=='Tab') return;
+  const order=['y_td','y_ap','y_ipv']; const i=order.indexOf(f); if(i<0) return;
+  const j=e.shiftKey?i-1:i+1; if(j<0||j>=order.length) return;
+  e.preventDefault();
+  setYear('tdap_polio',f,e.target.value);
+  const nx=document.querySelector('.year-in[data-yfield="'+order[j]+'"]');
+  if(nx){ nx.focus(); try{ nx.select(); }catch(_){} }
+}
 function providerSelect(k,field){field=field||'prov';const on=(vaxState[k][field]&&vaxState[k][field]!=='charite');const who=t(provResolve('ext')==='paed'?'provPaed':'provGP');
   return '<button class="ext-btn'+(on?' on':'')+'" onclick="toggleExtern(\''+k+'\',\''+field+'\')">'+(on?'✓ '+(LX('Extern: ','External: '))+who:(LX('Extern','External')))+'</button>';}
 function toggleExtern(k,field){field=field||'prov';vaxState[k][field]=(vaxState[k][field]&&vaxState[k][field]!=='charite')?'charite':'ext';renderVaxTable();renderApptOverview();}
@@ -1413,7 +1424,7 @@ function renderVaxTable(){
       const dOpts=[['0','0'],['1','1'],['2','2'],['3','3'],['>3','>3']];
       const dSel=dOpts.map(o=>'<option value="'+o[0]+'"'+(st.doses_hexa===o[0]?' selected':'')+'>'+o[1]+'</option>').join('');
 
-      function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" placeholder="'+yrPh()+'" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)">';}
+      function yrIn(f){return '<input type="text" inputmode="numeric" maxlength="4" class="year-in" data-yfield="'+f+'" placeholder="'+yrPh()+'" value="'+(st[f]||'')+'" onchange="setYear(\'tdap_polio\',\''+f+'\',this.value)" onkeydown="tdapYearKey(event,\''+f+'\')">';}
 
       // Row 1 – Grundimmunisierung (Kindheit): keine / Standard / Hexavalent (aus Engine-Feldern abgeleitet)
       const giVal = (st.doses_hexa && st.doses_hexa!=='0' && st.doses_hexa!=='') ? 'hexa' : ((st.gi_tdap && st.gi_ipv) ? 'standard' : '');
@@ -1524,7 +1535,17 @@ function renderVaxTable(){
       }
     }
     let note=(LANG==='de'?a.noteDe:(LANG==='fr'?(a.noteFr||a.noteEn):a.noteEn));let noteStyle='';
-    if(a.status==='green'&&BOOSTER[v.k]){note=L2(BOOSTER[v.k]);noteStyle=' style="color:var(--green)"';}
+    if(a.status==='green'&&BOOSTER[v.k]){
+      let _noteObj=BOOSTER[v.k];
+      // Bei alters-/serologisch begruendetem Schutz die konkrete Begruendung zeigen statt '2 Dosen'.
+      if(v.k==='mmr'){
+        if(serologyState&&serologyState.measles) _noteObj={de:'Masern-IgG ausreichend – als immun angenommen',en:'Measles IgG sufficient — assumed immune',fr:'IgG rougeole suffisantes – supposé immunisé'};
+        else { const _by=(typeof birthYear==='function')?birthYear():null; if(_by!=null&&_by<=1970) _noteObj={de:'Vor 1971 geboren – i. d. R. immun (Masern)',en:'Born before 1971 — usually immune (measles)',fr:'Né avant 1971 – généralement immunisé (rougeole)'}; }
+      } else if(v.k==='varicella'){
+        if(serologyState&&serologyState.vzv) _noteObj={de:'VZV-IgG ausreichend – als immun angenommen (auch nach durchgemachten Windpocken)',en:'VZV IgG sufficient — assumed immune (incl. prior chickenpox)',fr:'IgG VZV suffisantes – supposé immunisé (varicelle antérieure incluse)'};
+      }
+      note=L2(_noteObj);noteStyle=' style="color:var(--green)"';
+    }
     const mandBadge=a.mand?'<span class="badge mand">'+t('mandatory')+'</span>':'';
     const alN=allergyNote(v);const alNote=alN?'<div class="reason" style="color:var(--red);font-weight:600">'+L2(alN)+'</div>':'';
     let extraChk='';
@@ -3658,6 +3679,10 @@ function applyRole(profile){
     document.body.classList.add('kiosk');
     ['step4','step5','step6','list-card','kasse-card'].forEach(id=>show(id,false));
     kioskStep = 1;
+    if(!window._kioskValBound){
+      window._kioskValBound = true;
+      ['p-firstname','p-name','p-dob'].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener('input', function(){ e.classList.remove('field-missing'); kioskUpdateView(); }); });
+    }
     kioskUpdateView();
     show('notes-block',false);   // Länder-/Gesundheitshinweise nur für Personal, nicht auf dem Patienten-Tablet
     if(ub) ub.style.display='none';
@@ -3870,6 +3895,10 @@ window.addEventListener('scroll',()=>{ updateSecNav(); },{passive:true});
 
 /* ---------- Kiosk (Patientenaccount) ---------- */
 var kioskStep = 1;
+function kioskStep1Valid(){
+  const has = id => { const e=document.getElementById(id); return !!(e && e.value && e.value.trim()!==''); };
+  return has('p-firstname') && has('p-name') && has('p-dob');
+}
 function kioskUpdateView(){
   if(document.body.classList.contains('clinic')) return;
   ['step1','step2','step3'].forEach((id,idx)=>{
@@ -3883,9 +3912,26 @@ function kioskUpdateView(){
   if(prev) prev.style.display = (kioskStep > 1) ? 'block' : 'none';
   if(next) next.style.display = (kioskStep < 3) ? 'block' : 'none';
   if(sub) sub.style.display = (kioskStep === 3) ? 'block' : 'none';
-  if(hint) hint.style.display = (kioskStep === 1) ? 'block' : 'none';
+  // Pflichtfelder auf Folie 1: ohne Vorname, Nachname und Geburtsdatum kein 'Weiter'.
+  const step1ok = kioskStep1Valid();
+  if(next) next.disabled = (kioskStep === 1 && !step1ok);
+  if(hint){
+    hint.style.display = (kioskStep === 1) ? 'block' : 'none';
+    if(kioskStep === 1){
+      hint.textContent = step1ok
+        ? LX('Bitte füllen Sie Ihre Angaben aus und senden Sie sie ab.','Please fill in your details and submit.')
+        : LX('Bitte Vorname, Nachname und Geburtsdatum ausfüllen.','Please enter first name, last name and date of birth.');
+    }
+  }
 }
-function kioskNext(){ if(kioskStep < 3){ kioskStep++; kioskUpdateView(); window.scrollTo({top:0,behavior:'smooth'}); } }
+function kioskNext(){
+  if(kioskStep === 1 && !kioskStep1Valid()){
+    ['p-firstname','p-name','p-dob'].forEach(id=>{ const e=document.getElementById(id); if(e && !(e.value && e.value.trim())) e.classList.add('field-missing'); });
+    kioskUpdateView();
+    return;
+  }
+  if(kioskStep < 3){ kioskStep++; kioskUpdateView(); window.scrollTo({top:0,behavior:'smooth'}); }
+}
 function kioskPrev(){ if(kioskStep > 1){ kioskStep--; kioskUpdateView(); window.scrollTo({top:0,behavior:'smooth'}); } }
 
 async function kioskSubmit(){
