@@ -124,11 +124,17 @@ function buildOptimalSchedule(planned, departureStr) {
         let prevDay = assignedDays[dose.k][dose.doseIdx - 1];
         let reqGap = vGaps(dose.k)[dose.doseIdx - 1] || 28;
         minStart = prevDay + reqGap;
-        if (!buckets.some(b => b.offset >= minStart)) {
+        // Folgedosis möglichst NAHE am Mindest-Datum platzieren: Gibt es keinen Termin im Fenster
+        // [minStart, minStart+window], einen neuen bei minStart anlegen – sonst würde die Dosis auf
+        // einen weit späteren, bereits existierenden Termin „schnappen" (z. B. FSME-Dosis 2 landet
+        // sonst bei 6 Monaten, weil ihr eigentlicher Slot bei ~1 Monat keinen Termin hat).
+        let window = Math.max(7, Math.round(reqGap / 3));
+        if (!buckets.some(b => b.offset >= minStart && b.offset <= minStart + window)) {
            buckets.push({ offset: minStart, items: [], live: false, reactoCount: 0 });
+           buckets.sort((a, b) => a.offset - b.offset);
         }
      }
-     
+
      let bIdx = findValidBucket(dose, minStart);
      buckets[bIdx].items.push(dose);
      if (dose.live) buckets[bIdx].live = true;
@@ -291,6 +297,47 @@ function consolidateNearbyAppointments(buckets, daysDep) {
   const out = Object.keys(byDay).map(k => byDay[k]).sort((a, b) => a.offset - b.offset);
   out.forEach(b => { b.live = b.items.some(it => it.live); });
   return out;
+}
+
+// Offsets eines MANUELL bearbeiteten Terminplans neu berechnen (aufgerufen aus saveCustomSchedule).
+// Auto-Termine werden auf ihr medizinisches Minimum gesetzt (requiredOffset) und kollabieren dadurch
+// korrekt, wenn eine Impfung entfernt wird. NUR explizit vom Nutzer gesetzte Offsets (userSet, über
+// das Wochen-Feld) und externe Termine behalten ihre Position via Math.max. Damit verschwindet der
+// frühere „Ratchet"-Bug (Math.max gegen den veralteten DOM-Offset ließ Termine nur noch nach hinten
+// wandern; entfernte Impfungen ließen den Plan „aufblähen" statt zusammenfallen).
+function computeManualOffsets(newCustom){
+  let lastDoseOffset = {};
+  let lastLiveOffset = null;
+  let currentMinOffset = 0;
+  for (let i = 0; i < newCustom.length; i++) {
+     let b = newCustom[i];
+     let requiredOffset = currentMinOffset;
+     b.items.forEach(it => {
+        if (it.live && lastLiveOffset !== null) {
+           let needed = lastLiveOffset + 28;
+           if (needed > requiredOffset) requiredOffset = needed;
+        }
+        if (lastDoseOffset[it.k] !== undefined) {
+           let prev = lastDoseOffset[it.k];
+           let gaps = vGaps(it.k);
+           let gapNeeded = gaps[prev.count - 1] || 28;
+           let needed = prev.offset + gapNeeded;
+           if (needed > requiredOffset) requiredOffset = needed;
+        }
+     });
+     if (b.items.length === 0) requiredOffset = 0;
+     b.minAllowedOffset = requiredOffset;
+     if (b.isExternal) b.offset = Math.max(b.origOffset || 0, requiredOffset);   // externer Termin: Position halten
+     else if (b.userSet) b.offset = Math.max(b.userOffset || 0, requiredOffset);  // manuell gesetzt: honorieren
+     else b.offset = requiredOffset;                                              // auto: auf Minimum kollabieren
+     b.items.forEach(it => {
+        if (it.live) lastLiveOffset = b.offset;
+        if (!lastDoseOffset[it.k]) lastDoseOffset[it.k] = { count: 1, offset: b.offset };
+        else { lastDoseOffset[it.k].count++; lastDoseOffset[it.k].offset = b.offset; }
+     });
+     if (b.items.length > 0) currentMinOffset = b.offset;
+  }
+  return newCustom;
 }
 
 function ageExact(dob){

@@ -56,5 +56,46 @@ ok('Lebendimpf-Abstand gewahrt (selber Tag oder >=28 Tage)', liveOk(s3));
 ok('kein Mindestabstand verletzt', gapsOk(s3));
 ok('keine doppelte Impfung am selben Tag', noDupSameDay(s3));
 
+// --- Szenario 4: FSME-Placement bei vollem "Heute"-Termin (Fix 1) ---
+// Hep B + Tollwut + TdaP-Polio + FSME: Tag 0 ist mit 3 Impfungen voll, FSME-Dosis 1 wird auf Tag 7
+// verdrängt. Frueher rutschte FSME-Dosis 2 dann auf ~6 Monate (kein Termin bei ~1 Monat). Jetzt muss
+// Dosis 2 nahe am Mindestabstand (~30 Tage nach Dosis 1) liegen, nicht Monate später.
+window.EngineCtx = { getDob:()=>DOB, getVaxState:()=>({ hepatitis:{}, rabies:{done:''}, tdap_polio:{doses_hexa:'0'}, tbe:{done:''} }) };
+let s4 = buildOptimalSchedule([
+  { name:'Hepatitis B (Engerix B)', k:'hepB', live:false, stKey:'hepatitis', planField:'plannedB' },
+  { name:'Tollwut (Rabipur / Verorab)', k:'rabies', live:false, stKey:'rabies', planField:'planned' },
+  { name:'Tetanus Diphtherie Pertussis Polio (Repevax)', k:'tdap_combo', live:false, stKey:'tdap_polio', planField:'planned' },
+  { name:'FSME (Encepur)', k:'tbe', live:false, stKey:'tbe', planField:'planned' },
+], depIn(79));
+let fsme1 = dayOf(s4,'tbe',0), fsme2 = dayOf(s4,'tbe',1);
+console.log('Szenario 4: FSME-Placement (Fix 1)  [D1=' + fsme1 + ', D2=' + fsme2 + ']');
+ok('FSME Dosis2 nicht auf Monate verschleppt (<= ~8 Wochen nach Dosis1)', fsme2 !== null && (fsme2 - fsme1) <= 56);
+ok('FSME 30-Tage-Mindestabstand D1->D2 eingehalten', fsme2 - fsme1 >= 30);
+ok('kein Mindestabstand verletzt', gapsOk(s4));
+
+// --- Szenario 5: manueller Plan kollabiert korrekt statt zu "ratchten" (Fix 2, computeManualOffsets) ---
+// Nach dem Entfernen einer frühen Ankerimpfung bleiben veraltete (hohe) DOM-Offsets stehen. Ein
+// Auto-Termin (userSet=false) muss auf sein medizinisches Minimum zurückfallen; frueher liess
+// Math.max(origOffset, ...) den Plan "aufblähen" (Termin 1 -> "1 Monat" usw.).
+console.log('Szenario 5: manueller Plan / Offset-Ratchet (Fix 2)');
+let ratchet = computeManualOffsets([
+  { origOffset:30, offset:30, isExternal:false, userSet:false, items:[{k:'tbe',live:false},{k:'tdap_combo',live:false}] },
+  { origOffset:60, offset:60, isExternal:false, userSet:false, items:[{k:'tbe',live:false},{k:'tdap_combo',live:false}] },
+]);
+ok('erster Auto-Termin kollabiert auf Tag 0 (kein Ratchet)', ratchet[0].offset === 0);
+ok('zweiter Termin haelt nur den medizinischen Mindestabstand (Tag 30)', ratchet[1].offset === 30);
+// Manuell gesetzter Offset wird weiterhin respektiert (>= Minimum).
+let manual = computeManualOffsets([
+  { origOffset:0, offset:0, isExternal:false, userSet:false, items:[{k:'tbe',live:false}] },
+  { origOffset:56, offset:56, isExternal:false, userSet:true, userOffset:56, items:[{k:'tbe',live:false}] },
+]);
+ok('manuell gesetzter Offset (8 Wochen) bleibt erhalten', manual[1].offset === 56);
+// Externer Termin behaelt seine Position.
+let ext = computeManualOffsets([
+  { origOffset:0, offset:0, isExternal:false, userSet:false, items:[{k:'hepAB',live:false}] },
+  { origOffset:90, offset:90, isExternal:true, userSet:false, items:[{k:'covid',live:false}] },
+]);
+ok('externer Termin behaelt Position (Tag 90)', ext[1].offset === 90);
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

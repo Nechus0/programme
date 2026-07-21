@@ -589,6 +589,7 @@ window.hUpdateBucketOffset = function(inputEl, idx, prevOffset) {
     let bucketEl = inputEl.closest('.sched-bucket');
     if (bucketEl) {
         bucketEl.dataset.offset = prevOffset + (relW * 7);
+        bucketEl.dataset.manual = 'true';   // explizit vom Nutzer gesetzter Offset → in saveCustomSchedule honorieren
         window.saveCustomSchedule();
     }
 };
@@ -616,57 +617,19 @@ window.saveCustomSchedule = function() {
   buckets.forEach(b => {
      let offset = parseInt(b.dataset.offset, 10);
      let isExternal = b.dataset.external === 'true';
+     let manual = b.dataset.manual === 'true';   // explizit vom Nutzer gesetzter Offset (Wochen-Feld)
      let items = [];
      b.querySelectorAll('.sched-item').forEach(it => {
          let baseName = it.dataset.name.replace(/\s*-?\s*Dosis\s*\d+/g, '').replace(/\s*-?\s*\(Dosis\s*\d+\)/g, '');
          items.push({ id: it.id, name: baseName, k: it.dataset.k, stKey: it.dataset.stkey, planField: it.dataset.planfield, live: it.dataset.live==='true', isReacto: it.dataset.reacto==='true' });
      });
-     if(items.length > 0 || isExternal) newCustom.push({ origOffset: offset, offset, items, isExternal });
+     if(items.length > 0 || isExternal) newCustom.push({ origOffset: offset, offset, items, isExternal, userSet: manual, userOffset: manual ? offset : null });
   });
 
-  let lastDoseOffset = {};
-  let lastLiveOffset = null;
-  let currentMinOffset = 0;
-
-  for (let i = 0; i < newCustom.length; i++) {
-     let b = newCustom[i];
-     let requiredOffset = currentMinOffset;
-
-      b.items.forEach(it => {
-         if (it.live && lastLiveOffset !== null) {
-             let needed = lastLiveOffset + 28;
-             if (needed > requiredOffset) requiredOffset = needed;
-         }
-         if (lastDoseOffset[it.k] !== undefined) {
-             let prevOffset = lastDoseOffset[it.k].offset;
-             let prevCount = lastDoseOffset[it.k].count;
-             let gaps = vGaps(it.k);
-             let gapNeeded = gaps[prevCount - 1] || 28;
-             let needed = prevOffset + gapNeeded;
-             if (needed > requiredOffset) requiredOffset = needed;
-         }
-      });
-      if (b.items.length === 0) {
-          requiredOffset = 0;
-      }
-      
-      b.minAllowedOffset = requiredOffset;
-      b.offset = Math.max(b.origOffset, requiredOffset);
-      
-      b.items.forEach(it => {
-         if (it.live) lastLiveOffset = b.offset;
-         if (!lastDoseOffset[it.k]) lastDoseOffset[it.k] = { count: 1, offset: b.offset };
-         else {
-             lastDoseOffset[it.k].count++;
-             lastDoseOffset[it.k].offset = b.offset;
-         }
-      });
-      if (b.items.length > 0) {
-          currentMinOffset = b.offset;
-      }
-   }
-   customSchedule = newCustom;
-   renderApptOverview();
+  // Offsets zentral neu berechnen: Auto-Termine fallen auf ihr medizinisches Minimum zurück (kein
+  // Ratchet mehr), manuell gesetzte und externe Termine behalten ihre Position. Siehe engine.js.
+  customSchedule = computeManualOffsets(newCustom);
+  renderApptOverview();
 };
 
 
@@ -1028,7 +991,7 @@ function renderApptOverview() {
        itemsHtml = `<div style="color:var(--grey);font-size:12px;text-align:center;padding:10px;">${LX('Impfungen hierhin ziehen','Drag vaccinations here')}</div>`;
     }
 
-    html += `<div class="sched-bucket" data-offset="${offset}" data-external="${!!b.isExternal}">
+    html += `<div class="sched-bucket" data-offset="${offset}" data-external="${!!b.isExternal}" data-manual="${!!b.userSet}">
       <div class="sched-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
            <div style="display:flex;align-items:center;">${title} ${dateAlert}</div>
