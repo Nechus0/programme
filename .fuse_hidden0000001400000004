@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Sentry (Fehler-Monitoring) – OPT-IN / Staging. Lädt & sendet NICHTS auf dem produktiven
+     Klinik-Host, solange keine AVV/DSB-Freigabe vorliegt. Aktivierung: ?diag=1 in der URL,
+     localStorage 'impf_diag'='1', oder lokaler Host. Konservativ: nur Fehler/Stacktraces,
+     keine Session-Replays, PHI-nahe Breadcrumbs (Konsole/Klick/Eingabe) + Request-Bodies verworfen. -->
+<script>
+(function(){
+  var _local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || location.protocol === 'file:';
+  var enable = _local
+            || /[?&]diag=1/.test(location.search)
+            || (function(){ try { return localStorage.getItem('impf_diag') === '1'; } catch(e){ return false; } })();
+  if(!enable) return;
+  window.sentryOnLoad = function () {
+    try {
+      var _v = (document.querySelector('link[rel=stylesheet]') || {}).href || '';
+      var _rel = (_v.match(/v=(\d+)/) || [])[1];
+      Sentry.init({
+        environment: _local ? 'dev' : 'staging',
+        release: 'impf-app@' + (_rel ? 'v' + _rel : 'dev'),
+        sendDefaultPii: false,
+        tracesSampleRate: 0,
+        beforeBreadcrumb: function (b) {
+          if (!b) return b;
+          if (b.category === 'console' || b.category === 'ui.click' || b.category === 'ui.input') return null;
+          return b;
+        },
+        beforeSend: function (event) {
+          if (event && event.request) { delete event.request.data; delete event.request.cookies; }
+          return event;
+        }
+      });
+    } catch (e) {}
+  };
+  var s = document.createElement('script');
+  s.src = 'https://js-de.sentry-cdn.com/d406548d75fd151d9cb646c89cb0fd0c.min.js';
+  s.crossOrigin = 'anonymous'; s.setAttribute('data-lazy','no');
+  document.head.appendChild(s);
+})();
+</script>
+<link rel="icon" type="image/png" sizes="32x32" href="app_icons/icon_32x32.png?v=116">
+<link rel="icon" type="image/png" sizes="16x16" href="app_icons/icon_16x16.png?v=116">
+<link rel="shortcut icon" href="app_icons/app_icon.ico?v=116">
+<link rel="apple-touch-icon" sizes="180x180" href="app_icons/icon_180x180.png?v=116">
+<title>Charité · Patienten-Anmeldung</title>
+<link rel="stylesheet" href="css/style.css?v=116">
+<style>
+  body{background:var(--grey-xl);}
+  .t-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:18px;}
+  .t-wrap .brand{justify-content:center;}
+  .t-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:44px 46px;max-width:460px;box-shadow:0 6px 30px rgba(0,0,0,.05);}
+  .t-card h1{font-size:22px;margin:0 0 8px;}
+  .t-card p{color:var(--grey);font-size:14px;margin:0 0 22px;}
+  .t-btn{background:var(--black);color:#fff;border:none;border-radius:10px;padding:16px 34px;font-size:17px;font-weight:600;cursor:pointer;font-family:var(--font);}
+  .t-btn:hover{background:#333;} .t-btn:disabled{opacity:.6;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .msg{font-size:13px;padding:10px 14px;border-radius:8px;margin-top:16px;}
+  .msg.err{background:var(--red-bg);color:var(--red);border:1px solid #f5c2c2;}
+</style>
+</head>
+<body style="visibility:hidden">
+<div class="t-wrap">
+  <div class="brand">
+    <svg viewBox="0 0 800 295.499" xmlns="http://www.w3.org/2000/svg" aria-label="Charité" style="height:30px">
+      <g transform="translate(97.142897,-21.75554)">
+        <path d="m 679.23213,81.036291 -16.1875,22.312499 6.78125,3.78125 20.78125,-20.906249 -11.375,-5.1875 z m -383.59375,32.468749 -2.1875,4.78125 -45.125,102.4375 12.5,0 12.375,-29.0625 43.75,0 12.09375,29.0625 12.65625,0 -43.96875,-102.4375 -2.09375,-4.78125 z m -234.812497,2.6875 c -33.29988,-4.9e-4 -54.1250001,24.87159 -54.1250001,53.71875 0,28.84931 20.9853001,52.875 54.1250001,52.875 10.75929,-4.9e-4 21.50436,-3.61406 30.25,-9.9375 l 0,-13.71875 c -8.10513,8.10366 -19.14433,13.34375 -30.625,13.34375 -24.8887,0 -41.3125,-20.54883 -41.3125,-42.96875 0,-22.42092 16.12673,-42.96875 41.0625,-42.96875 11.75139,0 22.76987,4.97135 30.875,13.34375 l 0,-13.71875 c -9.00996,-6.72705 -18.94932,-9.96875 -30.25,-9.96875 z m 75.218747,2.09375 0,102.4375 11.4375,0 0,-50.28125 34.75,0 0,-10.59375 -34.75,0 0,-41.5625 -11.4375,0 z m 61.78125,0 0,102.4375 11.40625,0 0,-102.4375 -11.40625,0 z m 181.34375,0 0,102.4375 11.40625,0 0,-44.96875 15.40625,0 23.25,44.96875 13.25,0 -24.90625,-46.53125 c 10.60382,-3.11906 20.96922,-11.27951 20.96875,-27.59375 0,-20.62599 -15.45439,-28.3125 -32.3125,-28.3125 l -27.0625,0 z m 110.5625,0 0,102.4375 11.40625,0 0,-102.4375 -11.40625,0 z m 54.5,0 0,10.59375 24.75,0 0,91.84375 11.40625,0 0,-91.84375 25,0 0,-10.59375 -61.15625,0 z m 102.4375,0 0,102.4375 55.4375,0 0,-10.59375 -44.03125,0 0,-40.21875 37.78125,0 0,-10.59375 -37.78125,0 0,-30.4375 42.34375,0 0,-10.59375 -53.75,0 z m -256.09375,10.59375 14.15625,0 c 11.80432,0 22.37547,4.70602 22.375,17.71875 0,13.01964 -9.05974,19.09375 -22.25,19.09375 l -14.28125,0 0,-36.8125 z m -95.21875,11.125 17.125,41.03125 -34.65625,0 17.53125,-41.03125 z" style="fill:#000;fill-rule:evenodd"/>
+        <path d="m -97.142897,169.50441 c 0,-81.602649 65.736405,-147.74887 149.00748,-147.74887 36.46409,-4.91e-4 69.840447,13.206968 95.606777,35.096719 l 0,22.747509 C 123.691,54.368296 89.959283,38.621964 52.551213,38.621964 c -72.976915,0 -130.010455,58.391013 -130.010455,130.424396 0,72.03234 57.060795,130.42807 130.010455,130.42807 37.40812,0 71.139787,-15.74879 94.920147,-40.98027 l 0,23.66067 c -25.76607,21.89227 -59.143217,35.09971 -95.606777,35.09971 -83.202936,0 -149.00748,-66.14937 -149.00748,-147.75044 z" style="fill:#878787;fill-rule:evenodd"/>
+      </g>
+    </svg>
+  </div>
+  <div class="t-card">
+    <h1>Willkommen in der Reisemedizinischen Ambulanz</h1>
+    <p>Bitte tippen Sie auf „Anmeldung starten" und füllen Sie anschließend Ihre Angaben aus.</p>
+    <button class="t-btn" id="start" onclick="startIntake()">Anmeldung starten</button>
+    <div id="msg-slot"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
+<script>
+function showMsg(t){ document.getElementById('msg-slot').innerHTML = t?('<div class="msg err">'+t+'</div>'):''; }
+// Zeigt den „Anmeldung geschlossen"-Zustand, wenn ein Admin die Patienteneingabe gesperrt hat.
+function showLockedState(){
+  const card=document.querySelector('.t-card');
+  if(card) card.innerHTML='<h1>Anmeldung derzeit geschlossen</h1>'+
+    '<p>Die Selbstanmeldung am Tablet ist momentan deaktiviert. Bitte wenden Sie sich an das Personal.</p>';
+}
+async function checkLocked(){
+  try{ if(typeof isPatientInputLocked==='function') return await isPatientInputLocked(); }catch(e){}
+  return false;
+}
+async function ensureAnon(){
+  if(!AUTH_ENABLED) return true;
+  const u = await getSessionUser();
+  if(u) return true;                       // bereits (anonym) angemeldet – Sitzung bleibt aktiv
+  const { error } = await signInAnonymously();
+  if(error){ showMsg('Tablet-Modus nicht verfügbar: '+(error.message||error)+'. Bitte Personal informieren (anonyme Anmeldung in Supabase aktivieren).'); return false; }
+  return true;
+}
+async function startIntake(){
+  const btn=document.getElementById('start'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  if(await checkLocked()){ showLockedState(); return; }
+  const ok = await ensureAnon();
+  btn.disabled=false; btn.textContent='Anmeldung starten';
+  if(ok) window.location.href='index.html';
+}
+(async function init(){
+  document.body.style.visibility='visible';
+  // Sperre durch Admin: keine Selbstanmeldung, kein Auto-Weiterleiten in den Kiosk.
+  if(await checkLocked()){ showLockedState(); return; }
+  // Wenn das iPad schon eine (anonyme) Sitzung hat, direkt in den Kiosk.
+  if(AUTH_ENABLED){ const u=await getSessionUser(); if(u){ window.location.href='index.html'; } }
+})();
+</script>
+</body>
+</html>
