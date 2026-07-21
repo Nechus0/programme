@@ -184,6 +184,10 @@ function buildOptimalSchedule(planned, departureStr) {
   }
   buckets.sort((a, c) => a.offset - c.offset);
 
+  // Nahe beieinanderliegende Termine zusammenlegen (nur VORWÄRTS-Verschiebung → Mindestabstände
+  // bleiben garantiert eingehalten, siehe consolidateNearbyAppointments).
+  buckets = consolidateNearbyAppointments(buckets, daysDep);
+
   // COVID-19 wird an der Charité nicht verimpft (Standardversorgung/Hausarzt) →
   // immer automatisch in einen externen Termin verschieben (Hausarzt/Extern).
   let covidItems = [];
@@ -199,6 +203,96 @@ function buildOptimalSchedule(planned, departureStr) {
   }
   return result;
 }
+
+// Legt nahe beieinanderliegende Termine zu einem zusammen, um dem Patienten unnötige Wege zu
+// ersparen (z. B. Hep-A+B-Dosis 2 an Tag 28 und FSME-Dosis 2 an Tag 30 → ein Termin an Tag 30).
+//
+// Sicherheitsprinzip: Es wird AUSSCHLIESSLICH vorwärts verschoben – die Items eines früheren
+// Termins wandern auf einen SPÄTEREN Tag. Dadurch kann der Abstand einer verschobenen Dosis zu
+// ihrer VORHERIGEN Dosis nur größer werden (Mindestabstände sind Untergrenzen → nie verletzt).
+// Der Abstand zur FOLGENDEN Dosis derselben Impfung könnte kleiner werden; das fängt der
+// abschließende Repair-Pass ab, der Folgedosen bei Bedarf nach hinten schiebt.
+//
+// Toleranz ist offset-abhängig: in den ersten 3 Wochen wird GAR NICHT zusammengelegt (schützt die
+// engen Tollwut-Abstände 0/7/21 vollständig); je weiter in der Zukunft, desto größer das Fenster
+// (bei 1 Monat zählen 1–2 Tage nicht, bei 6 Monaten ohnehin nicht).
+function consolidateNearbyAppointments(buckets, daysDep) {
+  const MAX_PER_DAY = 3;
+  const mergeTol = (off) => off < 21 ? 0 : (off < 42 ? 3 : (off < 120 ? 10 : 21));
+
+  let bs = buckets
+    .filter(b => b.items && b.items.length)
+    .map(b => ({ offset: b.offset, items: b.items.slice(), reactoCount: b.reactoCount || 0 }))
+    .sort((a, b) => a.offset - b.offset);
+
+  // 1) Greedy Vorwärts-Merge: jeden Termin in den NÄCHSTGELEGENEN späteren Termin innerhalb der
+  //    Toleranz zusammenlegen, sofern alle Sicherheits-/Kapazitätsbedingungen erfüllt sind.
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i < bs.length; i++) {
+      const A = bs[i];
+      if (!A.items.length) continue;
+      const tol = mergeTol(A.offset);
+      if (tol <= 0) continue;
+      for (let j = i + 1; j < bs.length; j++) {
+        const B = bs[j];
+        if (B.offset - A.offset > tol) break;            // sortiert → kein weiterer Kandidat
+        if (B.offset <= A.offset) continue;
+        if (A.items.length + B.items.length > MAX_PER_DAY) continue;                 // max. 3/Tag
+        if (A.items.some(it => B.items.some(x => x.k === it.k))) continue;           // keine Dopplung
+        const combinedReacto = A.items.filter(it => it.isReacto).length + B.items.filter(it => it.isReacto).length;
+        if (combinedReacto > 2) continue;                                           // Reakto-Cap
+        if (daysDep != null && A.offset <= daysDep && B.offset > daysDep) continue;  // nicht über Abreise schieben
+        // Lebendimpf-Abstand (entweder selber Tag oder ≥4 Wochen zu anderen Lebend-Terminen).
+        if (A.items.some(it => it.live) || B.items.some(it => it.live)) {
+          let ok = true;
+          for (let m = 0; m < bs.length; m++) {
+            if (m === i || m === j) continue;
+            if (bs[m].items.some(x => x.live)) {
+              const d = Math.abs(bs[m].offset - B.offset);
+              if (d > 0 && d < 28) { ok = false; break; }
+            }
+          }
+          if (!ok) continue;
+        }
+        B.items = B.items.concat(A.items);
+        B.reactoCount = combinedReacto;
+        A.items = [];
+        changed = true;
+        break;
+      }
+    }
+    bs = bs.filter(b => b.items.length);
+  }
+
+  // 2) Repair-Pass: pro Impfung die Dosen der Reihe nach durchgehen und Folgedosen bei Bedarf nach
+  //    hinten schieben, damit jeder Mindestabstand garantiert eingehalten bleibt.
+  let doses = [];
+  bs.forEach(b => b.items.forEach(it => doses.push(Object.assign({}, it, { day: b.offset }))));
+  const byK = {};
+  doses.forEach(d => { (byK[d.k] = byK[d.k] || []).push(d); });
+  Object.keys(byK).forEach(k => {
+    const arr = byK[k].sort((a, b) => ((a.doseIdx || 0) - (b.doseIdx || 0)) || (a.day - b.day));
+    const gaps = vGaps(k);
+    for (let i = 1; i < arr.length; i++) {
+      const need = gaps[i - 1] || 28;
+      if (arr[i].day < arr[i - 1].day + need) arr[i].day = arr[i - 1].day + need;
+    }
+  });
+
+  // 3) Neu nach Tag gruppieren.
+  const byDay = {};
+  doses.forEach(d => {
+    if (!byDay[d.day]) byDay[d.day] = { offset: d.day, items: [], live: false, reactoCount: 0 };
+    byDay[d.day].items.push(d);
+    if (d.isReacto) byDay[d.day].reactoCount++;
+  });
+  const out = Object.keys(byDay).map(k => byDay[k]).sort((a, b) => a.offset - b.offset);
+  out.forEach(b => { b.live = b.items.some(it => it.live); });
+  return out;
+}
+
 function ageExact(dob){
   if(!dob)return null;
   const a = (new Date()-new Date(dob))/(1000*60*60*24*365.25);
