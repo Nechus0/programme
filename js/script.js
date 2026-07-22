@@ -530,6 +530,10 @@ function togglePillPlan(k, field) {
 }
 let customSchedule = null;
 let scheduleLastPlannedKeys = '';
+// true, wenn customSchedule gerade aus dem Patientendatensatz geladen/aufgebaut wurde. Verhindert,
+// dass renderApptOverview den gespeicherten Plan beim ersten Rendern (z. B. nach Browser-„Zurück"/
+// Reload) verwirft und neu aufbaut – sonst rutschen unabhängige Impfungen wieder auf „heute".
+let _scheduleFromSaved = false;
 
 
 window.hDragStart = function(e) { e.dataTransfer.setData('text/plain', e.target.id); e.target.classList.add('dragging'); setTimeout(()=>e.target.style.opacity='0.5', 0); };
@@ -911,7 +915,13 @@ function renderApptOverview() {
   }
 
   const plannedKeys = planned.map(p=>p.k).sort().join('|');
-  if (scheduleLastPlannedKeys !== plannedKeys) {
+  if (_scheduleFromSaved) {
+     // Frisch geladener/aufgebauter Plan aus dem Patientendatensatz: NICHT neu bauen. Nur den
+     // Basis-Schlüssel setzen, damit erst die NÄCHSTE echte Planänderung wieder greift. Verhindert,
+     // dass Browser-„Zurück"/Reload den manuellen Terminplan verwirft (Abrechnungs-Bug).
+     scheduleLastPlannedKeys = plannedKeys;
+     _scheduleFromSaved = false;
+  } else if (scheduleLastPlannedKeys !== plannedKeys) {
      const prevKeys = scheduleLastPlannedKeys ? scheduleLastPlannedKeys.split('|') : [];
      const nowKeySet = new Set(planned.map(p=>p.k));
      const somethingAdded = [...nowKeySet].some(k => prevKeys.indexOf(k) === -1);
@@ -2071,7 +2081,7 @@ async function savePatient(finish){
     comment:g('p-comment'), physician:el('p-physician').value.trim(), vax:vaxCopy,
     customSchedule:customSchedule?JSON.parse(JSON.stringify(customSchedule)):null,
     leistungen: document.body.classList.contains('clinic') ? readLeistungen() : ((existing&&existing.leistungen)||undefined),
-    payment: (function(){ const m=paymentMethod(); const prevPaid=!!(existing&&existing.payment&&existing.payment.paid); if(!m && !(existing&&existing.payment)) return undefined; return {method:m||((existing&&existing.payment&&existing.payment.method)||''), label:payMethodLabel(m), paid: _finalizing?true:prevPaid}; })(),
+    payment: (function(){ const m=paymentMethod(); const prevPaid=!!(existing&&existing.payment&&existing.payment.paid); if(!m && !(existing&&existing.payment)) return undefined; return {method:m||((existing&&existing.payment&&existing.payment.method)||''), label:payMethodLabel(m), paid: _finalizing?(m!=='rechnung'):prevPaid}; })(),
     billing: (finish && _clinic) ? {total:computeBilling().total, hasUnpriced:computeBilling().hasUnpriced, method:(_atKasse?paymentMethod():((existing&&existing.billing&&existing.billing.method)||undefined)), at:new Date().toISOString(), by:_me, byRole:_myRole} : ((existing&&existing.billing)||undefined),
     // „Behandelt von" (Medizin-Personal, Übergabe an Kasse) und „Abgerechnet von" (Kasse/Vertretung, Zahlung)
     treatedBy: (finish && _clinic && !_atKasse) ? {name:((existing&&existing.claimedByName)||_me), role:((existing&&existing.claimedByRole)||_myRole), at:new Date().toISOString()} : ((existing&&existing.treatedBy)||undefined),
@@ -2521,6 +2531,7 @@ function loadPatient(id){
   }
   editingId=id;el('editing-banner').classList.add('show');el('editing-text').textContent=t('editingNow')+p.name;el('save-btn').textContent=t('btnFinish');
   customSchedule=p.customSchedule?JSON.parse(JSON.stringify(p.customSchedule)):null;
+  _scheduleFromSaved=true;   // geladenen Plan beim ersten Rendern NICHT neu aufbauen (Back-/Reload-Schutz)
   
   // Rendere Change Logs
   renderChangeLogs(p);
@@ -2819,20 +2830,53 @@ function _printerSvg(){ return '<svg viewBox="0 0 24 24" width="14" height="14" 
 function _checkSvg(){ return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M20 6 9 17l-5-5"/></svg>'; }
 function kassePaidBlock(){
   return '<div class="kb-paid-field">'+_checkSvg()+' '+L2(I18N.kassePaid)+'</div>'+
-    '<div class="kb-print" style="margin-top:12px"><button class="btn sec sm" onclick="printInvoice()">'+_printerSvg()+(LX('Rechnung drucken','Print invoice'))+'</button></div>';
+    '<div class="kb-print" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+
+      '<button class="btn sec sm" onclick="printInvoice()">'+_printerSvg()+(LX('Rechnung drucken','Print invoice'))+'</button>'+
+      '<button class="btn sec sm" onclick="revertKassePaid(true)">'+(LX('Zahlung zurücksetzen','Undo payment'))+'</button>'+
+    '</div>';
 }
-// Kassen-Schritt 1: als bezahlt markieren (Zahlungsart muss bei Preis>0 gewählt sein). Noch KEIN
-// Auschecken – erst kann die Rechnung gedruckt werden, dann wird über „Auschecken" abgeschlossen.
-function markKassePaid(){
+// Protokolliert eine NICHT-Default-Aktion im Änderungsprotokoll des Patienten (z. B. Zahlungs-Storno).
+function logPatientAction(p, text){
+  if(!p || !text) return;
+  if(!Array.isArray(p.editLog)) p.editLog=[];
+  const cp=CURRENT_PROFILE||{};
+  const who=((cp.title?cp.title+' ':'')+(cp.full_name||(typeof myUserKey==='function'?myUserKey():'')||'')).trim()||'—';
+  p.editLog.push({ ts:new Date().toISOString(), who:who, role:cp.role||'', section:'kasse', fields:[text] });
+  try{ if(typeof dbAuditLog==='function') dbAuditLog('kasse_action', {patient:p.id, text:text}); }catch(_){}
+}
+// „Als bezahlt markieren" – NUR bei Direktzahlung (EC/Bar). Persistiert payment.paid=true; der Patient
+// bleibt an der Kasse. Danach kann die Rechnung gedruckt und über den grünen Haken ausgecheckt werden.
+async function markKassePaid(){
   if(!canBill()) return;
   const m=paymentMethod();
-  if(computeBilling().total>0 && !m){ uiAlert(L2(I18N.kassePayRequired)); return; }
-  _loadedPayment = m || _loadedPayment;   // gewählte Zahlungsart festhalten (Radios verschwinden gleich)
-  _kassePaidPending = true;
+  if(computeBilling().total>0 && !m){ await uiAlert(L2(I18N.kassePayRequired)); return; }
+  if(m!=='sofort') return;   // „Auf Rechnung" wird nicht als bezahlt markiert (Zahlung erfolgt später)
+  const cur=patients.find(p=>p.id===editingId); if(!cur) return;
+  if(!cur.payment) cur.payment={};
+  cur.payment.method=m; cur.payment.label=payMethodLabel(m); cur.payment.paid=true;
+  _loadedPayment=m; _loadedPaid='paid';
+  await persistPatient(cur);
   renderKasseBilling();
+  if(typeof renderPatients==='function') renderPatients();
 }
-// Kassen-Schritt 3: Patient endgültig auschecken (Zahlung wurde zuvor bestätigt).
-function checkoutKassePatient(){ return finishTreatment(); }
+// Zahlung zurücknehmen (z. B. Karte doch abgelehnt). Wird protokolliert (nicht-default Aktion).
+// reopen=true: bereits ausgecheckten Patienten wieder an die Kasse holen (Status zurück auf 'kasse').
+async function revertKassePaid(reopen){
+  const cur=patients.find(p=>p.id===editingId); if(!cur) return;
+  const ok=await uiConfirm(
+    reopen ? LX('Zahlung zurücksetzen und Patient erneut an die Kasse holen? Dies wird protokolliert.','Undo payment and reopen the patient at billing? This will be logged.')
+           : LX('Zahlung wirklich zurücksetzen? Dies wird protokolliert.','Really undo the payment? This will be logged.'),
+    {title:LX('Zahlung zurücksetzen','Undo payment'), ok:LX('Zurücksetzen','Undo'), danger:true});
+  if(!ok) return;
+  if(!cur.payment) cur.payment={};
+  cur.payment.paid=false;
+  _loadedPaid='unpaid';
+  if(reopen){ cur.status='kasse'; cur.billedBy=undefined; }
+  logPatientAction(cur, LX('Zahlung zurückgesetzt (bezahlt → offen)','Payment reverted (paid → open)')+(reopen?(' · '+LX('erneut an Kasse','reopened at billing')):''));
+  await persistPatient(cur);
+  if(typeof renderPatients==='function') renderPatients();
+  if(reopen){ loadPatient(cur.id); } else { renderKasseBilling(); }
+}
 function renderKasseBilling(){
   const box=el('kasse-billing'); if(!box) return;
   const isPaid=(_loadedPaid==='paid');
@@ -2847,21 +2891,30 @@ function renderKasseBilling(){
   h+='<div class="kb-total"><span>'+L2(I18N.kasseTotal)+'</span><span class="kb-total-val">'+eur(b.total)+(b.hasUnpriced?' +':'')+'</span></div>';
   if(b.hasUnpriced) h+='<div class="kb-note">'+L2(I18N.kasseUnpricedNote)+'</div>';
   if(editable){
-    const cur=paymentMethod()||_loadedPayment;
-    if(_kassePaidPending){
-      // Schritt 2/3: als bezahlt markiert – Zahlungsart schreibgeschützt, Rechnung drucken + auschecken.
+    const curP=patients.find(p=>p.id===editingId);
+    const paidNow=!!(curP && curP.payment && curP.payment.paid);
+    const cur=paymentMethod()||_loadedPayment||(curP&&curP.payment&&curP.payment.method)||'';
+    const printBtn='<button class="btn sec sm" onclick="printInvoice()">'+_printerSvg()+(LX('Rechnung drucken','Print invoice'))+'</button>';
+    if(paidNow){
+      // Als bezahlt markiert (noch an der Kasse): Zahlungsart schreibgeschützt, „✓ Bezahlt" + Undo.
+      // Das eigentliche Auschecken passiert über den grünen Haken.
       if(cur) h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay-ro" style="font-size:13px;margin-top:2px">'+_esc(payMethodLabel(cur))+'</div>';
-      h+='<div class="kb-paid-field">'+_checkSvg()+' '+L2(I18N.kassePaid)+'</div>';
-      h+='<div class="kb-print" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+
-           '<button class="btn sec sm" onclick="printInvoice()">'+_printerSvg()+(LX('Rechnung drucken','Print invoice'))+'</button>'+
-           '<button class="btn sm" onclick="checkoutKassePatient()">'+(LX('Patient auschecken','Check out patient'))+'</button>'+
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap">'+
+           '<div class="kb-paid-field" style="margin:0">'+_checkSvg()+' '+L2(I18N.kassePaid)+'</div>'+
+           '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">'+printBtn+
+             '<button class="btn sec sm" onclick="revertKassePaid(false)">'+(LX('Zahlung zurücksetzen','Undo payment'))+'</button>'+
+           '</div>'+
          '</div>';
     } else {
-      // Schritt 1/3: Zahlungsart wählen, dann „Als bezahlt markieren".
       h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
       PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
       h+='</div>';
-      h+='<div class="kb-print" style="margin-top:12px"><button class="btn sm" '+((computeBilling().total>0 && !cur)?'disabled':'')+' onclick="markKassePaid()">'+_checkSvg()+(LX('Als bezahlt markieren','Mark as paid'))+'</button></div>';
+      // Links: Rechnung drucken (sobald Zahlungsart gewählt). Rechts: „Als bezahlt markieren" NUR bei
+      // Direktzahlung – bei „Auf Rechnung" wird nicht bezahlt markiert (Auschecken über grünen Haken).
+      const payBtn=(cur==='sofort') ? '<button class="btn" style="padding:10px 18px;font-size:14px" onclick="markKassePaid()">'+_checkSvg()+(LX('Als bezahlt markieren','Mark as paid'))+'</button>' : '';
+      const leftBtn=cur ? printBtn : '';
+      if(leftBtn||payBtn) h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap"><div>'+leftBtn+'</div><div style="display:flex;gap:8px;justify-content:flex-end">'+payBtn+'</div></div>';
+      if(cur==='rechnung') h+='<div class="kb-note" style="margin-top:8px">'+(LX('Zahlung erfolgt per Rechnung – Patient über den grünen Haken auschecken.','Payment via invoice – check the patient out with the green check.'))+'</div>';
     }
   } else if(isPaid){
     const m=(_loadedPayment||'');
@@ -3037,9 +3090,6 @@ async function finishTreatment(){
   if(curStatus==='waiting'){ try{ await savePatient(false); }catch(_){} showList(); return; }
   const kasse = (curStatus==='kasse');   // Patient an der Kasse → Abschluss = Zahlung bestätigen
   if(kasse && computeBilling().total>0 && !paymentMethod()){ await uiAlert(L2(I18N.kassePayRequired)); return; }
-  // Zwei-Schritt an der Kasse: erster Klick markiert „bezahlt" (schaltet Rechnungsdruck frei),
-  // erst der zweite Klick checkt aus. Der In-Box-Button „Als bezahlt markieren" macht dasselbe.
-  if(kasse && !_kassePaidPending && computeBilling().rows.length>0){ markKassePaid(); return; }
   const grp=(cur&&cur.group)?cur.group.trim().toLowerCase():'';
   const isGrp=!!grp && patients.filter(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===grp).length>1;
   const target = kasse ? 'done' : 'kasse';
@@ -3970,7 +4020,7 @@ const LOCK_SECTIONS=['step1','step2','step3','step4','step5','step6'];
 // Welche Abschnitte für die aktuelle Rolle gesperrt (grau, Stift) werden:
 // Medizin-Personal → 1–3; Kasse → 1–6 (Arzt/MFA haben 4–6 bereits abgeschlossen)
 function lockedSectionsForRole(){ return roleIsKasse() ? ['step1','step2','step3','step4','step5','step6'] : ['step1','step2','step3']; }
-const SECTION_TITLES={step1:{de:'Stammdaten',en:'Master data',fr:'Données personnelles'},step2:{de:'Reise',en:'Travel',fr:'Voyage'},step3:{de:'Immunstatus',en:'Immune status',fr:'Statut immunitaire'},step4:{de:'Impfstatus',en:'Vaccination status',fr:'Statut vaccinal'},step5:{de:'Geplante Impfungen',en:'Planned vaccinations',fr:'Vaccins planifiés'},step6:{de:'Leistungen',en:'Services',fr:'Prestations'}};
+const SECTION_TITLES={step1:{de:'Stammdaten',en:'Master data',fr:'Données personnelles'},step2:{de:'Reise',en:'Travel',fr:'Voyage'},step3:{de:'Immunstatus',en:'Immune status',fr:'Statut immunitaire'},step4:{de:'Impfstatus',en:'Vaccination status',fr:'Statut vaccinal'},step5:{de:'Geplante Impfungen',en:'Planned vaccinations',fr:'Vaccins planifiés'},step6:{de:'Leistungen',en:'Services',fr:'Prestations'},kasse:{de:'Kasse',en:'Billing',fr:'Caisse'}};
 let SECTION_LOCKED={}, SECTION_EDIT={}, LOCK_LISTENERS=false;
 function isStaff(){ return (typeof roleSeesClinic==='function') && roleSeesClinic((CURRENT_PROFILE||{}).role); }
 // Wartende Patienten (Patientenansicht): nur Abschnitte 1–3. Ab „In Behandlung" existieren 4–6.
