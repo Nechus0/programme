@@ -3750,7 +3750,7 @@ function printSchedule() {
   const daysDep = dep ? Math.round((new Date(dep)-base)/86400000) : null;
   const ageStr = det ? (det.y<5 ? (det.y<1 ? det.m+' '+(LX('Mon.','mo'))+' '+det.d+' '+(LX('Tage','d')) : det.y+' '+(LX('J.','yr'))+' '+det.m+' '+(LX('Mon.','mo'))) : det.y+' '+(LX('Jahre','yrs'))) : '';
   
-  const css = 'body{font-family:Helvetica,Arial,sans-serif;color:#111;margin:32px;} h1{font-size:20px;border-bottom:2px solid #000;padding-bottom:8px;} h2{font-size:14px;margin-top:20px;padding:6px 10px;background:#eef5fc;border:1px solid #bcd6f2;border-radius:4px;color:#000;} .gap{font-weight:400;font-size:12px;opacity:.8;margin-left:6px;} .prov{margin:5px 0 0 10px;font-size:13px;} .prov b{display:inline-block;min-width:150px;} .meta{color:#555;font-size:13px;margin-top:6px;} .box{margin-top:14px;padding:10px 14px;border:1px solid #bcd6f2;background:#eef5fc;border-radius:8px;font-size:12.5px;} .foot{margin-top:26px;font-size:11px;color:#888;}';
+  const css = 'body{font-family:Helvetica,Arial,sans-serif;color:#111;margin:32px;} h1{font-size:20px;border-bottom:2px solid #000;padding-bottom:8px;} h2{font-size:14px;margin-top:20px;padding:6px 10px;background:#eef5fc;border:1px solid #bcd6f2;border-radius:4px;color:#000;} .gap{font-weight:400;font-size:12px;opacity:.8;margin-left:6px;} .prov{margin:5px 0 0 10px;font-size:13px;} .prov b{display:inline-block;min-width:150px;} .reason{margin:3px 0 0 10px;font-size:12px;color:#555;} .meta{color:#555;font-size:13px;margin-top:6px;} .box{margin-top:14px;padding:10px 14px;border:1px solid #bcd6f2;background:#eef5fc;border-radius:8px;font-size:12.5px;} .foot{margin-top:26px;font-size:11px;color:#888;}';
   
   let h = '<html><head><meta charset="utf-8"><title>'+t('printTitle')+'</title><style>'+css+'</style></head><body>';
   h += '<h1>Charité · Reisemedizinische Ambulanz · '+t('printTitle')+'</h1><div class="meta"><strong>'+name+'</strong>'+(ageStr?' · '+ageStr:'')+(dob?' ('+(LX('geb.','b.'))+' '+fmtDate(new Date(dob))+')':'')+'<br>'+(LX('Reiseziel(e)','Destination(s)'))+': '+dest+(dep?'<br>'+(LX('Abreise','Departure'))+': '+fmtDate(new Date(dep)):'')+'<br>'+(LX('Erstellt','Created'))+': '+fmtDateTime(base.toISOString())+'</div>';
@@ -3776,24 +3776,39 @@ function printSchedule() {
   if (!buckets || buckets.length === 0) {
     h += '<p>'+t('printNone')+'</p>';
   } else {
+    // Termine exakt wie in der App darstellen: gleiche Anreicherung (Dosis-Nummern, Mindestabstände/
+    // Gründe) und dasselbe Zeitformat (fmtDurationMD → „Heute" / „In X Monaten"), NICHT mehr in Wochen.
+    buckets = enrichScheduleForDisplay(buckets);
     let nearDays = 0;
-    
+    buckets.forEach(b => { if (!b.isExternal) nearDays = Math.max(nearDays, b.offset); });
+
     buckets.forEach((b, idx) => {
       let offset = b.offset;
-      nearDays = Math.max(nearDays, offset);
       let title = (LANG === 'de' ? 'Termin ' : 'Appt ') + (idx + 1);
       if (b.isExternal) title += (LANG === 'de' ? ' (Extern)' : ' (External)');
-      
-      let subtitle = '';
-      if (offset === 0) subtitle = LANG === 'de' ? '(Heute, 0 Wochen)' : '(Today, 0 weeks)';
-      else if (offset % 7 === 0) subtitle = LANG === 'de' ? `(~${offset/7} Wochen)` : `(~${offset/7} weeks)`;
-      else subtitle = LANG === 'de' ? `(~${Math.round(offset/7)} Wochen)` : `(~${Math.round(offset/7)} weeks)`;
-      
-      h += '<h2>' + title + ' <span class="gap">' + subtitle + '</span></h2>';
-      
+
+      // Zeitangabe im gleichen Format wie Abschnitt „Geplante Impfungen": Heute bzw. In X Monaten/Wochen.
+      const inWord = (LANG === 'fr') ? 'Dans ' : 'In ';
+      const absText = (offset === 0) ? (LX('Heute','Today')) : (inWord + fmtDurationMD(offset));
+      // Bindender Grund (Mindestabstand zur vorherigen Dosis bzw. Lebendimpf-Abstand) – wie in der App.
+      let reasonTxt = '';
+      if (b.reason) {
+        if (b.reason.type === 'live') {
+          reasonTxt = LANG==='de' ? '2 Lebendimpfstoffe: mind. 4 Wochen Abstand' : (LANG==='fr' ? '2 vaccins vivants : min. 4 semaines d\'écart' : '2 live vaccines: min. 4 weeks apart');
+        } else {
+          let gt = L2(gapText(b.reason.gap));
+          let prevIdx = buckets.findIndex(bb => bb.offset === b.reason.prevOffset);
+          let prevLbl = prevIdx >= 0 ? ((LX('Termin ','Appt '))+(prevIdx+1)) : (LX('letzte Gabe','last dose'));
+          reasonTxt = b.reason.name + ': ' + gt + ' ' + (LX('nach vorheriger Dosis','after previous dose')) + (prevLbl ? (' (' + prevLbl + ')') : '');
+        }
+      }
+
+      h += '<h2>' + title + ' <span class="gap">(' + absText + ')</span></h2>';
+      if (reasonTxt) h += '<div class="reason">' + reasonTxt + '</div>';
+
       let provNameStr = b.isExternal ? (LX('Hausarzt/Extern','External provider')) : 'Charité';
       if (b.items && b.items.length) {
-          let names = b.items.map(it => it.name).join(', ');
+          let names = b.items.map(it => it.displayName || it.name).join(', ');
           h += '<div class="prov"><b>' + provNameStr + ':</b> ' + names + '</div>';
       } else {
           h += '<div class="prov"><b>' + provNameStr + ':</b> <i>' + (LX('Keine Impfungen zugeordnet','No vaccinations assigned')) + '</i></div>';
@@ -3805,7 +3820,7 @@ function printSchedule() {
       h += '<div class="box" style="border-color:#f5c2c2;background:#fdecec"><strong>'+(LANG==='de'?'Bei Lebendimpfstoffen (z.B. '+lives.map(l=>l.name).join(', ')+') gilt: Entweder am selben Tag impfen oder mind. 4 Wochen Abstand einhalten.':(LANG==='fr'?'Pour les vaccins vivants (p. ex. '+lives.map(l=>l.name).join(', ')+') : soit le même jour, soit un intervalle d\'au moins 4 semaines.':'Live vaccines must be given on the same day or ≥4 weeks apart.'))+'</strong></div>';
     }
 
-    h += '<div class="box"><strong>'+(LANG==='de'?'Benötigte Zeit vor Ort (ohne späteren Termin): ca. '+nearDays+' Tage.':(LANG==='fr'?'Temps nécessaire sur place (hors rendez-vous ultérieur) : env. '+nearDays+' jours.':'Time needed on site (excl. later appt): ~'+nearDays+' days.'))+'</strong>'+(daysDep!==null?' '+(LANG==='de'?'Tage bis Abreise: '+daysDep+'.':(LANG==='fr'?'Jours avant le départ : '+daysDep+'.':'Days to departure: '+daysDep+'.'))+(daysDep<nearDays?' <span style="color:#b00">'+(LX('Zeit reicht evtl. nicht – Schnellschema/Priorisierung prüfen.','May be insufficient — consider rapid schedule.'))+'</span>':''):'')+'</div>';
+    h += '<div class="box"><strong>'+(LANG==='de'?'Benötigte Zeit: ca. '+fmtDurationMD(nearDays)+'.':(LANG==='fr'?'Temps nécessaire : env. '+fmtDurationMD(nearDays)+'.':'Time needed: ~'+fmtDurationMD(nearDays)+'.'))+'</strong>'+(daysDep!==null?' '+(LANG==='de'?'Tage bis Abreise: '+daysDep+'.':(LANG==='fr'?'Jours avant le départ : '+daysDep+'.':'Days to departure: '+daysDep+'.'))+(daysDep<nearDays?' <span style="color:#b00">'+(LX('Zeit reicht evtl. nicht – Schnellschema/Priorisierung prüfen.','May be insufficient — consider rapid schedule.'))+'</span>':''):'')+'</div>';
   }
 
   if (childhoodOn && childhoodOn()) h += '<div class="box"><strong>'+t('provPaed')+':</strong> '+t('printChildhood')+'</div>';
