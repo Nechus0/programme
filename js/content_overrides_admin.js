@@ -16,7 +16,14 @@
   };
   function uiAlert(m) { return (window.uiAlert ? window.uiAlert(m) : (alert(m), Promise.resolve())); }
   function uiConfirm(m, o) { return (window.uiConfirm ? window.uiConfirm(m, o) : Promise.resolve(confirm(m))); }
-  function isAdmin() { return (window.CURRENT_PROFILE || {}).role === 'admin'; }
+  // WICHTIG: CURRENT_PROFILE ist in script.js ein top-level `let` und liegt daher NICHT auf window
+  // (window.CURRENT_PROFILE === undefined). Als klassisches Skript teilen wir jedoch den globalen
+  // Lexical-Scope, sodass die bloße Referenz greift (analog zu supabaseClient in content_overrides_db.js).
+  function currentProfile() {
+    try { if (typeof CURRENT_PROFILE !== 'undefined' && CURRENT_PROFILE) return CURRENT_PROFILE; } catch (e) {}
+    return window.CURRENT_PROFILE || {};
+  }
+  function isAdmin() { return (currentProfile() || {}).role === 'admin'; }
 
   var DISEASE_FIELDS = [
     { v: 'outbreak',        label: 'Ausbruch (outbreak)',            type: 'bool' },

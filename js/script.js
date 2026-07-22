@@ -615,15 +615,28 @@ window.hAddAppt = function(isExternal) {
     if (!customSchedule) {
         saveCustomSchedule();
     }
-    let lastOffset = customSchedule.length > 0 ? customSchedule[customSchedule.length - 1].offset : 0;
+    if (!customSchedule) customSchedule = [];
+    // Ein neuer Termin erbt NICHT den (evtl. 6-Monats-)Offset des letzten Termins. Er wird als
+    // manuell positionierter (userSet) ZEITNAHER Termin angelegt – so lassen sich zeitlich
+    // unabhängige Impfungen auf einen eigenen, nahen Termin legen, statt auf die späte Folgedosis
+    // zu rutschen. Position: eine Woche nach dem spätesten bereits NAHEN Termin (<120 Tage), damit
+    // er weder mit „Heute" verschmilzt noch auf die 6-Monats-Dosis springt. userSet schützt ihn
+    // zusätzlich vor dem Auto-Kollabieren/Zusammenlegen in computeManualOffsets/consolidate.
+    let nearMax = 0;
+    customSchedule.forEach(b => { if ((b.offset || 0) < 120) nearMax = Math.max(nearMax, (b.offset || 0)); });
+    let defOff = nearMax + 7;
     customSchedule.push({
-        origOffset: lastOffset,
-        offset: lastOffset,
+        origOffset: defOff,
+        offset: defOff,
         items: [],
-        isExternal: isExternal,
+        isExternal: !!isExternal,
+        userSet: !isExternal,                       // Charité-Termin: manuell gesetzt (naher, freier Termin)
+        userOffset: isExternal ? null : defOff,
         live: false,
         reactoCount: 0
     });
+    // Chronologisch einsortieren, damit der nahe Termin VOR späten Folgedosen erscheint.
+    customSchedule.sort((a, b) => (a.offset || 0) - (b.offset || 0));
     renderApptOverview();
 };
 
