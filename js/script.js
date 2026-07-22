@@ -1554,6 +1554,7 @@ function renderVaxTable(){
       }
     }
     let note=(LANG==='de'?a.noteDe:(LANG==='fr'?(a.noteFr||a.noteEn):a.noteEn));let noteStyle='';
+
     if(a.status==='green'&&BOOSTER[v.k]){
       let _noteObj=BOOSTER[v.k];
       // Bei alters-/serologisch begruendetem Schutz die konkrete Begruendung zeigen statt '2 Dosen'.
@@ -2827,6 +2828,25 @@ function renderKasseBilling(){
   if(isPaid) h+=kassePaidBlock();
   box.innerHTML=h;
 }
+// Leitet das korrekte „geplant"-Flag eines Termin-Items ab. Normale Terminplan-Items tragen
+// planField direkt (buildOptimalSchedule); Folgeimpfungs-Items (buildFolgeContext) NICHT – dort
+// aus item.k ableiten (exakter Spiegel von _folgeSetPlanned), damit auch verschobene/abgewählte
+// Folgeimpfungen korrekt gegen vaxState geprüft werden.
+function _itemPlanField(item){
+  if(item && item.planField) return item.planField;
+  switch(item && item.k){
+    case 'hepA':     return 'plannedA';
+    case 'hepB':     return 'plannedB';
+    case 'hepAB':    return 'plannedAB';
+    case 'ipv_mono': return 'planned_ipv';
+    default:         return 'planned';
+  }
+}
+// true, wenn die Impfung dieses Items im aktuellen Impfstatus AKTIV geplant ist.
+function _itemPlannedFlag(item){
+  const st = vaxState[item.stKey] || vaxState[item.k];
+  return !!(st && st[_itemPlanField(item)]);
+}
 // Heute zu verabreichende Impfungen (Bucket offset 0) als [{k:stKey, sub:planField, name, priceKey}]
 function getTodaysLeistungVax() {
    const planned = [];
@@ -2857,13 +2877,17 @@ function getTodaysLeistungVax() {
    // Nur noch aktiv geplante Impfungen berücksichtigen – entfernte Impfungen dürfen die Abrechnung
    // nicht mehr beeinflussen, auch wenn ein alter customSchedule sie noch enthält.
    return todaysItems
-      .filter(item => { if(!item.planField) return true; const st=vaxState[item.stKey]; return !!(st && st[item.planField]); })
+      // Nur aktiv geplante Impfungen abrechnen. Folgeimpfungs-Items tragen kein planField,
+      // deshalb wird das Flag über _itemPlannedFlag aus item.k/stKey gegen vaxState geprüft –
+      // so werden verschobene/abgewählte, NICHT verimpfte Impfungen zuverlässig ausgeschlossen.
+      .filter(item => _itemPlannedFlag(item))
       .map(item => {
-         let pk = vaxPriceKey(item.stKey, item.planField || 'planned');
+         const pf = _itemPlanField(item);
+         let pk = vaxPriceKey(item.stKey, pf);
          // item.k ist bereits der korrekte Preis-Schlüssel (hepA/hepB/hepAB/tdap_combo/ipv_mono/…).
          // Fallback für ältere/gespeicherte Termine ohne planField, damit z.B. Hep A (Avaxim) immer einen Preis hat.
          if(!(pk in VAX_PRICE) && item.k && (item.k in VAX_PRICE)) pk = item.k;
-         return { k: item.stKey, sub: item.planField || 'planned', name: item.name, priceKey: pk };
+         return { k: item.stKey, sub: pf, name: item.name, priceKey: pk };
       });
 }
 function updateLeistungen() {
@@ -4886,6 +4910,8 @@ async function adminHardDeleteUI(uid){
   adminMsg('Nutzer endgültig gelöscht.','ok');
   renderAdminUsers();
 }
+
+// --- CONCEPT B: Content Overrides Admin UI ---
 
 /* ---------- INIT ---------- */
 buildDestSelect();freshVaxState();setLang('de');recompute();renderPatients();
