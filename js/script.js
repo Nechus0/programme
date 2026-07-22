@@ -2546,6 +2546,7 @@ function loadPatient(id){
   // Sektion 6 + Zahlungsart wiederherstellen (damit die Kasse die Auswahl des Personals sieht)
   _loadedPayment = (p.payment && p.payment.method) || '';
   _loadedPaid = p.payment ? (p.payment.paid?'paid':'unpaid') : '';
+  _kassePaidPending = false;   // Kassen-Zwischenschritt beim Laden immer zurücksetzen
   if(p.leistungen) applyLeistungen(p.leistungen);
 
   // Malaria-Zustand wiederherstellen (eigene Engine)
@@ -2734,6 +2735,9 @@ function applyLeistungen(L){
   if(el('leistung_bescheinigung')) el('leistung_bescheinigung').checked = !!L.bescheinigung;
 }
 let _loadedPaid='';   // 'paid' sobald ein finalisierter (bezahlter) Patient geladen ist
+// Kassen-Zwischenschritt: an der Kasse als „bezahlt" markiert, aber noch NICHT ausgecheckt.
+// Ermöglicht: Zahlungsart wählen → als bezahlt markieren → Rechnung drucken → auschecken.
+let _kassePaidPending=false;
 // Zahlungs-Badge (Behandelt-Liste): € = Direktzahlung, Beleg = Rechnung; grün wenn bezahlt
 function payBadge(p){
   if(!p || !p.payment || !p.payment.method) return '';
@@ -2798,11 +2802,24 @@ async function kasseSwitchMember(id){
   try{ await savePatient(false); }catch(_){}
   openPatientCard(id);
 }
+function _printerSvg(){ return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>'; }
+function _checkSvg(){ return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M20 6 9 17l-5-5"/></svg>'; }
 function kassePaidBlock(){
-  const psvg='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>';
-  return '<div class="kb-paid-field">'+L2(I18N.kassePaid)+'</div>'+
-    '<div class="kb-print" style="margin-top:12px"><button class="btn sec sm" onclick="printInvoice()">'+psvg+(LX('Rechnung drucken','Print invoice'))+'</button></div>';
+  return '<div class="kb-paid-field">'+_checkSvg()+' '+L2(I18N.kassePaid)+'</div>'+
+    '<div class="kb-print" style="margin-top:12px"><button class="btn sec sm" onclick="printInvoice()">'+_printerSvg()+(LX('Rechnung drucken','Print invoice'))+'</button></div>';
 }
+// Kassen-Schritt 1: als bezahlt markieren (Zahlungsart muss bei Preis>0 gewählt sein). Noch KEIN
+// Auschecken – erst kann die Rechnung gedruckt werden, dann wird über „Auschecken" abgeschlossen.
+function markKassePaid(){
+  if(!canBill()) return;
+  const m=paymentMethod();
+  if(computeBilling().total>0 && !m){ uiAlert(L2(I18N.kassePayRequired)); return; }
+  _loadedPayment = m || _loadedPayment;   // gewählte Zahlungsart festhalten (Radios verschwinden gleich)
+  _kassePaidPending = true;
+  renderKasseBilling();
+}
+// Kassen-Schritt 3: Patient endgültig auschecken (Zahlung wurde zuvor bestätigt).
+function checkoutKassePatient(){ return finishTreatment(); }
 function renderKasseBilling(){
   const box=el('kasse-billing'); if(!box) return;
   const isPaid=(_loadedPaid==='paid');
@@ -2818,9 +2835,21 @@ function renderKasseBilling(){
   if(b.hasUnpriced) h+='<div class="kb-note">'+L2(I18N.kasseUnpricedNote)+'</div>';
   if(editable){
     const cur=paymentMethod()||_loadedPayment;
-    h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
-    PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
-    h+='</div>';
+    if(_kassePaidPending){
+      // Schritt 2/3: als bezahlt markiert – Zahlungsart schreibgeschützt, Rechnung drucken + auschecken.
+      if(cur) h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay-ro" style="font-size:13px;margin-top:2px">'+_esc(payMethodLabel(cur))+'</div>';
+      h+='<div class="kb-paid-field">'+_checkSvg()+' '+L2(I18N.kassePaid)+'</div>';
+      h+='<div class="kb-print" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+
+           '<button class="btn sec sm" onclick="printInvoice()">'+_printerSvg()+(LX('Rechnung drucken','Print invoice'))+'</button>'+
+           '<button class="btn sm" onclick="checkoutKassePatient()">'+(LX('Patient auschecken','Check out patient'))+'</button>'+
+         '</div>';
+    } else {
+      // Schritt 1/3: Zahlungsart wählen, dann „Als bezahlt markieren".
+      h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay">';
+      PAY_METHODS.forEach(m=>{ h+='<label class="chk-chip"><input type="radio" name="kasse_payment" value="'+m.v+'" '+(cur===m.v?'checked':'')+' onchange="renderKasseBilling()"> <span>'+L2(m)+'</span></label>'; });
+      h+='</div>';
+      h+='<div class="kb-print" style="margin-top:12px"><button class="btn sm" '+((computeBilling().total>0 && !cur)?'disabled':'')+' onclick="markKassePaid()">'+_checkSvg()+(LX('Als bezahlt markieren','Mark as paid'))+'</button></div>';
+    }
   } else if(isPaid){
     const m=(_loadedPayment||'');
     if(m) h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay-ro" style="font-size:13px;margin-top:2px">'+_esc(payMethodLabel(m))+'</div>';
@@ -2995,6 +3024,9 @@ async function finishTreatment(){
   if(curStatus==='waiting'){ try{ await savePatient(false); }catch(_){} showList(); return; }
   const kasse = (curStatus==='kasse');   // Patient an der Kasse → Abschluss = Zahlung bestätigen
   if(kasse && computeBilling().total>0 && !paymentMethod()){ await uiAlert(L2(I18N.kassePayRequired)); return; }
+  // Zwei-Schritt an der Kasse: erster Klick markiert „bezahlt" (schaltet Rechnungsdruck frei),
+  // erst der zweite Klick checkt aus. Der In-Box-Button „Als bezahlt markieren" macht dasselbe.
+  if(kasse && !_kassePaidPending && computeBilling().rows.length>0){ markKassePaid(); return; }
   const grp=(cur&&cur.group)?cur.group.trim().toLowerCase():'';
   const isGrp=!!grp && patients.filter(p=>patientDay(p)===listDay&&(p.group||'').trim().toLowerCase()===grp).length>1;
   const target = kasse ? 'done' : 'kasse';
@@ -3790,7 +3822,7 @@ function resetForm(){
   const bDefault=((CURRENT_PROFILE||{}).role==='mfa')?'none':'1';
   const bRad=document.querySelector('input[name="leistung_beratung"][value="'+bDefault+'"]'); if(bRad) bRad.checked=true;
   ['leistung_folge','leistung_bescheinigung'].forEach(id=>_sc(id,false));
-  _loadedPayment=''; _loadedPaid=''; clearFolds();
+  _loadedPayment=''; _loadedPaid=''; _kassePaidPending=false; clearFolds();
   const kb=el('kasse-billing'); if(kb) kb.innerHTML='';
   // Reste des vorher geöffneten Patienten entfernen: Änderungsprotokoll, Folge-Banner, Neu-Patient-Ansicht.
   NEW_PATIENT_MODE=false; clearChangeLogs();
