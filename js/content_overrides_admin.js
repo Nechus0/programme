@@ -65,7 +65,13 @@
       '.co-btn.edit{background:#fff;color:var(--blue,#1a73e8);border:1px solid var(--line,#ccc);padding:5px 10px;font-size:12px;margin-right:4px;}' +
       '.co-msg{margin:8px 0;font-size:var(--fs-sm,13px);}' +
       '.co-msg.ok{color:var(--green,#2e7d32);}.co-msg.err{color:var(--red,#c0392b);}' +
-      '.co-note{color:var(--grey,#666);font-size:12px;margin:4px 0 10px;}';
+      '.co-note{color:var(--grey,#666);font-size:12px;margin:4px 0 10px;}' +
+      '.co-cur{margin:2px 0 4px;padding:10px 12px;background:var(--grey-xl,#f6f7f9);border:1px solid var(--line,#e2e2e2);border-radius:var(--radius-md,8px);}' +
+      '.co-cur-head{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--grey,#666);font-weight:700;margin-bottom:6px;}' +
+      '.co-cur-pills{display:flex;flex-wrap:wrap;gap:6px;}' +
+      '.co-cur-pill{display:inline-block;font-size:12px;background:#fff;border:1px solid var(--line,#ddd);border-radius:12px;padding:3px 10px;}' +
+      '.co-cur-pill b{font-weight:700;color:#333;}' +
+      '.co-cur-pill.hi{background:#ffebee;border-color:#ffcdd2;}.co-cur-pill.mo{background:#fff8e1;border-color:#ffecb3;}.co-cur-pill.lo{background:#e8f5e9;border-color:#c8e6c9;}';
     document.head.appendChild(st);
   }
 
@@ -187,6 +193,7 @@
       '<div class="co-form">' +
         '<div><label>Land *</label><select id="co-country" class="co-inp"><option value="">— wählen —</option>' + countryOptions() + '</select></div>' +
         '<div><label>Krankheit (leer = Länder-Flag)</label><select id="co-disease" class="co-inp"><option value="">— keine (Flag) —</option>' + diseaseOptions() + '</select></div>' +
+        '<div class="full" id="co-current"></div>' +
         '<div><label>Feld *</label><select id="co-field" class="co-inp"></select></div>' +
         '<div><label>Wert *</label><span id="co-value-wrap"></span></div>' +
         '<div><label>Quelle</label><input id="co-source" class="co-inp" placeholder="z. B. ECDC, RKI, CDC"></div>' +
@@ -227,6 +234,40 @@
     } else {
       wrap.innerHTML = '<input id="co-value" class="co-inp" value="' + (cur != null ? esc(cur) : '') + '">';
     }
+    renderCurrentValues();
+  }
+
+  // Zeigt die AKTUELL wirksamen Basiswerte (inkl. bereits aktiver Overrides) für Land/Krankheit
+  // bzw. die Länder-Flags an, damit man sieht, was man überschreibt.
+  function renderCurrentValues() {
+    var wrap = document.getElementById('co-current'); if (!wrap) return;
+    var iso = (document.getElementById('co-country') || {}).value || '';
+    var dis = (document.getElementById('co-disease') || {}).value || '';
+    if (!iso) { wrap.innerHTML = ''; return; }
+    var E = window.ENGINE_DATA || {};
+    function pill(label, val) {
+      var cls = 'co-cur-pill';
+      if (val === 'high') cls += ' hi'; else if (val === 'moderate') cls += ' mo'; else if (val === 'low' || val === 'none') cls += ' lo';
+      var s = (val === true) ? 'Ja' : (val === false ? 'Nein' : (val == null || val === '' ? '—' : String(val)));
+      return '<span class="' + cls + '"><b>' + esc(label) + ':</b> ' + esc(s) + '</span>';
+    }
+    var pills = [], head;
+    if (dis) {
+      var cd = (E.countryDisease && E.countryDisease[iso] && E.countryDisease[iso][dis]) || {};
+      head = 'Aktuell in ' + esc(cName(iso)) + ' · ' + esc(dis);
+      ['risk', 'recommendation', 'endemic', 'outbreak', 'schedule_note', 'tbe_subtype', 'stay_days'].forEach(function (f) {
+        if (cd[f] !== undefined && cd[f] !== null && cd[f] !== '') pills.push(pill(f, cd[f]));
+      });
+      if (!pills.length) pills.push('<span class="co-note" style="margin:0">Keine Basisdaten für diese Krankheit hinterlegt.</span>');
+    } else {
+      var c = (E.countries && E.countries[iso]) || {};
+      head = 'Aktuelle Länder-Flags für ' + esc(cName(iso));
+      ['region', 'polio_category', 'mening_belt', 'yf_cert'].forEach(function (f) {
+        if (c[f] !== undefined && c[f] !== null && c[f] !== '') pills.push(pill(f, c[f]));
+      });
+      if (!pills.length) pills.push('<span class="co-note" style="margin:0">Keine Flags hinterlegt.</span>');
+    }
+    wrap.innerHTML = '<div class="co-cur"><div class="co-cur-head">' + head + '</div><div class="co-cur-pills">' + pills.join('') + '</div></div>';
   }
 
   function wireCountry(root, rows) {
@@ -234,8 +275,9 @@
     root.querySelectorAll('.co-btn.edit').forEach(function (b) {
       b.onclick = function () { _edit = rows.find(function (o) { return String(o.id) === b.getAttribute('data-id'); }) || null; renderCountries().then(prefillCountry); };
     });
-    var dsel = document.getElementById('co-disease'), fsel = document.getElementById('co-field');
-    if (dsel) dsel.onchange = renderFieldSelect;
+    var csel = document.getElementById('co-country'), dsel = document.getElementById('co-disease'), fsel = document.getElementById('co-field');
+    if (csel) csel.onchange = renderCurrentValues;
+    if (dsel) dsel.onchange = renderFieldSelect;   // renderFieldSelect ruft am Ende renderCurrentValues
     if (fsel) fsel.onchange = renderValueInput;
     renderFieldSelect();
     if (!_edit) { /* leere Form */ }
