@@ -67,7 +67,7 @@
     if (document.getElementById('co-style')) return;
     var st = document.createElement('style'); st.id = 'co-style';
     st.textContent =
-      '.co-wrap{font-size:var(--fs-sm,13px);}' +
+      '.co-wrap{font-size:var(--fs-sm,13px);max-width:900px;}' +
       '.co-subtabs{display:flex;gap:8px;border-bottom:1px solid var(--line,#e2e2e2);margin:6px 0 14px;}' +
       '.co-subtabs button{background:none;border:none;padding:8px 12px;cursor:pointer;font-weight:600;color:var(--grey,#666);border-bottom:2px solid transparent;font-size:var(--fs-sm,13px);}' +
       '.co-subtabs button.active{color:var(--blue,#1a73e8);border-bottom-color:var(--blue,#1a73e8);}' +
@@ -117,7 +117,10 @@
         '<h2>Epidemiologische Inhalte &amp; Medikamente</h2>' +
         '<div class="card-desc">Länderrisiken, Ausbrüche, Länder-Flags und Medikamenten-Einstufungen anpassen. Overrides überschreiben die App-Basisdaten und wirken sofort.</div>' +
         '<div id="co-body" class="co-wrap"></div>';
-      panel.appendChild(sec);
+      // In denselben zentrierten Container (.admin-body, max 1000px) einhängen wie die übrigen
+      // Einstellungs-Sektionen, damit Breite/Layout zum Rest passen (nicht ins vollbreite #admin-panel).
+      var host = panel.querySelector('.admin-body') || panel;
+      host.appendChild(sec);
     }
     return sec;
   }

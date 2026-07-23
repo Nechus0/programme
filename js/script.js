@@ -2884,7 +2884,7 @@ function renderKasseBilling(){
   if(!editable && !isPaid){ box.innerHTML=''; return; }
   const b=computeBilling();
   let h=(editable?kasseGroupBar():'')+'<div class="kb-title">'+L2(I18N.kasseBillTitle)+'</div>';
-  if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'+(isPaid?kassePaidBlock():''); return; }
+  if(!b.rows.length){ box.innerHTML=h+'<div class="leistung-empty">'+L2(I18N.kasseNoItems)+'</div>'+((isPaid&&!editable)?kassePaidBlock():''); return; }
   h+='<div class="kb-rows">';
   b.rows.forEach(r=>{ h+='<div class="kb-row'+(r.vax?' kb-vax':'')+'"><span class="kb-l">'+_esc(r.label)+(r.code?' <span class="kb-code">'+_esc(r.code)+'</span>':'')+'</span><span class="kb-p">'+(r.unpriced?('<span class="kb-manual">'+L2(I18N.kassePriceManual)+'</span>'):eur(r.price))+'</span></div>'; });
   h+='</div>';
@@ -2920,7 +2920,9 @@ function renderKasseBilling(){
     const m=(_loadedPayment||'');
     if(m) h+='<div class="kb-pay-title">'+L2(I18N.kassePayTitle)+'</div><div class="kb-pay-ro" style="font-size:13px;margin-top:2px">'+_esc(payMethodLabel(m))+'</div>';
   }
-  if(isPaid) h+=kassePaidBlock();
+  // kassePaidBlock nur im schreibgeschützten Nach-Auscheck-Zustand (nicht editable). Im editierbaren
+  // paidNow-Zweig ist das „Bezahlt"-Feld + Drucken/Zurücksetzen bereits enthalten (sonst doppelt).
+  if(isPaid && !editable) h+=kassePaidBlock();
   box.innerHTML=h;
 }
 // Leitet das korrekte „geplant"-Flag eines Termin-Items ab. Normale Terminplan-Items tragen
