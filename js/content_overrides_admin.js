@@ -91,6 +91,8 @@
       '.co-chip{cursor:pointer;font-size:12px;background:#fff;border:1px solid var(--line,#ddd);border-radius:12px;padding:3px 10px;}' +
       '.co-chip:hover{border-color:var(--blue,#1a73e8);}' +
       '.co-chip.ov{background:#fff8e1;border-color:#ffd54f;}' +
+      '.co-chip.ob{border-color:#c0392b;color:#c0392b;font-weight:600;}' +
+      '.co-chip.ob.ov{background:#fff8e1;}' +
       '.co-grp.hi .co-secline{color:#c0392b;}.co-grp.mo .co-secline{color:#b26a00;}.co-grp.lo .co-secline{color:#2e7d32;}' +
       '.co-detail{margin-top:10px;padding:12px;border:1px solid var(--line,#e2e2e2);border-radius:var(--radius-md,8px);background:var(--grey-xl,#f6f7f9);}' +
       '.co-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}' +
@@ -339,12 +341,12 @@
       if (!groups[r]) groups[r] = [];
       groups[r].push({ iso: iso, outbreak: !!e.outbreak, ov: ['risk','recommendation','endemic','outbreak'].some(function (f) { return ovFor('country_disease', iso, d, f); }) });
     });
-    var h = '';
+    var h = '<div class="co-note" style="margin-top:0">Dunkelrot umrandet = aktueller Ausbruch · gelb hinterlegt = Override aktiv.</div>';
     RISK_ORDER.forEach(function (r) {
       var arr = groups[r] || []; if (!arr.length) return;
       var cls = r === 'high' ? 'hi' : (r === 'moderate' ? 'mo' : (r === 'low' ? 'lo' : ''));
       h += '<div class="co-grp ' + cls + '"><div class="co-secline">' + esc(RISK_DE[r] || '—') + ' <span class="co-cnt">' + arr.length + '</span></div><div class="co-chips">' +
-        arr.map(function (x) { return '<span class="co-chip' + (x.ov ? ' ov' : '') + '" data-iso="' + x.iso + '">' + esc(cName(x.iso)) + (x.outbreak ? ' 🔥' : '') + '</span>'; }).join('') +
+        arr.map(function (x) { return '<span class="co-chip' + (x.ov ? ' ov' : '') + (x.outbreak ? ' ob' : '') + '" data-iso="' + x.iso + '"' + (x.outbreak ? ' title="Aktueller Ausbruch"' : '') + '>' + esc(cName(x.iso)) + '</span>'; }).join('') +
         '</div></div>';
     });
     h += '<div id="co-ddetail"></div>';
