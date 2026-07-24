@@ -1403,7 +1403,7 @@ function buildDoseChips(spec, cur, mkClick){
     const isEx=cur===combo.ex[0], isGt=cur===combo.gt[0], sel=isEx||isGt;
     const next=isEx?combo.gt[0]:(isGt?'':combo.ex[0]);
     const label=isGt?combo.gt[1]:combo.ex[1];
-    const tip=isGt?(LANG==='de'?'mehr als '+combo.ex[1]+' – erneut klicken zum Abwählen':(LANG==='fr'?'plus de '+combo.ex[1]+' – recliquer pour désélectionner':'more than '+combo.ex[1])):(LANG==='de'?'genau '+combo.ex[1]+' – erneut klicken für „>'+combo.ex[1]+'“':(LANG==='fr'?'exactement '+combo.ex[1]+' – recliquer pour « >'+combo.ex[1]+' »':'exactly '+combo.ex[1]+' – click again for ">'+combo.ex[1]+'"'));
+    const tip=isGt?(LANG==='de'?'mehr als '+combo.ex[1]+' – erneut klicken zum Abwählen':(LANG==='fr'?'plus de '+combo.ex[1]+' – recliquer pour désélectionner':'more than '+combo.ex[1])):(LANG==='de'?'genau '+combo.ex[1]+' – erneut klicken für „>'+combo.ex[1]+'“':(LANG==='fr'?'exactement '+combo.ex[1]+' – recliquer pour « >'+combo.ex[1]+' »':'exactly '+combo.ex[1]+' – click again for &quot;>'+combo.ex[1]+'&quot;'));
     h+='<span class="dose-chip combo'+(sel?' selected':'')+(isGt?' gt':'')+'" '+mkClick(next)+' title="'+tip+'">'+label+'</span>';
   }
   return h+'</div>';
